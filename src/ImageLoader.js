@@ -5,8 +5,8 @@ let ImageLoader = class
 {
     async loadImgs()
     {
-	this.loadImg("T_0", '../assets/sprite/tile0.png');
-	this.loadImg("T_1", '../assets/sprite/tile1.png');
+	this.loadImg("T_0", 'assets/sprite/tile0.png');
+	this.loadImg("T_1", 'assets/sprite/tile1.png');
 	this.loadImg("T_2");
 	this.loadImg("T_3");
 	this.loadImg("T_4");
@@ -63,7 +63,7 @@ let ImageLoader = class
 	this.images[artName].onload = (() => {this.loaded ++;})
 	if(fpath == null)
 	{
-	    this.images[artName].src = '../assets/sprite/' + artName + '.png';
+	    this.images[artName].src = 'assets/sprite/' + artName + '.png';
 	}
 	else
 	{
