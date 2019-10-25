@@ -18,11 +18,11 @@ class MusicPlayer
     load( name, intro = true, loops = true )
     {
 	console.log("loading");
-	let s = new WaudSound("../assets/music/" + name + "_L" + EXT, {loop:loops, volume:0.5});
+	let s = new WaudSound("assets/music/" + name + "_L" + EXT, {loop:loops, volume:0.5});
 	this.album[name] = {l:[], fade:null};
 	if (intro)
 	{
-	    let i = new WaudSound("../assets/music/" + name + "_I" + EXT, {loop:false, volume:0.5});
+	    let i = new WaudSound("assets/music/" + name + "_I" + EXT, {loop:false, volume:0.5});
 	    i.onEnd( ()=> {this.album[name].l[1].play() });
 	    this.album[name].l.push(i);
 	}
