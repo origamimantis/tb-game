@@ -53,7 +53,7 @@ class SpriteFont
 	this.g = g;
 	this.img = new Image();
 	this.img.onload = ()=>{this.fsize = this.img.width/8;};
-	this.img.src = '../assets/sprite/' + fontImg + '.png'
+	this.img.src = 'assets/sprite/' + fontImg + '.png'
     }
     drawText(ctx, str, x, y, scale = 1, width = 100, height= 4)
     {
