@@ -26,7 +26,7 @@ g.mainloop();
 setTimeout( () => {
     //                     [hp,atk,spd,def,con,mov]
     let leploss = addUnit("Leader",4,6,
-	{"maxhp":40,"hp":40,"atk":18,"spd":17,"skl":-1111,"def":14,"con":15,"mov":9},"Leploss");
+	{"maxhp":40,"hp":40,"atk":18,"spd":17,"skl":11,"def":14,"con":15,"mov":9},"Leploss");
     leploss.weapons.push(new Weapons.Skofnung());
     //leploss.curWeap().activate();
     
