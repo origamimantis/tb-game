@@ -2,6 +2,7 @@
 turn based strategy game
 
 no license => don't use this anywhere.
-for portfolio
+
+Uploaded for portfolio reasons.
 
 also, not at all close to finishing
