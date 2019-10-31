@@ -9,7 +9,13 @@ import {LoopSelector} from "./LoopSelector.js";
 
 class Inputter
 {
-    constructor(g) {this.g = g; this.inputted = false}
+    constructor(g)
+    {
+	this.g = g;
+	this.inputted = false;
+	this.bufx = 0;
+	this.bufy = 0;
+    }
 
     handleInput()
     {
@@ -41,11 +47,11 @@ class Inputter
     {
 	if(this.g.keyTrack.isDown("ArrowUp"   )||this.g.keyTrack.isDown("KeyW"))
 	{
-	    this._arrow(0,1);
+	    this._arrow(0,-1);
 	}
 	if(this.g.keyTrack.isDown("ArrowDown" )||this.g.keyTrack.isDown("KeyS"))
 	{
-	    this._arrow(0,-1);
+	    this._arrow(0, 1);
 	}
 	if(this.g.keyTrack.isDown("ArrowLeft" )||this.g.keyTrack.isDown("KeyA"))
 	{
@@ -55,6 +61,11 @@ class Inputter
 	{
 	    this._arrow(1,0);
 	}
+	this.bufx = Math.min(1, Math.max(-1, this.bufx));
+	this.bufy = Math.min(1, Math.max(-1, this.bufy));
+	this.g.cursor.move(this.bufx, this.bufy);
+	this.bufx = 0;
+	this.bufy = 0;
     }
     selection()
     {
@@ -230,13 +241,15 @@ class Inputter
     {
 	if      (this.g.mode == "idle"     )
 	{
-	    this.g.cursor.move(dx,dy);
+	    this.bufx += dx;
+	    this.bufy += dy;
 	    this.inputted = true;
 	    this.g.profileShown = false;
 	}
 	else if (this.g.mode == "selecting")
 	{
-	    this.g.cursor.move(dx,dy);
+	    this.bufx += dx;
+	    this.bufy += dy;
 	    this.inputted = true;
 	    this.g.profileShown = false;
 	}

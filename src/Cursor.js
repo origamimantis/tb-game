@@ -19,8 +19,8 @@ class Cursor extends MapObject
 	this.xMin = 0;
         this.yMin = 0;
 	
-	this.bufX = 0;
-        this.bufY = 0;
+	this.dx = 0;
+        this.dy = 0;
         
 	this.prevdelta = [0,0];
 
@@ -44,8 +44,8 @@ class Cursor extends MapObject
     stop()
     {
 	this.moving = false;
-	this.bufX = 0;
-	this.bufY = 0;
+	this.dx = 0;
+	this.dy = 0;
 	this.velX = 0;
 	this.velY = 0;
     }
@@ -54,8 +54,8 @@ class Cursor extends MapObject
     {
         if (!this.moving)
 	{
-	    this.bufX += dx;
-	    this.bufY += dy;
+	    this.dx = dx;
+	    this.dy = dy;
 	}
     }
     setMotion(x,y, speed)
@@ -63,12 +63,12 @@ class Cursor extends MapObject
 	if (!this.moving)
 	{
 	    this.usrmov = false;
-	    this.bufX = x-this.x;
-	    this.bufY = y-this.y;
-	    if (this.bufX != 0 || this.bufY != 0)
+	    this.dx = x-this.x;
+	    this.dy = y-this.y;
+	    if (this.dx != 0 || this.dy != 0)
 	    {
 		this.visible = false;
-		this.modftm = Math.round(3*Math.sqrt(Math.pow(this.bufX,2) + Math.pow(this.bufY,2)));
+		this.modftm = Math.round(3*Math.sqrt(Math.pow(this.dx,2) + Math.pow(this.dy,2)));
 	    }
 	    this.setVel();
 	}
@@ -98,25 +98,19 @@ class Cursor extends MapObject
     {
 	if (!this.moving)
 	{
-	    let dx;
-	    let dy;
 	    let ftm;
 	    if (this.usrmov)
 	    {
 		this.ftm = this.usrftm;
-		dx =  Math.max(-1,Math.min(1,this.bufX));
-		dy = -Math.max(-1,Math.min(1,this.bufY));
 	    }
 	    else
 	    {
 		this.ftm = this.modftm;
-		dx = this.bufX;
-		dy = this.bufY;
 	    }
 	    this.oldx = this.x;
 	    this.oldy = this.y;
-	    this.x = Math.max(this.xMin,Math.min(this.xMax,this.x + dx ) );
-	    this.y = Math.max(this.yMin,Math.min(this.yMax,this.y + dy ) );
+	    this.x = Math.max(this.xMin,Math.min(this.xMax,this.x + this.dx ) );
+	    this.y = Math.max(this.yMin,Math.min(this.yMax,this.y + this.dy ) );
 
 	    this.prevdelta = [this.x-this.oldx, this.y-this.oldy];
 
@@ -126,8 +120,8 @@ class Cursor extends MapObject
 	    
 	    if (this.velX != 0 || this.velY != 0)
 	    {this.moving = true;}
-	    this.bufX = 0;
-	    this.bufY = 0;
+	    this.dx = 0;
+	    this.dy = 0;
 	}
     }
     logUnit(g)
