@@ -478,8 +478,8 @@ class Game
 
     loop()
     {
-	//requestAnimationFrame(this.loop.bind(this));
-	setTimeout( () => {requestAnimationFrame(() => {this.loop()});}, TICK_RATE);
+	//setTimeout( () => {requestAnimationFrame(() => {this.loop()});}, TICK_RATE);
+	requestAnimationFrame(() => {this.loop()});
 	this.update();
 	this.draw();
     }
