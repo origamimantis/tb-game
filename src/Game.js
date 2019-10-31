@@ -355,7 +355,6 @@ class Game
 		console.log("drew cursor");
 		this.cursor.draw(2, SCALE);
 	    }
-	   /* 
 	    // LAYER 3 - info panels
 	    let hoverunit = this.map.getTile(this.cursor.x, this.cursor.y).unit;
 	    //console.log(this.profileShown);
@@ -394,7 +393,6 @@ class Game
 		this.drawunittag(this.battle.units.a, 0   ,0);
 		this.drawunittag(this.battle.units.d, gx*7,0);
 	    }*/
-	    /*
 	    if (this.mode == "turnopt")
 	    {
 		let x = gx*10;
@@ -429,9 +427,6 @@ class Game
 	    }
 
 	    // LAYER FINAL
-	    this.ctx[4].drawImage( this.can[2], 0,0,C_WIDTH,C_HEIGHT);
-	    this.ctx[4].drawImage( this.can[3], 0,0,C_WIDTH,C_HEIGHT);
-	}*/
 	    this.ctx[4].drawImage( this.can[2], 0,0,C_WIDTH,C_HEIGHT);
 	    this.ctx[4].drawImage( this.can[3], 0,0,C_WIDTH,C_HEIGHT);
 	}
