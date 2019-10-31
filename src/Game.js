@@ -311,6 +311,7 @@ class Game
 	    
 	    if (this.cursor.moving || this.drawBG)
 	    {
+		console.log("drew BG");
 		this.map.draw(this, 0, SCALE);
 		this.drawBG = false;
 	    }
@@ -321,6 +322,7 @@ class Game
 
 	    if (["selecting", "to turnopt"].includes(this.mode))
 	    {
+		console.log("drew movable");
 		// movable tiles
 		this.drawtiles(1, this.selectedUnit.movlist, "C_move");
 		
@@ -333,6 +335,7 @@ class Game
 	    }
 	    else if(  (this.mode=="turnopt"&&this.turnopt.get()=="attack") || this.mode == "atktarget")
 	    {
+		console.log("drew attackable");
 		this.drawtiles(1, inRange(this.selectedUnit.destx, this.selectedUnit.desty, this.selectedUnit.curWeap().range,"tiles"), "C_atk");
 	    }
 	    
@@ -341,6 +344,7 @@ class Game
 	    
 	    for (let uid in this.units)
 	    {
+		console.log("drew units");
 		if (this.units[uid].x != null && this.units[uid].y != null)
 		{
 		    this.units[uid].draw(2, SCALE);
@@ -348,9 +352,10 @@ class Game
 	    }
 	    if (this.cursor.visible)
 	    {
+		console.log("drew cursor");
 		this.cursor.draw(2, SCALE);
 	    }
-	    
+	   /* 
 	    // LAYER 3 - info panels
 	    let hoverunit = this.map.getTile(this.cursor.x, this.cursor.y).unit;
 	    //console.log(this.profileShown);
@@ -389,6 +394,7 @@ class Game
 		this.drawunittag(this.battle.units.a, 0   ,0);
 		this.drawunittag(this.battle.units.d, gx*7,0);
 	    }*/
+	    /*
 	    if (this.mode == "turnopt")
 	    {
 		let x = gx*10;
@@ -425,7 +431,7 @@ class Game
 	    // LAYER FINAL
 	    this.ctx[4].drawImage( this.can[2], 0,0,C_WIDTH,C_HEIGHT);
 	    this.ctx[4].drawImage( this.can[3], 0,0,C_WIDTH,C_HEIGHT);
-	}
+	}*/
 
     }
     
