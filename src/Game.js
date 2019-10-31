@@ -432,7 +432,7 @@ class Game
 	    this.ctx[4].drawImage( this.can[2], 0,0,C_WIDTH,C_HEIGHT);
 	    this.ctx[4].drawImage( this.can[3], 0,0,C_WIDTH,C_HEIGHT);
 	}*/
-
+	}
     }
     
     fight( attacker, defender)
