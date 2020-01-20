@@ -260,12 +260,14 @@ class Inputter
 		this.g.keyTrack.disableUntilUp("ArrowDown");this.g.keyTrack.disableUntilUp("KeyS");
 		this.g.mapopt.next();
 		this.inputted = true;
+		console.log("down");
 	    }
 	    else if (dy ==  1)
 	    {
 		this.g.keyTrack.disableUntilUp("ArrowUp"  );this.g.keyTrack.disableUntilUp("KeyW");
 		this.g.mapopt.prev();
 		this.inputted = true;
+		console.log("up");
 	    }
 
 	}

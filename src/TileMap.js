@@ -9,64 +9,52 @@ class Tile
     {
 	this.tile = tiletype;
 	this.unit = null;
-	this.art = tm.g.artbook.getImg(tm.artmap[arttype]);
+	this.art = tm.artmap[arttype];
     }
 }
 
 
 class TileMap
 {
-    constructor( g, tilePath )
+    constructor()
     {
-	// request local file using http
-	this.g = g;
-	let request = new XMLHttpRequest();
-	request.overrideMimeType("text/plain");
-	request.open("GET", tilePath, false);
-	request.send(null);
-	this.g.pftiles = this.constructArr(request.responseText);
+      this.map = [];
+      this.dimension = {"y":0, "x":0};
+      this.artmap = {};
     }
-
-    constructArr(text)
+    generate( text )
     {
-	let lines = text.split("\n");
-	
-	// last line is empty - let's get rid of it
-	lines.pop()
-	
-	this.setDimension(lines[0]);
-	this.setArtMapping(lines[1]);
+      let lines = text.split("\n");
+      
+      // last line is empty - let's get rid of it
+      lines.pop()
+      
+      this.setDimension(lines[0]);
+      this.setArtMapping(lines[1]);
 
-	this.map = []
-	let typemap = [];
-	for ( let i = 0; i < this.dimension.y; ++i )
+      for ( let i = 0; i < this.dimension.y; ++i )
+      {
+	let row = [];
+	let tiletypes = lines[i+2].split(" ");
+	for ( let j = 0; j < this.dimension.x; ++j )
 	{
-	    let row = [];
-	    let trow = [];
-	    let tiletypes = lines[i+2].split(" ");
-	    for ( let j = 0; j < this.dimension.x; ++j )
-	    {
-		let artile = tiletypes[j].split(':');
-		row.push( new Tile(this, ...artile ) );
-		trow.push( artile[1] );
-	    }
-	    typemap.push(trow);
-	    this.map.push(row);
+	    let artile = tiletypes[j].split(':');
+	    row.push( new Tile(this, ...artile ) );
 	}
-	console.log("Tilemap parsed and created.");
-	return typemap;
+	this.map.push(row);
+      }
     }
 
     setDimension( s )
     {
 	let t = s.split(" ");
-	this.dimension = {"y":+t[0], "x":+t[1]};
+	this.dimension.y = +t[0];
+	this.dimension.x = +t[1];
     }
 
     setArtMapping( s )
     {
 	let t = s.split(" ");
-	this.artmap = {};
 	for (let pair of t)
 	{
 	    let pArr = pair.split(":");

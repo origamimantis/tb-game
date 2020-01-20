@@ -1,0 +1,2 @@
+redo game engine: each object has x,y,frame, art attributes (as a string for lookup probably)
+then pass that as json to drawer.
