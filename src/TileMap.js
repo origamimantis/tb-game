@@ -77,19 +77,19 @@ class TileMap
 	this.getTile(unit.x, unit.y).unit = null;
     }
 
-    draw( g, ctx, s )
+    draw( g )
     {
-	let ymin = Math.max(0, Math.floor(g.camera.y));
-	let ymax = Math.min( this.dimension.y, Math.floor(g.camera.y) + g.camera.sizeY + 1);
-	let xmin = Math.max(0, Math.floor(g.camera.x));
-	let xmax = Math.min( this.dimension.x, Math.floor(g.camera.x) + g.camera.sizeX + 1);
-	for (let y = ymin; y < ymax; y++)
+      for (let x = 0; x < this.dimension.x; ++x)
+      {
+	for (let y = 0; y < this.dimension.y; ++y)
 	{
-	    for (let x = xmin; x < xmax; x++)
-	    {
-		g.ctx[ctx].drawImage(this.getTile(x,y).art,(x - g.camera.x)*32*s, (y - g.camera.y)*32*s, s*32, s*32);
-	    }
+	  g.ctx[0].drawImage(
+	    g.Album.get(
+	      this.getTile(x,y).art), 
+	    x*g.grid.x, y*g.grid.y,
+	    g.grid.x, g.grid.y);
 	}
+      }
     }
 }
 
@@ -105,19 +105,4 @@ tileart:tiletype tileart:tiletype  //tiles
 tileart:tiletype tileart:tiletype
 tileart:tiletype tileart:tiletype
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 */
-
-

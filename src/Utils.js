@@ -1,9 +1,9 @@
 'use strict'
 
-var requestFile = function (url, method)
+let requestFile = function (url, method)
 {
   // Create the XHR request
-  var request = new XMLHttpRequest();
+  let request = new XMLHttpRequest();
 
   // Return it as a Promise
   return new Promise( (resolve, reject) =>
@@ -37,5 +37,10 @@ var requestFile = function (url, method)
     });
 };
 
+function triggerEvent(name, detail)
+{
+  document.dispatchEvent(new CustomEvent(name, {detail: detail}));
+}
 
-export {requestFile};
+
+export {requestFile, triggerEvent};

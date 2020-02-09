@@ -1,5 +1,5 @@
 'use strict';
-const LOGKEYS = false;
+const LOGKEYS = true;
 
 class KeyTracker
 {

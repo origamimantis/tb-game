@@ -1,21 +1,21 @@
 'use strict';
 
-import {MapObject} from "./MapObject.js";
+import {AnimatedObject} from "./AnimatedObject.js";
 import {Animation} from "./Animation.js";
 
 const LOGGING = false;
 
-class Cursor extends MapObject
+class Cursor extends AnimatedObject
 {
     constructor(g, x, y, framesToMove) // x,y determines basicaly the default camera location
     {
 	super(g,x,y);
 
 	//visuals
-	this.addAnim( 0, new Animation( g, "C_c0", [30,10,10,10], true, [4,4] ));
+	this.addAnim( 0, new Animation( "C_c0", [30,10,10,10], true, [4,4] ));
 
-	this.xMax = g.map.dimension.x - 1;
-        this.yMax = g.map.dimension.y - 1;
+	this.xMax = g.Map.dimension.x - 1;
+        this.yMax = g.Map.dimension.y - 1;
 	this.xMin = 0;
         this.yMin = 0;
 	
@@ -52,11 +52,15 @@ class Cursor extends MapObject
     
     move( dx, dy )
     {
+      this.x += dx;
+      this.y += dy;
+      /*
         if (!this.moving)
 	{
 	    this.dx = dx;
 	    this.dy = dy;
 	}
+	*/
     }
     setMotion(x,y, speed)
     {
@@ -73,8 +77,9 @@ class Cursor extends MapObject
 	    this.setVel();
 	}
     }
-    draw(ctx, s)
+    draw(g, ctx, s)
     {
+      /*
 	if (this.g.mode == "atktarget")
 	{
 	    let img = this.curImg();
@@ -91,7 +96,8 @@ class Cursor extends MapObject
 	{
 	    super.draw(ctx, s);
 	}
-
+	*/
+      super.draw(g, ctx, s);
 
     }
     setVel()

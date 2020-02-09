@@ -6,27 +6,23 @@ import {Unit} from "./Unit.js";
 import {Units} from "./TypeUnits.js";
 import {Animation} from "./Animation.js";
 import {AnimFrame} from "./AnimFrame.js";
+import {Interpreter} from "./Interpreter.js";
 import {Weapon, Weapons} from "./Weapon.js";
+
 
 
 load(
   {
     MapPath : "assets/tilemaps/lvl1.txt",
-    ImgLoad : ["P_gen", "P_janitor"]
+    ImgLoad : ["P_gen", "P_janitor", "T_0", "T_1", "S_kn0", "C_c0"]
   })
 .then( (thing) => 
   {
     console.log(thing);
-
-    let ncan = document.getElementById("canvases").appendChild(document.createElement("canvas"));
-    let ctx = ncan.getContext("2d");
-    ctx.drawImage(thing.Album.get("P_gen"), 0, 0);
-    
-    ncan = document.getElementById("canvases").appendChild(document.createElement("canvas"));
-    ctx = ncan.getContext("2d");
-    ctx.drawImage(thing.Album.get("P_janitor"), 50, 0);
-
     let game = new Game(thing);
     game.mainloop();
+
+    let interpreter = new Interpreter(game);
+    interpreter.execute("assets/scripts/test.txt");
   });
 
