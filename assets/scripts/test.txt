@@ -1,0 +1,10 @@
+ADDUNIT 0 4 2
+
+ADDUNIT 1 2 3
+
+# WAIT 3
+
+# DELUNIT 1 2 3
+
+# this should fail
+# ATTACK 0 1
