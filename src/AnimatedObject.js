@@ -29,10 +29,16 @@ class AnimatedObject
   {
     this.curAnimName = name;
   }
-  draw( g, ctx, s )
+  draw( g, ctx, s = 1, x = null, y = null )
   {
-    let x = this.x*g.grid.x;
-    let y = this.y*g.grid.y;
+    if (x == null || y == null)
+    {
+      x = this.x;
+      y = this.y;
+    }
+
+    x = x*g.grid.x;
+    y = y*g.grid.y;
 
     this.curAnim().draw(g, ctx, x, y);
   }

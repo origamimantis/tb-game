@@ -34,6 +34,7 @@ const gx = GRIDSIZE_X;
 const gy = GRIDSIZE_Y;
 
 const FPS = 60;
+const CURSOR_SPEED = 4;
 
 const FONTSIZE = "48";
 const FONT = "Times New Roman";
@@ -62,7 +63,7 @@ class Game
     this.stateStack = [];
     this.grid = {x:gx, y:gy};
     
-    this.cursor = new Cursor(this, 0, 0, 6);
+    this.cursor = new Cursor(this, 0, 0, CURSOR_SPEED);
 
     this.camera = {x:0, y:0};
 
@@ -92,9 +93,7 @@ class Game
   
   loadKeyTracker()
   {
-      this.keyTrack = new KeyTracker();
-      document.addEventListener( "keydown", ( e ) => {this.keyTrack.onKeyDown( e )} );
-      document.addEventListener( "keyup", ( e ) => {this.keyTrack.onKeyUp( e )} );
+      //this.keyTrack = new KeyTracker();
       document.addEventListener( "click", ( e ) => 
 	  {
 	    //console.log(getTile(this, e.clientX, e.clientY, GRIDSIZE_X, GRIDSIZE_Y).unit);
@@ -135,11 +134,13 @@ class Game
   }
   update()
   {
+    this.Inputter.update();
+    this.cursor.update();
   }
   mainloop()
   {
     requestAnimationFrame(() => {this.mainloop()});
-    //setTimeout( () => {requestAnimationFrame(() => {this.loop()});}, TICK_RATE);
+    //setTimeout( () => {requestAnimationFrame(() => {this.mainloop()});}, TICK_RATE);
     this.update();
     this.draw();
   }

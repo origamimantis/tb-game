@@ -1,43 +1,71 @@
 'use strict';
-const LOGKEYS = true;
+
+import {triggerEvent} from "./Utils.js";
+
+const LOGKEYS = false;
 
 class KeyTracker
 {
     constructor()
     {
 	this.pressed = {}
-	this.pressOnce = {};
+      this.pressedThisTick = [];
     }
 
     isDown( keyCode )
     {
-	return this.pressed[keyCode];
+	return this.pressed[keyCode] >= 1;
     }
-    onKeyDown( e )
+    isHeld( keyCode )
     {
-	if (LOGKEYS)
-	{
-	    console.log("dn: ",e.code);
-	}
-	if (!(this.pressOnce[e.code]))
-	{
-	    this.pressed[e.code] = true;
-	}
+	return this.pressed[keyCode] > 1;
     }
-    onKeyUp( e )
+  allPressed()
+  {
+    return pressedThisTick;
+  }
+ 
+  onKeyDown( e )
+  {
+    if (LOGKEYS)
     {
-	if (LOGKEYS)
-	{
-	    console.log("up: ",e.code);
-	}
-	delete this.pressed[e.code];
-	delete this.pressOnce[e.code];
+	console.log("dn: ",e.code);
     }
-    disableUntilUp( e )
+    if (this.pressed[e.code] == undefined)
     {
-	delete this.pressed[e];
-	this.pressOnce[e] = true;
+      this.pressed[e.code] = 1;
+      triggerEvent("input_keydown", {code: e.code});
     }
+    else
+    {
+      ++ this.pressed[e.code];
+      this.pressedThisTick.push(e.code);
+      for (let t of Object.keys(this.pressed))
+      {
+	++ this.pressed[t];
+      }
+    }
+  }
+  onKeyUp( e )
+  {
+      if (LOGKEYS)
+      {
+	  console.log("up: ",e.code);
+      }
+      delete this.pressed[e.code];
+  }
+  update()
+  {
+    for (let t of Object.keys(this.pressed))
+    {
+      if (this.isHeld(t))
+      {
+	triggerEvent("input_keydown", {code: t});
+      }
+    }
+  }
+
+  
 }
 
 
