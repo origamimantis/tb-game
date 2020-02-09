@@ -68,6 +68,14 @@ class Inputter
     if (this.pressed[key] == undefined)
     {
       this.pressed[key] = KeyState.ONCE;
+      if (key == SELECT)
+      {
+	triggerEvent("input_select");
+      }
+      else if (key == CANCEL)
+      {
+	triggerEvent("input_cancel");
+      }
     }
     else
     {
@@ -106,10 +114,13 @@ class Inputter
     if (a.once.length > 0)
     {
 
-      for (let d of a.once)
+      if (a.held.length == 0)
       {
-	  this.delta.x += ARROWS[d].x;
-	  this.delta.y += ARROWS[d].y;
+	for (let d of a.once)
+	{
+	    this.delta.x += ARROWS[d].x;
+	    this.delta.y += ARROWS[d].y;
+	}
       }
       triggerEvent("input_arrowStall");
     }

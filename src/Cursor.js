@@ -2,6 +2,7 @@
 
 import {AnimatedObject} from "./AnimatedObject.js";
 import {Animation} from "./Animation.js";
+import {triggerEvent} from "./Utils.js";
 
 const LOGGING = false;
 
@@ -45,12 +46,34 @@ class Cursor extends AnimatedObject
   {
     if (this.triggerMove)
     {
-      this.triggerMove = false;
-      this.moving = true;
-      this.moveChain(this.speed);
+      let inx = this.inBounds("x");
+      let iny = this.inBounds("y");
+      if (inx || iny)
+      {
+	if (!inx)
+	{
+	  this.buf.x = 0;
+	}
+	if (!iny)
+	{
+	  this.buf.y = 0;
+	}
+	this.triggerMove = false;
+	this.moving = true;
+	this.moveChain(this.speed);
+      }
+      else
+      {
+	this.clearMoveBuffer();
+      }
     }
   }
 
+  inBounds(c)
+  {
+      return ( this[c] + this.buf[c] <= this.max[c]
+	    && this[c] + this.buf[c] >= this.min[c]);
+  }
   clearMoveBuffer()
   {
     this.buf = {x: 0,
@@ -66,8 +89,9 @@ class Cursor extends AnimatedObject
       this.vis.x = this.x;
       this.vis.y = this.y;
       this.clearMoveBuffer();
+      this.moving = false;
 
-      requestAnimationFrame(() => {this.moving = false;});
+      triggerEvent("game_cursorMove", {x:this.x, y:this.y});
     }
     else
     {
