@@ -34,7 +34,7 @@ class Animation
     this.age = 0;
     this.curFrame = 0;
   }
-  draw(g, layer, x, y)
+  draw(g, layer, x, y, s)
   {
     let img = g.Album.get(this.image)
     
@@ -44,7 +44,7 @@ class Animation
     //let x = this.x*g.grid.x;
     //let y = this.y*g.grid.y;
 
-    g.ctx[layer].drawImage(img, w*this.curFrame, 0, w, h, x, y, g.grid.x, g.grid.y);
+    g.ctx[layer].drawImage(img, w*this.curFrame, 0, w, h, x, y, g.grid.x*s, g.grid.y*s);
 
     this.tick();
 

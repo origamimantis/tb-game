@@ -5,10 +5,8 @@ import {Unit} from "./Unit.js";
 //import {Path} from "./Path.js";
 //import {PathFinder} from "./PathFinder.js";
 import {AnimatedObject} from "./AnimatedObject.js";
-//import {Camera} from "./Camera.js";
-//import {Animation} from "./Animation.js";
-//import {AnimFrame} from "./AnimFrame.js";
 import {Cursor} from "./Cursor.js";
+import {Camera} from "./Camera.js";
 import {MusicPlayer} from "./MusicPlayer.js";
 import {Inputter} from "./Inputter.js";
 //import {Battle} from "./Battle.js";
@@ -64,12 +62,10 @@ class Game
     
     this.cursor = new Cursor(this, 0, 0, CURSOR_SPEED);
 
-    this.camera = {x:0, y:0};
+    this.camera = new Camera(this, WINDOWGRID_X, WINDOWGRID_Y, this.Map.dimension.x, this.Map.dimension.y)//{x:0, y:0};
 
     this.Inputter = new Inputter(this);
     this.loadKeyTracker();
-
-    document.addEventListener("wtf", (e) => {console.log(this.Units);});
   }
 
   generateCanvasLayers()
@@ -92,7 +88,6 @@ class Game
   
   loadKeyTracker()
   {
-      //this.keyTrack = new KeyTracker();
       document.addEventListener( "click", ( e ) => 
 	  {
 	    //console.log(getTile(this, e.clientX, e.clientY, GRIDSIZE_X, GRIDSIZE_Y).unit);
@@ -114,22 +109,12 @@ class Game
   draw()
   {
     this.ctx[1].clearRect(0,0,C_WIDTH, C_HEIGHT);
-    for (let thing of Object.values(this.state))
+    for (let thing of Object.values(this.Units))
     {
-      try
-      {
 	thing.draw(this);
-      }
-      catch( TypeError )
-      {
-	for (let t of Object.values(thing))
-	{
-	  t.draw(this);
-	  t.tickAnim();
-	}
-      }
     }
-    this.cursor.draw(this, 1, 1);
+    this.Map.draw(this);
+    this.cursor.draw(this);
   }
   update()
   {

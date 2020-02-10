@@ -13,7 +13,7 @@ import {Weapon, Weapons} from "./Weapon.js";
 
 load(
   {
-    MapPath : "assets/tilemaps/lvl2.txt",
+    MapPath : "assets/tilemaps/lvl1.txt",
     ImgLoad : ["P_gen", "P_janitor", "T_0", "T_1", "T_2", "T_3", "T_4", "T_5", "S_kn0", "C_c0"]
   })
 .then( (thing) => 

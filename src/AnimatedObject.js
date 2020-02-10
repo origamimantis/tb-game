@@ -29,7 +29,7 @@ class AnimatedObject
   {
     this.curAnimName = name;
   }
-  draw( g, ctx, s = 1, x = null, y = null )
+  draw( g, ctx, off, s = 1, x = null, y = null )
   {
     if (x == null || y == null)
     {
@@ -37,10 +37,10 @@ class AnimatedObject
       y = this.y;
     }
 
-    x = x*g.grid.x;
-    y = y*g.grid.y;
+    x = (x - off.x)*g.grid.x;
+    y = (y - off.y)*g.grid.y;
 
-    this.curAnim().draw(g, ctx, x, y);
+    this.curAnim().draw(g, ctx, x, y, s);
   }
   addAnim( name, anim )
   {

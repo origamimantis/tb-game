@@ -42,12 +42,12 @@ class Inputter
 
     document.addEventListener( "keydown", ( e ) => {this.onKeyDown( e.code )} );
     document.addEventListener( "keyup", ( e ) => {this.onKeyUp( e.code )} );
-    document.addEventListener("input_arrowStall", (e) =>
-    {
-      this.accepting = false;
-      this.wait = HOLD_DELAY;
-    }
-  );
+    document.addEventListener("input_arrowStall", (e) =>{ this.arrowStall(); });
+  }
+  arrowStall()
+  {
+    this.accepting = false;
+    this.wait = HOLD_DELAY;
   }
 
   stateOf( key)
@@ -61,20 +61,19 @@ class Inputter
 
   onKeyDown( key )
   {
-    if (LOGKEYS)
-    {
-        console.log("dn: ", key);
-    }
+    LOGKEYS && console.log("dn: ", key);
+
     if (this.pressed[key] == undefined)
     {
       this.pressed[key] = KeyState.ONCE;
-      if (key == SELECT)
+      switch (key)
       {
+      case SELECT:
 	triggerEvent("input_select");
-      }
-      else if (key == CANCEL)
-      {
+	break;
+      case CANCEL:
 	triggerEvent("input_cancel");
+	break;
       }
     }
     else
@@ -111,15 +110,17 @@ class Inputter
   update()
   {
     let a = this.arrowStates();
+
+    let delta = {x:0, y:0};
+    
     if (a.once.length > 0)
     {
-
       if (a.held.length == 0)
       {
 	for (let d of a.once)
 	{
-	    this.delta.x += ARROWS[d].x;
-	    this.delta.y += ARROWS[d].y;
+	    delta.x += ARROWS[d].x;
+	    delta.y += ARROWS[d].y;
 	}
       }
       triggerEvent("input_arrowStall");
@@ -131,28 +132,18 @@ class Inputter
       {
 	for (let d of a.held)
 	{
-	  this.delta.x += ARROWS[d].x;
-	  this.delta.y += ARROWS[d].y;
+	  delta.x += ARROWS[d].x;
+	  delta.y += ARROWS[d].y;
 	}
       }
     }
 
 
-    if (this.cursorMoved())
-    {
-
-      this.g.cursor.move(this.delta.x, this.delta.y);
-      this.delta = {x: 0,
-		    y: 0};
-
-    }
+    this.g.cursor.move(delta.x, delta.y);
 
     this.updateHeld();
+    this.updateArrowAccept();
 
-    if (--this.wait <= 0)
-    {
-      this.accepting = true;
-    }
   }
   updateHeld()
   {
@@ -164,7 +155,13 @@ class Inputter
       }
     }
   }
-
+  updateArrowAccept()
+  {
+    if (--this.wait <= 0)
+    {
+      this.accepting = true;
+    }
+  }
   cursorMoved()
   {
     for (let i of Object.values(this.delta))

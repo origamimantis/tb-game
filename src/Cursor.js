@@ -34,7 +34,7 @@ class Cursor extends AnimatedObject
   
   move( dx, dy )
   {
-    if (this.moving == false)
+    if (this.moving == false && (dx != 0 || dy != 0))
     {
       this.buf.x += dx;
       this.buf.y += dy;
@@ -58,6 +58,8 @@ class Cursor extends AnimatedObject
 	{
 	  this.buf.y = 0;
 	}
+	triggerEvent("game_cursorMoveStart", {cur: {x: this.x, y: this.y},
+					      dest: {x: this.x + this.buf.x, y: this.y + this.buf.y}});
 	this.triggerMove = false;
 	this.moving = true;
 	this.moveChain(this.speed);
@@ -91,12 +93,15 @@ class Cursor extends AnimatedObject
       this.clearMoveBuffer();
       this.moving = false;
 
-      triggerEvent("game_cursorMove", {x:this.x, y:this.y});
+      triggerEvent("game_cursorChange", {x:this.x, y:this.y});
     }
     else
     {
-      this.vis.x += this.buf.x/this.speed;
-      this.vis.y += this.buf.y/this.speed;
+      let dx = this.buf.x/this.speed;
+      let dy = this.buf.y/this.speed;
+      this.vis.x += dx;
+      this.vis.y += dy;
+      triggerEvent("game_cursorMovement", {x: dx, y: dy});
       requestAnimationFrame(() => {this.moveChain(framesLeft - 1)});
     }
 
@@ -104,9 +109,10 @@ class Cursor extends AnimatedObject
 
 
   
-  draw(g, ctx, s)
+  draw(g)
   {
-    super.draw(g, ctx, s, this.vis.x, this.vis.y);
+    let off = g.camera.offset;
+    super.draw(g, 1, {x:off.x + 0.125, y:off.y + 0.125}, 1.25, this.vis.x, this.vis.y);
   }
 
 

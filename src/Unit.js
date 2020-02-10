@@ -35,16 +35,9 @@ class Unit extends AnimatedObject
     
     draw( g )
     {
-      let img = g.Album.get(this.curImg());
-
-      let w = img.width/this.curAnim().numFrame;
-      let h = img.height;
-
-      let x = this.x*g.grid.x;
-      let y = this.y*g.grid.y;
-
-      g.ctx[1].drawImage(img, w*this.curFrame(), 0, w, h, x, y, g.grid.x, g.grid.y);
+      super.draw(g, 1, g.camera.offset);
     }
+
     xy()
     {
 	return [this.x, this.y];

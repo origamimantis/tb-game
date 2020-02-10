@@ -79,6 +79,7 @@ class TileMap
 
     draw( g )
     {
+      let off = g.camera.offset;
       for (let x = 0; x < this.dimension.x; ++x)
       {
 	for (let y = 0; y < this.dimension.y; ++y)
@@ -86,7 +87,7 @@ class TileMap
 	  g.ctx[0].drawImage(
 	    g.Album.get(
 	      this.getTile(x,y).art), 
-	    x*g.grid.x, y*g.grid.y,
+	    (x - off.x)*g.grid.x, (y - off.y)*g.grid.y,
 	    g.grid.x, g.grid.y);
 	}
       }
