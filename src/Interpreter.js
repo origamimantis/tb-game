@@ -45,6 +45,13 @@ class Interpreter
       {
 	amt = parseInt(amt);
 	setTimeout( resolve , amt*1000 );
+      });},
+      
+      MOVE: (id, x, y) => {return new Promise( (resolve) =>
+      {
+	id = parseInt(id); x = parseInt(x); y = parseInt(y);
+	this.g.getUnitById(id).moveTo(this.g, x, y);
+	resolve();
       });}
 
     }

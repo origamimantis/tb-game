@@ -2,9 +2,11 @@ ADDUNIT 0 4 2
 
 ADDUNIT 1 2 3
 
-# WAIT 3
+MOVE 1 15 6
 
-# DELUNIT 1 2 3
+WAIT 1
 
-# this should fail
-# ATTACK 0 1
+ADDUNIT 2 1 6
+
+MOVE 0 4 19
+

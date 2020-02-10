@@ -2,7 +2,7 @@
 
 import {AnimatedObject} from "./AnimatedObject.js";
 import {Animation} from "./Animation.js";
-import {triggerEvent} from "./Utils.js";
+import {triggerEvent, nextFrameDo} from "./Utils.js";
 
 const LOGGING = false;
 
@@ -102,7 +102,7 @@ class Cursor extends AnimatedObject
       this.vis.x += dx;
       this.vis.y += dy;
       triggerEvent("game_cursorMovement", {x: dx, y: dy});
-      requestAnimationFrame(() => {this.moveChain(framesLeft - 1)});
+      nextFrameDo(() => {this.moveChain(framesLeft - 1)});
     }
 
   }

@@ -1,8 +1,6 @@
 'use strict';
 
 
-
-
 class Tile
 {
     constructor( tm, arttype, tiletype )
@@ -19,6 +17,7 @@ class TileMap
     constructor()
     {
       this.map = [];
+      this.pather = [];
       this.dimension = {"y":0, "x":0};
       this.artmap = {};
     }
@@ -35,13 +34,16 @@ class TileMap
       for ( let i = 0; i < this.dimension.y; ++i )
       {
 	let row = [];
+	let prow = [];
 	let tiletypes = lines[i+2].split(" ");
 	for ( let j = 0; j < this.dimension.x; ++j )
 	{
 	    let artile = tiletypes[j].split(':');
 	    row.push( new Tile(this, ...artile ) );
+	    prow.push( artile[1] );
 	}
 	this.map.push(row);
+	this.pather.push(prow);
       }
     }
 

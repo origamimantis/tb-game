@@ -14,7 +14,7 @@ import {Inputter} from "./Inputter.js";
 //import {Tester} from "./Tester.js";
 //import {LoopSelector} from "./LoopSelector.js";
 //import {RNG} from "./RNG.js";
-import {triggerEvent} from "./Utils.js";
+import {triggerEvent, nextFrameDo} from "./Utils.js";
 import {getTile, recolor, tVC, inRange,count} from "./UsefulFunctions.js";
 
 const C_WIDTH = 1024;
@@ -86,6 +86,11 @@ class Game
     }
   }
   
+  getUnitById(id)
+  {
+    return this.Units[id];
+  }
+
   loadKeyTracker()
   {
       document.addEventListener( "click", ( e ) => 
@@ -123,8 +128,8 @@ class Game
   }
   mainloop()
   {
-    requestAnimationFrame(() => {this.mainloop()});
-    //setTimeout( () => {requestAnimationFrame(() => {this.mainloop()});}, TICK_RATE);
+    nextFrameDo(() => {this.mainloop()});
+
     this.update();
     this.draw();
   }

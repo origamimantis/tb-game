@@ -7,6 +7,7 @@ import {Units} from "./TypeUnits.js";
 import {Animation} from "./Animation.js";
 import {AnimFrame} from "./AnimFrame.js";
 import {Interpreter} from "./Interpreter.js";
+import {PathFinder} from "./PathFinder.js";
 import {Weapon, Weapons} from "./Weapon.js";
 
 
@@ -18,8 +19,8 @@ load(
   })
 .then( (thing) => 
   {
-    console.log(thing);
     let game = new Game(thing);
+    PathFinder.init(game);
     game.mainloop();
 
     let interpreter = new Interpreter(game);
