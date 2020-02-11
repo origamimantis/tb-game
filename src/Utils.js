@@ -1,6 +1,7 @@
 'use strict'
 
 import {PathFinder} from "./PathFinder.js";
+import {Path, Coord} from "./Path.js";
 
 
 function nextFrameDo(f)
@@ -24,6 +25,59 @@ async function generatePath(g, x0, y0, xf, yf, cost)
     }
   );
 }
+
+function inMap(pos, min, max)
+{
+  return (pos.x >= min.x && pos.x <= max.x && pos.y >= min.y && pos.y <= max.y);
+}
+
+function generateMovable(g, x, y, mov, cost)
+{
+  let visited = [];
+  
+  // Paths stored as strings : mov left when visiting that spot
+  let mem = {};
+  
+  let min = {x: 0, y: 0};
+  let max = {x: g.Map.dimension.x - 1, y: g.Map.dimension.y - 1};
+
+  let tmp = g.Map.getTile(x, y).tile;
+  tmp =  cost[tmp];
+  let toVisit = [{c: new Coord(x, y), m: mov + tmp}];
+
+  while (toVisit.length > 0)
+  {
+    let cur = toVisit.shift();
+
+    let cd = cur.c;
+    let mv = cur.m;
+    
+    if (inMap(cd, min, max) && ( mem[cd] == undefined || mem[cd] < mv) )
+    {
+      let type = g.Map.getTile(cd.x, cd.y).tile;
+      let cst = cost[type];
+
+      if (cst != undefined && mv >= cst)
+      {
+	if ( mem[cd] == undefined)
+	{
+	  visited.push(cd);
+	}
+	mem[cd] = mv;
+
+	toVisit.push( {c: new Coord(cd.x + 1, cd.y    ), m: mv - cst} );
+	toVisit.push( {c: new Coord(cd.x - 1, cd.y    ), m: mv - cst} );
+	toVisit.push( {c: new Coord(cd.x    , cd.y + 1), m: mv - cst} );
+	toVisit.push( {c: new Coord(cd.x    , cd.y - 1), m: mv - cst} );
+      }
+    }
+  }
+
+  return visited;
+}
+
+
+
 
 function coordEqual(c1, c2)
 {
@@ -73,5 +127,9 @@ function triggerEvent(name, detail)
   document.dispatchEvent(new CustomEvent(name, {detail: detail}));
 }
 
+function respondToEvent(name, f)
+{
+  document.addEventListener( name, (e) => f(e.detail));
+}
 
-export {requestFile, triggerEvent, generatePath, coordEqual, nextFrameDo};
+export {requestFile, triggerEvent, respondToEvent, generatePath, generateMovable, coordEqual, nextFrameDo};

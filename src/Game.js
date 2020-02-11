@@ -8,6 +8,7 @@ import {AnimatedObject} from "./AnimatedObject.js";
 import {Cursor} from "./Cursor.js";
 import {Camera} from "./Camera.js";
 import {MusicPlayer} from "./MusicPlayer.js";
+import {DrawContainer} from "./DrawContainer.js";
 import {Inputter} from "./Inputter.js";
 //import {Battle} from "./Battle.js";
 //import {SpriteFont} from "./SpriteFont.js";
@@ -52,12 +53,9 @@ class Game
     this.ctx = [];
     this.generateCanvasLayers();
   
-    this.Units =  {};
-    this.state =  { Map: assets.Map,
-		    Units: this.Units
-		  };
-
-    this.stateStack = [];
+    this.Units = new DrawContainer(2);
+    
+    this.toDraw = {};
     this.grid = {x:gx, y:gy};
     
     this.cursor = new Cursor(this, 0, 0, CURSOR_SPEED);
@@ -66,12 +64,17 @@ class Game
 
     this.Inputter = new Inputter(this);
     this.loadKeyTracker();
+
+    //this.Music.play("btl1");
+    
+    this.toDraw["Units"] = this.Units;
   }
 
   generateCanvasLayers()
   {
+    // 0: bg, 1: walkable/other effects, 2: units, 3: cursor/effects, 4: hud
     let canv = document.getElementById("canvases");
-    for (let i = 0; i < 2; i++)
+    for (let i = 0; i < 5; i++)
     {
       let ncan = canv.appendChild(document.createElement("canvas"));
       ncan.id = "canvas-" + i.toString();
@@ -88,7 +91,7 @@ class Game
   
   getUnitById(id)
   {
-    return this.Units[id];
+    return this.Units.get(id);
   }
 
   loadKeyTracker()
@@ -104,7 +107,7 @@ class Game
     if ( curTile.unit == null )
     {
       curTile.unit = unit;
-      this.Units[unit.id] = unit;
+      this.Units.set(unit.id, unit);
     }
     else
     {
@@ -113,8 +116,16 @@ class Game
   }
   draw()
   {
+    //TODO TODO TODO TODO TODO TODO TODO TODO TODO
+    // 
+    // add an object for (do i have to redraw this canvas)
+    // for each layer, then only draw layers that have it set ti true.
+    //
+    //TODO TODO TODO TODO TODO TODO TODO TODO TODO
     this.ctx[1].clearRect(0,0,C_WIDTH, C_HEIGHT);
-    for (let thing of Object.values(this.Units))
+    this.ctx[2].clearRect(0,0,C_WIDTH, C_HEIGHT);
+    this.ctx[3].clearRect(0,0,C_WIDTH, C_HEIGHT);
+    for (let thing of Object.values(this.toDraw))
     {
 	thing.draw(this);
     }

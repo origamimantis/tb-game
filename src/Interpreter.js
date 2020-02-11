@@ -22,7 +22,7 @@ class Interpreter
       ADDUNIT: (id, x, y) => {return new Promise( (resolve) =>
       {
 	id = parseInt(id); x = parseInt(x); y = parseInt(y);  
-	let u = new Unit(id, x, y, {}, {});
+	let u = new Unit(id, x, y, {}, {mov: 9});
 	u.addAnim( "idle", new Animation("S_kn0", [20,10,20,10]));
 	u.setAnim( "idle" );
 	this.g.addUnit(u);
@@ -44,7 +44,7 @@ class Interpreter
       WAIT: (amt) => {return new Promise( (resolve) =>
       {
 	amt = parseInt(amt);
-	setTimeout( resolve , amt*1000 );
+	setTimeout( resolve , amt );
       });},
       
       MOVE: (id, x, y) => {return new Promise( (resolve) =>
@@ -59,32 +59,26 @@ class Interpreter
 
   }
 
-  execute( filename )
+  async execute( string )
   {
-    return new Promise( async (resolve, reject) =>
-      {
-	let text = await requestFile( filename );
-	let lines = text.responseText.split("\n");
-	lines.pop();
+    let lines = string.split("\n");
 
-	for (let line of lines)
-	{
-	  if (line.length == 0 || line[0] == commentChar)
-	  {
-	    continue;
-	  }
-	  let tokens = line.split(" ");
-	  if (this.commands[tokens[0]] != null)
-	  {
-	    await this.commands[tokens[0]] (...tokens.slice(1));
-	  }
-	  else
-	  {
-	    console.log( "invalid command: " + tokens[0] );
-	  }
-	}
-	resolve();
-      })
+    for (let line of lines)
+    {
+      if (line.length == 0 || line[0] == commentChar)
+      {
+	continue;
+      }
+      let tokens = line.split(" ");
+      if (this.commands[tokens[0]] != null)
+      {
+	await this.commands[tokens[0]] (...tokens.slice(1));
+      }
+      else
+      {
+	console.log( "invalid command: " + tokens[0] );
+      }
+    }
   }
 
   

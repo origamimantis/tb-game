@@ -36,10 +36,13 @@ function load(thingsToLoad)
 	// load sound library
 	Waud.init();
 	Waud.autoMute();
-	thingy.Music.loadMusic();
+	await thingy.Music.loadMusic();
+
+	let script = await requestFile(thingsToLoad.MapScript);
+	script = script.responseText;
 	
 	// "return"
-	resolve(thingy);
+	resolve({assets: thingy, script: script});
       });
   }
 

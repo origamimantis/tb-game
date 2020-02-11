@@ -36,12 +36,16 @@ class TileMap
 	let row = [];
 	let prow = [];
 	let tiletypes = lines[i+2].split(" ");
-	for ( let j = 0; j < this.dimension.x; ++j )
+	for ( let j = 0; j < tiletypes.length; ++j )
 	{
+	  if (tiletypes[j] != "")
+	  {
 	    let artile = tiletypes[j].split(':');
 	    row.push( new Tile(this, ...artile ) );
 	    prow.push( artile[1] );
+	  }
 	}
+	
 	this.map.push(row);
 	this.pather.push(prow);
       }

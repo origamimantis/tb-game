@@ -12,23 +12,32 @@ class MusicPlayer
   }
   loadMusic()
   {
-      this.load("btl1", false);
-      this.load("fght",false);
-      this.load("fght2",false);
-      this.load("oss");
+    return new Promise( async (resolve, reject) =>
+      {
+	await this.load("btl1", false);
+	await this.load("fght",false);
+	await this.load("fght2",false);
+	await this.load("oss");
+	resolve();
+      }
+    );
   }
 
   load( name, intro = true, loops = true )
   {
-      let s = new WaudSound("assets/music/" + name + "_L" + EXT, {loop:loops, volume:0.5});
-      this.album[name] = {l:[], fade:null};
-      if (intro)
+    return new Promise ( (resolve, reject) => 
       {
-	  let i = new WaudSound("assets/music/" + name + "_I" + EXT, {loop:false, volume:0.5});
-	  i.onEnd( ()=> {this.album[name].l[1].play() });
-	  this.album[name].l.push(i);
+	let s = new WaudSound("assets/music/" + name + "_L" + EXT, {loop:loops, volume:0.5, onload : () => { resolve(); } });
+	this.album[name] = {l:[], fade:null};
+	if (intro)
+	{
+	    let i = new WaudSound("assets/music/" + name + "_I" + EXT, {loop:false, volume:0.5});
+	    i.onEnd( ()=> {this.album[name].l[1].play() });
+	    this.album[name].l.push(i);
+	}
+	this.album[name].l.push(s);
       }
-      this.album[name].l.push(s);
+    );
   }
   
   play( name )

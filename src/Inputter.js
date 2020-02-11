@@ -1,5 +1,9 @@
 'use strict';
 
+import {getTile, inRange} from "./UsefulFunctions.js";
+import {LoopSelector} from "./LoopSelector.js";
+import {triggerEvent, respondToEvent} from "./Utils.js";
+
 const SELECT = "Period";
 const CANCEL = "Comma";
 
@@ -20,9 +24,6 @@ const HOLD_DELAY = 12;
 
 const LOGKEYS = false;
 
-import {getTile, inRange} from "./UsefulFunctions.js";
-import {LoopSelector} from "./LoopSelector.js";
-import {triggerEvent} from "./Utils.js";
 
 class Inputter
 {
@@ -40,10 +41,41 @@ class Inputter
     this.pressed = {}
     this.wait = 0;
 
+    this.selectEvent = this.select_map;
+    this.cancelEvent = this.noAction;
+
     document.addEventListener( "keydown", ( e ) => {this.onKeyDown( e.code )} );
     document.addEventListener( "keyup", ( e ) => {this.onKeyUp( e.code )} );
-    document.addEventListener("input_arrowStall", (e) =>{ this.arrowStall(); });
+    
+    respondToEvent("input_arrowStall", () =>{ this.arrowStall(); });
+
+    respondToEvent("input_select",  () => {this.selectEvent();});
+    respondToEvent("input_cancel",  () => {this.cancelEvent();});
   }
+  
+  select_map()
+  {
+    let unit = this.g.Map.getTile(this.g.cursor.x, this.g.cursor.y).unit;
+    if (unit != null)
+    {
+      this.g.toDraw["selectedUnitmovable"] = unit.movable(this.g);
+      this.selectEvent = this.select_unitMoveLocation;
+      this.cancelEvent = this.cancel_unitMoveLocation;
+    }
+  }
+
+  select_unitMoveLocation()
+  {
+  }
+  
+  cancel_unitMoveLocation()
+  {
+      delete this.g.toDraw["selectedUnitmovable"];
+      this.selectEvent = this.select_map;
+      this.cancelEvent = this.noAction;
+  }
+
+
   arrowStall()
   {
     this.accepting = false;
@@ -173,8 +205,11 @@ class Inputter
     }
     return false;
   }
+  
+  noAction()
+  {
+  }
 }
-
 
 
 

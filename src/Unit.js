@@ -5,7 +5,7 @@ import {Path} from "./Path.js";
 import {recolor} from "./UsefulFunctions.js";
 import {Weapons} from "./Weapon.js";
 import {TILES} from "./Constants.js";
-import {generatePath, coordEqual, nextFrameDo} from "./Utils.js";
+import {triggerEvent, generatePath, generateMovable, coordEqual, nextFrameDo} from "./Utils.js";
 
 // for movement speed in terms of animation
 const ftm = 6;
@@ -46,6 +46,7 @@ class Unit extends AnimatedObject
     {
       this.moveChain(g, this.mapSpeed, 0, p);
       g.Map.removeUnit(this);
+      g.Map.getTile(x, y).unit = this;
     }
   }
   
@@ -53,7 +54,7 @@ class Unit extends AnimatedObject
   {
     if (index >= path.length)
     {
-      g.Map.getTile(this.x, this.y).unit = this;
+      triggerEvent("unit_moveFinish", this);
       return;
     }
     if (framesLeft <= 0 || coordEqual(path[index], this))
@@ -80,6 +81,59 @@ class Unit extends AnimatedObject
     }
   }
 
+  draw( g )
+  {
+    let off = g.camera.offset;
+    super.draw(g, 2, off, 1, this.vis.x, this.vis.y);
+  }
+  
+  movable(g, draw = true)
+  {
+    let p = generateMovable(g, this.x, this.y, this.stats.mov, this.movcost);
+
+    let _u = this;
+
+    if (draw == true)
+    {
+      p.draw = ( g ) =>
+      {
+	let off = g.camera.offset;
+	for (let c of p)
+	{
+	    g.ctx[1].drawImage(
+	      g.Album.get(
+		"S_lead1"),
+	      (c.x - off.x)*g.grid.x, (c.y - off.y)*g.grid.y,
+	      g.grid.x, g.grid.y);
+	}
+      }
+    }
+    return p;
+
+
+
+
+
+
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   setColor(color)
   {
     this.color = color;
@@ -89,11 +143,6 @@ class Unit extends AnimatedObject
     }
   }
   
-  draw( g )
-  {
-    let off = g.camera.offset;
-    super.draw(g, 1, off, 1, this.vis.x, this.vis.y);
-  }
 
   xy()
   {

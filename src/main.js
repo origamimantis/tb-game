@@ -10,20 +10,40 @@ import {Interpreter} from "./Interpreter.js";
 import {PathFinder} from "./PathFinder.js";
 import {Weapon, Weapons} from "./Weapon.js";
 
+let interpreter;
+let game;
+
+document.execute = function(s)
+{
+  interpreter.execute(s);
+}
+
+document.game = function()
+{
+  console.log(game);
+}
 
 
-load(
+
+load
+(
   {
-    MapPath : "assets/tilemaps/lvl1.txt",
-    ImgLoad : ["P_gen", "P_janitor", "T_0", "T_1", "T_2", "T_3", "T_4", "T_5", "S_kn0", "C_c0"]
-  })
-.then( (thing) => 
+    MapPath : "assets/tilemaps/lvl3.txt",
+    ImgLoad : ["P_gen", "P_janitor", "T_0", "T_1", "T_2", "T_3", "T_4", "T_5", "T_6", "T_7", "T_8", "S_kn0", "S_lead1", "C_c0"],
+    MapScript : "assets/scripts/test.txt"
+  }
+)
+.then
+(
+  (loaded) => 
   {
-    let game = new Game(thing);
-    PathFinder.init(game);
+    game = new Game(loaded.assets);
     game.mainloop();
+    
+    PathFinder.init(game);
 
-    let interpreter = new Interpreter(game);
-    interpreter.execute("assets/scripts/test.txt");
-  });
+    interpreter = new Interpreter(game);
+    interpreter.execute(loaded.script);
+  }
+);
 

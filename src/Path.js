@@ -1,5 +1,22 @@
 'use strict';
 
+class Coord
+{
+  constructor(x, y)
+  {
+    this.x = x;
+    this.y = y;
+  }
+  equals(crd)
+  {
+    return (this.x == crd.x && this.y == crd.y);
+  }
+  toString()
+  {
+    return "(" + this.x + ", " + this.y + ")p";
+  }
+
+}
 
 class Path extends Array
 {
@@ -70,4 +87,4 @@ class Path extends Array
 
 
 
-export {Path};
+export {Path, Coord};
