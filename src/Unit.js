@@ -102,7 +102,7 @@ class Unit extends AnimatedObject
 	{
 	    g.ctx[1].drawImage(
 	      g.Album.get(
-		"S_lead1"),
+		"C_move"),
 	      (c.x - off.x)*g.grid.x, (c.y - off.y)*g.grid.y,
 	      g.grid.x, g.grid.y);
 	}
