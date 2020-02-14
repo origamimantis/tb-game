@@ -76,7 +76,7 @@ class Interpreter
       }
       else
       {
-	console.log( "invalid command: " + tokens[0] );
+	throw  "invalid command: " + tokens[0];
       }
     }
   }

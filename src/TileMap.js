@@ -1,13 +1,15 @@
 'use strict';
 
+import {TILES} from "./Constants.js";
+
 
 class Tile
 {
-    constructor( tm, arttype, tiletype )
+    constructor( tm, tile)
     {
-	this.tile = tiletype;
+	this.tile = tm.typeMap[tile];;
 	this.unit = null;
-	this.art = tm.artmap[arttype];
+	this.art = tm.artMap[tile];
     }
 }
 
@@ -18,8 +20,9 @@ class TileMap
     {
       this.map = [];
       this.pather = [];
-      this.dimension = {"y":0, "x":0};
-      this.artmap = {};
+      this.dimension = {"y":undefined, "x":undefined};
+      this.artMap = {};
+      this.typeMap = {};
     }
     generate( text )
     {
@@ -28,21 +31,59 @@ class TileMap
       // last line is empty - let's get rid of it
       lines.pop()
       
-      this.setDimension(lines[0]);
-      this.setArtMapping(lines[1]);
+      let t = {};
+      t["."] = 5;
+      this.setDimension(lines[0].trim());
+
+      let optLen = lines.length - this.dimension.y;
+      let lastApply = null;
+      for ( let i = 1; i < optLen; ++i )
+      {
+	let line = lines[i].trim();
+	if (line == '')
+	{ continue;}
+	let tokens = line.split(' ');
+	if (tokens[0] == "!!")
+	{
+	  if (tokens.length != 2)
+	  {
+	    throw "Incorrect number of arguments for tile specifier\nat line " + (i+1) + "; expected: 2, actual: " + tokens.length;
+	  }
+	  if (TILES[tokens[1]] == undefined)
+	  {
+	    throw "Unknown tile specifier '" + tokens[1] + "' at line " + (i+1) + ".";
+	  }
+	  lastApply = TILES[tokens[1]];
+	}
+	else
+	{
+	  for (let pair of tokens)
+	  {
+	    if (pair.length == 0)
+	    { continue;}
+
+	    let [tile, art] = pair.split(':');
+	    this.artMap[tile] = "T_" + art;
+	    this.typeMap[tile] = lastApply;
+	  }
+	}
+      }
 
       for ( let i = 0; i < this.dimension.y; ++i )
       {
 	let row = [];
 	let prow = [];
-	let tiletypes = lines[i+2].split(" ");
-	for ( let j = 0; j < tiletypes.length; ++j )
+	let tiles = lines[i+optLen].split(" ");
+	for ( let j = 0; j < this.dimension.x; ++j )
 	{
-	  if (tiletypes[j] != "")
+	  if (tiles[j] != "")
 	  {
-	    let artile = tiletypes[j].split(':');
-	    row.push( new Tile(this, ...artile ) );
-	    prow.push( artile[1] );
+	    if (this.typeMap[tiles[j]] == undefined)
+	    {
+	      throw "Undefined tiletype on tile (x, y) = (" + j + ", " + i + ").";
+	    }
+	    row.push( new Tile(this, tiles[j] ) );
+	    prow.push( this.typeMap[tiles[j]] );
 	  }
 	}
 	
@@ -53,9 +94,20 @@ class TileMap
 
     setDimension( s )
     {
-	let t = s.split(" ");
-	this.dimension.y = +t[0];
-	this.dimension.x = +t[1];
+      let t = s.split(" ");
+      for (let pair of t)
+      {
+	let u = pair.split(":")
+	if (u.length == 1)
+	{
+	  throw "Invalid size specifier at line 1.";
+	}
+	this.dimension[u[0]] = +u[1];
+      }
+      if (this.dimension.x == undefined || this.dimension.y == undefined)
+      {
+	throw "Invalid map size in tilemap.";
+      }
     }
 
     setArtMapping( s )

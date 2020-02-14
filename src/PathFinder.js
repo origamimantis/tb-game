@@ -22,12 +22,12 @@ class PathFinder
       {
 
 	this.As.setAcceptableTiles(Object.keys(mcost));
-
+	
 	for (let [tile,cost] of Object.entries(mcost))
 	{
 	  this.As.setTileCost(tile,cost);
 	}
-
+	
 	this.As.findPath(x0, y0, xf, yf,  ( path ) => 
 	{
 	  if (path != null)

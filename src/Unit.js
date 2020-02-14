@@ -42,12 +42,14 @@ class Unit extends AnimatedObject
   async moveTo(g, x, y)
   {
     let p = await generatePath(g, this.x, this.y, x, y, this.movcost);
-    if (p != null)
+    if (p == null)
     {
-      this.moveChain(g, this.mapSpeed, 0, p);
-      g.Map.removeUnit(this);
-      g.Map.getTile(x, y).unit = this;
+      throw "Could not find path to (x, y) = (" + this.x + ", " + this.y + ") to (" + x + ", " + y + ").";
     }
+    this.moveChain(g, this.mapSpeed, 0, p);
+    g.Map.removeUnit(this);
+    g.Map.getTile(x, y).unit = this;
+
   }
   
   moveChain(g, framesLeft, index, path)
