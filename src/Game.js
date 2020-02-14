@@ -6,6 +6,7 @@ import {Unit} from "./Unit.js";
 //import {PathFinder} from "./PathFinder.js";
 import {AnimatedObject} from "./AnimatedObject.js";
 import {Cursor} from "./Cursor.js";
+import {FPS, TICK_RATE} from "./Constants.js";
 import {Camera} from "./Camera.js";
 import {MusicPlayer} from "./MusicPlayer.js";
 import {DrawContainer} from "./DrawContainer.js";
@@ -31,13 +32,11 @@ const GRIDSIZE_Y = C_HEIGHT/WINDOWGRID_Y;
 const gx = GRIDSIZE_X;
 const gy = GRIDSIZE_Y;
 
-const FPS = 60;
 const CURSOR_SPEED = 4;
 
 const FONTSIZE = "48";
 const FONT = "Times New Roman";
 
-const TICK_RATE = 1000/FPS;
 
 const TEST_ENABLED = false;
 

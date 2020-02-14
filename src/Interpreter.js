@@ -69,7 +69,7 @@ class Interpreter
       {
 	continue;
       }
-      let tokens = line.split(" ");
+      let tokens = line.toUpperCase().split(" ");
       if (this.commands[tokens[0]] != null)
       {
 	await this.commands[tokens[0]] (...tokens.slice(1));

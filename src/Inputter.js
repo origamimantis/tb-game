@@ -43,11 +43,12 @@ class Inputter
 
     this.selectEvent = this.select_map;
     this.cancelEvent = this.noAction;
+    this.handleArrows = this.arrow_mapMove;
 
     document.addEventListener( "keydown", ( e ) => {this.onKeyDown( e.code )} );
     document.addEventListener( "keyup", ( e ) => {this.onKeyUp( e.code )} );
     
-    respondToEvent("input_arrowStall", () =>{ this.arrowStall(); });
+    respondToEvent("input_arrowStall", (e) =>{ this.arrowStall(e.start); });
 
     respondToEvent("input_select",  () => {this.selectEvent();});
     respondToEvent("input_cancel",  () => {this.cancelEvent();});
@@ -76,10 +77,17 @@ class Inputter
   }
 
 
-  arrowStall()
+  arrowStall(start)
   {
     this.accepting = false;
-    this.wait = HOLD_DELAY;
+    if (start == true)
+    {
+      this.wait = HOLD_DELAY;
+    }
+    else
+    {
+      this.wait = HOLD_DELAY - this.g.cursor.speed;
+    }
   }
 
   stateOf( key)
@@ -117,7 +125,7 @@ class Inputter
   {
       LOGKEYS && console.log("up: ", key);
       delete this.pressed[key];
-      triggerEvent("input_arrowStall");
+      triggerEvent("input_arrowStall", {start : false});
   }
 
   arrowStates()
@@ -141,21 +149,23 @@ class Inputter
 
   update()
   {
+    this.handleArrows();
+  }
+
+  arrow_mapMove()
+  {
     let a = this.arrowStates();
 
     let delta = {x:0, y:0};
     
     if (a.once.length > 0)
     {
-      if (a.held.length == 0)
-      {
 	for (let d of a.once)
 	{
 	    delta.x += ARROWS[d].x;
 	    delta.y += ARROWS[d].y;
 	}
-      }
-      triggerEvent("input_arrowStall");
+      triggerEvent("input_arrowStall", {start : a.held.length == 0});
     }
     else// if nothing was pressed this tick
     {

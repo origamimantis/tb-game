@@ -2,12 +2,13 @@
 
 import {PathFinder} from "./PathFinder.js";
 import {Path, Coord} from "./Path.js";
+import {FPS, TICK_RATE} from "./Constants.js";
 
 
 function nextFrameDo(f)
 {
-  requestAnimationFrame(f);
-  //setTimeout( () => {requestAnimationFrame(() => {this.mainloop()});}, TICK_RATE);
+  //requestAnimationFrame(f);
+  setTimeout( () => {requestAnimationFrame(f)}, TICK_RATE);
 }
 
 
