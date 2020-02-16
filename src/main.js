@@ -31,7 +31,8 @@ window.onload = () =>
     {
       MapPath : "assets/tilemaps/lvl3.txt",
       ImgLoad : [	"P_gen", "P_janitor",
-		  "T_field_tree_B", "T_field_tree_M", "T_field_tree_T", 
+		  "T_grass_forest_B", "T_grass_forest_M", "T_grass_forest_T", 
+		  "T_grass",
 		   "T_wall_B", "T_wall_BR",
 		  "T_wall_EL", "T_wall_ER", "T_wall_TL", "T_wall_TR",
 		  "S_kn0", "S_lead1",

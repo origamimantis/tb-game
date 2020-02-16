@@ -1,10 +1,10 @@
 y:27 x:20
 
 !! ROAD
-.:field
+.:grass
 
 !! TREE
-1:field_tree_B 2:field_tree_M 3:field_tree_T
+1:grass_forest_B 2:grass_forest_M 3:grass_forest_T
 
 !! WALL
 5:wall_BR 6:wall_B 7:wall_ER
