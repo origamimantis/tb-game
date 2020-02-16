@@ -3,6 +3,7 @@
 import {AnimatedObject} from "./AnimatedObject.js";
 import {Animation} from "./Animation.js";
 import {triggerEvent, nextFrameDo} from "./Utils.js";
+import {Coord} from "./Path.js";
 
 const LOGGING = false;
 
@@ -32,14 +33,19 @@ class Cursor extends AnimatedObject
     this.speed = framesToMove;
   }
   
-  move( dx, dy )
+  move( c )
   {
-    if (this.moving == false && (dx != 0 || dy != 0))
+    if (this.moving == false && (c.x != 0 || c.y != 0))
     {
-      this.buf.x += dx;
-      this.buf.y += dy;
+      this.buf.x += c.x;
+      this.buf.y += c.y;
       this.triggerMove = true;
     }
+  }
+  
+  resultOf( c )
+  {
+    return new Coord( this.x + c.x, this.y + c.y );
   }
 
   update()
@@ -71,6 +77,18 @@ class Cursor extends AnimatedObject
     }
   }
 
+  coordInBounds(c)
+  {
+    return this.xInBounds(c.x) && this.yInBounds(c.y);
+  }
+  xInBounds(x)
+  {
+      return ( x <= this.max.x && x >= this.min.x);
+  }
+  yInBounds(y)
+  {
+      return ( y <= this.max.y && y >= this.min.y);
+  }
   inBounds(c)
   {
       return ( this[c] + this.buf[c] <= this.max[c]

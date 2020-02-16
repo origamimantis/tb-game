@@ -26,22 +26,22 @@ class Path extends Array
 	super();
 	for (let i = 0; i < path.length; i++)
 	{
-	    this.push(path[i]);
+	    this.push(new Coord(path[i].x, path[i].y));
 	}
     }
 
-    //element will be 2-array
-    contains(elem)
+    containsCoord(c)
     {
 	for (let i = 0; i < this.length; i++)
 	{
-	    if (this[i][0] == elem[0] && this[i][1] == elem[1])
+	    if (this[i].x == c.x && this[i].y == c.y)
 	    {
 		return true;
 	    }
 	}
 	return false;
     }
+
     indexOf(elem)
     {
 	for (let i = 0; i < this.length; i++)

@@ -3,6 +3,7 @@
 import {PathFinder} from "./PathFinder.js";
 import {Path, Coord} from "./Path.js";
 import {FPS, TICK_RATE} from "./Constants.js";
+import {Queue} from "./Queue.js";
 
 
 function nextFrameDo(f)
@@ -34,7 +35,7 @@ function inMap(pos, min, max)
 
 function generateMovable(g, x, y, mov, cost)
 {
-  let visited = [];
+  let visited = new Path();
   
   // Paths stored as strings : mov left when visiting that spot
   let mem = {};
@@ -44,11 +45,12 @@ function generateMovable(g, x, y, mov, cost)
 
   let tmp = g.Map.getTile(x, y).tile;
   tmp =  cost[tmp];
-  let toVisit = [{c: new Coord(x, y), m: mov + tmp}];
+  let toVisit = new Queue();
+  toVisit.enqueue({c: new Coord(x, y), m: mov + tmp});
 
-  while (toVisit.length > 0)
+  while (toVisit.size > 0)
   {
-    let cur = toVisit.shift();
+    let cur = toVisit.dequeue();
 
     let cd = cur.c;
     let mv = cur.m;
@@ -66,14 +68,15 @@ function generateMovable(g, x, y, mov, cost)
 	}
 	mem[cd] = mv;
 
-	toVisit.push( {c: new Coord(cd.x + 1, cd.y    ), m: mv - cst} );
-	toVisit.push( {c: new Coord(cd.x - 1, cd.y    ), m: mv - cst} );
-	toVisit.push( {c: new Coord(cd.x    , cd.y + 1), m: mv - cst} );
-	toVisit.push( {c: new Coord(cd.x    , cd.y - 1), m: mv - cst} );
+	toVisit.enqueue( {c: new Coord(cd.x + 1, cd.y    ), m: mv - cst} );
+	toVisit.enqueue( {c: new Coord(cd.x - 1, cd.y    ), m: mv - cst} );
+	toVisit.enqueue( {c: new Coord(cd.x    , cd.y + 1), m: mv - cst} );
+	toVisit.enqueue( {c: new Coord(cd.x    , cd.y - 1), m: mv - cst} );
       }
     }
   }
 
+  console.log(visited);
   return visited;
 }
 

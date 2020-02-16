@@ -36,6 +36,7 @@ class Inputter
 		  y: 0};
 
     this.accepting = true;
+    this.arrowOutsideMovable = false;
 
 
     this.pressed = {}
@@ -43,7 +44,7 @@ class Inputter
 
     this.selectEvent = this.select_map;
     this.cancelEvent = this.noAction;
-    this.handleArrows = this.arrow_mapMove;
+    this.handleArrows = this.arrow_map;
 
     document.addEventListener( "keydown", ( e ) => {this.onKeyDown( e.code )} );
     document.addEventListener( "keyup", ( e ) => {this.onKeyUp( e.code )} );
@@ -59,9 +60,10 @@ class Inputter
     let unit = this.g.Map.getTile(this.g.cursor.x, this.g.cursor.y).unit;
     if (unit != null)
     {
-      this.g.toDraw["selectedUnitmovable"] = unit.movable(this.g);
+      this.g.toDraw["selectedUnitMovable"] = unit.movable(this.g);
       this.selectEvent = this.select_unitMoveLocation;
       this.cancelEvent = this.cancel_unitMoveLocation;
+      this.handleArrows = this.arrow_unitMoveLocation;
     }
   }
 
@@ -71,9 +73,10 @@ class Inputter
   
   cancel_unitMoveLocation()
   {
-      delete this.g.toDraw["selectedUnitmovable"];
+      delete this.g.toDraw["selectedUnitMovable"];
       this.selectEvent = this.select_map;
       this.cancelEvent = this.noAction;
+      this.handleArrows = this.arrow_map;
   }
 
 
@@ -150,9 +153,11 @@ class Inputter
   update()
   {
     this.handleArrows();
-  }
 
-  arrow_mapMove()
+    this.updateHeld();
+    this.updateArrowAccept();
+  }
+  arrow_map()
   {
     let a = this.arrowStates();
 
@@ -179,14 +184,55 @@ class Inputter
 	}
       }
     }
-
-
-    this.g.cursor.move(delta.x, delta.y);
-
-    this.updateHeld();
-    this.updateArrowAccept();
-
+    this.g.cursor.move(delta);
   }
+
+  arrow_unitMoveLocation()
+  {
+    let a = this.arrowStates();
+
+    let delta = {x:0, y:0};
+    
+    if (a.once.length > 0)
+    {
+      for (let d of a.once)
+      {
+	  delta.x += ARROWS[d].x;
+	  delta.y += ARROWS[d].y;
+      }
+
+      triggerEvent("input_arrowStall", {start : a.held.length == 0});
+      // usually outside movable == false. If keypressed, allow it to go outside but only if moves outside
+      this.arrowOutsideMovable = !(this.g.toDraw.selectedUnitMovable.containsCoord(this.g.cursor.resultOf(delta)));
+      this.g.cursor.move(delta);
+    }
+    else// if nothing was pressed this tick
+    {
+
+      if (this.accepting == true)
+      {
+	for (let d of a.held)
+	{
+	  delta.x += ARROWS[d].x;
+	  delta.y += ARROWS[d].y;
+	}
+	
+	let inside = this.g.toDraw.selectedUnitMovable.containsCoord(this.g.cursor.resultOf(delta));
+
+	if (this.arrowOutsideMovable == true || inside)
+	{
+	  this.g.cursor.move(delta);
+	  if (inside == true)
+	  {
+	    this.arrowOutsideMovable = false;
+	  }
+	}
+
+      }
+    }
+  }
+  
+
   updateHeld()
   {
     for (let dir of Object.keys(this.pressed))
