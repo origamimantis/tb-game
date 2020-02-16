@@ -64,7 +64,7 @@ class Game
     this.Inputter = new Inputter(this);
     this.loadKeyTracker();
 
-    //this.Music.play("btl1");
+    this.Music.play("btl1");
     
     this.toDraw["Units"] = this.Units;
   }
