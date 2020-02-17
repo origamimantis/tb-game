@@ -1,4 +1,4 @@
-const FPS = 60;
+const FPS = 30;
 const TICK_RATE = 1/FPS;
 
 const TILES = { ROAD : "0",

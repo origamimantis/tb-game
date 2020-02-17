@@ -40,9 +40,9 @@ class Unit extends AnimatedObject
   }
   
  
-  async tentativeMove(g, cx, cy)
+  async tentativeMove(g, c)
   {
-    let p = await generatePath(g, this.x, this.y, cx, cy, this.movcost);
+    let p = await generatePath(g, this.x, this.y, c.x, c.y, this.movcost);
     if (p == null)
     {
       throw "Could not find path to (x, y) = (" + this.x + ", " + this.y + ") to (" + x + ", " + y + ").";
@@ -86,6 +86,8 @@ class Unit extends AnimatedObject
 	this.vis.dy = path[index + 1].y - this.vis.y;
 	this.moveChain(g, this.mapSpeed, index+1, path, updatePos);
       }
+      else // something when the unit reaches its destination
+      {}
     }
     else
     {

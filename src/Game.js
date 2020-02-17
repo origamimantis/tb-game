@@ -51,9 +51,9 @@ class Game
     this.ctx = [];
     this.generateCanvasLayers();
   
-    this.Units = new DrawContainer(2);
+    this.Units = new DrawContainer();
     
-    this.toDraw = {};
+    this.toDraw = new DrawContainer();
     this.grid = new Coord( gx, gy );
     
     this.cursor = new Cursor(this, 0, 0, CURSOR_SPEED);
@@ -65,7 +65,7 @@ class Game
 
     this.Music.play("btl1");
     
-    this.toDraw["Units"] = this.Units;
+    this.toDraw.set("Units", this.Units);
   }
 
   generateCanvasLayers()
@@ -123,10 +123,9 @@ class Game
     this.ctx[1].clearRect(0,0,C_WIDTH, C_HEIGHT);
     this.ctx[2].clearRect(0,0,C_WIDTH, C_HEIGHT);
     this.ctx[3].clearRect(0,0,C_WIDTH, C_HEIGHT);
-    for (let thing of Object.values(this.toDraw))
-    {
-	thing.draw(this);
-    }
+
+    this.toDraw.draw(this);
+
     this.Map.draw(this);
     this.cursor.draw(this);
   }

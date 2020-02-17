@@ -8,8 +8,8 @@ import {Queue} from "./Queue.js";
 
 function nextFrameDo(f)
 {
-  //requestAnimationFrame(f);
-  setTimeout( () => {requestAnimationFrame(f)}, 1000*TICK_RATE);
+  requestAnimationFrame(f);
+  //setTimeout( () => {requestAnimationFrame(f)}, 1000*TICK_RATE);
 }
 
 

@@ -36,7 +36,6 @@ class Inputter
     this.accepting = true;
     this.arrowOutsideMovable = false;
 
-
     this.pressed = {}
     this.wait = 0;
 
@@ -48,6 +47,7 @@ class Inputter
     document.addEventListener( "keyup", ( e ) => {this.onKeyUp( e.code )} );
     
     respondToEvent("input_arrowStall", (e) =>{ this.arrowStall(e.start); });
+    respondToEvent("cursor_finishMoveTo", (e) =>{ this.handleArrows = this.arrow_map; });
 
     respondToEvent("input_select",  () => {this.selectEvent();});
     respondToEvent("input_cancel",  () => {this.cancelEvent();});
@@ -59,7 +59,7 @@ class Inputter
     if (unit != null)
     {
       this.g.selectedUnit = unit;
-      this.g.toDraw["selectedUnitMovable"] = unit.movable(this.g);
+      this.g.toDraw.set("selectedUnitMovable", unit.movable(this.g) );
       this.selectEvent = this.select_unitMoveLocation;
       this.cancelEvent = this.cancel_unitMoveLocation;
       this.handleArrows = this.arrow_unitMoveLocation;
@@ -70,21 +70,38 @@ class Inputter
   {
     let target = new Coord( this.g.cursor.x, this.g.cursor.y );
 
-    // TODO TODO TODO something's goin wrong here, can move to outside of movebox
-    if (this.g.toDraw.selectedUnitMovable.containsCoord(target));
+    console.log (this.getStateAttr("selectedUnitMovable"));
+    if (this.getStateAttr("selectedUnitMovable").containsCoord(target))
     {
-      this.g.selectedUnit.tentativeMove(this.g, target.x, target.y);
+      this.g.toDraw.hide("selectedUnitMovable");
+      this.g.selectedUnit.tentativeMove(this.g, target)
+      this.selectEvent = this.noAction;
+      this.cancelEvent = this.cancel_unitActionSelect;
+      this.handleArrows = this.noAction;
+    }
+    else
+    {
+      triggerEvent("sfx_play_err_effect");
     }
   }
   
-  cancel_unitMoveLocation()
+  async cancel_unitMoveLocation()
   {
-      delete this.g.selectedUnit;
-      delete this.g.toDraw["selectedUnitMovable"];
-      this.selectEvent = this.select_map;
-      this.cancelEvent = this.noAction;
-      this.handleArrows = this.arrow_map;
+    // disable further cursor movement
+    this.handleArrows = this.noAction;
+
+    // wait until cursor stops moving
+    while (this.g.cursor.moving != false)
+    { await new Promise( (resolve) => {setTimeout(() => {resolve();}, 5)});}
+
+    this.g.cursor.moveTo(this.g.selectedUnit, "arrow_unitMoveLocation");
+    delete this.g.selectedUnit;
+    this.g.toDraw.del("selectedUnitMovable");
+    this.selectEvent = this.select_map;
+    this.cancelEvent = this.noAction;
   }
+  cancel_unitActionSelect()
+  {}
 
   arrow_map()
   {
@@ -126,7 +143,8 @@ class Inputter
 
       triggerEvent("input_arrowStall", {start : a.held.length == 0});
       // usually outside movable == false. If keypressed, allow it to go outside but only if moves outside
-      this.arrowOutsideMovable = !(this.g.toDraw.selectedUnitMovable.containsCoord(this.g.cursor.resultOf(delta)));
+      this.arrowOutsideMovable = !(this.getStateAttr("selectedUnitMovable")
+				  .containsCoord(this.g.cursor.resultOf(delta)));
       this.g.cursor.move(delta);
     }
     // if nothing was pressed this tick
@@ -137,7 +155,7 @@ class Inputter
 	delta.add( ARROWS[d] );
       }
       
-      let inside = this.g.toDraw.selectedUnitMovable.containsCoord(this.g.cursor.resultOf(delta));
+      let inside = this.getStateAttr("selectedUnitMovable").containsCoord(this.g.cursor.resultOf(delta));
 
       if (this.arrowOutsideMovable == true || inside)
       {
@@ -249,6 +267,11 @@ class Inputter
   
   noAction()
   {
+  }
+
+  getStateAttr(id)
+  {
+    return this.g.toDraw.get(id);
   }
 }
 
