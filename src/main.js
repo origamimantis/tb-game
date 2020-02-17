@@ -13,7 +13,7 @@ import {Weapon, Weapons} from "./Weapon.js";
 let interpreter;
 let game;
 
-console.exe= function(s)
+console.exe = function(s)
 {
   interpreter.execute(s);
 }

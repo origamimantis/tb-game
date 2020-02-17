@@ -9,7 +9,7 @@ import {Queue} from "./Queue.js";
 function nextFrameDo(f)
 {
   //requestAnimationFrame(f);
-  setTimeout( () => {requestAnimationFrame(f)}, TICK_RATE);
+  setTimeout( () => {requestAnimationFrame(f)}, 1000*TICK_RATE);
 }
 
 
@@ -48,6 +48,7 @@ function generateMovable(g, x, y, mov, cost)
   let toVisit = new Queue();
   toVisit.enqueue({c: new Coord(x, y), m: mov + tmp});
 
+  // breadth-first search
   while (toVisit.size > 0)
   {
     let cur = toVisit.dequeue();
@@ -75,18 +76,10 @@ function generateMovable(g, x, y, mov, cost)
       }
     }
   }
-
-  console.log(visited);
   return visited;
 }
 
 
-
-
-function coordEqual(c1, c2)
-{
-  return (c1.x == c2.x && c1.y == c2.y);
-}
 
 
 let requestFile = function (url, method)
@@ -136,4 +129,4 @@ function respondToEvent(name, f)
   document.addEventListener( name, (e) => f(e.detail));
 }
 
-export {requestFile, triggerEvent, respondToEvent, generatePath, generateMovable, coordEqual, nextFrameDo};
+export {requestFile, triggerEvent, respondToEvent, generatePath, generateMovable, nextFrameDo};

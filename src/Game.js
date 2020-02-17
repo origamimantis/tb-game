@@ -2,7 +2,7 @@
 
 
 import {Unit} from "./Unit.js";
-//import {Path} from "./Path.js";
+import {Coord} from "./Path.js";
 //import {PathFinder} from "./PathFinder.js";
 import {AnimatedObject} from "./AnimatedObject.js";
 import {Cursor} from "./Cursor.js";
@@ -17,7 +17,6 @@ import {Inputter} from "./Inputter.js";
 //import {LoopSelector} from "./LoopSelector.js";
 //import {RNG} from "./RNG.js";
 import {triggerEvent, nextFrameDo} from "./Utils.js";
-import {getTile, recolor, tVC, inRange,count} from "./UsefulFunctions.js";
 
 const C_WIDTH = 1024;
 const C_HEIGHT = 768;
@@ -55,11 +54,11 @@ class Game
     this.Units = new DrawContainer(2);
     
     this.toDraw = {};
-    this.grid = {x:gx, y:gy};
+    this.grid = new Coord( gx, gy );
     
     this.cursor = new Cursor(this, 0, 0, CURSOR_SPEED);
 
-    this.camera = new Camera(this, WINDOWGRID_X, WINDOWGRID_Y, this.Map.dimension.x, this.Map.dimension.y)//{x:0, y:0};
+    this.camera = new Camera(this, WINDOWGRID_X, WINDOWGRID_Y, this.Map.dimension.x, this.Map.dimension.y);
 
     this.Inputter = new Inputter(this);
     this.loadKeyTracker();
@@ -75,15 +74,15 @@ class Game
     let canv = document.getElementById("canvases");
     for (let i = 0; i < 5; i++)
     {
-      let ncan = canv.appendChild(document.createElement("canvas"));
-      ncan.id = "canvas-" + i.toString();
-      ncan.width = C_WIDTH;
-      ncan.height = C_HEIGHT;
-      ncan.style.position = "absolute";
-      ncan.style.background = "transparent";
-      ncan.style.left = "0";
-      ncan.style.top = "0";
-      this.ctx.push(ncan.getContext('2d'));
+      let can = canv.appendChild(document.createElement("canvas"));
+      can.id = "canvas-" + i.toString();
+      can.width = C_WIDTH;
+      can.height = C_HEIGHT;
+      can.style.position = "absolute";
+      can.style.background = "transparent";
+      can.style.left = "0";
+      can.style.top = "0";
+      this.ctx.push(can.getContext('2d'));
       this.ctx[i].imageSmoothingEnabled = false;
     }
   }

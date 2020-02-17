@@ -5,7 +5,7 @@ import {Path} from "./Path.js";
 import {recolor} from "./UsefulFunctions.js";
 import {Weapons} from "./Weapon.js";
 import {TILES} from "./Constants.js";
-import {triggerEvent, generatePath, generateMovable, coordEqual, nextFrameDo} from "./Utils.js";
+import {triggerEvent, generatePath, generateMovable, nextFrameDo} from "./Utils.js";
 
 // for movement speed in terms of animation
 const ftm = 6;
@@ -39,6 +39,18 @@ class Unit extends AnimatedObject
 		};
   }
   
+ 
+  async tentativeMove(g, cx, cy)
+  {
+    let p = await generatePath(g, this.x, this.y, cx, cy, this.movcost);
+    if (p == null)
+    {
+      throw "Could not find path to (x, y) = (" + this.x + ", " + this.y + ") to (" + x + ", " + y + ").";
+    }
+    this.moveChain(g, this.mapSpeed, 0, p);
+
+  }
+
   async moveTo(g, x, y)
   {
     let p = await generatePath(g, this.x, this.y, x, y, this.movcost);
@@ -46,30 +58,33 @@ class Unit extends AnimatedObject
     {
       throw "Could not find path to (x, y) = (" + this.x + ", " + this.y + ") to (" + x + ", " + y + ").";
     }
-    this.moveChain(g, this.mapSpeed, 0, p);
+    this.moveChain(g, this.mapSpeed, 0, p, true);
     g.Map.removeUnit(this);
     g.Map.getTile(x, y).unit = this;
 
   }
   
-  moveChain(g, framesLeft, index, path)
+  moveChain(g, framesLeft, index, path, updatePos = false)
   {
     if (index >= path.length)
     {
       triggerEvent("unit_moveFinish", this);
       return;
     }
-    if (framesLeft <= 0 || coordEqual(path[index], this))
+    if (framesLeft <= 0 || path[index].equals(this) )
     {
-      this.x = path[index].x;
-      this.y = path[index].y;
-      this.vis.x = this.x;
-      this.vis.y = this.y;
+      if (updatePos == true)
+      {
+	this.x = path[index].x;
+	this.y = path[index].y;
+      }
+      this.vis.x = path[index].x;
+      this.vis.y = path[index].y;
       if (index + 1 < path.length)
       {
-	this.vis.dx = path[index + 1].x - this.x;
-	this.vis.dy = path[index + 1].y - this.y;
-	this.moveChain(g, this.mapSpeed, index+1, path);
+	this.vis.dx = path[index + 1].x - this.vis.x;
+	this.vis.dy = path[index + 1].y - this.vis.y;
+	this.moveChain(g, this.mapSpeed, index+1, path, updatePos);
       }
     }
     else
@@ -79,7 +94,7 @@ class Unit extends AnimatedObject
 
       this.vis.x += dx;
       this.vis.y += dy;
-      nextFrameDo(() => {this.moveChain(g, framesLeft - 1, index, path)});
+      nextFrameDo(() => {this.moveChain(g, framesLeft - 1, index, path, updatePos)});
     }
   }
 
@@ -111,30 +126,7 @@ class Unit extends AnimatedObject
       }
     }
     return p;
-
-
-
-
-
-
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
   setColor(color)
   {
@@ -145,11 +137,6 @@ class Unit extends AnimatedObject
     }
   }
   
-
-  xy()
-  {
-    return [this.x, this.y];
-  }
   recolorAnim(a)
   {
     let t = recolor(this, this.animations[a].image);
@@ -162,8 +149,6 @@ class Unit extends AnimatedObject
       this.animations[a].image = t;
     }
   }
-  
-
 
 }
 

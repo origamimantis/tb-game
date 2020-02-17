@@ -15,7 +15,16 @@ class Coord
   {
     return "(" + this.x + ", " + this.y + ")p";
   }
-
+  add(c)
+  {
+    this.x += c.x;
+    this.y += c.y;
+  }
+  set(x, y)
+  {
+    this.x = x;
+    this.y = y;
+  }
 }
 
 class Path extends Array
