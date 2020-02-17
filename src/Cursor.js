@@ -70,12 +70,19 @@ class Cursor extends AnimatedObject
       }
       this.path.enqueue(new Coord(dx, dy));
     }
-    this.path.onDone = onDone;
-    triggerEvent("game_cursorMoveStart", this);
-    this.x += this.buf.x;
-    this.y += this.buf.y;
-    this.clearMoveBuffer();
-    //this.cutMoveChain(this.speed, 0, p);
+    // do nothign if no path
+    if (this.path.size() > 0)
+    {
+      this.path.onDone = onDone;
+      triggerEvent("game_cursorMoveStart", this);
+      this.x += this.buf.x;
+      this.y += this.buf.y;
+      this.clearMoveBuffer();
+    }
+    else
+    {
+      onDone();
+    }
   }
   
   resultOf( c )
