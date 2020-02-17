@@ -89,16 +89,22 @@ class Inputter
   {
     // disable further cursor movement
     this.handleArrows = this.noAction;
+    this.selectEvent = this.noAction;
+    this.cancelEvent = this.noAction;
 
     // wait until cursor stops moving
     while (this.g.cursor.moving != false)
     { await new Promise( (resolve) => {setTimeout(() => {resolve();}, 5)});}
 
-    this.g.cursor.moveTo(this.g.selectedUnit, "arrow_unitMoveLocation");
+    this.g.cursor.moveTo(this.g.selectedUnit, () =>
+      {
+	this.handleArrows = this.arrow_map;
+	this.selectEvent = this.select_map;
+	this.cancelEvent = this.cancel_map;
+      }
+    );
     delete this.g.selectedUnit;
     this.g.toDraw.del("selectedUnitMovable");
-    this.selectEvent = this.select_map;
-    this.cancelEvent = this.noAction;
   }
   cancel_unitActionSelect()
   {}
@@ -170,10 +176,13 @@ class Inputter
  
   update()
   {
-    this.handleArrows();
+    if (this.g.toDraw.active("cursor"))
+    {
+      this.handleArrows();
+      this.updateHeld();
+      this.updateArrowAccept();
+    }
 
-    this.updateHeld();
-    this.updateArrowAccept();
   }
  
   arrowStall(start)
@@ -213,6 +222,16 @@ class Inputter
       case CANCEL:
 	triggerEvent("input_cancel");
 	break;
+      case "KeyX":
+
+	if (this.g.toDraw.paused("cursor"))
+	{
+	  this.g.toDraw.resume("cursor");
+	}
+	else if (this.g.toDraw.active("cursor"))
+	{
+	  this.g.toDraw.pause("cursor");
+	}
       }
     }
     else

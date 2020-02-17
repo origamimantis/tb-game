@@ -49,7 +49,7 @@ function generateMovable(g, x, y, mov, cost)
   toVisit.enqueue({c: new Coord(x, y), m: mov + tmp});
 
   // breadth-first search
-  while (toVisit.size > 0)
+  while (toVisit.size() > 0)
   {
     let cur = toVisit.dequeue();
 

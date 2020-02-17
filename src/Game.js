@@ -65,6 +65,7 @@ class Game
 
     this.Music.play("btl1");
     
+    this.toDraw.set("cursor", this.cursor);
     this.toDraw.set("Units", this.Units);
   }
 
@@ -127,12 +128,11 @@ class Game
     this.toDraw.draw(this);
 
     this.Map.draw(this);
-    this.cursor.draw(this);
   }
   update()
   {
     this.Inputter.update();
-    this.cursor.update();
+    this.toDraw.update(this);
   }
   mainloop()
   {

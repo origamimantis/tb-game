@@ -6,11 +6,11 @@ class Queue
   {
     this.h = null;
     this.t = null;
-    this.size = 0;
+    this.sz = 0;
   }
   enqueue(val)
   {
-    if (this.size > 0)
+    if (this.sz > 0)
     {
       this.t.n = {v: val, n: null};
       this.t = this.t.n;
@@ -20,15 +20,15 @@ class Queue
       this.t = {v: val, n: null};
       this.h = this.t;
     }
-    ++ this.size;
+    ++ this.sz;
   }
   dequeue()
   {
-    if (this.size > 0)
+    if (this.sz > 0)
     {
       let v = this.h.v;
       this.h = this.h.n;
-      -- this.size;
+      -- this.sz;
       return v;
     }
     else
@@ -39,6 +39,10 @@ class Queue
   front()
   {
     return this.h.v;
+  }
+  size()
+  {
+    return this.sz;
   }
 }
 

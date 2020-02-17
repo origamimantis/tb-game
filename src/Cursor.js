@@ -4,6 +4,7 @@ import {AnimatedObject} from "./AnimatedObject.js";
 import {Animation} from "./Animation.js";
 import {triggerEvent, nextFrameDo} from "./Utils.js";
 import {Path, Coord} from "./Path.js";
+import {Queue} from "./Queue.js";
 
 const LOGGING = false;
 
@@ -31,7 +32,7 @@ class Cursor extends AnimatedObject
     this.moving = false;
     this.triggerMove = false;
     this.speed = framesToMove;
-    this.bufQueue = [];
+    this.path = new Queue();
   }
   
   move( c )
@@ -43,28 +44,38 @@ class Cursor extends AnimatedObject
       this.triggerMove = true;
     }
   }
-  moveTo( c )
+  moveTo( c, onDone )
   {
+    if (this.path.size == 0)
+    {
+      throw "Cannot assign cursor movement whil cursor si moving";
+    }
     //triggerEvent("game_cursorChange", c);
-    let p = new Path();
     let x = this.x;
     let y = this.y;
-      p.push(new Coord(x, y));
+    
     while (x != c.x || y != c.y)
     {
       let dx = c.x - x;
       let dy = c.y - y;
       if (dx != 0)
-      {	x += Math.sign(dx);}
+      {
+	dx = Math.sign(dx);
+	x += dx;
+      }
       if (dy != 0)
-      {	y += Math.sign(dy);}
-      p.push(new Coord(x, y));
+      {
+	dy = Math.sign(dy);
+	y += dy;
+      }
+      this.path.enqueue(new Coord(dx, dy));
     }
+    this.path.onDone = onDone;
     triggerEvent("game_cursorMoveStart", this);
     this.x += this.buf.x;
     this.y += this.buf.y;
     this.clearMoveBuffer();
-    this.cutMoveChain(this.speed, 0, p);
+    //this.cutMoveChain(this.speed, 0, p);
   }
   
   resultOf( c )
@@ -72,8 +83,14 @@ class Cursor extends AnimatedObject
     return new Coord( this.x + c.x, this.y + c.y );
   }
 
-  update()
+  async update()
   {
+    // only let update if cursor is not moving
+    if (this.moving == true)
+    {
+      return;
+    }
+    
     if (this.triggerMove)
     {
       let inx = this.inBounds("x");
@@ -92,11 +109,37 @@ class Cursor extends AnimatedObject
 	triggerEvent("game_cursorMoveStart", { x: this.x + this.buf.x, y: this.y + this.buf.y });
 	this.triggerMove = false;
 	this.moving = true;
-	this.moveChain(this.speed);
+	await this.moveChain(this.speed);
+
+	this.clearMoveBuffer();
+	this.moving = false;
+
+	// trigger an event containing the cursor's current position
+	triggerEvent("game_cursorChange", {x:this.x, y:this.y});
       }
       else
       {
 	this.clearMoveBuffer();
+      }
+    }
+    else if (this.path.size() > 0)
+    {
+      let i = this.path.dequeue();
+      this.buf.x = i.x;
+      this.buf.y = i.y;
+      triggerEvent("game_cursorMoveStart", { x: this.x + this.buf.x, y: this.y + this.buf.y });
+      this.moving = true;
+      await this.moveChain(this.speed);
+
+      this.clearMoveBuffer();
+      this.moving = false;
+
+      // trigger an event containing the cursor's current position
+      triggerEvent("game_cursorChange", {x:this.x, y:this.y});
+      if (this.path.size() == 0)
+      {
+	this.path.onDone();
+	delete this.path.onDone;
       }
     }
   }
@@ -123,39 +166,12 @@ class Cursor extends AnimatedObject
     this.buf = {x: 0,
 		y: 0};
   }
- /* 
+  
   moveChain(framesLeft)
   {
-    if (framesLeft <= 0)
-    {
-      this.x += this.buf.x;
-      this.y += this.buf.y;
-      this.vis.x = this.x;
-      this.vis.y = this.y;
-      this.clearMoveBuffer();
-      this.moving = false;
-
-      // trigger an event containing the cursor's current position
-      triggerEvent("game_cursorChange", {x:this.x, y:this.y});
-    }
-    //
-    else
-    {
-      let dx = this.buf.x/this.speed;
-      let dy = this.buf.y/this.speed;
-      this.vis.x += dx;
-      this.vis.y += dy;
-      
-      // trigger an event containing the cursor's change in position
-      triggerEvent("game_cursorMovement", {x: dx, y: dy});
-      nextFrameDo(() => {this.moveChain(framesLeft - 1);});
-    }
-
-  }
-  */
-  moveChain(framesLeft)
-  {
-    return new Promise( async (resolve) =>
+    return new Promise
+    (
+      async (resolve) =>
       {
 	while (framesLeft > 0)
 	{
@@ -173,75 +189,11 @@ class Cursor extends AnimatedObject
 	this.y += this.buf.y;
 	this.vis.x = this.x;
 	this.vis.y = this.y;
-	this.clearMoveBuffer();
-	this.moving = false;
-
-	// trigger an event containing the cursor's current position
-	triggerEvent("game_cursorChange", {x:this.x, y:this.y});
 	resolve();
       }
     );
   }
 
-  cutMoveChain(framesLeft, index, path)
-  {
-    return new Promise( async(resolve) => 
-      {
-	let start = new Coord( this.x, this.y );
-	for (let i of path)
-	{
-	  this.buf.x = i.x - start.x;
-	  this.buf.y = i.y - start.y;
-	  start = i;
-	  triggerEvent("game_cursorMoveStart", { x: this.x + this.buf.x, y: this.y + this.buf.y });
-	  await this.moveChain(this.speed);
-	}
-	resolve();
-      });
-  }
-	
-
-
-/*
-  cutMoveChain(framesLeft, index, path)
-  {
-    if (framesLeft <= 0)
-    {
-      this.x = path[index].x;
-      this.y = path[index].y;
-      this.vis.x = this.x;
-      this.vis.y = this.y;
-      this.clearMoveBuffer();
-      this.moving = false;
-      triggerEvent("game_cursorChange", {x:this.x, y:this.y});
-      if (index + 1 < path.length)
-      {
-        this.buf.x = path[index + 1].x - this.x;
-        this.buf.y = path[index + 1].y - this.y;
-	triggerEvent("game_cursorMoveStart", this);
-        this.cutMoveChain(this.speed, index+1, path);
-      }
-      else
-      {
-	triggerEvent("cursor_finishMoveTo");
-      }
-    }
-
-    //
-    else
-    {
-      let dx = this.buf.x/this.speed;
-      let dy = this.buf.y/this.speed;
-      this.vis.x += dx;
-      this.vis.y += dy;
-      
-      // trigger an event containing the cursor's change in position
-      triggerEvent("game_cursorMovement", {x: dx, y: dy});
-      nextFrameDo(() => {this.cutMoveChain(framesLeft - 1, index, path)});
-    }
-
-  }
-*/
 
   
   draw(g)
