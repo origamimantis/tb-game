@@ -10,8 +10,10 @@
 
 
 <body>
-	<div id="canvases">
-	</div>
+    <div id="canvases"  width ="1024px" height="768px"></div>
+    <object id="notes" type="text/html" data="src/notes.txt" width="500px" height="100px"></object>
+    <script>document.getElementById("notes").style["margin-top"]= "790px"</script>
+
     <script src="lib/waud.js"></script>
     <script src="lib/easystar.js"></script>
     <script type="module" src="src/main.js"></script>
