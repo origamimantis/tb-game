@@ -1,11 +1,6 @@
 "use strict";
-// both-ways or one-way?
-// ie should I be able to search by y-coord quickly, or am I fine
-// with looping through x-coords
-//
+
 // lookup (x,y) : O(1)
-// lookup x-coord: O(1)
-// lookup y-coord: O(#x-coord)
 // add: O(1)
 // del: O(1)
 

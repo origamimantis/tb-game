@@ -36,16 +36,13 @@ function inMap(pos, min, max)
 
 function generateMovable(g, x, y, mov, cost)
 {
-  let visited = new Path();
-  
-  // Paths stored as strings : mov left when visiting that spot
   let mem = new CoordLookup();
   
-  let min = {x: 0, y: 0};
-  let max = {x: g.Map.dimension.x - 1, y: g.Map.dimension.y - 1};
+  let min = new Coord(0,0);
+  let max = new Coord(g.Map.dimension.x - 1, g.Map.dimension.y - 1);
 
-  let tmp = g.Map.getTile(x, y).tile;
-  tmp =  cost[tmp];
+  let tmp = cost[g.Map.getTile(x, y).tile];
+
   let toVisit = new Queue();
   toVisit.enqueue({c: new Coord(x, y), m: mov + tmp});
 
