@@ -46,9 +46,9 @@ class Cursor extends AnimatedObject
   }
   moveTo( c, onDone )
   {
-    if (this.path.size == 0)
+    if (this.path.nonempty())
     {
-      throw "Cannot assign cursor movement whil cursor si moving";
+      throw "Cannot assign cursor movement while cursor is moving";
     }
     //triggerEvent("game_cursorChange", c);
     let x = this.x;
@@ -71,7 +71,7 @@ class Cursor extends AnimatedObject
       this.path.enqueue(new Coord(dx, dy));
     }
     // do nothign if no path
-    if (this.path.size() > 0)
+    if (this.path.nonempty())
     {
       this.path.onDone = onDone;
       triggerEvent("game_cursorMoveStart", this);
@@ -129,7 +129,7 @@ class Cursor extends AnimatedObject
 	this.clearMoveBuffer();
       }
     }
-    else if (this.path.size() > 0)
+    else if (this.path.nonempty())
     {
       let i = this.path.dequeue();
       this.buf.x = i.x;
@@ -143,7 +143,7 @@ class Cursor extends AnimatedObject
 
       // trigger an event containing the cursor's current position
       triggerEvent("game_cursorChange", {x:this.x, y:this.y});
-      if (this.path.size() == 0)
+      if (this.path.empty())
       {
 	this.path.onDone();
 	delete this.path.onDone;
