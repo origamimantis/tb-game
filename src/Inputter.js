@@ -66,17 +66,20 @@ class Inputter
     }
   }
 
-  select_unitMoveLocation()
+  async select_unitMoveLocation()
   {
-    let target = new Coord( this.g.cursor.x, this.g.cursor.y );
+    await this.cursorStop();
 
+    let target = new Coord( this.g.cursor.x, this.g.cursor.y );
     if (this.getStateAttr("selectedUnitMovable").contains(target))
     {
-      this.g.toDraw.hide("selectedUnitMovable");
-      this.g.selectedUnit.tentativeMove(this.g, target)
       this.selectEvent = this.noAction;
-      this.cancelEvent = this.cancel_unitActionSelect;
+      this.cancelEvent = this.noAction;
       this.handleArrows = this.noAction;
+      //this.g.toDraw.hide("selectedUnitMovable");
+      this.g.selectedUnit.tentativeMove(this.g, target)
+
+      this.cancelEvent = this.cancel_unitActionSelect;
     }
     else
     {
@@ -92,8 +95,7 @@ class Inputter
     this.cancelEvent = this.noAction;
 
     // wait until cursor stops moving
-    while (this.g.cursor.moving != false)
-    { await new Promise( (resolve) => {setTimeout(() => {resolve();}, 5)});}
+    await this.cursorStop();
 
     this.g.cursor.moveTo(this.g.selectedUnit, () =>
       {
@@ -243,6 +245,17 @@ class Inputter
       LOGKEYS && console.log("up: ", key);
       delete this.pressed[key];
       triggerEvent("input_arrowStall", {start : false});
+  }
+  cursorStop()
+  {
+    return new Promise( async (resolve) =>
+      {
+	while (this.g.cursor.moving != false)
+	{
+	  await new Promise( (resolve) => {setTimeout(() => {resolve();}, 5)});
+	}
+	resolve();
+      });
   }
 
   arrowStates()
