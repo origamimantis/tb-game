@@ -40,6 +40,14 @@ class Queue
   {
     return this.h.v;
   }
+  nonempty()
+  {
+    return this.sz > 0;
+  }
+  empty()
+  {
+    return this.sz <= 0;
+  }
   size()
   {
     return this.sz;

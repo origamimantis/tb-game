@@ -4,6 +4,7 @@ import {PathFinder} from "./PathFinder.js";
 import {Path, Coord} from "./Path.js";
 import {FPS, TICK_RATE} from "./Constants.js";
 import {Queue} from "./Queue.js";
+import {CoordLookup} from "./CoordLookup.js";
 
 
 function nextFrameDo(f)
@@ -38,7 +39,7 @@ function generateMovable(g, x, y, mov, cost)
   let visited = new Path();
   
   // Paths stored as strings : mov left when visiting that spot
-  let mem = {};
+  let mem = new CoordLookup();
   
   let min = {x: 0, y: 0};
   let max = {x: g.Map.dimension.x - 1, y: g.Map.dimension.y - 1};
@@ -49,25 +50,21 @@ function generateMovable(g, x, y, mov, cost)
   toVisit.enqueue({c: new Coord(x, y), m: mov + tmp});
 
   // breadth-first search
-  while (toVisit.size() > 0)
+  while (toVisit.nonempty())
   {
     let cur = toVisit.dequeue();
 
     let cd = cur.c;
     let mv = cur.m;
     
-    if (inMap(cd, min, max) && ( mem[cd] == undefined || mem[cd] < mv) )
+    if (inMap(cd, min, max) && ( mem.doesNotContain(cd) || mem.get(cd) < mv) )
     {
       let type = g.Map.getTile(cd.x, cd.y).tile;
       let cst = cost[type];
 
       if (cst != undefined && mv >= cst)
       {
-	if ( mem[cd] == undefined)
-	{
-	  visited.push(cd);
-	}
-	mem[cd] = mv;
+	mem.add(cd, mv);
 
 	toVisit.enqueue( {c: new Coord(cd.x + 1, cd.y    ), m: mv - cst} );
 	toVisit.enqueue( {c: new Coord(cd.x - 1, cd.y    ), m: mv - cst} );
@@ -76,7 +73,7 @@ function generateMovable(g, x, y, mov, cost)
       }
     }
   }
-  return visited;
+  return mem;
 }
 
 

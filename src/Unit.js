@@ -117,7 +117,8 @@ class Unit extends AnimatedObject
       p.draw = ( g ) =>
       {
 	let off = g.camera.offset;
-	for (let c of p)
+	let it = p.iter();
+	for (let c of it)
 	{
 	    g.ctx[1].drawImage(
 	      g.Album.get(

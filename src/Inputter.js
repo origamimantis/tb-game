@@ -70,8 +70,7 @@ class Inputter
   {
     let target = new Coord( this.g.cursor.x, this.g.cursor.y );
 
-    console.log (this.getStateAttr("selectedUnitMovable"));
-    if (this.getStateAttr("selectedUnitMovable").containsCoord(target))
+    if (this.getStateAttr("selectedUnitMovable").contains(target))
     {
       this.g.toDraw.hide("selectedUnitMovable");
       this.g.selectedUnit.tentativeMove(this.g, target)
@@ -149,8 +148,8 @@ class Inputter
 
       triggerEvent("input_arrowStall", {start : a.held.length == 0});
       // usually outside movable == false. If keypressed, allow it to go outside but only if moves outside
-      this.arrowOutsideMovable = !(this.getStateAttr("selectedUnitMovable")
-				  .containsCoord(this.g.cursor.resultOf(delta)));
+      this.arrowOutsideMovable = (this.getStateAttr("selectedUnitMovable")
+				  .doesNotContain(this.g.cursor.resultOf(delta)));
       this.g.cursor.move(delta);
     }
     // if nothing was pressed this tick
@@ -161,7 +160,7 @@ class Inputter
 	delta.add( ARROWS[d] );
       }
       
-      let inside = this.getStateAttr("selectedUnitMovable").containsCoord(this.g.cursor.resultOf(delta));
+      let inside = this.getStateAttr("selectedUnitMovable").contains(this.g.cursor.resultOf(delta));
 
       if (this.arrowOutsideMovable == true || inside)
       {
