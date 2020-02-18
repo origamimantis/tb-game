@@ -1,6 +1,7 @@
 'use strict';
 
 import {Path} from "./Path.js";
+import {Queue} from "./Queue.js";
 
 class PathFinder
 {
@@ -32,7 +33,12 @@ class PathFinder
 	{
 	  if (path != null)
 	  {
-	    resolve( new Path( path ) );
+	  let q = new Queue();
+	    for (let c of path)
+	    {
+	      q.enqueue(c);
+	    }
+	    resolve( q );
 	  }
 	  resolve( null );
 

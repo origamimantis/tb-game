@@ -2,7 +2,7 @@
 
 import {getTile, inRange} from "./UsefulFunctions.js";
 import {LoopSelector} from "./LoopSelector.js";
-import {Coord} from "./Path.js";
+import {Path, Coord} from "./Path.js";
 import {triggerEvent, respondToEvent} from "./Utils.js";
 
 const SELECT = "Period";
@@ -26,7 +26,7 @@ const HOLD_DELAY = 12;
 const LOGKEYS = false;
 
 
-class Inputter
+export class Inputter
 {
   constructor(g)
   {
@@ -52,20 +52,16 @@ class Inputter
     respondToEvent("input_select",  () => {this.selectEvent();});
     respondToEvent("input_cancel",  () => {this.cancelEvent();});
   }
-  
-  select_map()
-  {
-    let unit = this.g.Map.getTile(this.g.cursor.x, this.g.cursor.y).unit;
-    if (unit != null)
-    {
-      this.g.selectedUnit = unit;
-      this.g.toDraw.set("selectedUnitMovable", unit.movable(this.g) );
-      this.selectEvent = this.select_unitMoveLocation;
-      this.cancelEvent = this.cancel_unitMoveLocation;
-      this.handleArrows = this.arrow_unitMoveLocation;
-    }
-  }
 
+  cancel_unitActionSelect()
+  {}
+
+
+
+  /*************************************/
+  /* ACTION UNIT MOVE LOCATION         */
+  /*************************************/
+  
   async select_unitMoveLocation()
   {
     await this.cursorStop();
@@ -101,14 +97,117 @@ class Inputter
       {
 	this.handleArrows = this.arrow_map;
 	this.selectEvent = this.select_map;
-	this.cancelEvent = this.cancel_map;
+	this.cancelEvent = this.noAction;
       }
     );
     delete this.g.selectedUnit;
     this.g.toDraw.del("selectedUnitMovable");
+    this.g.toDraw.del("selectedUnitPath");
+    delete this.g.temp["selectedUnitMov"];
   }
-  cancel_unitActionSelect()
-  {}
+
+  arrow_unitMoveLocation()
+  {
+    let a = this.arrowStates();
+
+    let delta = new Coord(0,0);
+    
+    if (a.once.length > 0)
+    {
+      for (let d of a.once)
+      {
+	  delta.add( ARROWS[d] );
+      }
+
+      triggerEvent("input_arrowStall", {start : a.held.length == 0});
+      // usually outside movable == false. If keypressed, allow it to go outside but only if moves outside
+      this.arrowOutsideMovable = (this.getStateAttr("selectedUnitMovable")
+				  .doesNotContain(this.g.cursor.resultOf(delta)));
+      this.g.cursor.move(delta, () => {this._arrow_editPath();});
+    }
+    // if nothing was pressed this tick
+    else if (this.accepting == true)
+    {
+      for (let d of a.held)
+      {
+	delta.add( ARROWS[d] );
+      }
+      
+      let inside = this.getStateAttr("selectedUnitMovable").contains(this.g.cursor.resultOf(delta));
+
+      if (this.arrowOutsideMovable == true || inside)
+      {
+	this.g.cursor.move(delta, () => {this._arrow_editPath();});
+	if (inside == true)
+	{
+	  this.arrowOutsideMovable = false;
+	}
+      }
+    }
+  }
+ 
+  _arrow_editPath()
+  {
+    //unit.movcost[this.g.getTile(this.g.cursor.x, this.g.cursor.y)];
+    let c = new Coord(this.g.cursor.x, this.g.cursor.y);
+    let p = this.getStateAttr("selectedUnitPath");
+    
+    let i = p.indexOf(c);
+    if (i < 0)
+    {
+      let prev = p.last();
+      if (Math.abs(c.x - prev.x) == 1 && Math.abs(c.y - prev.y) == 1)
+      {
+	// TODO TODO TODO chackthe two surrounding tiles and push the one with the lowest cost
+	console.log("diag!");
+      }
+      p.push(c);
+    }
+    else
+    {
+      p.splice(i+1);
+    }
+
+
+
+  }
+
+
+
+  /*************************************/
+  /* ACTION MAP                        */
+  /*************************************/
+  
+  select_map()
+  {
+    let unit = this.g.Map.getTile(this.g.cursor.x, this.g.cursor.y).unit;
+    if (unit != null)
+    {
+      this.g.selectedUnit = unit;
+      this.g.toDraw.set("selectedUnitMovable", unit.movable(this.g) );
+      this.selectEvent = this.select_unitMoveLocation;
+      this.cancelEvent = this.cancel_unitMoveLocation;
+      this.handleArrows = this.arrow_unitMoveLocation;
+
+      let p = new Path();
+      p.draw = ( g ) =>
+      {
+        let off = g.camera.offset;
+        for (let c of p)
+        {
+          g.ctx[1].drawImage(
+            g.Album.get("C_walk"),
+            (c.x - off.x)*g.grid.x, (c.y - off.y)*g.grid.y,
+            g.grid.x, g.grid.y
+          );
+        }
+      }
+      p.push(new Coord(unit.x, unit.y));
+
+      this.g.toDraw.set("selectedUnitPath", p);
+      this.g.temp["selectedUnitMov"] = unit.stats.mov;
+    }
+  }
 
   arrow_map()
   {
@@ -135,46 +234,11 @@ class Inputter
     this.g.cursor.move(delta);
   }
 
-  arrow_unitMoveLocation()
-  {
-    let a = this.arrowStates();
+  
+  /*************************************/
+  /* OTHER STUFF                       */
+  /*************************************/
 
-    let delta = new Coord(0,0);
-    
-    if (a.once.length > 0)
-    {
-      for (let d of a.once)
-      {
-	  delta.add( ARROWS[d] );
-      }
-
-      triggerEvent("input_arrowStall", {start : a.held.length == 0});
-      // usually outside movable == false. If keypressed, allow it to go outside but only if moves outside
-      this.arrowOutsideMovable = (this.getStateAttr("selectedUnitMovable")
-				  .doesNotContain(this.g.cursor.resultOf(delta)));
-      this.g.cursor.move(delta);
-    }
-    // if nothing was pressed this tick
-    else if (this.accepting == true)
-    {
-      for (let d of a.held)
-      {
-	delta.add( ARROWS[d] );
-      }
-      
-      let inside = this.getStateAttr("selectedUnitMovable").contains(this.g.cursor.resultOf(delta));
-
-      if (this.arrowOutsideMovable == true || inside)
-      {
-	this.g.cursor.move(delta);
-	if (inside == true)
-	{
-	  this.arrowOutsideMovable = false;
-	}
-      }
-    }
-  }
- 
   update()
   {
     if (this.g.toDraw.active("cursor"))
@@ -228,10 +292,12 @@ class Inputter
 	if (this.g.toDraw.paused("cursor"))
 	{
 	  this.g.toDraw.resume("cursor");
+	  this.g.toDraw.resume("Units");
 	}
 	else if (this.g.toDraw.active("cursor"))
 	{
 	  this.g.toDraw.pause("cursor");
+	  this.g.toDraw.pause("Units");
 	}
       }
     }
@@ -306,8 +372,3 @@ class Inputter
   }
 }
 
-
-
-
-
-export {Inputter};

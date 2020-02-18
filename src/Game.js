@@ -67,6 +67,8 @@ class Game
     
     this.toDraw.set("cursor", this.cursor);
     this.toDraw.set("Units", this.Units);
+
+    this.temp = {};
   }
 
   generateCanvasLayers()

@@ -51,11 +51,11 @@ class Path extends Array
 	return false;
     }
 
-    indexOf(elem)
+    indexOf(c)
     {
 	for (let i = 0; i < this.length; i++)
 	{
-	    if (this[i][0] == elem[0] && this[i][1] == elem[1])
+	    if (this[i].x == c.x && this[i].y == c.y)
 	    {
 		return i;
 	    }
@@ -91,6 +91,10 @@ class Path extends Array
 	}
 	return true;
     }
+  last()
+  {
+    return this[this.length - 1];
+  }
 }
 
 

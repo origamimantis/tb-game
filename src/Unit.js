@@ -2,10 +2,11 @@
 
 import {AnimatedObject} from "./AnimatedObject.js";
 import {Path} from "./Path.js";
+import {Queue} from "./Queue.js";
 import {recolor} from "./UsefulFunctions.js";
 import {Weapons} from "./Weapon.js";
 import {TILES} from "./Constants.js";
-import {triggerEvent, generatePath, generateMovable, nextFrameDo} from "./Utils.js";
+import {triggerEvent, generatePath, generateMovable, nextFrameDo, waitTick} from "./Utils.js";
 
 // for movement speed in terms of animation
 const ftm = 6;
@@ -37,9 +38,12 @@ class Unit extends AnimatedObject
 		x : this.x,
 		y : this.y
 		};
+    this.moving = false;
+    this.moveFlag = false;
+    this.path = new Queue();
   }
   
- 
+  // TODO change this to take a path as a parameter. The path will be built up using inputter 
   async tentativeMove(g, c)
   {
     let p = await generatePath(g, this.x, this.y, c.x, c.y, this.movcost);
@@ -47,7 +51,8 @@ class Unit extends AnimatedObject
     {
       throw "Could not find path to (x, y) = (" + this.x + ", " + this.y + ") to (" + x + ", " + y + ").";
     }
-    this.moveChain(g, this.mapSpeed, 0, p);
+    this.path = p;
+    this.moveFlag = true;
 
   }
 
@@ -58,45 +63,54 @@ class Unit extends AnimatedObject
     {
       throw "Could not find path to (x, y) = (" + this.x + ", " + this.y + ") to (" + x + ", " + y + ").";
     }
-    this.moveChain(g, this.mapSpeed, 0, p, true);
+    this.path = p;
+    this.moveFlag = true;
     g.Map.removeUnit(this);
     g.Map.getTile(x, y).unit = this;
 
   }
   
-  moveChain(g, framesLeft, index, path, updatePos = false)
+  moveChain(g, framesLeft, updatePos = false)
   {
-    if (index >= path.length)
+    return new Promise( async (resolve) =>
+      {
+	while (framesLeft > 0)
+	{
+          let dx = this.vis.dx/this.mapSpeed;
+          let dy = this.vis.dy/this.mapSpeed;
+          this.vis.x += dx;
+          this.vis.y += dy;
+
+          await waitTick();
+          -- framesLeft;
+        }
+        this.x += this.vis.dx;
+        this.y += this.vis.dy;
+        this.vis.x = this.x;
+        this.vis.y = this.y;
+        resolve();
+      });
+  }
+  async update(g)
+  {
+    if (this.moving == true)
     {
-      triggerEvent("unit_moveFinish", this);
       return;
     }
-    if (framesLeft <= 0 || path[index].equals(this) )
+    if (this.moveFlag == true)
     {
-      if (updatePos == true)
+      this.moveFlag = false;
+      if (this.path.nonempty())
       {
-	this.x = path[index].x;
-	this.y = path[index].y;
-      }
-      this.vis.x = path[index].x;
-      this.vis.y = path[index].y;
-      if (index + 1 < path.length)
-      {
-	this.vis.dx = path[index + 1].x - this.vis.x;
-	this.vis.dy = path[index + 1].y - this.vis.y;
-	this.moveChain(g, this.mapSpeed, index+1, path, updatePos);
-      }
-      else // something when the unit reaches its destination
-      {}
-    }
-    else
-    {
-      let dx = this.vis.dx/this.mapSpeed;
-      let dy = this.vis.dy/this.mapSpeed;
+	let i = this.path.dequeue();
+	this.vis.dx = i.x - this.x;
+	this.vis.dy = i.y - this.y;
 
-      this.vis.x += dx;
-      this.vis.y += dy;
-      nextFrameDo(() => {this.moveChain(g, framesLeft - 1, index, path, updatePos)});
+	this.moving = true;
+	await this.moveChain(g, this.mapSpeed, true);
+	this.moving = false;
+	this.moveFlag = true;
+      }
     }
   }
 

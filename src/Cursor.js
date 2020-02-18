@@ -2,7 +2,7 @@
 
 import {AnimatedObject} from "./AnimatedObject.js";
 import {Animation} from "./Animation.js";
-import {triggerEvent, nextFrameDo} from "./Utils.js";
+import {triggerEvent, nextFrameDo, waitTick} from "./Utils.js";
 import {Path, Coord} from "./Path.js";
 import {Queue} from "./Queue.js";
 
@@ -35,13 +35,14 @@ class Cursor extends AnimatedObject
     this.path = new Queue();
   }
   
-  move( c )
+  move( c, onDone )
   {
     if (this.moving == false && (c.x != 0 || c.y != 0))
     {
       this.buf.x += c.x;
       this.buf.y += c.y;
       this.triggerMove = true;
+      this.path.onDone = onDone;
     }
   }
   moveTo( c, onDone )
@@ -123,6 +124,11 @@ class Cursor extends AnimatedObject
 
 	// trigger an event containing the cursor's current position
 	triggerEvent("game_cursorChange", {x:this.x, y:this.y});
+	if (this.path.onDone)
+	{
+	  this.path.onDone();
+	  delete this.path.onDone;
+	}
       }
       else
       {
@@ -189,7 +195,7 @@ class Cursor extends AnimatedObject
 	  
 	  // trigger an event containing the cursor's change in position
 	  triggerEvent("game_cursorMovement", {x: dx, y: dy});
-	  await this.wait();
+	  await waitTick();
 	  -- framesLeft;
 	}
 	this.x += this.buf.x;
@@ -226,15 +232,7 @@ class Cursor extends AnimatedObject
       this.setVel();
     }
   }
-  
-  wait()
-  {
-    return new Promise(resolve =>
-      {
-        nextFrameDo(() => {resolve();});
-      });
-  }
-
+ 
 }
 
 

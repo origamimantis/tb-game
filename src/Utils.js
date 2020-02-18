@@ -7,14 +7,14 @@ import {Queue} from "./Queue.js";
 import {CoordLookup} from "./CoordLookup.js";
 
 
-function nextFrameDo(f)
+export function nextFrameDo(f)
 {
   requestAnimationFrame(f);
   //setTimeout( () => {requestAnimationFrame(f)}, TICK_RATE);
 }
 
 
-async function generatePath(g, x0, y0, xf, yf, cost)
+export async function generatePath(g, x0, y0, xf, yf, cost)
 {
   return new Promise( (resolve, reject) => 
     {
@@ -34,7 +34,7 @@ function inMap(pos, min, max)
   return (pos.x >= min.x && pos.x <= max.x && pos.y >= min.y && pos.y <= max.y);
 }
 
-function generateMovable(g, x, y, mov, cost)
+export function generateMovable(g, x, y, mov, cost)
 {
   let mem = new CoordLookup();
   
@@ -73,10 +73,16 @@ function generateMovable(g, x, y, mov, cost)
   return mem;
 }
 
+export function waitTick()
+{
+  return new Promise(resolve =>
+    {
+      nextFrameDo(() => {resolve();});
+    });
+}
 
 
-
-let requestFile = function (url, method)
+export function requestFile(url, method)
 {
   // Create the XHR request
   let request = new XMLHttpRequest();
@@ -113,14 +119,13 @@ let requestFile = function (url, method)
     });
 };
 
-function triggerEvent(name, detail)
+export function triggerEvent(name, detail)
 {
   document.dispatchEvent(new CustomEvent(name, {detail: detail}));
 }
 
-function respondToEvent(name, f)
+export function respondToEvent(name, f)
 {
   document.addEventListener( name, (e) => f(e.detail));
 }
 
-export {requestFile, triggerEvent, respondToEvent, generatePath, generateMovable, nextFrameDo};
