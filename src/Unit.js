@@ -120,11 +120,11 @@ class Unit extends AnimatedObject
 	let it = p.iter();
 	for (let c of it)
 	{
-	    g.ctx[1].drawImage(
-	      g.Album.get(
-		"C_move"),
-	      (c.x - off.x)*g.grid.x, (c.y - off.y)*g.grid.y,
-	      g.grid.x, g.grid.y);
+	  g.ctx[1].drawImage(
+	    g.Album.get("C_move"),
+	    (c.x - off.x)*g.grid.x, (c.y - off.y)*g.grid.y,
+	    g.grid.x, g.grid.y
+	  );
 	}
       }
     }
