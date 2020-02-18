@@ -1,3 +1,6 @@
+2020-02-17 @ 17:25:
+improved time complexity of coordinate lookup used in various places
+
 2020-02-17 @ 15:48:
 further changed cursor interaction upon cancelling. Additionally, allowed the cursor to "pause" by pressing the "x" key. Will remove later.		
 
