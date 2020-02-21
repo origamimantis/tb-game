@@ -14,7 +14,7 @@ class Tile
 }
 
 
-class TileMap
+export class TileMap
 {
     constructor()
     {
@@ -152,16 +152,3 @@ class TileMap
     }
 }
 
-
-export {TileMap};
-
-
-/*
-
-(dimension y) (dimension x)        //2 numbers for size of map
-(tileart#):(actualart#)            //a bunch of definitions for what art to use for which number
-tileart:tiletype tileart:tiletype  //tiles
-tileart:tiletype tileart:tiletype
-tileart:tiletype tileart:tiletype
-
-*/

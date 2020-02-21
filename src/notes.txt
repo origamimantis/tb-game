@@ -1,3 +1,6 @@
+2020-02-20 @ 22:21:
+implemented pathfinding for unit move. Will bug tes.
+
 2020-02-17 @ 21:27:
 implemented (partially) unit move.
 

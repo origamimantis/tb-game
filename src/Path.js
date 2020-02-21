@@ -1,5 +1,7 @@
 'use strict';
 
+import {Queue} from "./Queue.js";
+
 class Coord
 {
   constructor(x, y)
@@ -35,7 +37,7 @@ class Path extends Array
 	super();
 	for (let i = 0; i < path.length; i++)
 	{
-	    this.push(new Coord(path[i].x, path[i].y));
+	    this.enqueue(new Coord(path[i].x, path[i].y));
 	}
     }
 
@@ -69,7 +71,7 @@ class Path extends Array
 	{
 	    if (this[i][0] == elem[0] && this[i][1] == elem[1] )
 	    {
-		cnt.push(i);
+		cnt.enqueue(i);
 	    }   
 	}   
 	return cnt;

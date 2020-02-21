@@ -20,7 +20,7 @@ export class CoordLookup
     {
       throw "Cannot set a value of undefined";
     }
-    if (this.c_x[c.x] == undefined)
+    else if (this.c_x[c.x] == undefined)
     {
       this.c_x[c.x] = {};
     }

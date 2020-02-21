@@ -29,7 +29,7 @@ window.onload = () =>
   load
   (
     {
-      MapPath : "assets/tilemaps/lvl3.txt",
+      MapPath : "assets/tilemaps/as_test.txt",
       ImgLoad : [ "P_gen", "P_janitor",
 		  "T_grass_forest_B", "T_grass_forest_M", "T_grass_forest_T", 
 		  "T_grass",

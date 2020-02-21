@@ -8,11 +8,8 @@ import {Weapons} from "./Weapon.js";
 import {TILES} from "./Constants.js";
 import {triggerEvent, generatePath, generateMovable, nextFrameDo, waitTick} from "./Utils.js";
 
-// for movement speed in terms of animation
-const ftm = 6;
-const vel = 1/ftm;
 
-class Unit extends AnimatedObject
+export class Unit extends AnimatedObject
 {
   constructor(id, x, y, caps, stats, name = ("Unit "+id), classname = "Unit", pArt = "gen", color = [255,0,0],)
   {
@@ -28,8 +25,13 @@ class Unit extends AnimatedObject
     this.movcost[TILES.ROAD] = 1;
     this.movcost[TILES.TREE] = 2;
     
-    this.caps = caps;
-    this.stats = stats;
+    this.caps = {};
+    this.stats = {};
+    for (let s of [ "maxhp","atk","spd","skl","def","con","mov" ])
+    {
+      this.caps[s] = (caps[s] == undefined) ? 0 : caps[s];
+      this.stats[s] = (stats[s] == undefined) ? 0 : stats[s];
+    }
     this.mapSpeed = 6;
 
     this.vis = {
@@ -124,15 +126,12 @@ class Unit extends AnimatedObject
   {
     let p = generateMovable(g, this.x, this.y, this.stats.mov, this.movcost);
 
-    let _u = this;
-
     if (draw == true)
     {
       p.draw = ( g ) =>
       {
 	let off = g.camera.offset;
-	let it = p.iter();
-	for (let c of it)
+	for (let c of p)
 	{
 	  g.ctx[1].drawImage(
 	    g.Album.get("C_move"),
@@ -168,5 +167,3 @@ class Unit extends AnimatedObject
   }
 
 }
-
-export {Unit};

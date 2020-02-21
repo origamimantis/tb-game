@@ -1,6 +1,6 @@
 'use strict';
 
-import {Path} from "./Path.js";
+import {Path, Coord} from "./Path.js";
 import {Queue} from "./Queue.js";
 
 class PathFinder
@@ -33,10 +33,10 @@ class PathFinder
 	{
 	  if (path != null)
 	  {
-	  let q = new Queue();
+	    let q = new Queue();
 	    for (let c of path)
 	    {
-	      q.enqueue(c);
+	      q.enqueue(new Coord(c.x, c.y));
 	    }
 	    resolve( q );
 	  }
@@ -47,33 +47,6 @@ class PathFinder
       }
     );
   }
-    
-    largestwalkable(unit, limit)
-    {
-	let l = 0;
-	for (let movreq of Object.values(unit.movcost))
-	{
-	    if (movreq <500 && movreq > l)
-	    {
-		l= movreq;
-	    }
-	}
-	return l;
-    }
-    removeloop( tp )
-    {
-	for (let i = 0; i < tp.length; ++i)
-	{
-	    let is = tp.idxs(tp[i], i);
-	    if (is.length > 1)
-	    {
-		let howmany = is[is.length-1] - is[0];
-		tp.splice(is[0], howmany);
-	    }
-	}
-    }
-
-
 
 }
 

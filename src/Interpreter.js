@@ -22,7 +22,7 @@ class Interpreter
       ADDUNIT: (id, x, y) => {return new Promise( (resolve) =>
       {
 	id = parseInt(id); x = parseInt(x); y = parseInt(y);  
-	let u = new Unit(id, x, y, {}, {mov: 9});
+	let u = new Unit(id, x, y, {}, {mov: 7});
 	u.addAnim( "idle", new Animation("S_kn0", [20,10,20,10]));
 	u.setAnim( "idle" );
 	this.g.addUnit(u);
@@ -52,7 +52,31 @@ class Interpreter
 	id = parseInt(id); x = parseInt(x); y = parseInt(y);
 	this.g.getUnitById(id).moveTo(this.g, x, y);
 	resolve();
-      });}
+      });},
+
+      SETSTAT: (id, ...args) => {return new Promise( (resolve) =>
+      {
+	id = parseInt(id);
+	for (let chunk of args)
+	{
+	  let [name, val] = chunk.split(':');
+	  name = name.trim().toLowerCase();
+	  val = parseInt(val.trim());
+	  if (this.g.getUnitById(id).stats[name] != undefined)
+	  {
+	    this.g.getUnitById(id).stats[name] = val;
+	  }
+	}
+	resolve();
+      });},
+      
+      LOGUNIT: (id) => {return new Promise( (resolve) =>
+      {
+	id = parseInt(id);
+	console.log(this.g.getUnitById(id));
+	resolve();
+      });},
+
 
     }
 
@@ -69,10 +93,11 @@ class Interpreter
       {
 	continue;
       }
-      let tokens = line.toUpperCase().split(" ");
-      if (this.commands[tokens[0]] != null)
+      let args = line.split(" ");
+      let func = args.shift().toUpperCase();
+      if (this.commands[func] != null)
       {
-	await this.commands[tokens[0]] (...tokens.slice(1));
+	await this.commands[func] (...args);
       }
       else
       {
