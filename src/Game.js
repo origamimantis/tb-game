@@ -8,15 +8,16 @@ import {AnimatedObject} from "./AnimatedObject.js";
 import {Cursor} from "./Cursor.js";
 import {FPS, TICK_RATE} from "./Constants.js";
 import {Camera} from "./Camera.js";
+import {Queue} from "./Queue.js";
 import {MusicPlayer} from "./MusicPlayer.js";
 import {DrawContainer} from "./DrawContainer.js";
-import {Inputter} from "./Inputter.js";
+import {Inputter, ARROWS} from "./Inputter.js";
 //import {Battle} from "./Battle.js";
 //import {SpriteFont} from "./SpriteFont.js";
 //import {Tester} from "./Tester.js";
 //import {LoopSelector} from "./LoopSelector.js";
 //import {RNG} from "./RNG.js";
-import {triggerEvent, nextFrameDo} from "./Utils.js";
+import {triggerEvent, respondToEvent, getCost, generatePath, nextFrameDo, cursorStop} from "./Utils.js";
 
 const C_WIDTH = 1024;
 const C_HEIGHT = 768;
@@ -69,7 +70,317 @@ class Game
     this.toDraw.set("Units", this.Units);
 
     this.temp = {};
+    
+    this.gameStatus = "map";
+    this.cursorOutsideMovable = false;
+
+
+    respondToEvent("input_arrowStall", (e) =>{ this.Inputter.arrowStall(e.start); });
+    respondToEvent("cursor_finishMoveTo", (e) =>{ this.handleArrows = this.arrow_map; });
+
+    respondToEvent("input_select",  () => {this.stateAction[this.gameStatus].select();});
+    respondToEvent("input_cancel",  () => {this.stateAction[this.gameStatus].cancel();});
+    this.stateAction = {};
+    
+    this.stateAction.unitActionSelect =
+    {
+
+
+
+    /*************************************/
+    /* ACTION UNIT ACTION SELECT         */
+    /*************************************/
+      select:()=>
+      {
+      },
+      cancel:()=>
+      {
+      },
+      arrows:(a)=>
+      {
+      }
+
+    }
+
+    this.stateAction.unitMoveLocation =
+    {
+    /*************************************/
+    /* ACTION UNIT MOVE LOCATION         */
+    /*************************************/
+    
+      select: async ()=>
+      {
+	await cursorStop(this.cursor);
+
+	let target = new Coord( this.cursor.x, this.cursor.y );
+	let unitOnTarget = this.Map.getTile(this.toDraw.get("selectedUnitPath").last()).unit
+	if (this.toDraw.get("selectedUnitMovable").contains(target)
+	  && (unitOnTarget == null || unitOnTarget == this.temp.selectedUnit))
+	{
+	  this.gameStatus = "blockInput";
+	  this.temp.selectedUnit.tentativeMove(this, this.toDraw.get("selectedUnitPath"), () =>
+	    {
+	      this.gameStatus = "unitActionSelect";
+	      //this.g.toDraw.hide("selectedUnitMovable");
+	      //this.g.toDraw.hide("selectedUnitPath");
+	    }
+	  )
+
+	  this.cancelEvent = this.cancel_unitActionSelect;
+	}
+	else
+	{
+	  triggerEvent("sfx_play_err_effect");
+	}
+      },
+      
+      cancel: async ()=>
+      {
+	// disable further cursor movement
+	this.gameStatus = "blockInput";
+
+	// wait until cursor stops moving
+	await cursorStop(this.cursor);
+
+	// move the cursor back to the unit and update state on complete
+	this.cursor.moveTo(this.temp.selectedUnit, () =>
+	  {
+	    this.gameStatus = "map";
+	  }
+	);
+	this.toDraw.del("selectedUnitMovable");
+	this.toDraw.del("selectedUnitPath");
+	delete this.temp["selectedUnitMov"];
+	delete this.temp["selectedUnit"];
+      },
+
+      arrows: async (a) =>
+      {
+	let delta = new Coord(0,0);
+	
+	if (a.once.length > 0)
+	{
+	  a.once.forEach( (d) => { delta.add( ARROWS[d] );} );
+
+	  triggerEvent("input_arrowStall", {start : a.held.length == 0});
+
+	  // usually outside movable == false. If keypressed, allow it to go outside but only if moves outside
+	  this.cursorOutsideMovable = (this.toDraw.get("selectedUnitMovable")
+				      .doesNotContain(this.cursor.resultOf(delta)));
+	  this.cursor.move(delta, async () => {await this._arrow_editPath(delta);});
+	}
+	// if nothing was pressed this tick
+	else if (this.Inputter.accepting == true)
+	{
+	  a.held.forEach( (d) => { delta.add( ARROWS[d] );} );
+	  
+	  let inside = this.toDraw.get("selectedUnitMovable").contains(this.cursor.resultOf(delta));
+
+	  if (this.cursorOutsideMovable == true || inside)
+	  {
+	    this.cursor.move(delta, async () => {await this._arrow_editPath(delta);});
+	    if (inside == true)
+	    {
+	      this.cursorOutsideMovable = false;
+	    }
+	  }
+	}
+      }
+    }
+   
+    
+
+    /*************************************/
+    /* ACTION MAP                        */
+    /*************************************/
+    
+    this.stateAction.map = 
+    {
+      select: () =>
+      {
+	let unit = this.Map.getTile(this.cursor.x, this.cursor.y).unit;
+	if (unit != null)
+	{
+	  this.toDraw.set("selectedUnitMovable", unit.movable(this) );
+	  this.gameStatus = "unitMoveLocation";
+
+	  let p = new Queue();
+	  p.draw = function( g )
+	  {
+	    let off = g.camera.offset;
+	    for (let c of this)
+	    {
+	      g.ctx[1].drawImage(
+		g.Album.get("C_walk"),
+		(c.x - off.x)*g.grid.x, (c.y - off.y)*g.grid.y,
+		g.grid.x, g.grid.y
+	      );
+	    }
+	  }
+	  p.push(new Coord(unit.x, unit.y));
+
+	  this.toDraw.set("selectedUnitPath", p);
+	  this.temp["selectedUnit"] = unit;
+	  this.temp["selectedUnitMov"] = unit.stats.mov;
+	}
+      },
+
+      arrows: (a) =>
+      {
+	let delta = new Coord(0,0);
+	
+	if (a.once.length > 0)
+	{
+	  a.once.forEach( (d) => { delta.add( ARROWS[d] );} );
+	  
+	  triggerEvent("input_arrowStall", {start : a.held.length == 0});
+	}
+	// if nothing was pressed this tick
+	else if (this.Inputter.accepting == true)
+	{
+	  a.held.forEach( (d) => { delta.add( ARROWS[d] );} );
+	}
+	this.cursor.move(delta);
+      },
+
+      cancel: ()=>
+      {
+      }
+    }
+
+
+    /*************************************/
+    /* ACTION BLOCK INPUT                */
+    /*************************************/
+    this.stateAction.blockInput = 
+    {
+      select:()=>{},
+      cancel:()=>{},
+      arrows:(a)=>{}
+
+    }
   }
+
+  
+  /*************************************/
+  /* OTHER STUFF                       */
+  /*************************************/
+  _arrow_editPath(delta)
+  {
+    let c = new Coord(this.cursor.x, this.cursor.y);
+    let prevcursor = new Coord(this.cursor.x - delta.x, this.cursor.y - delta.y);
+    if (this.toDraw.get("selectedUnitMovable").contains(c))
+    {
+      return new Promise( async (resolve) =>
+      {
+	//unit.movcost[this.getTile(this.cursor.x, this.cursor.y)];
+	let p = this.toDraw.get("selectedUnitPath");
+	let unit = this.temp.selectedUnit;
+	let cost = unit.movcost;
+	
+	// TODO: reorganize into
+	// add block
+	// merge
+	// diagonal movement
+	//
+	// move limit -> path finding
+	// /\ move > 1 -> path finding
+	let i = p.contains(c);
+	if (i == false)
+	{
+	  let ccost = getCost(this, c.x, c.y, cost);
+
+	  let prev = p.last();
+	  // if the term-wise product is not zero, then neither x nor y is 0 => diagonal
+	  if (Math.abs(c.x - prev.x) + Math.abs(c.y - prev.y) >= 2)
+	  {
+	    // TODO handle unwalkable tiles: right now they cause NaN
+	    // probably just A* from prev to cur
+	    // if not enough move, do the big A*
+	    //A* to c
+	    let np = await generatePath(this, prev.x, prev.y, c.x, c.y, cost);
+	    np.dequeue();
+
+	    let addcost = 0;
+	    np.forEach((tile) => {addcost += getCost(this, tile.x, tile.y, cost);} );
+
+	    // if this is a legit move
+	    if (this.temp.selectedUnitMov >= addcost && p.intersect(np) == false)
+	    {
+	      this.temp.selectedUnitMov -= addcost;
+	      while (np.nonempty())
+	      {
+		p.push(np.dequeue())
+	      }
+	      resolve();
+	    }
+	    else
+	    {
+	      np = await generatePath(this, unit.x, unit.y, c.x, c.y, cost);
+
+	      let first = np.front();
+	      let newcost = - getCost(this, first.x, first.y, cost);
+	      np.forEach((tile) => {newcost += getCost(this, tile.x, tile.y, cost);} );
+	      this.temp.selectedUnitMov = unit.stats.mov - newcost;
+	      p.consume(np);
+
+	    }
+	    // leave c to be dealt with below
+
+	  }
+	  else if (this.temp.selectedUnitMov >= ccost)
+	  {
+	    p.push(c);
+	    this.temp.selectedUnitMov -= ccost;
+	  }
+	  else
+	  {
+	    let np = await generatePath(this, unit.x, unit.y, c.x, c.y, cost);
+
+	    let first = np.front();
+	    let newcost = - getCost(this, first.x, first.y, cost);
+	    np.forEach((tile) => {newcost += getCost(this, tile.x, tile.y, cost);} );
+	    this.temp.selectedUnitMov = unit.stats.mov - newcost;
+	    p.consume(np);
+	  }
+	}
+	else
+	{
+	  while (p.last().equals(c) == false)
+	  {
+	    let t = p.pop();
+	    this.temp.selectedUnitMov += getCost(this, t.x, t.y, cost);
+	  }
+	}
+	resolve();
+
+      });
+    }
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   generateCanvasLayers()
   {
@@ -113,7 +424,7 @@ class Game
     }
     else
     {
-      console.log("ERROR - attempted to add unit in position (", unit.x, ", ",unit.y,")!");
+      throw "ERROR - attempted to add unit in position (", unit.x, ", ",unit.y,")!";
     }
   }
   draw()
@@ -134,6 +445,11 @@ class Game
   }
   update()
   {
+    if (this.toDraw.active("cursor") && this.Inputter.arrowStates().input == true)
+    {
+      this.stateAction[this.gameStatus].arrows(this.Inputter.arrowStates());
+    }
+
     this.Inputter.update();
     this.toDraw.update(this);
   }

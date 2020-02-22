@@ -7,6 +7,20 @@ import {Queue} from "./Queue.js";
 import {CoordLookup} from "./CoordLookup.js";
 
 
+export function cursorStop(cur)
+{
+  return new Promise( async (resolve) =>
+    {
+      while (cur.moving != false)
+      {
+	await new Promise( (resolve) => {setTimeout(() => {resolve();}, 5)});
+      }
+      resolve();
+    });
+}
+
+
+
 export function nextFrameDo(f)
 {
   requestAnimationFrame(f);
