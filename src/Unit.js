@@ -131,7 +131,7 @@ export class Unit extends AnimatedObject
   draw( g )
   {
     let off = g.camera.offset;
-    super.draw(g, 2, off, 1, this.vis.x, this.vis.y);
+    super.draw(g, 2, this.vis.x - off.x, this.vis.y - off.y)
   }
   
   movable(g, draw = true)
