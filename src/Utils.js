@@ -83,17 +83,7 @@ export function generateMovable(g, x, y, mov, cost)
       }
     }
   }
-  let a = [];
-  let h = mem.h;
-  while(h != null)
-  {
-    if (h.v.x == 9)
-    {
-      a.push(h.v.x + "," + h.v.y + ": " + mem.get(h.v));
-    }
-    h = h.n;
-  }
-  console.log(a);
+  
   return mem;
 }
 

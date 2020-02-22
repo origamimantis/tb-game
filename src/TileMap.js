@@ -119,16 +119,21 @@ export class TileMap
 	    this.artmap[pArr[0]] = "T_"+pArr[1];
 	}
     }
-    getTile( x, y )
+    getTile( x, y = null )
     {
-	try
-	{
-	    return this.map[y][x];
-	}
-	catch (TypeError)
-	{
-	    return null;
-	}
+      if (y == null)
+      {
+	y = x.y;
+	x = x.x;
+      }
+      try
+      {
+	  return this.map[y][x];
+      }
+      catch (TypeError)
+      {
+	  return null;
+      }
     }
     removeUnit( unit )
     {

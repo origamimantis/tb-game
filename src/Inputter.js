@@ -84,11 +84,18 @@ export class Inputter
 	await this.cursorStop();
 
 	let target = new Coord( this.g.cursor.x, this.g.cursor.y );
-	if (this.getStateAttr("selectedUnitMovable").contains(target))
+	let unitOnTarget = this.g.Map.getTile(this.g.toDraw.get("selectedUnitPath").last()).unit
+	if (this.getStateAttr("selectedUnitMovable").contains(target)
+	  && (unitOnTarget == null || unitOnTarget == this.g.temp.selectedUnit))
 	{
-	  this.gameStatus = "unitActionSelect";
-	  //this.g.toDraw.hide("selectedUnitMovable");
-	  this.g.temp.selectedUnit.tentativeMove(this.g, target)
+	  this.gameStatus = "blockInput";
+	  this.g.temp.selectedUnit.tentativeMove(this.g, this.g.toDraw.get("selectedUnitPath"), () =>
+	    {
+	      this.gameStatus = "unitActionSelect";
+	      //this.g.toDraw.hide("selectedUnitMovable");
+	      //this.g.toDraw.hide("selectedUnitPath");
+	    }
+	  )
 
 	  this.cancelEvent = this.cancel_unitActionSelect;
 	}

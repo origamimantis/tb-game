@@ -1,3 +1,6 @@
+2020-02-21 @ 17:41
+finished unit pathfinding/movement. (other than treat enemies as walls, but we'll cross that bridge another day.)
+
 2020-02-20 @ 22:21:
 implemented pathfinding for unit move. Will bug test.
 

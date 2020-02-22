@@ -42,30 +42,34 @@ export class Unit extends AnimatedObject
 		};
     this.moving = false;
     this.moveFlag = false;
-    this.path = new Queue();
+    this.path_iter;
+
   }
   
-  // TODO change this to take a path as a parameter. The path will be built up using inputter 
-  async tentativeMove(g, c)
+  async tentativeMove(g, path, onDone)
   {
-    let p = await generatePath(g, this.x, this.y, c.x, c.y, this.movcost);
-    if (p == null)
+    if (path.size() > 0)
     {
-      throw "Could not find path to (x, y) = (" + this.x + ", " + this.y + ") to (" + x + ", " + y + ").";
+      this.path_iter = path.iter();
+      this.path_iter.onDone = onDone;
+      this.moveFlag = true;
     }
-    this.path = p;
-    this.moveFlag = true;
+    else
+    {
+      onDone();
+    }
 
   }
 
-  async moveTo(g, x, y)
+  async moveTo(g, x, y, onDone)
   {
     let p = await generatePath(g, this.x, this.y, x, y, this.movcost);
     if (p == null)
     {
       throw "Could not find path to (x, y) = (" + this.x + ", " + this.y + ") to (" + x + ", " + y + ").";
     }
-    this.path = p;
+    this.path_iter = p.iter();
+    this.path_iter.onDone = onDone;
     this.moveFlag = true;
     g.Map.removeUnit(this);
     g.Map.getTile(x, y).unit = this;
@@ -102,9 +106,10 @@ export class Unit extends AnimatedObject
     if (this.moveFlag == true)
     {
       this.moveFlag = false;
-      if (this.path.nonempty())
+      if (this.path_iter.left() > 0)
       {
-	let i = this.path.dequeue();
+	let i = this.path_iter.val();
+	this.path_iter.next();
 	this.vis.dx = i.x - this.x;
 	this.vis.dy = i.y - this.y;
 
@@ -112,6 +117,13 @@ export class Unit extends AnimatedObject
 	await this.moveChain(g, this.mapSpeed, true);
 	this.moving = false;
 	this.moveFlag = true;
+	if (this.path_iter.left() == 0)
+	{
+	  if (this.path_iter.onDone)
+	  {
+	    this.path_iter.onDone();
+	  }
+	}
       }
     }
   }

@@ -174,15 +174,7 @@ export class Queue
       cur = cur.n;
     }
   }
-  *[Symbol.iterator]()
-  {
-    let cur = this.h;
-    while (cur != null)
-    {
-      yield cur.v;
-      cur = cur.n;
-    }
-  }
+  
   intersect(q)
   {
     let smol = this;
@@ -209,7 +201,46 @@ export class Queue
     this.c_x = q.c_x;
     this.sz = q.sz;
   }
-
+  
+  *[Symbol.iterator]()
+  {
+    let cur = this.h;
+    while (cur != null)
+    {
+      yield cur.v;
+      cur = cur.n;
+    }
+  }
+  iter()
+  {
+    return new QueueIterator(this);
+  }
 }
 
+// actually only a forward iterator
+class QueueIterator
+{
+  constructor(q)
+  {
+    this._cur = q.h;
+    this._left = q.sz;
+  }
+  val()
+  {
+    return this._cur.v;
+  }
+  next()
+  {
+    if (this._cur == null)
+    {
+      throw "End.";
+    }
+    this._cur = this._cur.n;
+    -- this._left;
+  }
+  left()
+  {
+    return this._left;
+  }
+}
 
