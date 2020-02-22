@@ -50,7 +50,23 @@ class Interpreter
       MOVE: (id, x, y) => {return new Promise( (resolve) =>
       {
 	id = parseInt(id); x = parseInt(x); y = parseInt(y);
-	this.g.getUnitById(id).moveTo(this.g, x, y);
+	let destUnit = this.g.Map.getTile(x,y).unit;
+	if (destUnit == null || destUnit.id == id)
+	{
+	  let u = this.g.getUnitById(id);
+	  if (u.moving == false)
+	  {
+	    this.g.getUnitById(id).moveTo(this.g, x, y);
+	  }
+	  else
+	  {
+	    throw "Unit already in motion."
+	  }
+	}
+	else
+	{
+	  throw "Can't move there since a unit is already there or heading there."
+	}
 	resolve();
       });},
 

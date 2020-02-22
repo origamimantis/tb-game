@@ -27,8 +27,8 @@ const SCALE = 2;
 const WINDOWGRID_X = 16;
 const WINDOWGRID_Y = 12;
 
-const GRIDSIZE_X = C_WIDTH/WINDOWGRID_X/2;
-const GRIDSIZE_Y = C_HEIGHT/WINDOWGRID_Y/2;
+const GRIDSIZE_X = C_WIDTH/WINDOWGRID_X/SCALE;
+const GRIDSIZE_Y = C_HEIGHT/WINDOWGRID_Y/SCALE;
 const gx = GRIDSIZE_X;
 const gy = GRIDSIZE_Y;
 
@@ -398,7 +398,7 @@ class Game
       can.style.top = "0";
       this.ctx.push(can.getContext('2d'));
       this.ctx[i].imageSmoothingEnabled = false;
-      this.ctx[i].scale(2,2);
+      this.ctx[i].scale(SCALE, SCALE);
     }
   }
   
