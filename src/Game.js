@@ -12,6 +12,7 @@ import {Queue} from "./Queue.js";
 import {MusicPlayer} from "./MusicPlayer.js";
 import {DrawContainer} from "./DrawContainer.js";
 import {Inputter, ARROWS} from "./Inputter.js";
+import {Panel} from "./Panel.js";
 //import {Battle} from "./Battle.js";
 //import {SpriteFont} from "./SpriteFont.js";
 //import {Tester} from "./Tester.js";
@@ -68,6 +69,7 @@ class Game
     
     this.toDraw.set("cursor", this.cursor);
     this.toDraw.set("Units", this.Units);
+    //this.toDraw.set("test", new Panel(14,50, 60, 40, 50, 14));
 
     this.temp = {};
     
@@ -141,10 +143,12 @@ class Game
 
 	// wait until cursor stops moving
 	await cursorStop(this.cursor);
+	this.toDraw.hide("cursor");
 
 	// move the cursor back to the unit and update state on complete
-	this.cursor.moveTo(this.temp.selectedUnit, () =>
+	this.cursor.moveToOrthog(this.temp.selectedUnit, () =>
 	  {
+	    this.toDraw.show("cursor");
 	    this.gameStatus = "map";
 	  }
 	);
@@ -221,7 +225,7 @@ class Game
 
 	  this.toDraw.set("selectedUnitPath", p);
 	  this.temp["selectedUnit"] = unit;
-	  this.temp["selectedUnitMov"] = unit.stats.mov;
+	  this.temp["selectedUnitMov"] = unit.getMov();
 	}
       },
 
@@ -321,7 +325,7 @@ class Game
 	      let first = np.front();
 	      let newcost = - getCost(this, first.x, first.y, cost);
 	      np.forEach((tile) => {newcost += getCost(this, tile.x, tile.y, cost);} );
-	      this.temp.selectedUnitMov = unit.stats.mov - newcost;
+	      this.temp.selectedUnitMov = unit.getMov() - newcost;
 	      p.consume(np);
 
 	    }
@@ -340,7 +344,7 @@ class Game
 	    let first = np.front();
 	    let newcost = - getCost(this, first.x, first.y, cost);
 	    np.forEach((tile) => {newcost += getCost(this, tile.x, tile.y, cost);} );
-	    this.temp.selectedUnitMov = unit.stats.mov - newcost;
+	    this.temp.selectedUnitMov = unit.getMov() - newcost;
 	    p.consume(np);
 	  }
 	}

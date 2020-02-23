@@ -87,17 +87,7 @@ export class Inputter
 	triggerEvent("input_cancel");
 	break;
       case "KeyX":
-
-	if (this.g.toDraw.paused("cursor"))
-	{
-	  this.g.toDraw.resume("cursor");
-	  this.g.toDraw.resume("Units");
-	}
-	else if (this.g.toDraw.active("cursor"))
-	{
-	  this.g.toDraw.pause("cursor");
-	  this.g.toDraw.pause("Units");
-	}
+	this.g.toDraw.get("test").shift();
       }
     }
     else

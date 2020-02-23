@@ -143,15 +143,24 @@ export class TileMap
     draw( g )
     {
       let off = g.camera.offset;
-      for (let x = 0; x < this.dimension.x; ++x)
+      let start = g.camera.topleft;
+      let wsize = g.camera.wsize;
+      for (let x = start.x - 1; x < start.x + wsize.x + 1; ++x)
       {
-	for (let y = 0; y < this.dimension.y; ++y)
+	for (let y = start.y - 1; y < start.y + wsize.y + 1; ++y)
 	{
+	  try
+	  {
 	  g.ctx[0].drawImage(
 	    g.Album.get(
 	      this.getTile(x,y).art), 
 	    (x - off.x)*g.grid.x, (y - off.y)*g.grid.y,
 	    g.grid.x, g.grid.y);
+	  }
+	  catch (typeerror_but_i_cant_check_that_specifically_here)
+	  {
+	    // ignore out of bounds stuff
+	  }
 	}
       }
     }

@@ -93,6 +93,27 @@ class Interpreter
 	resolve();
       });},
 
+      COLORUNIT: (id, r, g = null, b = null) => {return new Promise( (resolve) =>
+      {
+	id = parseInt(id);
+	if (g != null && b != null)
+	{
+	  r = parseInt(r); g = parseInt(g); b = parseInt(b);  
+	}
+	else if (r.toUpperCase() == "RANDOM")
+	{
+	  r = Math.random()*256; g = Math.random()*256; b = Math.random()*256;
+	}
+	else
+	{
+	  throw "Bad input";
+	}
+
+	this.g.getUnitById(id).recolorAnim(this.g, "idle", [r, g, b], "idle_" + r + "_" + g + "_" + b);
+	resolve();
+      });},
+
+
 
     }
 

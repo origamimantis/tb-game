@@ -15,7 +15,7 @@ class Cursor extends AnimatedObject
     super(g,x,y);
 
     //visuals
-    this.addAnim( 0, new Animation( "C_c0", [30,10,10,10], true, [4,4] ));
+    this.addAnim( 0, new Animation( "C_c0", [48,4,4,4], true, [4,4] ));
 
     this.max = {x: g.Map.dimension.x - 1,
 		y: g.Map.dimension.y - 1};
@@ -31,6 +31,7 @@ class Cursor extends AnimatedObject
 
     this.moving = false;
     this.triggerMove = false;
+    this.baseSpeed = framesToMove;
     this.speed = framesToMove;
     this.path = new Queue();
   }
@@ -43,6 +44,7 @@ class Cursor extends AnimatedObject
       this.buf.y += c.y;
       this.triggerMove = true;
       this.path.onDone = onDone;
+      this.speed = this.baseSpeed;
     }
   }
   moveTo( c, onDone )
@@ -79,6 +81,47 @@ class Cursor extends AnimatedObject
       this.x += this.buf.x;
       this.y += this.buf.y;
       this.clearMoveBuffer();
+      this.speed = 2;
+    }
+    else
+    {
+      onDone();
+    }
+  }
+
+  // moveTo except disallow diagonal movement. Used for unit
+  // move cancel where the diagonal is a bit jarring
+  moveToOrthog( c, onDone )
+  {
+    if (this.path.nonempty())
+    {
+      throw "Cannot assign cursor movement while cursor is moving";
+    }
+    //triggerEvent("game_cursorChange", c);
+    let x = this.x;
+    let y = this.y;
+    
+    while (x != c.x)
+    {
+      let dx = Math.sign(c.x - x);
+      x += dx;
+      this.path.enqueue(new Coord(dx, 0));
+    }
+    while (y != c.y)
+    {
+      let dy = Math.sign(c.y - y);
+      y += dy;
+      this.path.enqueue(new Coord(0, dy));
+    }
+
+    if (this.path.nonempty())
+    {
+      this.path.onDone = onDone;
+      triggerEvent("game_cursorMoveStart", this);
+      this.x += this.buf.x;
+      this.y += this.buf.y;
+      this.clearMoveBuffer();
+      this.speed = 2;
     }
     else
     {

@@ -7,6 +7,7 @@ import {Units} from "./TypeUnits.js";
 import {Animation} from "./Animation.js";
 import {AnimFrame} from "./AnimFrame.js";
 import {Interpreter} from "./Interpreter.js";
+import {ImageModifier} from "./ImageModifier.js";
 import {PathFinder} from "./PathFinder.js";
 import {Weapon, Weapons} from "./Weapon.js";
 
@@ -37,7 +38,9 @@ window.onload = () =>
 		  "T_wall_EL", "T_wall_ER", "T_wall_TL", "T_wall_TR",
 		  "T_field", "T_field_tree",
 		  "S_kn0", "S_lead1",
-		  "C_c0", "C_move", "C_walk"
+		  "C_c0", "C_move", "C_walk",
+		  "C_menutl", "C_menutr", "C_menubl", "C_menubr",
+		  "C_menuel", "C_menuer", "C_menuet", "C_menueb", "C_menucn"
 		],
       MapScript : "assets/scripts/test.txt"
     }
@@ -47,6 +50,7 @@ window.onload = () =>
     (loaded) => 
     {
       game = new Game(loaded.assets);
+      ImageModifier.init(game);
       PathFinder.init(game);
       interpreter = new Interpreter(game);
 

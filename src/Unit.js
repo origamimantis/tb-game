@@ -6,6 +6,7 @@ import {Queue} from "./Queue.js";
 import {recolor} from "./UsefulFunctions.js";
 import {Weapons} from "./Weapon.js";
 import {TILES} from "./Constants.js";
+import {ImageModifier} from "./ImageModifier.js";
 import {triggerEvent, generatePath, generateMovable, nextFrameDo, waitTick} from "./Utils.js";
 
 
@@ -136,7 +137,7 @@ export class Unit extends AnimatedObject
   
   movable(g, draw = true)
   {
-    let p = generateMovable(g, this.x, this.y, this.stats.mov, this.movcost);
+    let p = generateMovable(g, this.x, this.y, this.getMov(), this.movcost);
 
     if (draw == true)
     {
@@ -156,6 +157,12 @@ export class Unit extends AnimatedObject
     return p;
   }
 
+  // will be used later if move is affected by anything.
+  // if not, then this will just be a getter
+  getMov()
+  {
+    return this.stats.mov;
+  }
   setColor(color)
   {
     this.color = color;
@@ -165,17 +172,15 @@ export class Unit extends AnimatedObject
     }
   }
   
-  recolorAnim(a)
+  async recolorAnim(g, a, d, name)
   {
-    let t = recolor(this, this.animations[a].image);
-    if (t == null)
+    if (g.Album.get(name) == undefined)
     {
-      setTimeout( () => {this.recolorAnim( a )}, 50);
+      let map = {};
+      map[[1, 253, 40]] = d;
+      ImageModifier.recolor(g.Album.get(this.animations[a].baseimage), map, name);
     }
-    else
-    {
-      this.animations[a].image = t;
-    }
+    this.animations[a].image = name;
   }
 
 }

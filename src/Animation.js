@@ -10,6 +10,7 @@ class Animation
     this.weights = weights.slice();
     this.numFrame = weights.length;
 
+    this.baseimage = artName;
     this.image = artName;
     this.age = 0;
     this.curFrame = 0;
