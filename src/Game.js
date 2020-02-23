@@ -143,12 +143,11 @@ class Game
 
 	// wait until cursor stops moving
 	await cursorStop(this.cursor);
-	this.toDraw.hide("cursor");
 
 	// move the cursor back to the unit and update state on complete
-	this.cursor.moveToOrthog(this.temp.selectedUnit, () =>
+	this.cursor.moveInstant(this.temp.selectedUnit);
+	this.camera.shiftTo(this.temp.selectedUnit, () => 
 	  {
-	    this.toDraw.show("cursor");
 	    this.gameStatus = "map";
 	  }
 	);
@@ -456,6 +455,7 @@ class Game
 
     this.Inputter.update();
     this.toDraw.update(this);
+    this.camera.update(this);
   }
   mainloop()
   {
