@@ -61,10 +61,13 @@ export class ImageModifier
     ctx.putImageData(imageData,0,0);
 
     // put the re-colored image back on the image
-    let nImg = new Image(w, h);;
+    let nImg = new Image();
     nImg.src = c.toDataURL('image/png');
     this.g.Album.images[name] = nImg;
   }
+  
+  static flibVert(img, map, name, overwrite = false)
+  {}
 
 
 

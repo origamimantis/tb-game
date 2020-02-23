@@ -215,6 +215,15 @@ export class Queue
   {
     return new QueueIterator(this);
   }
+  log()
+  {
+    let c = this.h;
+    while (c != null)
+    {
+      console.log(c.v);
+      c = c.n;
+    }
+  }
 }
 
 // actually only a forward iterator

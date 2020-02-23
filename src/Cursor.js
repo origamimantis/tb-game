@@ -77,7 +77,6 @@ class Cursor extends AnimatedObject
     if (this.path.nonempty())
     {
       this.path.onDone = onDone;
-      triggerEvent("game_cursorMoveStart", this);
       this.x += this.buf.x;
       this.y += this.buf.y;
       this.clearMoveBuffer();
@@ -117,9 +116,6 @@ class Cursor extends AnimatedObject
     if (this.path.nonempty())
     {
       this.path.onDone = onDone;
-      triggerEvent("game_cursorMoveStart", this);
-      this.x += this.buf.x;
-      this.y += this.buf.y;
       this.clearMoveBuffer();
       this.speed = 2;
     }
@@ -128,6 +124,22 @@ class Cursor extends AnimatedObject
       onDone();
     }
   }
+
+  // moveTo except move there directly and in a set number of frames
+  moveInstant( c, onDone )
+  {
+    if (this.path.nonempty())
+    {
+      throw "Cannot assign cursor movement while cursor is moving";
+    }
+    //triggerEvent("game_cursorChange", c);
+
+      this.x = c.x;
+      this.vis.x = c.x;
+      this.y = c.y;
+      this.vis.y = c.y;
+  }
+ 
   
   resultOf( c )
   {

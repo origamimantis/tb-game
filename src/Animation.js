@@ -42,8 +42,6 @@ class Animation
     let w = img.width/this.numFrame;
     let h = img.height;
 
-    //x = x+g.grid.x/2 - w/2; 
-    //y = y+g.grid.y/2 - h/2; 
     x = x*g.grid.x + (g.grid.x - w*s)/2;
     y = y*g.grid.y + (g.grid.y - h*s)/2;
     
