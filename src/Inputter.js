@@ -87,7 +87,7 @@ export class Inputter
 	triggerEvent("input_cancel");
 	break;
       case "KeyX":
-	this.g.toDraw.get("test").shift();
+	//this.g.toDraw.get("test").shift();
       }
     }
     else

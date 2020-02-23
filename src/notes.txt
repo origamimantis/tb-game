@@ -1,3 +1,6 @@
+2020-02-22 @ 19:21
+pressing 'x' no longer does anything (yay). Now, you can ctrl-shift-i and type console.exe("colorunit unitID r g b") to recolor a unit. (unitID is an int from 0-9 inclusive. r, g, b are ints, but only make sense from 0-255.)
+
 2020-02-21 @ 17:41
 finished unit pathfinding/movement. (other than treat enemies as walls, but we'll cross that bridge another day.)
 
