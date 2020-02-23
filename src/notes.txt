@@ -1,3 +1,7 @@
+2020-02-22 @ 22:27
+Vastly improved camera movement when cancelling unit move.
+(Allowed for independent camera movement).
+
 2020-02-22 @ 19:21
 pressing 'x' no longer does anything (yay). Now, you can
 ctrl-shift-i and type console.exe("colorunit unitID r g b") 
