@@ -56,30 +56,38 @@ export function getCost(g, x, y, cost)
 export function generateMovable(g, x, y, mov, cost)
 {
   let mem = new Queue();
-
   let min = new Coord(0,0);
   let max = new Coord(g.Map.dimension.x - 1, g.Map.dimension.y - 1);
 
   let tmp = getCost(g, x, y, cost);
 
   let toVisit = new Queue();
-  toVisit.enqueue( new Coord(x, y), mov);
+  toVisit.enqueue( new Coord(x, y), -tmp);
 
   // breadth-first search
   while (toVisit.nonempty())
   {
+    //check first coordinate
     let cd = toVisit.front();
     let mv = toVisit.get(cd);
-
     toVisit.dequeue();
-    if (mv >= 0)
+
+    let costOfWalking = getCost(g, cd.x, cd.y, cost);
+
+    if (costOfWalking != undefined && mv + costOfWalking <= mov)
     {
       if (mem.doesNotContain(cd))
       {
 	mem.push(cd, mv);
       }
-      if (mv == 0)
-      {continue;}
+      else if ( mem.get(cd) > mv )
+      {
+	mem.set(cd, mv);
+      }
+      else
+      {
+	continue;
+      }
 
       for (let nex of [ new Coord(cd.x + 1, cd.y    ),
 			new Coord(cd.x - 1, cd.y    ),
@@ -88,16 +96,18 @@ export function generateMovable(g, x, y, mov, cost)
       {
 	if (inMap(nex, min, max))
 	{
-	  let cst = getCost(g, nex.x, nex.y, cost);
-	  if (cst != undefined  && ( mem.doesNotContain(nex) || mem.get(nex) < cst) )
+	  if ( toVisit.doesNotContain(nex) )
 	  {
-	    toVisit.enqueue(nex, mv - cst);
+	    toVisit.enqueue(nex, mv + costOfWalking);
+	  }
+	  else if ( toVisit.get(nex) > mv + costOfWalking )
+	  {
+	    toVisit.set(nex, mv + costOfWalking);
 	  }
 	}
       }
     }
   }
-  
   return mem;
 }
 

@@ -114,6 +114,14 @@ export class Queue
     }
     return this.c_x[c.x][c.y].v;
   }
+  set(c, val)
+  {
+    if (this.c_x[c.x] == undefined || this.c_x[c.x][c.y] == undefined)
+    {
+      throw "Cannot set property of coordinate not in Queue.";
+    }
+    this.c_x[c.x][c.y].v = val;
+  }
   
   count(c)
   {

@@ -1,3 +1,8 @@
+ver0.6 2020-02-23
+When making a unit move, the camera will go back to follow
+the unit (however, the game is softlocked after doing so).
+Also fixed a sneaky movetile generation bug.
+
 2020-02-22 @ 22:27
 Vastly improved camera movement when cancelling unit move.
 (Allowed for independent camera movement).
@@ -23,6 +28,3 @@ improved time complexity of coordinate lookup used in various places.
 
 2020-02-17 @ 15:48:
 further changed cursor interaction upon cancelling. Additionally, allowed the cursor to "pause" by pressing the "x" key. Will remove later.		
-
-2020-02-17 @ 15:48:
-created log.

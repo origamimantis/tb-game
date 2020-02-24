@@ -2,7 +2,7 @@ ADDUNIT 0 4 2
 
 ADDUNIT 1 2 2
 
-setstat 1 mov:13
+setstat 1 mov:30
 
 
 ADDUNIT 2 1 6

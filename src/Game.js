@@ -120,13 +120,19 @@ class Game
 	  && (unitOnTarget == null || unitOnTarget == this.temp.selectedUnit))
 	{
 	  this.gameStatus = "blockInput";
-	  this.temp.selectedUnit.tentativeMove(this, this.toDraw.get("selectedUnitPath"), () =>
+	  this.camera.shiftTo(this.temp.selectedUnit, () =>
+	  {
+	    this.camera.setTarget(this.temp.selectedUnit.vis);
+	    this.camera.setBorders(6,5);
+	    this.temp.selectedUnit.tentativeMove(this, this.toDraw.get("selectedUnitPath"), () =>
 	    {
 	      this.gameStatus = "unitActionSelect";
+	      this.camera.setTarget(this.cursor.vis);
+	      this.camera.resetBorders();
 	      //this.g.toDraw.hide("selectedUnitMovable");
 	      //this.g.toDraw.hide("selectedUnitPath");
-	    }
-	  )
+	    });
+	  });
 
 	  this.cancelEvent = this.cancel_unitActionSelect;
 	}
@@ -143,12 +149,14 @@ class Game
 
 	// wait until cursor stops moving
 	await cursorStop(this.cursor);
+	this.toDraw.hide("cursor");
 
 	// move the cursor back to the unit and update state on complete
 	this.cursor.moveInstant(this.temp.selectedUnit);
 	this.camera.shiftTo(this.temp.selectedUnit, () => 
 	  {
 	    this.gameStatus = "map";
+	    this.toDraw.show("cursor");
 	  }
 	);
 	this.toDraw.del("selectedUnitMovable");
