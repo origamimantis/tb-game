@@ -65,7 +65,7 @@ class Game
     this.Inputter = new Inputter(this);
     this.loadKeyTracker();
 
-    this.Music.play("btl1");
+    this.Music.play("oss");
     
     this.toDraw.set("cursor", this.cursor);
     this.toDraw.set("Units", this.Units);
@@ -115,15 +115,15 @@ class Game
 	await cursorStop(this.cursor);
 
 	let target = new Coord( this.cursor.x, this.cursor.y );
-	let unitOnTarget = this.Map.getTile(this.toDraw.get("selectedUnitPath").last()).unit
+	let unitOnTarget = this.Map.getTile(this.toDraw.get("selectedUnitPath").last()).unit;
 	if (this.toDraw.get("selectedUnitMovable").contains(target)
 	  && (unitOnTarget == null || unitOnTarget == this.temp.selectedUnit))
 	{
+	  triggerEvent("sfx_play_beep_effect");
 	  this.gameStatus = "blockInput";
 	  this.camera.shiftTo(this.temp.selectedUnit, () =>
 	  {
 	    this.camera.setTarget(this.temp.selectedUnit.vis);
-	    this.camera.setBorders(6,5);
 	    this.temp.selectedUnit.tentativeMove(this, this.toDraw.get("selectedUnitPath"), () =>
 	    {
 	      this.gameStatus = "unitActionSelect";
@@ -146,6 +146,7 @@ class Game
       {
 	// disable further cursor movement
 	this.gameStatus = "blockInput";
+	triggerEvent("sfx_play_beep_effect");
 
 	// wait until cursor stops moving
 	await cursorStop(this.cursor);
@@ -178,7 +179,11 @@ class Game
 	  // usually outside movable == false. If keypressed, allow it to go outside but only if moves outside
 	  this.cursorOutsideMovable = (this.toDraw.get("selectedUnitMovable")
 				      .doesNotContain(this.cursor.resultOf(delta)));
-	  this.cursor.move(delta, async () => {await this._arrow_editPath(delta);});
+	  this.cursor.move(delta, async () =>
+	  {
+	    triggerEvent("sfx_play_beep_effect");
+	    await this._arrow_editPath(delta);
+	  });
 	}
 	// if nothing was pressed this tick
 	else if (this.Inputter.accepting == true)
@@ -189,7 +194,11 @@ class Game
 
 	  if (this.cursorOutsideMovable == true || inside)
 	  {
-	    this.cursor.move(delta, async () => {await this._arrow_editPath(delta);});
+	    this.cursor.move(delta, async () =>
+	    {
+	      triggerEvent("sfx_play_beep_effect");
+	      await this._arrow_editPath(delta);
+	    });
 	    if (inside == true)
 	    {
 	      this.cursorOutsideMovable = false;
@@ -209,6 +218,7 @@ class Game
     {
       select: () =>
       {
+	triggerEvent("sfx_play_beep_effect");
 	let unit = this.Map.getTile(this.cursor.x, this.cursor.y).unit;
 	if (unit != null)
 	{
@@ -251,7 +261,10 @@ class Game
 	{
 	  a.held.forEach( (d) => { delta.add( ARROWS[d] );} );
 	}
-	this.cursor.move(delta);
+	this.cursor.move(delta, () =>
+	{
+	  triggerEvent("sfx_play_beep_effect");
+	});
       },
 
       cancel: ()=>
