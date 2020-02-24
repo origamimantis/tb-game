@@ -1,3 +1,8 @@
+ver0.7 2020-02-23
+sound effects added. (Except regular beep happens every
+time you move the cursor, so I ended up not playing it).
+Also, Old Sounding Song is back.
+
 ver0.6 2020-02-23
 When making a unit move, the camera will go back to follow
 the unit (however, the game is softlocked after doing so).

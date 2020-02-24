@@ -35,7 +35,7 @@ function load(thingsToLoad)
 
 	// load sound library
 	Waud.init();
-	Waud.autoMute();
+//	Waud.autoMute();
 	await thingy.Music.loadMusic();
 
 	let script = await requestFile(thingsToLoad.MapScript);

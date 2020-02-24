@@ -1,5 +1,7 @@
 'use strict';
 
+import {respondToEvent} from "./Utils.js";
+
 const EXT = ".wav";
 
 
@@ -8,7 +10,9 @@ class MusicPlayer
     
   constructor()
   {
-      this.album = {};
+    this.album = {};
+    //respondToEvent("sfx_play_beep_effect", () => {this.play("beep2");});
+    respondToEvent("sfx_play_err_effect", () => {this.play("bad2");});
   }
   loadMusic()
   {
@@ -18,20 +22,25 @@ class MusicPlayer
 	await this.load("fght",false);
 	await this.load("fght2",false);
 	await this.load("oss");
+	await this.load("bad", false, false);
+	await this.load("beep", false, false);
+	await this.load("bad2", false, false);
+	await this.load("beep2", false, false);
 	resolve();
       }
     );
   }
-
-  load( name, intro = true, loops = true )
+  
+  load( name, intro = true, loops = true)
   {
     return new Promise ( (resolve, reject) => 
       {
-	let s = new WaudSound("assets/music/" + name + "_L" + EXT, {loop:loops, volume:0.5, onload : () => { resolve(); } });
+	let fullname = "assets/music/" + name + (loops ? "_L" : "") + EXT;
+	let s = new WaudSound(fullname, {loop:loops, volume:0.5, onload : (intro ? () => {} : resolve)  });
 	this.album[name] = {l:[], fade:null};
 	if (intro)
 	{
-	    let i = new WaudSound("assets/music/" + name + "_I" + EXT, {loop:false, volume:0.5});
+	    let i = new WaudSound("assets/music/" + name + "_I" + EXT, {loop:false, volume:0.5, onload : resolve});
 	    i.onEnd( ()=> {this.album[name].l[1].play() });
 	    this.album[name].l.push(i);
 	}
@@ -39,7 +48,6 @@ class MusicPlayer
       }
     );
   }
-  
   play( name )
   {
       this.album[name].l[0].play();
