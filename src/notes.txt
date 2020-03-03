@@ -1,3 +1,8 @@
+ver0.8 2020-03-02
+Units can move and select from (a limited) pool of actions.
+Unfortunately, only wait works, as attack is unimplemented
+(apart from a console.log) and will be a lot of work.
+
 ver0.7 2020-02-23
 sound effects added. (Except regular beep happens every
 time you move the cursor, so I ended up not playing it).

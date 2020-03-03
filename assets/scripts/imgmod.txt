@@ -1,0 +1,7 @@
+fv C_menutl C_menubl
+fh C_menutl C_menutr
+fh C_menubl C_menubr
+
+rl C_menuel C_menueb
+rr C_menuel C_menuet
+fh C_menuel C_menuer
