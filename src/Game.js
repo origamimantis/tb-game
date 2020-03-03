@@ -113,7 +113,6 @@ class Game
 	  this.temp["selectedUnitAttackCoords"] = new QueueSelector( attackable );
 	  this.toDraw.hide("selectedUnitActionPanel");
 	  this.cursor.moveInstant(attackable.front());
-	  console.log(attackable);
 
 	  this.gameStatus = "unitAttackTargetSelect";
 	}));
