@@ -111,6 +111,71 @@ export function generateMovable(g, x, y, mov, cost)
   return mem;
 }
 
+
+// range is array of range numbers ie [1,2] or [1]
+export function inRange(c,range,type, map, conditions = [(x)=>{return true}])
+{
+  let x = c.x;
+  let y = c.y;
+  let adder;
+  if (type == "units")
+  {
+      adder = _unitinrange;
+  }
+  else if (type == "tiles")
+  {
+      adder = _inrange;
+  }
+  else
+  {
+  throw new Error("unknown range type " + type);
+  }
+
+  let t = new Queue();
+
+  for (let r of range)
+  {
+    for (let i = 0; i < r; ++i)
+    {
+      adder(x+r-i, y-i  , t,map, conditions);
+      adder(x-r+i, y+i  , t,map, conditions);
+      adder(x+i  , y+r-i, t,map, conditions);
+      adder(x-i  , y-r+i, t,map, conditions);
+    }
+  }
+  return t;
+}
+function _inrange(x,y, t,map, conditions)
+{
+  t.push(new Coord(x, y));
+}
+function _unitinrange(x,y, t,map, conditions)
+{
+  let tl = map.getTile(x, y);
+  if (tl != null && tl.unit != null && all( conditions, tl.unit))
+  {
+    t.push(new Coord(x, y));
+  }
+}
+
+function all(conditions, param)
+{
+  for (let f of conditions)
+  {
+    if ( f(param) == false)
+    {
+      return false;
+    }
+  }
+  return true;
+}
+
+
+
+
+
+
+
 export function waitTick()
 {
   return new Promise(resolve =>

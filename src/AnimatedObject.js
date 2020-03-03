@@ -38,6 +38,7 @@ class AnimatedObject
     }
 
     this.curAnim().draw(g, ctx, x, y, s);
+    this.tickAnim();
   }
   addAnim( name, anim )
   {
@@ -45,10 +46,19 @@ class AnimatedObject
   }
   tickAnim()
   {
-    if (!this.pauseAnim)
+    if (this.pauseAnim == false)
     {
       this.curAnim().tick();
     }
+  }
+  pauseAnimation()
+  {
+    this.pauseAnim = true;
+    this.curAnim().reset();
+  }
+  resumeAnimation()
+  {
+    this.pauseAnim = false;
   }
 
 }

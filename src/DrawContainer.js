@@ -133,6 +133,7 @@ class DrawContainer
 	t.update(g);
       }
     }
+    
     for (let t of Object.values(this.hidden.active))
     {
       if (t.update != undefined)
@@ -141,22 +142,80 @@ class DrawContainer
       }
     }
   }
-  visible( id )
+  isVisible( id )
   {
     return ( this.stuff.active[id] != undefined || this.stuff.paused[id] != undefined );
   }
-  hidden( id )
+  isHidden( id )
   {
     return ( this.hidden.active[id] != undefined || this.hidden.paused[id] != undefined );
   }
-  active( id )
+  isActive( id )
   {
     return ( this.stuff.active[id] != undefined || this.hidden.active[id] != undefined );
   }
-  paused( id )
+  isPaused( id )
   {
     return ( this.stuff.paused[id] != undefined || this.hidden.paused[id] != undefined );
   }
+  contains(id)
+  {
+    return (this.get(id) != undefined);
+  }
+  toggleVisible(id)
+  {
+    if (this.contains(id) == false)
+    {
+      throw "object not in container!";
+    }
+    if (this.isHidden(id) == true)
+    {
+      this.show(id);
+    }
+    else if (this.isVisible(id) == true)
+    {
+      this.hide(id);
+    }
+  }
+  toggleActive(id)
+  {
+    if (this.contains(id) == false)
+    {
+      throw "object not in container!";
+    }
+    if (this.isPaused(id) == true)
+    {
+      this.resume(id);
+    }
+    else if (this.isActive(id) == true)
+    {
+      this.pause(id);
+    }
+  }
+  forEach(f)
+  {
+    for (let thing of Object.values(this.stuff.active))
+    {
+      f(thing);
+    }
+    for (let thing of Object.values(this.stuff.paused))
+    {
+      f(thing);
+    }
+    for (let thing of Object.values(this.hidden.active))
+    {
+      f(thing);
+    }
+    for (let thing of Object.values(this.hidden.paused))
+    {
+      f(thing);
+    }
+
+
+
+
+  }
+
 }
 
 

@@ -19,6 +19,8 @@ console.exe = function(s)
   interpreter.execute(s);
 }
 
+console.execute = console.exe;
+
 console.game = function()
 {
   console.log(game);
@@ -37,11 +39,13 @@ window.onload = () =>
 		   "T_wall_B", "T_wall_BR",
 		  "T_wall_EL", "T_wall_ER", "T_wall_TL", "T_wall_TR",
 		  "T_field", "T_field_tree",
-		  "S_kn0", "S_lead1",
-		  "C_c0", "C_move", "C_walk",
-		  "C_menutl", "C_menutr", "C_menubl", "C_menubr",
-		  "C_menuel", "C_menuer", "C_menuet", "C_menueb", "C_menucn"
+		  "S_kn0", "S_kn0d", "S_lead1",
+		  "C_c0", "C_move", "C_walk", "C_atk",
+		  "C_menutl",
+		  "C_menuel", "C_menucn"
 		],
+      ImgMod : "assets/scripts/imgmod.txt",
+      SpriteFont: [ "F_0" ],
       MapScript : "assets/scripts/test.txt"
     }
   )
@@ -50,11 +54,12 @@ window.onload = () =>
     (loaded) => 
     {
       game = new Game(loaded.assets);
-      ImageModifier.init(game);
+      ImageModifier.init(game.Album);
       PathFinder.init(game);
       interpreter = new Interpreter(game);
 
       game.mainloop();
+      //setTimeout(() => {game.Units.forEach((u)=>{u.curAnim().age = 0;})}, 500);
       
       interpreter.execute(loaded.script);
     }

@@ -46,15 +46,27 @@ const MAPPER =
     };
 
 
-class SpriteFont
+export class SpriteFont
 {
-    constructor(g, fontImg)
+    constructor()
     {
-	this.g = g;
-	this.img = new Image();
-	this.img.onload = ()=>{this.fsize = this.img.width/8;};
-	this.img.src = 'assets/sprite/' + fontImg + '.png'
+      this.fonts = {};
     }
+  loadFont(file)
+  {
+    return new Promise((resolve) =>
+      {
+        this.fonts[file] = new Image();
+        this.fonts[file].onload = resolve;
+
+        this.fonts[file].src = 'assets/sprite/' + file + '.png';
+      })
+  }
+  get( font )
+  {
+    return this.fonts[font];
+  }
+
     drawText(ctx, str, x, y, scale = 1, width = 100, height= 4)
     {
 	if (typeof str == "number")
@@ -118,9 +130,6 @@ class SpriteFont
 
 
 
-
-
-export {SpriteFont};
 
 
 /* font sheet is 8 x whatever

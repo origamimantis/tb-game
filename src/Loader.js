@@ -4,6 +4,8 @@ import {requestFile} from "./Utils.js";
 import {TileMap} from "./TileMap.js";
 import {Album, ImageLoader} from "./Images.js";
 import {MusicPlayer} from "./MusicPlayer.js";
+import {SpriteFont} from "./SpriteFont.js";
+import {ImageModifier} from "./ImageModifier.js";
 
 
 // thingsToLoad = {
@@ -20,7 +22,8 @@ function load(thingsToLoad)
     let thingy = {
 		  Map : new TileMap(),
 		  Album : new Album(),
-		  Music : new MusicPlayer()
+		  Music : new MusicPlayer(),
+		  sf : new SpriteFont()
 		};
 
     return new Promise( async (resolve, reject) => 
@@ -32,6 +35,15 @@ function load(thingsToLoad)
 	// load images
 	let i = new ImageLoader(thingy.Album);
 	await i.loadImgs( thingsToLoad.ImgLoad );
+
+	let imscript = await requestFile(thingsToLoad.ImgMod);
+	imscript = imscript.responseText;
+
+	ImageModifier.init(thingy.Album);
+	ImageModifier.execute(imscript)
+
+	// load images
+	await thingy.sf.loadFont( thingsToLoad.SpriteFont );
 
 	// load sound library
 	Waud.init();

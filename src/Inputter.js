@@ -9,6 +9,13 @@ import {triggerEvent, respondToEvent, getCost, generatePath} from "./Utils.js";
 const SELECT = "Period";
 const CANCEL = "Comma";
 
+export const ARROW =  {
+			UP : "KeyW",
+			DOWN : "KeyS",
+			LEFT : "KeyA",
+			RIGHT : "KeyD"
+		      }
+
 export const ARROWS = {
 		"KeyW" : {x: 0, y:-1},
 		"KeyS" : {x: 0, y: 1},
@@ -87,7 +94,9 @@ export class Inputter
 	triggerEvent("input_cancel");
 	break;
       case "KeyX":
-	//this.g.toDraw.get("test").shift();
+	//this.g.toDraw.toggleActive("cursor");
+	//this.g.toDraw.toggleActive("Units");
+	this.g.toDraw.toggleVisible("fps");
       }
     }
     else

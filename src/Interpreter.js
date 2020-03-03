@@ -93,7 +93,7 @@ class Interpreter
 	resolve();
       });},
 
-      COLORUNIT: (id, r, g = null, b = null) => {return new Promise( (resolve) =>
+      COLORUNIT: (id, r, g = null, b = null) => {return new Promise( async (resolve) =>
       {
 	id = parseInt(id);
 	if (g != null && b != null)
@@ -102,16 +102,28 @@ class Interpreter
 	}
 	else if (r.toUpperCase() == "RANDOM")
 	{
-	  r = Math.random()*256; g = Math.random()*256; b = Math.random()*256;
+	  r = Math.floor(Math.random()*256);
+	  g = Math.floor(Math.random()*256);
+	  b = Math.floor(Math.random()*256);
 	}
 	else
 	{
 	  throw "Bad input";
 	}
 
-	this.g.getUnitById(id).recolorAnim(this.g, "idle", [r, g, b], "idle_" + r + "_" + g + "_" + b);
+	await this.g.getUnitById(id).recolorAnim(this.g, "idle", [r, g, b], "idle_" + r + "_" + g + "_" + b);
 	resolve();
       });},
+
+      TESTALTER: (id) => {return new Promise( async (resolve) =>
+      {
+	id = parseInt(id);
+	let unit = this.g.getUnitById(id);
+	await unit.test(this.g, "idle", unit.curAnim().image + "_testalter");
+	resolve();
+      });},
+      
+ 
 
 
 
@@ -138,7 +150,7 @@ class Interpreter
       }
       else
       {
-	throw  "invalid command: " + tokens[0];
+	throw  "invalid command: " + func;
       }
     }
   }

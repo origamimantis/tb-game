@@ -43,7 +43,7 @@ class Camera
   setBorders(x, y)
   {
     this.moveTriggers = { l: x,
-			  r: this.wsize.x - x - 1,
+			  r: this.wsize.x - x,
 			  t: y,
 			  b: this.wsize.y - y - 1}
   }
@@ -104,6 +104,10 @@ class Camera
   {
     this.target = t;
   }
+  clearTarget()
+  {
+    this.target = null;
+  }
 
   adjustedPos(a)
   {
@@ -111,8 +115,6 @@ class Camera
   }
   update(g)
   {
-    let velx = 0;
-    let vely = 0;
     if (this.shift == true)
     {
       if (this.path.counter > 0)
@@ -124,10 +126,12 @@ class Camera
       }
       else
       {
-	let v = this.path.dequeue();
+	this.path.dequeue();
 	this.path.counter = this.shiftSpeed;
-	this.offset.x = inBound( Math.round(this.offset.x + v.x/this.shiftSpeed), 0, this.max.x);
-	this.offset.y = inBound( Math.round(this.offset.y + v.y/this.shiftSpeed), 0, this.max.y);
+	this.offset.x = Math.round(this.offset.x);
+	this.offset.y = Math.round(this.offset.y);
+	this.x = this.offset.x;
+	this.y = this.offset.y;
       }
 
       if (this.path.empty())
@@ -141,6 +145,9 @@ class Camera
     else
     {
       let adj = this.adjustedPos(this.target);
+
+      let velx = 0;
+      let vely = 0;
 
       if (adj.x > this.moveTriggers.r)
       {
@@ -163,7 +170,28 @@ class Camera
       this.offset.y = inBound( this.offset.y + vely, 0, this.max.y);
     }
   }
+  onLeft(c)
+  {
+    return this.adjustedPos(c).x < this.wsize.x/2
+  }
+  onRight(c)
+  {
+    return this.adjustedPos(c).x >= this.wsize.x/2
+  }
+  onTop(c)
+  {
+    return this.adjustedPos(c).y < this.wsize.y/2
+  }
+  onTop(c)
+  {
+    return this.adjustedPos(c).y >= this.wsize.y/2
+  }
+  inBounds(c)
+  {
+    let a = this.adjustedPos(c);
 
+    return inBound( a.x, 0, this.max.x) && inBound( a.y, 0, this.max.y);
+  }
 }
 
 function inBound(x, lb, ub)

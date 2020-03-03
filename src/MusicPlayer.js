@@ -11,7 +11,7 @@ class MusicPlayer
   constructor()
   {
     this.album = {};
-    //respondToEvent("sfx_play_beep_effect", () => {this.play("beep2");});
+    respondToEvent("sfx_play_beep_effect", () => {this.play("beep2");});
     respondToEvent("sfx_play_err_effect", () => {this.play("bad2");});
   }
   loadMusic()

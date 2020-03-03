@@ -126,7 +126,7 @@ class Cursor extends AnimatedObject
   }
 
   // moveTo except move there directly and in a set number of frames
-  moveInstant( c, onDone )
+  moveInstant( c )
   {
     if (this.path.nonempty())
     {

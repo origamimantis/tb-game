@@ -15,7 +15,7 @@ class Coord
   }
   toString()
   {
-    return "(" + this.x + ", " + this.y + ")p";
+    return "(" + this.x + ", " + this.y + ")c";
   }
   add(c)
   {

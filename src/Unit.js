@@ -7,7 +7,7 @@ import {recolor} from "./UsefulFunctions.js";
 import {Weapons} from "./Weapon.js";
 import {TILES} from "./Constants.js";
 import {ImageModifier} from "./ImageModifier.js";
-import {triggerEvent, generatePath, generateMovable, nextFrameDo, waitTick} from "./Utils.js";
+import {triggerEvent, generatePath, inRange, generateMovable, nextFrameDo, waitTick} from "./Utils.js";
 
 
 export class Unit extends AnimatedObject
@@ -33,7 +33,7 @@ export class Unit extends AnimatedObject
       this.caps[s] = (caps[s] == undefined) ? 0 : caps[s];
       this.stats[s] = (stats[s] == undefined) ? 0 : stats[s];
     }
-    this.mapSpeed = 6;
+    this.mapSpeed = 3;
 
     this.vis = {
 		dx : 0,
@@ -41,25 +41,87 @@ export class Unit extends AnimatedObject
 		x : this.x,
 		y : this.y
 		};
+
+    this.old = {x: null, y: null}
     this.moving = false;
     this.moveFlag = false;
     this.path_iter;
 
+    this.active = true;
+    this.color = [1, 253, 40];
   }
   
+  instantMove(g, x, y)
+  {
+    let u = g.Map.getTile(x, y).unit;
+    if (u == null || u == this)
+    {
+      g.Map.removeUnit(this);
+      g.Map.getTile(x, y).unit = this;
+      this.x = this.vis.x = x;
+      this.y = this.vis.y = y;
+    }
+    else
+    {
+      throw "Can't move there.";
+    }
+  }
   async tentativeMove(g, path, onDone)
   {
     if (path.size() > 0)
     {
       this.path_iter = path.iter();
       this.path_iter.onDone = onDone;
-      this.moveFlag = true;
+      this.path_iter.counter = this.mapSpeed;
+      // Don't spend extra frames drawing unit at current location
+      this.path_iter.next();
+
+      // since move is tentative, save old location for potential revert
+      this.old.x = this.x;
+      this.old.y = this.y;
+
+      // enable movement in update
+      this.moving = true;
     }
     else
     {
       onDone();
     }
+  }
+  
+  revertMove(g)
+  {
+    this.x = this.old.x;
+    this.y = this.old.y;
+    this.vis.x = this.old.x;
+    this.vis.y = this.old.y;
+  }
 
+  confirmMove(g)
+  {
+    g.Map.getTile(this.old.x, this.old.y).unit = null;
+    g.Map.getTile(this.x, this.y).unit = this;
+  }
+  endTurn(g)
+  {
+    this.animHist = this.animations["idle"].image;
+    this.recolorAnim(g, "idle", [100,100,100], "kn0_wait")
+    this.pauseAnimation();
+    this.active = false;
+  }
+  turnInit()
+  {
+    this.animations["kn0"].image = this.animHist;
+    this.resumeAnimation();
+    this.active = true;
+
+  }
+
+  
+  // more interesting stuff here later
+  generateActions(g)
+  {
+    return ["attack", "wait"];
   }
 
   async moveTo(g, x, y, onDone)
@@ -71,59 +133,47 @@ export class Unit extends AnimatedObject
     }
     this.path_iter = p.iter();
     this.path_iter.onDone = onDone;
-    this.moveFlag = true;
+    this.path_iter.counter = this.mapSpeed;
+    this.path_iter.next();
+    this.moving = true;
     g.Map.removeUnit(this);
     g.Map.getTile(x, y).unit = this;
 
   }
   
-  moveChain(g, framesLeft, updatePos = false)
-  {
-    return new Promise( async (resolve) =>
-      {
-	while (framesLeft > 0)
-	{
-          let dx = this.vis.dx/this.mapSpeed;
-          let dy = this.vis.dy/this.mapSpeed;
-          this.vis.x += dx;
-          this.vis.y += dy;
-
-          await waitTick();
-          -- framesLeft;
-        }
-        this.x += this.vis.dx;
-        this.y += this.vis.dy;
-        this.vis.x = this.x;
-        this.vis.y = this.y;
-        resolve();
-      });
-  }
-  async update(g)
+  update(g)
   {
     if (this.moving == true)
     {
-      return;
-    }
-    if (this.moveFlag == true)
-    {
-      this.moveFlag = false;
       if (this.path_iter.left() > 0)
       {
 	let i = this.path_iter.val();
-	this.path_iter.next();
 	this.vis.dx = i.x - this.x;
 	this.vis.dy = i.y - this.y;
 
-	this.moving = true;
-	await this.moveChain(g, this.mapSpeed, true);
-	this.moving = false;
-	this.moveFlag = true;
-	if (this.path_iter.left() == 0)
+	-- this.path_iter.counter;
+	let dx = this.vis.dx/this.mapSpeed;
+	let dy = this.vis.dy/this.mapSpeed;
+	this.vis.x += dx;
+	this.vis.y += dy;
+	if (this.path_iter.counter <= 0)
 	{
-	  if (this.path_iter.onDone)
-	  {
-	    this.path_iter.onDone();
-	  }
+	  this.path_iter.next();
+	  this.path_iter.counter = this.mapSpeed;
+
+	  this.x += this.vis.dx;
+	  this.y += this.vis.dy;
+	  this.vis.x = this.x;
+	  this.vis.y = this.y;
+	}
+      }
+
+      else if (this.path_iter.left() == 0)
+      {
+	this.moving = false;
+	if (this.path_iter.onDone)
+	{
+	  this.path_iter.onDone();
 	}
       }
     }
@@ -157,30 +207,72 @@ export class Unit extends AnimatedObject
     return p;
   }
 
+  attackableTiles(map)
+  {
+    let p = inRange(this, [1], "tiles", map);
+    p.draw = ( g ) =>
+    {
+      let off = g.camera.offset;
+      for (let c of p)
+      {
+	g.ctx[1].drawImage(
+	  g.Album.get("C_atk"),
+	  (c.x - off.x)*g.grid.x, (c.y - off.y)*g.grid.y,
+	  g.grid.x, g.grid.y
+	);
+      }
+    }
+    return p;
+  }
+  attackableUnits(map)
+  {
+    return inRange(this, [1], "units", map, [(unit)=>{return (unit != this);}]);
+  }
   // will be used later if move is affected by anything.
   // if not, then this will just be a getter
   getMov()
   {
     return this.stats.mov;
   }
-  setColor(color)
-  {
-    this.color = color;
-    for (let a in this.animations)
-    {
-      this.recolorAnim(a);
-    }
-  }
-  
+
   async recolorAnim(g, a, d, name)
   {
     if (g.Album.get(name) == undefined)
     {
       let map = {};
-      map[[1, 253, 40]] = d;
-      ImageModifier.recolor(g.Album.get(this.animations[a].baseimage), map, name);
+      map[this.color] = d;
+      this.color = d;
+      await ImageModifier.recolor(g.Album.get(this.animations[a].image), map, name);
     }
     this.animations[a].image = name;
+  }
+  
+  async flipVertical(g, a, name)
+  {
+    if (g.Album.get(name) == undefined)
+    {
+      await ImageModifier.flipVertical(g.Album.get(this.animations[a].image), name);
+    }
+    this.animations[a].image = name;
+  }
+
+  async test(g, a, name)
+  {
+    if (g.Album.get(name) == undefined)
+    {
+      await ImageModifier.flipHorizontal(g.Album.get(this.animations[a].image), name, g);
+    }
+    this.animations[a].image = name;
+  }
+  
+  async monochromeAnim(g, a, anew)
+  {
+    let name = this.animations[a].image + "_bw";
+    if (g.Album.get(name) == undefined)
+    {
+      await ImageModifier.monochrome(g.Album.get(this.animations[a].baseimage), map, name);
+    }
+    this.animations[anew].image = name;
   }
 
 }

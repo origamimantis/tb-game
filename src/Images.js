@@ -11,7 +11,10 @@ class Album
   {
     return this.images[artName];
   }
-
+  draw(g, ctx, art, x, y, w, h)
+  {
+    g.ctx[ctx].drawImage(this.get(art), x, y, w, h);
+  }
 }
 
 class ImageLoader
@@ -26,13 +29,13 @@ class ImageLoader
   loadImgs(images)
   {
     return new Promise( async (resolve) =>
+    {
+      for (let img of images)
       {
-	for (let img of images)
-	{
-	  await this.loadImg(img);
-	}
-	resolve()
-      })
+	await this.loadImg(img);
+      }
+      resolve()
+    })
   }
 
   loadImg(artName)

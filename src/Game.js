@@ -11,12 +11,14 @@ import {Camera} from "./Camera.js";
 import {Queue} from "./Queue.js";
 import {MusicPlayer} from "./MusicPlayer.js";
 import {DrawContainer} from "./DrawContainer.js";
-import {Inputter, ARROWS} from "./Inputter.js";
-import {Panel} from "./Panel.js";
+import {Inputter, ARROWS, ARROW} from "./Inputter.js";
+import {Panel, SelectionPanel} from "./Panel.js";
+import {PanelComponent} from "./PanelComponent.js";
 //import {Battle} from "./Battle.js";
 //import {SpriteFont} from "./SpriteFont.js";
 //import {Tester} from "./Tester.js";
-//import {LoopSelector} from "./LoopSelector.js";
+import {LoopSelector, QueueSelector} from "./LoopSelector.js";
+import {Action} from "./ActionGenerator.js";
 //import {RNG} from "./RNG.js";
 import {triggerEvent, respondToEvent, getCost, generatePath, nextFrameDo, cursorStop} from "./Utils.js";
 
@@ -49,6 +51,7 @@ class Game
     this.Album = assets.Album;
     this.Music = assets.Music;
     this.Map = assets.Map;
+    this.Fonts = assets.sf;
     
     this.ctx = [];
     this.generateCanvasLayers();
@@ -69,8 +72,20 @@ class Game
     
     this.toDraw.set("cursor", this.cursor);
     this.toDraw.set("Units", this.Units);
-    //this.toDraw.set("test", new Panel(14,50, 60, 40, 50, 14));
+    this.toDraw.set("fps", new Panel(430,10, 72, 16, 1, 1000, 0));
 
+    this.fpsUpdate = [0,0,0,0,0];
+    this.fpspanel = new PanelComponent(0, "fps:");
+    this.toDraw.get("fps").addComponent(this.fpspanel, "fps", 0,0);
+
+    /*
+    this.toDraw.set("test", new Panel(400,20, 64, 64, 4, 4, 400, 120));
+    this.toDraw.get("test").addComponent(new PanelComponent( 0 , "fish/fosh\nfash fush123\n45\nyee\nyo\nyar"), "portr",  0, 0, 3, 3);
+    this.toDraw.get("test").addComponent(new PanelComponent( 1 , "P_gen"), "0",  3, 0);
+    this.toDraw.get("test").addComponent(new PanelComponent( 1 , "P_janitor"), "1",  3, 1);
+    this.toDraw.get("test").addComponent(new PanelComponent( 1 , "P_gen"), "2",  3, 2);
+    this.toDraw.get("test").addComponent(new PanelComponent( 1 , "P_janitor"), "3",  3, 3);
+    */
     this.temp = {};
     
     this.gameStatus = "map";
@@ -83,23 +98,127 @@ class Game
     respondToEvent("input_select",  () => {this.stateAction[this.gameStatus].select();});
     respondToEvent("input_cancel",  () => {this.stateAction[this.gameStatus].cancel();});
     this.stateAction = {};
+    this.initStateAction();
+  }
+
+  generateUnitActions(g, unit)
+  {
+    let p = [];
+    let attackable = unit.attackableUnits(this.Map);
+    if (attackable.nonempty())
+    {
+      // attack
+      p.push( new Action( "attack", () =>
+	{
+	  this.temp["selectedUnitAttackCoords"] = new QueueSelector( attackable );
+	  this.toDraw.hide("selectedUnitActionPanel");
+	  this.cursor.moveInstant(attackable.front());
+	  console.log(attackable);
+
+	  this.gameStatus = "unitAttackTargetSelect";
+	}));
+    }
+    
+
+    // wait
+    p.push( new Action( "wait", () =>
+      {
+	unit.confirmMove(this);
+	unit.endTurn(this);
+
+	this.toDraw.del("selectedUnitActionPanel");
+	this.toDraw.del("selectedUnitMovable");
+        this.toDraw.del("selectedUnitPath");
+	this.toDraw.del("selectedUnitAttackableTiles");
+
+        delete this.temp["selectedUnitMov"];
+        delete this.temp["selectedUnit"];
+        delete this.temp["selectedUnitActions"];
+
+        this.gameStatus = "map";
+      }));
+
+    return new LoopSelector(p);
+
+  }
+
+  initStateAction()
+  {
+    this.stateAction.unitAttackTargetSelect =
+    {
+
+    /*************************************/
+    /* ACTION UNIT ATTACK TARGET SELECT  */
+    /*************************************/
+      select:()=>
+      {
+	console.log("attacked someone");
+      },
+      cancel:()=>
+      {
+	this.cursor.moveInstant(this.temp.selectedUnit);
+	this.gameStatus = "unitActionSelect";
+	this.toDraw.show("selectedUnitActionPanel");
+      },
+      arrows:(a)=>
+      {
+        for (let k of a.once)
+        {
+          switch (k)
+          {
+          case ARROW.UP:
+          case ARROW.LEFT:
+            this.temp.selectedUnitAttackCoords.prev();
+            break;
+          case ARROW.DOWN:
+          case ARROW.RIGHT:
+            this.temp.selectedUnitAttackCoords.next();
+            break;
+          }
+	  this.cursor.moveInstant(this.temp.selectedUnitAttackCoords.get());
+	}
+      }
+    }
+
     
     this.stateAction.unitActionSelect =
     {
-
-
 
     /*************************************/
     /* ACTION UNIT ACTION SELECT         */
     /*************************************/
       select:()=>
       {
+	this.temp["selectedUnitActions"].get().execute();
       },
       cancel:()=>
       {
+	delete this.temp["selectedUnitActions"];
+	this.toDraw.del("selectedUnitActionPanel");
+	this.toDraw.del("selectedUnitAttackableTiles");
+	
+	this.temp.selectedUnit.revertMove();
+	this.toDraw.show("selectedUnitMovable");
+	this.toDraw.show("selectedUnitPath");
+	this.cursor.moveInstant(this.toDraw.get("selectedUnitPath").last());
+	this.gameStatus = "unitMoveLocation";
       },
       arrows:(a)=>
       {
+	for (let k of a.once)
+	{
+	  switch (k)
+	  {
+	  case ARROW.UP:
+	    this.temp.selectedUnitActions.prev();
+	    break;
+	  case ARROW.DOWN:
+	    this.temp.selectedUnitActions.next();
+	    break;
+	  default:
+	    triggerEvent("sfx_play_err_effect");
+	  }
+	}
       }
 
     }
@@ -129,12 +248,20 @@ class Game
 	      this.gameStatus = "unitActionSelect";
 	      this.camera.setTarget(this.cursor.vis);
 	      this.camera.resetBorders();
-	      //this.g.toDraw.hide("selectedUnitMovable");
-	      //this.g.toDraw.hide("selectedUnitPath");
+	      this.toDraw.hide("selectedUnitMovable");
+	      this.toDraw.hide("selectedUnitPath");
+	      this.toDraw.set("selectedUnitAttackableTiles", this.temp.selectedUnit.attackableTiles(this.Map));
+	      this.temp["selectedUnitActions"] = this.generateUnitActions(this, this.temp.selectedUnit);
+	      let numActions = this.temp.selectedUnitActions.length;
+	      this.toDraw.set("selectedUnitActionPanel",
+		new SelectionPanel(50,50, 64,16*numActions, 1, numActions, 398, 50, this.temp.selectedUnitActions));
+	      if (this.camera.onLeft(this.temp.selectedUnit))
+	      {
+		this.toDraw.get("selectedUnitActionPanel").shift();
+	      }
 	    });
 	  });
 
-	  this.cancelEvent = this.cancel_unitActionSelect;
 	}
 	else
 	{
@@ -181,7 +308,7 @@ class Game
 				      .doesNotContain(this.cursor.resultOf(delta)));
 	  this.cursor.move(delta, async () =>
 	  {
-	    triggerEvent("sfx_play_beep_effect");
+	    triggerEvent("sfx_play_cursormove_effect");
 	    await this._arrow_editPath(delta);
 	  });
 	}
@@ -196,7 +323,7 @@ class Game
 	  {
 	    this.cursor.move(delta, async () =>
 	    {
-	      triggerEvent("sfx_play_beep_effect");
+	      triggerEvent("sfx_play_cursormove_effect");
 	      await this._arrow_editPath(delta);
 	    });
 	    if (inside == true)
@@ -220,7 +347,7 @@ class Game
       {
 	triggerEvent("sfx_play_beep_effect");
 	let unit = this.Map.getTile(this.cursor.x, this.cursor.y).unit;
-	if (unit != null)
+	if (unit != null && unit.active == true)
 	{
 	  this.toDraw.set("selectedUnitMovable", unit.movable(this) );
 	  this.gameStatus = "unitMoveLocation";
@@ -263,7 +390,7 @@ class Game
 	}
 	this.cursor.move(delta, () =>
 	{
-	  triggerEvent("sfx_play_beep_effect");
+	  triggerEvent("sfx_play_cursormove_effect");
 	});
       },
 
@@ -302,15 +429,7 @@ class Game
 	let unit = this.temp.selectedUnit;
 	let cost = unit.movcost;
 	
-	// TODO: reorganize into
-	// add block
-	// merge
-	// diagonal movement
-	//
-	// move limit -> path finding
-	// /\ move > 1 -> path finding
-	let i = p.contains(c);
-	if (i == false)
+	if (p.doesNotContain(c))
 	{
 	  let ccost = getCost(this, c.x, c.y, cost);
 
@@ -318,10 +437,6 @@ class Game
 	  // if the term-wise product is not zero, then neither x nor y is 0 => diagonal
 	  if (Math.abs(c.x - prev.x) + Math.abs(c.y - prev.y) >= 2)
 	  {
-	    // TODO handle unwalkable tiles: right now they cause NaN
-	    // probably just A* from prev to cur
-	    // if not enough move, do the big A*
-	    //A* to c
 	    let np = await generatePath(this, prev.x, prev.y, c.x, c.y, cost);
 	    np.dequeue();
 
@@ -349,8 +464,6 @@ class Game
 	      p.consume(np);
 
 	    }
-	    // leave c to be dealt with below
-
 	  }
 	  else if (this.temp.selectedUnitMov >= ccost)
 	  {
@@ -456,7 +569,7 @@ class Game
     //TODO TODO TODO TODO TODO TODO TODO TODO TODO
     // 
     // add an object for (do i have to redraw this canvas)
-    // for each layer, then only draw layers that have it set ti true.
+    // for each layer, then only draw layers that have it set to true.
     //
     //TODO TODO TODO TODO TODO TODO TODO TODO TODO
     this.ctx[1].clearRect(0,0,C_WIDTH, C_HEIGHT);
@@ -469,7 +582,7 @@ class Game
   }
   update()
   {
-    if (this.toDraw.active("cursor") && this.Inputter.arrowStates().input == true)
+    if (this.toDraw.isActive("cursor") && this.Inputter.arrowStates().input == true)
     {
       this.stateAction[this.gameStatus].arrows(this.Inputter.arrowStates());
     }
@@ -480,10 +593,18 @@ class Game
   }
   mainloop()
   {
-    nextFrameDo(() => {this.mainloop()});
+    requestAnimationFrame(() => {this.mainloop()});
 
     this.update();
     this.draw();
+
+    let pt = this.now;
+    this.now = Date.now();
+    this.fpsUpdate.shift();
+    this.fpsUpdate.push(this.now - pt);
+    let sum = 0;
+    this.fpsUpdate.forEach(s => {sum += s});
+    this.fpspanel.setData(0, "FPS " + (5*1000/(sum)).toFixed(2));
   }
 
 }
