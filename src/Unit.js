@@ -185,54 +185,61 @@ export class Unit extends AnimatedObject
     super.draw(g, 2, this.vis.x - off.x, this.vis.y - off.y)
   }
   
-  movable(g, draw = true)
+  movable(g, includeAttackable, draw = true)
   {
     let p = generateMovable(g, this.x, this.y, this.getMov(), this.movcost);
 
-    if (draw == true)
+    let a = new Queue();
+    if (includeAttackable == true)
     {
-      p.draw = ( g ) =>
+      for (let c of p)
       {
-	let off = g.camera.offset;
-	for (let c of p)
+	let n = inRange(c, this.getRange(), "tiles", g.Map);
+	for (let cc of n)
 	{
-	  g.ctx[1].drawImage(
-	    g.Album.get("C_move"),
-	    (c.x - off.x)*g.grid.x, (c.y - off.y)*g.grid.y,
-	    g.grid.x, g.grid.y
-	  );
+	  if (p.doesNotContain(cc) && a.doesNotContain(cc))
+	  {
+	    a.push(cc);
+	  }
 	}
       }
     }
-    return p;
+
+    let r = [p, a];
+    if (draw == true)
+    {
+      p.setArt("C_move");
+      a.setArt("C_atk");
+      r.draw = (g) =>
+      {
+	p.draw(g);
+	a.draw(g);
+      }
+    }
+
+    return r;
   }
 
   attackableTiles(map)
   {
-    let p = inRange(this, [1], "tiles", map);
-    p.draw = ( g ) =>
-    {
-      let off = g.camera.offset;
-      for (let c of p)
-      {
-	g.ctx[1].drawImage(
-	  g.Album.get("C_atk"),
-	  (c.x - off.x)*g.grid.x, (c.y - off.y)*g.grid.y,
-	  g.grid.x, g.grid.y
-	);
-      }
-    }
+    let p = inRange(this, this.getRange(), "tiles", map);
+    p.setArt("C_atk");
     return p;
   }
   attackableUnits(map)
   {
-    return inRange(this, [1], "units", map, [(unit)=>{return (unit != this);}]);
+    return inRange(this, this.getRange(), "units", map, null, [(unit)=>{return (unit != this);}]);
   }
   // will be used later if move is affected by anything.
   // if not, then this will just be a getter
   getMov()
   {
     return this.stats.mov;
+  }
+  
+  getRange()
+  {
+    return [1, 3];
   }
 
   async recolorAnim(g, a, d, name)

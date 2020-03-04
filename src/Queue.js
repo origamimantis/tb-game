@@ -8,6 +8,7 @@ export class Queue
     this.t = null;
     this.c_x = {};
     this.sz = 0;
+    this.drawArt = null;
   }
   push(c, val = true)
   {
@@ -231,6 +232,34 @@ export class Queue
       console.log(c.v);
       c = c.n;
     }
+  }
+  setArt( art )
+  {
+    this.fade = 1;
+    this.art_counter = 0;
+    this.drawArt = art;
+  }
+  draw(g)
+  {
+    this.fade += 0.5;
+    if (this.fade > 60)
+    {
+      this.fade = 0;
+    }
+
+    // 0-0.5
+    let alph = Math.abs((30-this.fade)/60) * 0.25 + 0.4;
+    g.ctx[1].globalAlpha = alph;
+    let off = g.camera.offset;
+    for (let c of this)
+    {
+      g.ctx[1].drawImage(
+	g.Album.get(this.drawArt),
+	(c.x - off.x)*g.grid.x, (c.y - off.y)*g.grid.y,
+	g.grid.x, g.grid.y
+      );
+    }
+    g.ctx[1].globalAlpha = 1;
   }
 }
 

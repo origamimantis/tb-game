@@ -88,6 +88,8 @@ class Game
     */
     this.temp = {};
     
+    this.counter = 0;
+    
     this.gameStatus = "map";
     this.cursorOutsideMovable = false;
 
@@ -234,7 +236,7 @@ class Game
 
 	let target = new Coord( this.cursor.x, this.cursor.y );
 	let unitOnTarget = this.Map.getTile(this.toDraw.get("selectedUnitPath").last()).unit;
-	if (this.toDraw.get("selectedUnitMovable").contains(target)
+	if (this.toDraw.get("selectedUnitMovable")[0].contains(target)
 	  && (unitOnTarget == null || unitOnTarget == this.temp.selectedUnit))
 	{
 	  triggerEvent("sfx_play_beep_effect");
@@ -303,7 +305,7 @@ class Game
 	  triggerEvent("input_arrowStall", {start : a.held.length == 0});
 
 	  // usually outside movable == false. If keypressed, allow it to go outside but only if moves outside
-	  this.cursorOutsideMovable = (this.toDraw.get("selectedUnitMovable")
+	  this.cursorOutsideMovable = (this.toDraw.get("selectedUnitMovable")[0]
 				      .doesNotContain(this.cursor.resultOf(delta)));
 	  this.cursor.move(delta, async () =>
 	  {
@@ -316,7 +318,7 @@ class Game
 	{
 	  a.held.forEach( (d) => { delta.add( ARROWS[d] );} );
 	  
-	  let inside = this.toDraw.get("selectedUnitMovable").contains(this.cursor.resultOf(delta));
+	  let inside = this.toDraw.get("selectedUnitMovable")[0].contains(this.cursor.resultOf(delta));
 
 	  if (this.cursorOutsideMovable == true || inside)
 	  {
@@ -348,7 +350,7 @@ class Game
 	let unit = this.Map.getTile(this.cursor.x, this.cursor.y).unit;
 	if (unit != null && unit.active == true)
 	{
-	  this.toDraw.set("selectedUnitMovable", unit.movable(this) );
+	  this.toDraw.set("selectedUnitMovable", unit.movable(this, true) );
 	  this.gameStatus = "unitMoveLocation";
 
 	  let p = new Queue();
@@ -419,7 +421,7 @@ class Game
   {
     let c = new Coord(this.cursor.x, this.cursor.y);
     let prevcursor = new Coord(this.cursor.x - delta.x, this.cursor.y - delta.y);
-    if (this.toDraw.get("selectedUnitMovable").contains(c))
+    if (this.toDraw.get("selectedUnitMovable")[0].contains(c))
     {
       return new Promise( async (resolve) =>
       {
@@ -596,6 +598,11 @@ class Game
 
     this.update();
     this.draw();
+    ++ this.counter;
+    if (this.counter >= 3600)
+    {
+      this.counter = 0;
+    }
 
     let pt = this.now;
     this.now = Date.now();

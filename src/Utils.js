@@ -113,8 +113,13 @@ export function generateMovable(g, x, y, mov, cost)
 
 
 // range is array of range numbers ie [1,2] or [1]
-export function inRange(c,range,type, map, conditions = [(x)=>{return true}])
+export function inRange(c,range,type, map, t = null, conditions = [(x)=>{return true}])
 {
+  if (t == null)
+  {
+    t = new Queue();
+  }
+
   let x = c.x;
   let y = c.y;
   let adder;
@@ -130,8 +135,6 @@ export function inRange(c,range,type, map, conditions = [(x)=>{return true}])
   {
   throw new Error("unknown range type " + type);
   }
-
-  let t = new Queue();
 
   for (let r of range)
   {

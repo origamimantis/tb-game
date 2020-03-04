@@ -20,26 +20,25 @@ export class ImageModifier
   {
     return new Promise( (resolve) => 
     {
-    let [can, ctx, imageData] = this.setup(img, name, overwrite);
+      let [can, ctx, imageData] = this.setup(img, name, overwrite);
 
-    // examine every pixel,
-    // change any old rgb to the new-rgb
+      // examine every pixel,
+      // change any old rgb to the new-rgb
 
-    for (let i = 0; i < imageData.data.length; i += 4)
-    {
-      // is this pixel the old rgb?
-      let pixel = imageData.data.slice(i, i+3);
-      if (map[pixel] != undefined)
+      for (let i = 0; i < imageData.data.length; i += 4)
       {
-	imageData.data[i  ] = map[pixel][0];
-	imageData.data[i+1] = map[pixel][1];
-	imageData.data[i+2] = map[pixel][2];
+	// is this pixel the old rgb?
+	let pixel = imageData.data.slice(i, i+3);
+	if (map[pixel] != undefined)
+	{
+	  imageData.data[i  ] = map[pixel][0];
+	  imageData.data[i+1] = map[pixel][1];
+	  imageData.data[i+2] = map[pixel][2];
+	}
       }
-    }
-    
-    this.album.images[name] = this.finalize(can, ctx, imageData, resolve);
-    }
-    );
+      
+      this.album.images[name] = this.finalize(can, ctx, imageData, resolve);
+    });
   }
   
   static flipVertical(img, name, overwrite = false)
@@ -229,13 +228,14 @@ export class ImageModifier
     for (let line of script)
     {
       let tokens = line.replace(/\s+/g, " ").trim().split(" ");
-      if (tokens.length == 0)
+
+      if (tokens.length == 1 &&  tokens[0].length == 0)
       {
 	continue;
       }
       else if (tokens.length != 3)
       {
-	//throw "require 3 tokens";
+	throw new Error("ImageModifier_IncorrectNumberOfArguments");
       }
       else
       {
@@ -254,7 +254,7 @@ export class ImageModifier
 	    await this.rotateRight(this.album.get(tokens[1]), tokens[2]);
 	    break;
 	  default:
-	    //throw "unknown command";
+	    throw new Error("ImageModifier_UnknownCommandError");
 	}
       }
     }
