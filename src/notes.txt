@@ -1,3 +1,9 @@
+ver0.11 2020-03-07
+Reworked some mechanics of the battle scene. However,
+those changes are not yet visible. Added art to make
+it look like I did something more interesting. Also,
+you can press "X" to hide the FPS panel.
+
 ver0.10 2020-03-07
 Improved how tiles look (for attackable/movable tiles).
 Implemented a battle scene, although it's fairly boring

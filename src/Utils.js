@@ -176,6 +176,13 @@ function all(conditions, param)
 
 
 
+export function waitTime(time)
+{
+  return new Promise(resolve =>
+    {
+      setTimeout(resolve, time);
+    });
+}
 
 
 

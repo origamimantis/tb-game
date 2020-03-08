@@ -75,7 +75,8 @@ class Game
     this.toDraw.set("cursor", this.cursor);
     this.toDraw.set("map", this.Map);
     this.toDraw.set("Units", this.Units);
-    this.toDraw.set("fps", new Panel(430,10, 72, 16, 1, 1000, 0));
+    this.toDraw.set("fps", new Panel(420,0, 92, 36, 1, 1000, 0));
+    //this.toDraw.set("fps", new Panel(420,0, 0, 0, 1, 1000, 0));
 
     this.fpsUpdate = [0,0,0,0,0];
     this.fpspanel = new PanelComponent(0, "fps:");
@@ -157,7 +158,6 @@ class Game
     /*************************************/
       select:()=>
       {
-	console.log("attacked someone");
         let enemy = this.Map.getTile(this.temp.selectedUnitAttackCoords.get()).unit;
 	// hide everything
 	this.temp["mapstate"] = this.toDraw;
@@ -176,6 +176,12 @@ class Game
 	    this.temp.selectedUnit.confirmMove(this);
 	    
 	    // end turn TODO change for canto/other stuff
+	    //
+	    // if canto
+	    //	  temp.selectedunit = the unit
+	    //	  gamestatus = unitmovelocation
+	    //
+	    // ie force the player to move this unit again
 	    this.temp.selectedUnit.endTurn(this);
 	    
 	    this.cursor.moveInstant(this.temp.selectedUnit);
@@ -281,15 +287,20 @@ class Game
 	    this.temp.selectedUnit.tentativeMove(this, this.toDraw.get("selectedUnitPath"), () =>
 	    {
 	      this.gameStatus = "unitActionSelect";
+
 	      this.camera.setTarget(this.cursor.vis);
 	      this.camera.resetBorders();
+
 	      this.toDraw.hide("selectedUnitMovable");
 	      this.toDraw.hide("selectedUnitPath");
+
 	      this.toDraw.set("selectedUnitAttackableTiles", this.temp.selectedUnit.attackableTiles(this.Map));
 	      this.temp["selectedUnitActions"] = this.generateUnitActions(this, this.temp.selectedUnit);
+
 	      let numActions = this.temp.selectedUnitActions.length;
 	      this.toDraw.set("selectedUnitActionPanel",
-		new SelectionPanel(50,50, 64,16*numActions, 1, numActions, 398, 50, this.temp.selectedUnitActions));
+		new SelectionPanel(50,50, 20+64,16*numActions+20, 1, numActions, 398, 50, this.temp.selectedUnitActions));
+
 	      if (this.camera.onLeft(this.temp.selectedUnit))
 	      {
 		this.toDraw.get("selectedUnitActionPanel").shift();
@@ -378,8 +389,9 @@ class Game
     
     this.stateAction.map = 
     {
-      select: () =>
+      select: async () =>
       {
+	await cursorStop(this.cursor);
 	triggerEvent("sfx_play_beep_effect");
 	let unit = this.Map.getTile(this.cursor.x, this.cursor.y).unit;
 	if (unit != null && unit.active == true)
