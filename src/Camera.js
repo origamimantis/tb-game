@@ -54,7 +54,8 @@ class Camera
       throw "Cannot shift camera while moving.";
     }
     let off = new Coord( this.offset.x, this.offset.y );
-    let dest = new Coord( c.x, c.y );
+    let dest = new Coord( inBound(c.x, this.moveTriggers.l, this.max.x + this.moveTriggers.r),
+			  inBound(c.y, this.moveTriggers.t, this.max.y + this.moveTriggers.b) );
 
     while (dest.x - off.x > this.moveTriggers.r || dest.x - off.x < this.moveTriggers.l)
     {
