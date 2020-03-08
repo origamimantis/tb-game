@@ -186,6 +186,11 @@ class Camera
   {
     return this.adjustedPos(c).y >= this.wsize.y/2
   }
+  visible(c)
+  {
+    return (c.x >= this.offset.x - 1) && (c.x < this.offset.x+ this.wsize.x) && 
+	    (c.y >= this.offset.y - 1) && (c.y < this.offset.y+ this.wsize.y);
+  }
   inBounds(c)
   {
     let a = this.adjustedPos(c);

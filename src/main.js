@@ -40,7 +40,8 @@ window.onload = () =>
 		  "T_wall_EL", "T_wall_ER", "T_wall_TL", "T_wall_TR",
 		  "T_field", "T_field_tree",
 		  "S_kn0", "S_lead1",
-		  "C_c0", "C_move", "C_walk", "C_atk",
+		  "BS_kn_run", "BS_kn_prehit", "BS_kn_hit", "BS_kn_idle",
+		  "C_c0", "C_move", "C_walk", "C_atk", "C_glow",
 		  "C_menutl",
 		  "C_menuel", "C_menucn"
 		],

@@ -24,6 +24,14 @@ class Interpreter
 	id = parseInt(id); x = parseInt(x); y = parseInt(y);  
 	let u = new Unit(id, x, y, {}, {mov: 7});
 	u.addAnim( "idle", new Animation("S_kn0", [20,10,20,10]));
+	u.addAnim( "btl_idle", new Animation("BS_kn_idle", [100000]));
+	u.addAnim( "btl_idle_reverse", new Animation("BS_kn_idle_reverse", [100000]));
+	u.addAnim( "btl_run", new Animation("BS_kn_run", [10,10,10,10]));
+	u.addAnim( "btl_run_reverse", new Animation("BS_kn_run_reverse", [10,10,10,10]));
+	u.addAnim( "btl_prehit", new Animation("BS_kn_prehit", [10,30], false));
+	u.addAnim( "btl_prehit_reverse", new Animation("BS_kn_prehit_reverse", [10,30], false));
+	u.addAnim( "btl_hit", new Animation("BS_kn_hit", [5,35], false));
+	u.addAnim( "btl_hit_reverse", new Animation("BS_kn_hit_reverse", [5,35], false));
 	u.setAnim( "idle" );
 	this.g.addUnit(u);
 	resolve();

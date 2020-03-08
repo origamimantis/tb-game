@@ -1,6 +1,6 @@
+"use strict";
 
-
-class DrawContainer
+export class DrawContainer
 {
   constructor()
   {
@@ -40,6 +40,10 @@ class DrawContainer
   }
   del(id)
   {
+    if (this.get(id) == undefined)
+    {
+      throw "Id '" + id + "' not in DrawContainer";
+    }
     delete this.stuff.active[id];
     delete this.stuff.paused[id];
     delete this.hidden.active[id];
@@ -210,13 +214,18 @@ class DrawContainer
     {
       f(thing);
     }
-
-
-
-
+  }
+  logActive()
+  {
+    for (let thing of Object.keys(this.stuff.active))
+    {
+      console.log(thing);
+    }
+    for (let thing of Object.keys(this.hidden.active))
+    {
+      console.log(thing);
+    }
   }
 
 }
 
-
-export {DrawContainer};

@@ -25,20 +25,15 @@ class AnimatedObject
   {
     return this.curAnim().image;
   }
-  setAnim( name )
+  setAnim( name, onDone = () => {})
   {
     this.curAnimName = name;
+    this.curAnim().reset();
+    this.curAnim().onDone = onDone;
   }
-  draw( g, ctx, x = null, y = null, s = 1 )
+  draw( g, ctx, x = this.x, y = this.y, s = 1, snapGrid = true)
   {
-    if (x == null || y == null)
-    {
-      x = this.x;
-      y = this.y;
-    }
-
-    this.curAnim().draw(g, ctx, x, y, s);
-    this.tickAnim();
+    this.curAnim().draw(g, ctx, x, y, s, snapGrid);
   }
   addAnim( name, anim )
   {

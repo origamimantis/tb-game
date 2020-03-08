@@ -14,7 +14,7 @@ import {DrawContainer} from "./DrawContainer.js";
 import {Inputter, ARROWS, ARROW} from "./Inputter.js";
 import {Panel, SelectionPanel} from "./Panel.js";
 import {PanelComponent} from "./PanelComponent.js";
-//import {Battle} from "./Battle.js";
+import {Battle} from "./Battle.js";
 //import {SpriteFont} from "./SpriteFont.js";
 //import {Tester} from "./Tester.js";
 import {LoopSelector, QueueSelector} from "./LoopSelector.js";
@@ -48,6 +48,8 @@ class Game
 {
   constructor( assets )
   {
+    this.windowx = C_WIDTH/SCALE;
+    this.windowy = C_HEIGHT/SCALE;
     this.Album = assets.Album;
     this.Music = assets.Music;
     this.Map = assets.Map;
@@ -71,6 +73,7 @@ class Game
     this.Music.play("oss");
     
     this.toDraw.set("cursor", this.cursor);
+    this.toDraw.set("map", this.Map);
     this.toDraw.set("Units", this.Units);
     this.toDraw.set("fps", new Panel(430,10, 72, 16, 1, 1000, 0));
 
@@ -86,6 +89,7 @@ class Game
     this.toDraw.get("test").addComponent(new PanelComponent( 1 , "P_gen"), "2",  3, 2);
     this.toDraw.get("test").addComponent(new PanelComponent( 1 , "P_janitor"), "3",  3, 3);
     */
+
     this.temp = {};
     
     this.counter = 0;
@@ -154,6 +158,36 @@ class Game
       select:()=>
       {
 	console.log("attacked someone");
+        let enemy = this.Map.getTile(this.temp.selectedUnitAttackCoords.get()).unit;
+	// hide everything
+	this.temp["mapstate"] = this.toDraw;
+	this.toDraw = new Battle(this, this.temp.selectedUnit, enemy, () => 
+	  {
+	    // restore the gamestate
+	    this.toDraw = this.temp["mapstate"];
+
+	    // deete stuff from selecting a unit
+	    this.toDraw.del("selectedUnitAttackableTiles");
+	    this.toDraw.del("selectedUnitMovable");
+	    this.toDraw.del("selectedUnitPath");
+	    this.toDraw.del("selectedUnitActionPanel");
+
+	    // confirm move
+	    this.temp.selectedUnit.confirmMove(this);
+	    
+	    // end turn TODO change for canto/other stuff
+	    this.temp.selectedUnit.endTurn(this);
+	    
+	    this.cursor.moveInstant(this.temp.selectedUnit);
+
+	    // delete temporaries
+	    this.temp = {};
+
+	    // update gamestate
+	    this.gameStatus = "map";
+	  }
+	);
+        this.gameStatus = "blockInput";
       },
       cancel:()=>
       {
@@ -354,18 +388,8 @@ class Game
 	  this.gameStatus = "unitMoveLocation";
 
 	  let p = new Queue();
-	  p.draw = function( g )
-	  {
-	    let off = g.camera.offset;
-	    for (let c of this)
-	    {
-	      g.ctx[1].drawImage(
-		g.Album.get("C_walk"),
-		(c.x - off.x)*g.grid.x, (c.y - off.y)*g.grid.y,
-		g.grid.x, g.grid.y
-	      );
-	    }
-	  }
+	  p.setArt("C_walk");
+	  
 	  p.push(new Coord(unit.x, unit.y));
 
 	  this.toDraw.set("selectedUnitPath", p);
@@ -537,6 +561,7 @@ class Game
       this.ctx.push(can.getContext('2d'));
       this.ctx[i].imageSmoothingEnabled = false;
       this.ctx[i].scale(SCALE, SCALE);
+      this.ctx[i].fillStyle = "white";
     }
   }
   
@@ -573,17 +598,17 @@ class Game
     // for each layer, then only draw layers that have it set to true.
     //
     //TODO TODO TODO TODO TODO TODO TODO TODO TODO
+    this.ctx[0].clearRect(0,0,C_WIDTH, C_HEIGHT);
     this.ctx[1].clearRect(0,0,C_WIDTH, C_HEIGHT);
     this.ctx[2].clearRect(0,0,C_WIDTH, C_HEIGHT);
     this.ctx[3].clearRect(0,0,C_WIDTH, C_HEIGHT);
 
     this.toDraw.draw(this);
-
-    this.Map.draw(this);
   }
   update()
   {
-    if (this.toDraw.isActive("cursor") && this.Inputter.arrowStates().input == true)
+    // if (this.toDraw.isActive("cursor") && this.Inputter.arrowStates().input == true)
+    if (this.Inputter.arrowStates().input == true)
     {
       this.stateAction[this.gameStatus].arrows(this.Inputter.arrowStates());
     }
@@ -599,7 +624,8 @@ class Game
     this.update();
     this.draw();
     ++ this.counter;
-    if (this.counter >= 3600)
+    // 10! is hghly divisible, so modulos won't run amok
+    if (this.counter >= 3628800)
     {
       this.counter = 0;
     }

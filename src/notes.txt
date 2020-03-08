@@ -1,3 +1,8 @@
+ver0.10 2020-03-07
+Improved how tiles look (for attackable/movable tiles).
+Implemented a battle scene, although it's fairly boring
+right now.
+
 ver0.9 2020-03-03
 Added attackable tiles (with the assumption that every unit
 has 1 and 3 range, but not 2. Weird, huh?). I'm trying to

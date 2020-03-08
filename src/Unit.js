@@ -5,6 +5,7 @@ import {Path} from "./Path.js";
 import {Queue} from "./Queue.js";
 import {recolor} from "./UsefulFunctions.js";
 import {Weapons} from "./Weapon.js";
+import {Range} from "./Range.js";
 import {TILES} from "./Constants.js";
 import {ImageModifier} from "./ImageModifier.js";
 import {triggerEvent, generatePath, inRange, generateMovable, nextFrameDo, waitTick} from "./Utils.js";
@@ -12,7 +13,7 @@ import {triggerEvent, generatePath, inRange, generateMovable, nextFrameDo, waitT
 
 export class Unit extends AnimatedObject
 {
-  constructor(id, x, y, caps, stats, name = ("Unit "+id), classname = "Unit", pArt = "gen", color = [255,0,0],)
+  constructor(id, x, y, caps, stats, name = ("Unit "+id), classname = "Unit", pArt = "gen", color = [255,0,0])
   {
     super( x, y );
     this.x = x;
@@ -25,6 +26,7 @@ export class Unit extends AnimatedObject
     this.movcost = {};
     this.movcost[TILES.ROAD] = 1;
     this.movcost[TILES.TREE] = 2;
+    this.movcost[TILES.WALL] = 5000;
     
     this.caps = {};
     this.stats = {};
@@ -49,6 +51,8 @@ export class Unit extends AnimatedObject
 
     this.active = true;
     this.color = [1, 253, 40];
+    
+    this.weapons = [];
   }
   
   instantMove(g, x, y)
@@ -181,8 +185,12 @@ export class Unit extends AnimatedObject
 
   draw( g )
   {
-    let off = g.camera.offset;
-    super.draw(g, 2, this.vis.x - off.x, this.vis.y - off.y)
+    if (g.camera.visible(this))
+    {
+      let off = g.camera.offset;
+      super.draw(g, 2, this.vis.x - off.x, this.vis.y - off.y)
+    }
+    super.tickAnim();
   }
   
   movable(g, includeAttackable, draw = true)
@@ -239,7 +247,7 @@ export class Unit extends AnimatedObject
   
   getRange()
   {
-    return [1, 3];
+    return new Range(1,2);
   }
 
   async recolorAnim(g, a, d, name)
