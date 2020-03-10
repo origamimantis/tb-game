@@ -3,15 +3,15 @@ const TOLOAD = 25;
 
 class Album
 {
-  constructor()
+  static init()
   {
     this.images = {};
   }
-  get( artName )
+  static get( artName )
   {
     return this.images[artName];
   }
-  draw(g, ctx, art, x, y, w, h)
+  static draw(g, ctx, art, x, y, w, h)
   {
     g.ctx[ctx].drawImage(this.get(art), x, y, w, h);
   }
@@ -19,11 +19,11 @@ class Album
 
 class ImageLoader
 {
-  constructor(album)
+  constructor()
   {
     this.toload = TOLOAD;
     this.loaded = 0;
-    this.album = album;
+    this.album = Album;
   }
   
   loadImgs(images)

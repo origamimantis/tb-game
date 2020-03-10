@@ -1,11 +1,11 @@
 'use strict';
 
-import {AnimFrame} from "./AnimFrame.js";
+import {Album} from "./Images.js";
 
 
 class Animation
 {
-  constructor( artName, weights = [], loops = true, onDone = () => {})
+  constructor( artName, weights = [], loops = true, onDone = null)
   {
     this.numFrame = weights.length;
 
@@ -46,7 +46,10 @@ class Animation
 	{
 	  this.curFrame = this.numFrame - 1;
 	}
-	this.onDone();
+	if (this.onDone != null)
+	{
+	  this.onDone();
+	}
       }
     }
   }
@@ -57,7 +60,7 @@ class Animation
   }
   draw(g, layer, x, y, s, snapGrid)
   {
-    let img = g.Album.get(this.image)
+    let img = Album.get(this.image)
     
     let w = img.width/this.numFrame;
     let h = img.height;

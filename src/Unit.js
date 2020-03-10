@@ -4,7 +4,6 @@ import {AnimatedObject} from "./AnimatedObject.js";
 import {Path} from "./Path.js";
 import {Queue} from "./Queue.js";
 import {recolor} from "./UsefulFunctions.js";
-import {Weapons} from "./Weapon.js";
 import {Range} from "./Range.js";
 import {TILES} from "./Constants.js";
 import {ImageModifier} from "./ImageModifier.js";
@@ -13,7 +12,7 @@ import {triggerEvent, generatePath, inRange, generateMovable, nextFrameDo, waitT
 
 export class Unit extends AnimatedObject
 {
-  constructor(id, x, y, caps, stats, name = ("Unit "+id), classname = "Unit", pArt = "gen", color = [255,0,0])
+  constructor(id, x, y, caps, stats, name = ("Unit "+id), classname = "Unit", pArt = "gen", walkFunction = null)
   {
     super( x, y );
     this.x = x;
@@ -53,6 +52,12 @@ export class Unit extends AnimatedObject
     this.color = [1, 253, 40];
     
     this.weapons = [];
+    this.walkFunction = walkFunction;
+  }
+  
+  addWeapon(weap)
+  {
+    this.weapons.push(weap);
   }
   
   instantMove(g, x, y)
@@ -118,7 +123,6 @@ export class Unit extends AnimatedObject
     this.animations["kn0"].image = this.animHist;
     this.resumeAnimation();
     this.active = true;
-
   }
 
   
@@ -247,7 +251,11 @@ export class Unit extends AnimatedObject
   
   getRange()
   {
-    return new Range(1,2);
+    if (this.weapons.length == 0)
+    {
+      return new Range(0,0);
+    }
+    return this.weapons[0].range;
   }
 
   async recolorAnim(g, a, d, name)

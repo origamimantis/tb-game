@@ -18,6 +18,10 @@ class Range
       throw new Error("Range max (" + max + ") less than min (" + min + ").");
     }
   }
+  contains(r)
+  {
+    return (r >= this.min && r <= this.max);
+  }
   *[Symbol.iterator]()
   {
     for (let i =  this.min; i <= this.max; ++i)

@@ -328,6 +328,20 @@ export class BattleQueue
     }
     ++ this.sz;
   }
+  enqueueFront(c)
+  {
+    if (this.sz > 0)
+    {
+      this.h = {v: c, p: null, n: this.h};
+    }
+    else
+    {
+      this.h = {v: c, p: null, n: null};
+      this.t = this.h;
+    }
+    ++ this.sz;
+  }
+
   dequeue()
   {
     if (this.sz > 0)

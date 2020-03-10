@@ -21,7 +21,6 @@ function load(thingsToLoad)
   {
     let thingy = {
 		  Map : new TileMap(),
-		  Album : new Album(),
 		  Music : new MusicPlayer(),
 		  sf : new SpriteFont()
 		};
@@ -33,13 +32,14 @@ function load(thingsToLoad)
 	thingy.Map.generate(mapFile.responseText);
 	
 	// load images
-	let i = new ImageLoader(thingy.Album);
+	Album.init();
+	let i = new ImageLoader();
 	await i.loadImgs( thingsToLoad.ImgLoad );
 
 	let imscript = await requestFile(thingsToLoad.ImgMod);
 	imscript = imscript.responseText;
 
-	ImageModifier.init(thingy.Album);
+	ImageModifier.init(Album);
 	ImageModifier.execute(imscript)
 
 	// load images

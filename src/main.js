@@ -9,7 +9,6 @@ import {AnimFrame} from "./AnimFrame.js";
 import {Interpreter} from "./Interpreter.js";
 import {ImageModifier} from "./ImageModifier.js";
 import {PathFinder} from "./PathFinder.js";
-import {Weapon, Weapons} from "./Weapon.js";
 
 let interpreter;
 let game;
@@ -39,9 +38,10 @@ window.onload = () =>
 		   "T_wall_B", "T_wall_BR",
 		  "T_wall_EL", "T_wall_ER", "T_wall_TL", "T_wall_TR",
 		  "T_field", "T_field_tree",
-		  "S_kn0", "S_lead1",
-		  "BS_kn_run", "BS_kn_hit", "BS_kn_idle",
+		  "S_kn0", "S_kn1", "S_lead1",
+		  "BS_kn_run", "BS_kn_hit", "BS_kn_idle", "BS_kn_hit2",
 		  "B_backdrop",
+		  "W_spook", "W_stick", "W_sword",
 		  "C_c0", "C_move", "C_walk", "C_atk",
 		  "C_menutl",
 		  "C_menuel", "C_menucn"

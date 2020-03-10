@@ -5,6 +5,7 @@ import {Unit} from "./Unit.js";
 import {Coord} from "./Path.js";
 //import {PathFinder} from "./PathFinder.js";
 import {AnimatedObject} from "./AnimatedObject.js";
+import {Album} from "./Images.js";
 import {Cursor} from "./Cursor.js";
 import {FPS, TICK_RATE} from "./Constants.js";
 import {Camera} from "./Camera.js";
@@ -50,7 +51,7 @@ class Game
   {
     this.windowx = C_WIDTH/SCALE;
     this.windowy = C_HEIGHT/SCALE;
-    this.Album = assets.Album;
+    this.Album = Album;
     this.Music = assets.Music;
     this.Map = assets.Map;
     this.Fonts = assets.sf;
@@ -70,7 +71,9 @@ class Game
     this.Inputter = new Inputter(this);
     this.loadKeyTracker();
 
-    this.Music.play("oss");
+    this.maptheme = "btl1";
+    this.battletheme = "fght2";
+    this.Music.play(this.maptheme);
     
     this.toDraw.set("cursor", this.cursor);
     this.toDraw.set("map", this.Map);
@@ -156,13 +159,26 @@ class Game
     /*************************************/
     /* ACTION UNIT ATTACK TARGET SELECT  */
     /*************************************/
-      select:()=>
+      select:async()=>
       {
         let enemy = this.Map.getTile(this.temp.selectedUnitAttackCoords.get()).unit;
 	// hide everything
 	this.temp["mapstate"] = this.toDraw;
-	this.toDraw = new Battle(this, this.temp.selectedUnit, enemy, () => 
+        this.gameStatus = "blockInput";
+
+	let battle = new Battle(this, this.temp.selectedUnit, enemy);
+
+	await this.Music.fadeout(this.maptheme);
+	this.Music.play(this.battletheme);
+	
+	this.toDraw = battle;
+
+	battle.begin( async ()=>
 	  {
+
+	    await this.Music.fadestop(this.battletheme);
+	    this.Music.fadein(this.maptheme);
+
 	    // restore the gamestate
 	    this.toDraw = this.temp["mapstate"];
 
@@ -193,7 +209,7 @@ class Game
 	    this.gameStatus = "map";
 	  }
 	);
-        this.gameStatus = "blockInput";
+	
       },
       cancel:()=>
       {

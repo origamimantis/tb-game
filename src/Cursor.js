@@ -15,7 +15,7 @@ class Cursor extends AnimatedObject
     super(g,x,y);
 
     //visuals
-    this.addAnim( 0, new Animation( "C_c0", [48,4,4,4], true, [4,4] ));
+    this.addAnim( 0, new Animation( "C_c0", [48,4,4,4], true ));
 
     this.max = {x: g.Map.dimension.x - 1,
 		y: g.Map.dimension.y - 1};
@@ -268,6 +268,7 @@ class Cursor extends AnimatedObject
   {
     let off = g.camera.offset;
     super.draw(g, 3, this.vis.x - off.x, this.vis.y - off.y);
+    super.tickAnim();
   }
 
 

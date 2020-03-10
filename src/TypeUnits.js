@@ -2,8 +2,9 @@
 
 import {Unit} from "./Unit.js";
 import {Animation} from "./Animation.js";
+import * as Walk from "./BattleAnimations.js";
 
-class Leader extends Unit
+export class Leader extends Unit
 {
     constructor(g, id, x,y, stats, name = "Unit "+id)
     {
@@ -25,9 +26,9 @@ class Leader extends Unit
 }
 
 
-class SwordKnight extends Unit
+export class SwordKnight extends Unit
 {
-    constructor(g, id, x,y, stats, name = "Unit "+id)
+    constructor(id, x,y, stats, name = "Unit "+id)
     {
 	let caps =
 	    { "maxhp":60,
@@ -39,13 +40,12 @@ class SwordKnight extends Unit
 		"mov":10
 	    };
 	let classname = "Sword Knight";
-	super( g, id, x, y, caps, stats, name, classname, "P_kn");
-	this.addAnim(0, new Animation( g, "S_kn1", [20,10,20,10], true) );
-	this.turnInit();
-	this.g.addUnit(this);
+	super( id, x, y, caps, stats, name, classname, "P_kn", Walk.SwordKnight);
+	
+	this.addAnim("idle", new Animation( "S_kn1", [20,10,20,10], true) );
     }
 }
-class BowKnight extends Unit
+export class BowKnight extends Unit
 {
     constructor(g, id, x,y, stats, name = "Unit "+id)
     {
@@ -66,7 +66,7 @@ class BowKnight extends Unit
     }
 }
 
-class LanceKnight extends Unit
+export class LanceKnight extends Unit
 {
     constructor(g, id, x,y, stats, name = "Unit "+id)
     {
@@ -87,7 +87,7 @@ class LanceKnight extends Unit
     }
 }
 
-class Janitor extends Unit
+export class Janitor extends Unit
 {
     constructor(g, id, x,y, stats, name = "Unit "+id)
     {
@@ -110,7 +110,7 @@ class Janitor extends Unit
 
 
 
-class AxeKnight extends Unit
+export class AxeKnight extends Unit
 {
     constructor(g, id, x,y, stats, name = "Unit "+id)
     {
@@ -131,7 +131,7 @@ class AxeKnight extends Unit
     }
 }
 
-class HeavySwordKnight extends Unit
+export class HeavySwordKnight extends Unit
 {
     constructor(g, id, x,y, stats, name = "Unit "+id)
     {
@@ -153,7 +153,7 @@ class HeavySwordKnight extends Unit
 }
 
 
-class Vampire extends Unit
+export class Vampire extends Unit
 {
     constructor(g, id, x,y, stats, name = "Unit "+id)
     {
@@ -176,7 +176,7 @@ class Vampire extends Unit
 
 
 
-class Horseman extends Unit
+export class Horseman extends Unit
 {
     constructor(g, id, x,y, stats, name = "Unit "+id)
     {
@@ -198,7 +198,7 @@ class Horseman extends Unit
 }
 
 
-class Cavalier extends Unit
+export class Cavalier extends Unit
 {
     constructor(g, id, x,y, stats, name = "Unit "+id)
     {

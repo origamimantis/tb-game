@@ -5,7 +5,3 @@ fh C_menubl C_menubr
 rl C_menuel C_menueb
 rr C_menuel C_menuet
 fh C_menuel C_menuer
-
-fh BS_kn_idle BS_kn_idle_reverse
-fh BS_kn_run BS_kn_run_reverse
-fh BS_kn_hit BS_kn_hit_reverse

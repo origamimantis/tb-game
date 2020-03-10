@@ -1,3 +1,9 @@
+ver0.12 2020-03-09
+Updated the battle engine to use separate weapon sprites.
+Also, fixed some outdated music issues. I'm having trouble
+thinking of a good way to have custom animations for any
+weapon type, so expect more battle engine changes.
+
 ver0.11 2020-03-07
 Reworked some mechanics of the battle scene. However,
 those changes are not yet visible. Added art to make

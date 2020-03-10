@@ -31,22 +31,23 @@ class BattleInfo
   }
 }
 
+// battle sprites should have frames with dimension 64x64
+
 export class Battle
 {
-  constructor(g, initiator, defender, onDone)
+  constructor(g, initiator, defender)
   {
     this.g = g;
+    this.sfx = g.Music;
     this.units = {ini: initiator,
 		  def: defender};
 
-    this.sprIni = new UnitBattleSprite(initiator, "atk", g, g.windowx - 100, 100);
+    this.sprIni = new UnitBattleSprite(initiator, "atk", g, 100, 100);
 
     this.sprDef = new UnitBattleSprite(defender, "def", g, 100,100);
 
-    this.setAnimation(this.sprIni, "idle");
-    this.setAnimation(this.sprDef, "idle");
-
-    this.onDone = onDone;
+    this.sprIni.setAnimation("idle");
+    this.sprDef.setAnimation("idle");
 
     this.healthPanels = new BattleInfo(new Panel(
 					  0, g.windowy - PANELS.HEALTH.HEIGHT,
@@ -70,19 +71,29 @@ export class Battle
     this.turns = new BattleQueue();
 
     this.initTurns();
-    this.execTurns(onDone);
   }
   initTurns()
   {
-    this.turns.enqueue(new BattleInfo(this.sprIni, this.sprDef));
-    this.turns.enqueue(new BattleInfo(this.sprDef, this.sprIni));
-    this.turns.enqueue(new BattleInfo(this.sprIni, this.sprDef));
-    this.turns.enqueue(new BattleInfo(this.sprDef, this.sprIni));
-    this.turns.enqueue(new BattleInfo(this.sprDef, this.sprIni));
-    this.turns.enqueue(new BattleInfo(this.sprDef, this.sprIni));
-    this.turns.enqueue(new BattleInfo(this.sprDef, this.sprIni));
+    this.addTurn(this.sprDef);
+    this.addTurn(this.sprIni);
+    this.addTurn(this.sprIni);
+    this.addTurn(this.sprDef);
+    this.addTurn(this.sprDef);
+    this.addTurn(this.sprDef);
+    this.addTurn(this.sprDef);
   }
-  async execTurns(onDone)
+  addTurn(who)
+  {
+    if (who.id == "atk")
+    {
+      this.turns.enqueue(new BattleInfo(this.sprIni, this.sprDef));
+    }
+    else
+    {
+      this.turns.enqueue(new BattleInfo(this.sprDef, this.sprIni));
+    }
+  }
+  async begin(onDone)
   {
     while(this.turns.nonempty())
     {
@@ -97,70 +108,43 @@ export class Battle
     let defr = btl.d;
     return new Promise( async (resolve) => 
       {
-	let direction = defr.x - atkr.x;
-	if (Math.abs(direction) > 40)
-	{
-	  this.setAnimation(atkr, "run");
-	  await this.moveCloser(atkr, defr);
-	}
-	this.setAnimation(atkr, "hit", resolve);
+	await atkr.moveCloser(defr, this);
+	
+	atkr.setAnimation("hit", resolve);
 	await waitTime(720);
+	
+	this.sfx.play("whack");
 	// damage here, and remove await on knockback
-	await this.knockBack(defr, Math.sign(direction), 4)
+	await this.knockBack(atkr, defr, 4)
       }
     );
   }
 
-  knockBack(u, delta, time)
+  knockBack(atkr, defr, time = 4)
   {
     return new Promise( async (resolve)=>
       {
 	for (let i = time; i > 0; --i)
 	{
-	  u.x += i*delta;
+	  defr.x -= i/2;
 	  await waitTick();
 	}
       }
     );
   }
-  moveCloser(atkr, defr)
-  {
-    return new Promise( async (resolve) =>
-      {
-	let direction = defr.x - atkr.x;
-	while ( Math.abs(direction) > 20)
-	{
-	  atkr.x += 2*Math.sign(direction);
-	  direction = defr.x - atkr.x;
-	  await waitTick();
-	}
-	resolve();
-      }
-    );
-  }
-
-  setAnimation(unit, name, onDone = ()=>{})
-  {
-    let u = this.sprDef;
-    if (unit.id == "atk")
-    {
-      name += "_reverse";
-      u = this.sprIni;
-    }
-    u.setAnim("btl_" + name, onDone);
-  }
+  
   
   update(g)
   {
-    this.sprIni.update(g);
-    this.sprDef.update(g);
-
+    this.sprIni.update();
+    this.sprDef.update();
   }
   draw(g)
   {
     g.Album.draw(g, 0, "B_backdrop", 0,0, WINDOW.X, WINDOW.Y);
     this.sprIni.draw(g);
     this.sprDef.draw(g);
+
     this.healthPanels.draw(g);
     this.statPanels.draw(g);
     this.commentPanel.draw(g);
