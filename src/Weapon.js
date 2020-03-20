@@ -46,7 +46,7 @@ export class Weapon
 
 export class WeaponSprite
 {
-  constructor(img, animations, moveRange, handx, handy, updateFunc)
+  constructor(img, animations, moveRange, handx, handy, numAnim, updateFunc)
   {
     this.image = Album.get(img);
     this.animType = animations;
@@ -57,6 +57,11 @@ export class WeaponSprite
     this.x = 0;
     this.y = 0;
     this.a = 0;
+    
+    this.numAnim = numAnim;
+    this.curAnim = 0;
+    this.w = this.image.width/numAnim;
+    this.h = this.image.height;
   }
 }
 
@@ -64,7 +69,7 @@ class NoWeapon_Sprite extends WeaponSprite
 {
   constructor()
   {
-    super("W_sword", "melee", {min: 15, max:40}, 3, 3,
+    super("W_sword", "melee", {min: 15, max:40}, 3, 3, 1,
       (unit, state) =>
       {
 	let hand = unit.curAnim().weights[unit.curFrame()];
@@ -135,13 +140,12 @@ class Sword_Sprite extends WeaponSprite
 {
   constructor()
   {
-    super("W_sword", "melee", {min: 15, max:32}, 3, 3,
+    super("W_sword", "melee", {min: 15, max:32}, 3, 15, 2,
       (unit, state) =>
       {
-        let hand = unit.curAnim().weights[unit.curFrame()];
-        this.x = unit.x + hand.x;
-        this.y = unit.y + hand.y
-        this.a = hand.a;
+        this.x = unit.x + unit.hx;
+        this.y = unit.y + unit.hy;
+        this.a = unit.ha;
       }
     );
   }

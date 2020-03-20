@@ -1,3 +1,6 @@
+ver0.13 2020-03-19
+Reworked the battle engine for moving units. covid-19 bad.
+
 ver0.12 2020-03-09
 Updated the battle engine to use separate weapon sprites.
 Also, fixed some outdated music issues. I'm having trouble

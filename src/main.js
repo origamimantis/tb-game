@@ -61,7 +61,6 @@ window.onload = () =>
       interpreter = new Interpreter(game);
 
       game.mainloop();
-      //setTimeout(() => {game.Units.forEach((u)=>{u.curAnim().age = 0;})}, 500);
       
       interpreter.execute(loaded.script);
     }

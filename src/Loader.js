@@ -6,6 +6,7 @@ import {Album, ImageLoader} from "./Images.js";
 import {MusicPlayer} from "./MusicPlayer.js";
 import {SpriteFont} from "./SpriteFont.js";
 import {ImageModifier} from "./ImageModifier.js";
+import {BattleAnimationAlbum} from "./BattleAnimationAlbum.js";
 
 
 // thingsToLoad = {
@@ -44,6 +45,12 @@ function load(thingsToLoad)
 
 	// load images
 	await thingy.sf.loadFont( thingsToLoad.SpriteFont );
+	
+	// TODO make this an argument from main
+	BattleAnimationAlbum.init();
+	await BattleAnimationAlbum.addAnim("anim0", "assets/scripts/anim0.txt");
+	await BattleAnimationAlbum.addAnim("anim1", "assets/scripts/anim1.txt");
+	await BattleAnimationAlbum.addAnim("anim2", "assets/scripts/anim2.txt");
 
 	// load sound library
 	Waud.init();

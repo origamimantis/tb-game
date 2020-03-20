@@ -2,7 +2,7 @@
 
 import {UnitBattleSprite} from "./UnitBattleSprite.js";
 import {BattleQueue} from "./Queue.js";
-import {waitTick, waitTime} from "./Utils.js";
+import {waitTick, waitTime, requestFile} from "./Utils.js";
 import {Panel} from "./Panel.js";
 import {PanelComponent} from "./PanelComponent.js";
 
@@ -110,12 +110,16 @@ export class Battle
       {
 	await atkr.moveCloser(defr, this);
 	
-	atkr.setAnimation("hit", resolve);
-	await waitTime(720);
+	atkr.setAnimation("hit");
+	await waitTime(500);
 	
 	this.sfx.play("whack");
+	await waitTime(220);
 	// damage here, and remove await on knockback
 	await this.knockBack(atkr, defr, 4)
+	await waitTime(720);
+	resolve();
+
       }
     );
   }
@@ -129,6 +133,7 @@ export class Battle
 	  defr.x -= i/2;
 	  await waitTick();
 	}
+	resolve();
       }
     );
   }
