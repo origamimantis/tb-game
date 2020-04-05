@@ -196,6 +196,27 @@ export class DrawContainer
       this.pause(id);
     }
   }
+  *[Symbol.iterator]()
+  {
+    for (let thing of Object.values(this.stuff.active))
+    {
+      yield thing;
+    }
+    for (let thing of Object.values(this.stuff.paused))
+    {
+      yield thing;
+    }
+    for (let thing of Object.values(this.hidden.active))
+    {
+      yield thing;
+    }
+    for (let thing of Object.values(this.hidden.paused))
+    {
+      yield thing;
+    }
+    
+  }
+
   forEach(f)
   {
     for (let thing of Object.values(this.stuff.active))

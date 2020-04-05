@@ -1,3 +1,9 @@
+ver0.14 2020-04-04
+Added turns (although no turn transitions just yet) as well
+as a naive version of alliances that I'll improve later.
+It would appear that I now have to rethink my pathfinding
+to treat enemy units as walls.
+
 ver0.13 2020-03-19
 Reworked the battle engine for moving units. covid-19 bad.
 

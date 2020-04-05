@@ -5,6 +5,7 @@ import {Path, Coord} from "./Path.js";
 import {FPS, TICK_RATE} from "./Constants.js";
 import {Queue} from "./Queue.js";
 import {CoordLookup} from "./CoordLookup.js";
+import {ARROW} from "./Inputter.js";
 
 
 export function cursorStop(cur)
@@ -174,6 +175,24 @@ function all(conditions, param)
 }
 
 
+export function scrollSelector(keys, selector)
+{
+
+    for (let k of keys.once)
+    {
+      switch (k)
+      {
+      case ARROW.UP:
+	selector.prev();
+	break;
+      case ARROW.DOWN:
+	selector.next();
+	break;
+      default:
+	triggerEvent("sfx_play_err_effect");
+      }
+    }
+}
 
 
 export function waitTime(time)

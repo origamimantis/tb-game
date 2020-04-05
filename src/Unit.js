@@ -53,6 +53,7 @@ export class Unit extends AnimatedObject
     
     this.weapons = [];
     this.walkFunction = walkFunction;
+    
   }
   
   addWeapon(weap)
@@ -120,7 +121,11 @@ export class Unit extends AnimatedObject
   }
   turnInit()
   {
-    this.animations["kn0"].image = this.animHist;
+    if (this.animHist)
+    {
+      this.animations["idle"].image = this.animHist;
+    }
+    this.curAnim().reset();
     this.resumeAnimation();
     this.active = true;
   }
@@ -202,6 +207,7 @@ export class Unit extends AnimatedObject
     let p = generateMovable(g, this.x, this.y, this.getMov(), this.movcost);
 
     let a = new Queue();
+    let adraw = new Queue();
     if (includeAttackable == true)
     {
       for (let c of p)
@@ -209,9 +215,13 @@ export class Unit extends AnimatedObject
 	let n = inRange(c, this.getRange(), "tiles", g.Map);
 	for (let cc of n)
 	{
-	  if (p.doesNotContain(cc) && a.doesNotContain(cc))
+	  if (a.doesNotContain(cc))
 	  {
 	    a.push(cc);
+	    if (p.doesNotContain(cc))
+	    {
+	      adraw.push(cc);
+	    }
 	  }
 	}
       }
@@ -222,10 +232,11 @@ export class Unit extends AnimatedObject
     {
       p.setArt("C_move");
       a.setArt("C_atk");
+      adraw.setArt("C_atk");
       r.draw = (g) =>
       {
 	p.draw(g);
-	a.draw(g);
+	adraw.draw(g);
       }
     }
 

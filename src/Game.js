@@ -21,7 +21,8 @@ import {Battle} from "./Battle.js";
 import {LoopSelector, QueueSelector} from "./LoopSelector.js";
 import {Action} from "./ActionGenerator.js";
 //import {RNG} from "./RNG.js";
-import {triggerEvent, respondToEvent, getCost, generatePath, nextFrameDo, cursorStop} from "./Utils.js";
+import {scrollSelector, triggerEvent, respondToEvent, getCost, generatePath, nextFrameDo, cursorStop, waitTime} from "./Utils.js";
+import {EnemyController} from "./EnemyController.js";
 
 const C_WIDTH = 1024;
 const C_HEIGHT = 768;
@@ -73,6 +74,7 @@ class Game
 
     this.maptheme = "btl1";
     this.battletheme = "fght2";
+    this.enbattletheme = "fght";
     this.Music.play(this.maptheme);
     
     this.toDraw.set("cursor", this.cursor);
@@ -85,18 +87,11 @@ class Game
     this.fpspanel = new PanelComponent(0, "fps:");
     this.toDraw.get("fps").addComponent(this.fpspanel, "fps", 0,0);
 
-    /*
-    this.toDraw.set("test", new Panel(400,20, 64, 64, 4, 4, 400, 120));
-    this.toDraw.get("test").addComponent(new PanelComponent( 0 , "fish/fosh\nfash fush123\n45\nyee\nyo\nyar"), "portr",  0, 0, 3, 3);
-    this.toDraw.get("test").addComponent(new PanelComponent( 1 , "P_gen"), "0",  3, 0);
-    this.toDraw.get("test").addComponent(new PanelComponent( 1 , "P_janitor"), "1",  3, 1);
-    this.toDraw.get("test").addComponent(new PanelComponent( 1 , "P_gen"), "2",  3, 2);
-    this.toDraw.get("test").addComponent(new PanelComponent( 1 , "P_janitor"), "3",  3, 3);
-    */
-
     this.temp = {};
     
     this.counter = 0;
+    
+    this.turn = new LoopSelector(["Player", "Eneny"]);
     
     this.gameStatus = "map";
     this.cursorOutsideMovable = false;
@@ -214,26 +209,13 @@ class Game
       cancel:()=>
       {
 	this.cursor.moveInstant(this.temp.selectedUnit);
-	this.gameStatus = "unitActionSelect";
 	this.toDraw.show("selectedUnitActionPanel");
+	
+	this.gameStatus = "unitActionSelect";
       },
       arrows:(a)=>
       {
-        for (let k of a.once)
-        {
-          switch (k)
-          {
-          case ARROW.UP:
-          case ARROW.LEFT:
-            this.temp.selectedUnitAttackCoords.prev();
-            break;
-          case ARROW.DOWN:
-          case ARROW.RIGHT:
-            this.temp.selectedUnitAttackCoords.next();
-            break;
-          }
-	  this.cursor.moveInstant(this.temp.selectedUnitAttackCoords.get());
-	}
+	scrollSelector(a, this.temp.selectedUnitAttackCoords);
       }
     }
 
@@ -262,20 +244,7 @@ class Game
       },
       arrows:(a)=>
       {
-	for (let k of a.once)
-	{
-	  switch (k)
-	  {
-	  case ARROW.UP:
-	    this.temp.selectedUnitActions.prev();
-	    break;
-	  case ARROW.DOWN:
-	    this.temp.selectedUnitActions.next();
-	    break;
-	  default:
-	    triggerEvent("sfx_play_err_effect");
-	  }
-	}
+	scrollSelector(a, this.temp.selectedUnitActions);
       }
 
     }
@@ -398,6 +367,32 @@ class Game
     }
    
     
+    /*************************************/
+    /* MAP OPTION SELECT                 */
+    /*************************************/
+    
+    this.stateAction.mapOptionSelect = 
+    {
+      select: async () =>
+      {
+	this.temp.mapActions.get().execute();
+      },
+      
+      cancel: ()=>
+      {
+	this.gameStatus = this.temp.prevState;
+	delete this.temp.prevState;
+	delete this.temp.mapActions;
+	this.toDraw.del("mapActionPanel")
+      },
+      
+      
+      arrows: (a) =>
+      {
+	scrollSelector(a, this.temp.mapActions);
+      }
+    },
+    
 
     /*************************************/
     /* ACTION MAP                        */
@@ -410,10 +405,9 @@ class Game
 	await cursorStop(this.cursor);
 	triggerEvent("sfx_play_beep_effect");
 	let unit = this.Map.getTile(this.cursor.x, this.cursor.y).unit;
-	if (unit != null && unit.active == true)
+	if (unit != null && unit.active == true && unit.team == "player")
 	{
 	  this.toDraw.set("selectedUnitMovable", unit.movable(this, true) );
-	  this.gameStatus = "unitMoveLocation";
 
 	  let p = new Queue();
 	  p.setArt("C_walk");
@@ -423,6 +417,78 @@ class Game
 	  this.toDraw.set("selectedUnitPath", p);
 	  this.temp["selectedUnit"] = unit;
 	  this.temp["selectedUnitMov"] = unit.getMov();
+	  
+	  this.gameStatus = "unitMoveLocation";
+	}
+	else
+	{
+	  // TODO map options might be the same no matter what. See if I can make this constant.
+	  this.temp["mapActions"] = new LoopSelector(
+	    [new Action("????????", ()=>{console.log("testo");}),
+	     new Action("End Turn", async ()=>
+	      {
+		this.gameStatus = "blockInput";
+		this.toDraw.hide("cursor");
+		this.toDraw.del("mapActionPanel");
+		for (let u of this.Units){ u.turnInit();}
+		
+		let t = new EnemyController(this);
+		//this.camera.shiftTo(this.temp.selectedUnit, () =>
+		for (let unit of this.Units)
+		{
+		  if (unit.team == "enemy")
+		  {
+		    await new Promise(resolve => {this.camera.shiftTo(unit, resolve)});
+		    this.camera.setTarget(unit.vis);
+
+		    let info = await t.offense(unit);
+		    await new Promise( resolve => {unit.tentativeMove(this, info.path, resolve);} )
+
+		    if (info.attacks == true)
+		    {
+		      let battle = new Battle(this, unit, info.target);
+
+		      await this.Music.fadeout(this.maptheme);
+		      this.Music.play(this.enbattletheme);
+
+		      this.temp["mapstate"] = this.toDraw;
+
+		      this.toDraw = battle;
+
+		      await new Promise( resolve => { battle.begin( resolve ); } );
+
+		      await this.Music.fadestop(this.enbattletheme);
+		      this.Music.fadein(this.maptheme);
+
+
+		      // restore the gamestate
+		      this.toDraw = this.temp["mapstate"];
+
+		    }
+		    unit.confirmMove(this);
+		    unit.endTurn(this);
+		    await waitTime(500);
+
+		  }
+		}
+		await waitTime(1000);
+		await new Promise(resolve => {this.camera.shiftTo(this.cursor.vis, resolve)});
+		this.camera.setTarget(this.cursor.vis);
+
+		
+		for (let u of this.Units){ u.turnInit();}
+		
+		this.toDraw.show("cursor");
+		this.gameStatus = "map";
+	      })
+	    ]);
+
+	  let numActions = this.temp.mapActions.length;
+	  this.toDraw.set("mapActionPanel",
+	    new SelectionPanel(398,50, 20+64,16*numActions+20, 1, numActions, 398, 50, this.temp.mapActions));
+	  this.temp["prevState"] = "map";
+
+	  this.gameStatus = "mapOptionSelect";
 	}
       },
 

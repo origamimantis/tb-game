@@ -74,12 +74,7 @@ export class Battle
   }
   initTurns()
   {
-    this.addTurn(this.sprDef);
     this.addTurn(this.sprIni);
-    this.addTurn(this.sprIni);
-    this.addTurn(this.sprDef);
-    this.addTurn(this.sprDef);
-    this.addTurn(this.sprDef);
     this.addTurn(this.sprDef);
   }
   addTurn(who)
