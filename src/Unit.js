@@ -78,6 +78,10 @@ export class Unit extends AnimatedObject
   }
   async tentativeMove(g, path, onDone)
   {
+    // since move is tentative, save old location for potential revert
+    this.old.x = this.x;
+    this.old.y = this.y;
+
     if (path.size() > 0)
     {
       this.path_iter = path.iter();
@@ -85,10 +89,6 @@ export class Unit extends AnimatedObject
       this.path_iter.counter = this.mapSpeed;
       // Don't spend extra frames drawing unit at current location
       this.path_iter.next();
-
-      // since move is tentative, save old location for potential revert
-      this.old.x = this.x;
-      this.old.y = this.y;
 
       // enable movement in update
       this.moving = true;
