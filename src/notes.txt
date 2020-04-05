@@ -1,3 +1,7 @@
+ver0.15 2020-04-05
+When an enemy unit attacks, show who they attack. Also, 
+disabled the fps label (can show by pressing 'X').
+
 ver0.14 2020-04-04
 Added turns (although no turn transitions just yet) as well
 as a naive version of alliances that I'll improve later.

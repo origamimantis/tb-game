@@ -86,6 +86,7 @@ class Game
     this.fpsUpdate = [0,0,0,0,0];
     this.fpspanel = new PanelComponent(0, "fps:");
     this.toDraw.get("fps").addComponent(this.fpspanel, "fps", 0,0);
+    this.toDraw.get("fps").shift();
 
     this.temp = {};
     
@@ -215,7 +216,22 @@ class Game
       },
       arrows:(a)=>
       {
-	scrollSelector(a, this.temp.selectedUnitAttackCoords);
+	//scrollSelector(a, this.temp.selectedUnitAttackCoords);
+	for (let k of a.once)
+	{
+	  switch (k)
+	  {
+	  case ARROW.UP:
+	  case ARROW.LEFT:
+	    this.temp.selectedUnitAttackCoords.prev();
+	    break;
+	  case ARROW.DOWN:
+	  case ARROW.RIGHT:
+	    this.temp.selectedUnitAttackCoords.next();
+	    break;
+	  }
+	}
+	this.cursor.moveInstant(this.temp.selectedUnitAttackCoords.get());
       }
     }
 
@@ -433,12 +449,11 @@ class Game
 		for (let u of this.Units){ u.turnInit();}
 		
 		let t = new EnemyController(this);
-		//this.camera.shiftTo(this.temp.selectedUnit, () =>
 		for (let unit of this.Units)
 		{
 		  if (unit.team == "enemy")
 		  {
-		    await new Promise(resolve => {this.camera.shiftTo(unit, resolve)});
+		    await this.camera.waitShiftTo(unit);
 		    this.camera.setTarget(unit.vis);
 
 		    let info = await t.offense(unit);
@@ -447,6 +462,12 @@ class Game
 		    if (info.attacks == true)
 		    {
 		      let battle = new Battle(this, unit, info.target);
+
+		      this.cursor.moveInstant(info.target);
+		      this.toDraw.show("cursor");
+		      this.cursor.curAnim().reset();
+		      await waitTime(500);
+		      this.toDraw.hide("cursor");
 
 		      await this.Music.fadeout(this.maptheme);
 		      this.Music.play(this.enbattletheme);
@@ -472,6 +493,7 @@ class Game
 		  }
 		}
 		await waitTime(1000);
+		this.cursor.moveInstant(this.temp.cursorPrev);
 		await new Promise(resolve => {this.camera.shiftTo(this.cursor.vis, resolve)});
 		this.camera.setTarget(this.cursor.vis);
 
@@ -479,6 +501,8 @@ class Game
 		for (let u of this.Units){ u.turnInit();}
 		
 		this.toDraw.show("cursor");
+		
+		this.temp = {};
 		this.gameStatus = "map";
 	      })
 	    ]);
@@ -487,6 +511,7 @@ class Game
 	  this.toDraw.set("mapActionPanel",
 	    new SelectionPanel(398,50, 20+64,16*numActions+20, 1, numActions, 398, 50, this.temp.mapActions));
 	  this.temp["prevState"] = "map";
+	  this.temp["cursorPrev"] = new Coord(this.cursor.x, this.cursor.y);
 
 	  this.gameStatus = "mapOptionSelect";
 	}

@@ -40,14 +40,20 @@ export class EnemyController
     if (target != null)
     {
       let possible = inRange(target, unit.getRange(), "tiles", this.g.Map)
+      let canAttack = false;
       for (let c of possible)
       {
 	let inhabitant = this.g.Map.getTile(c).unit;
 	if (movable.contains(c) && (inhabitant == null || inhabitant.id == unit.id))
 	{
 	  coord = c;
+	  canAttack = true;
 	  break;
 	}
+      }
+      if (canAttack == false)
+      {
+	target = null;
       }
     }
     let path = await generatePath(this.g, unit.x, unit.y, coord.x, coord.y, unit.movcost);

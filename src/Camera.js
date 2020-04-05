@@ -32,7 +32,7 @@ class Camera
 
     this.path = new Queue();
     this.shift = false;
-    this.shiftSpeed = 2;
+    this.shiftSpeed = 3;
   }
 
   resetBorders()
@@ -47,6 +47,11 @@ class Camera
 			  t: y,
 			  b: this.wsize.y - y - 1}
   }
+  waitShiftTo(c)
+  {
+    return new Promise( resolve => {this.shiftTo(c, resolve);} );
+  }
+
   shiftTo(c, onDone)
   {
     if (this.path.nonempty())
