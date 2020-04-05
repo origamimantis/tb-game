@@ -86,7 +86,7 @@ class Game
     this.fpsUpdate = [0,0,0,0,0];
     this.fpspanel = new PanelComponent(0, "fps:");
     this.toDraw.get("fps").addComponent(this.fpspanel, "fps", 0,0);
-    this.toDraw.get("fps").shift();
+    this.toDraw.toggleVisible("fps");
 
     this.temp = {};
     
