@@ -499,6 +499,7 @@ class Game
 
 		
 		for (let u of this.Units){ u.turnInit();}
+		this.cursor.curAnim().reset();
 		
 		this.toDraw.show("cursor");
 		
