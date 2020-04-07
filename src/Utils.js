@@ -116,6 +116,7 @@ export function generateMovable(g, x, y, mov, cost)
 // range is array of range numbers ie [1,2] or [1]
 export function inRange(c,range,type, map, t = null, conditions = [(x)=>{return true}])
 {
+  console.log(conditions);
   if (t == null)
   {
     t = new Queue();

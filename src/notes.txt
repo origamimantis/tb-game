@@ -1,3 +1,7 @@
+ver0.16 2020-04-06
+Fixed a bug where units would sometimes not gray out when
+ending turn. Also, disallowed attacking your own units.
+
 ver0.15 2020-04-05
 When an enemy unit attacks, show who they attack. Also, 
 disabled the fps label (can show by pressing 'X').

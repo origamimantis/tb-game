@@ -247,7 +247,7 @@ export class Unit extends AnimatedObject
   }
   attackableUnits(map)
   {
-    return inRange(this, this.getRange(), "units", map, null, [(unit)=>{return (unit != this);}]);
+    return inRange(this, this.getRange(), "units", map, null, [(unit)=>{return (unit.team != this.team);}]);
   }
   // will be used later if move is affected by anything.
   // if not, then this will just be a getter
