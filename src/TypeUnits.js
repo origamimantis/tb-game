@@ -43,6 +43,7 @@ export class SwordKnight extends Unit
 	super( id, x, y, caps, stats, name, classname, "P_kn", Walk.SwordKnight);
 	
 	this.addAnim("idle", new Animation( "S_kn1", [20,10,20,10], true) );
+	this.addAnim("wait", new Animation( "S_kn1_wait", [100,100,100,100], false) );
     }
 }
 export class BowKnight extends Unit

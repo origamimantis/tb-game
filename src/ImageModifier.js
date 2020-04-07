@@ -1,3 +1,5 @@
+"use strict"
+
 
 export class ImageModifier
 {
@@ -20,6 +22,7 @@ export class ImageModifier
   {
     return new Promise( (resolve) => 
     {
+      console.log(img, map,name);
       let [can, ctx, imageData] = this.setup(img, name, overwrite);
 
       // examine every pixel,
@@ -233,11 +236,7 @@ export class ImageModifier
       {
 	continue;
       }
-      else if (tokens.length != 3)
-      {
-	throw new Error("ImageModifier_IncorrectNumberOfArguments");
-      }
-      else
+      else if (tokens.length == 3)
       {
 	switch(tokens[0].toUpperCase())
 	{
@@ -255,6 +254,27 @@ export class ImageModifier
 	    break;
 	  default:
 	    throw new Error("ImageModifier_UnknownCommandError");
+	}
+      }
+      else
+      {
+	if (tokens[0].toUpperCase() == "RC")
+	{
+	  // RC src dst [r,g,b]->[r,g,b] [r,g,b]->[r,g,b] ...
+	  let map = {};
+	  let i = 3;
+	  while (i < tokens.length)
+	  {
+	    let [a,b] = tokens[i].split("->");
+	    map[JSON.parse(a)] = JSON.parse(b);
+	    ++i;
+	  }
+	  await this.recolor(this.album.get(tokens[1]), map, tokens[2]);
+	  console.log(this.album.get("S_kn1_wait"));
+	}
+	else
+	{
+	  throw new Error("ImageModifier_BadCommand");
 	}
       }
     }

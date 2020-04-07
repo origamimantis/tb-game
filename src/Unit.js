@@ -114,17 +114,13 @@ export class Unit extends AnimatedObject
   }
   endTurn(g)
   {
-    this.animHist = this.animations["idle"].image;
-    this.recolorAnim(g, "idle", [100,100,100], "kn0_wait")
+    this.setAnim("wait");
     this.pauseAnimation();
     this.active = false;
   }
   turnInit()
   {
-    if (this.animHist)
-    {
-      this.animations["idle"].image = this.animHist;
-    }
+    this.setAnim("idle");
     this.curAnim().reset();
     this.resumeAnimation();
     this.active = true;
