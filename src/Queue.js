@@ -221,6 +221,17 @@ export class Queue
       cur = cur.n;
     }
   }
+  toArray()
+  {
+    let cur = this.h;
+    let ret = [];
+    while (cur != null)
+    {
+      ret.push(cur.v);
+      cur = cur.n;
+    }
+    return ret;
+  }
   iter()
   {
     return new QueueIterator(this);

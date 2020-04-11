@@ -73,6 +73,7 @@ class Game
     this.loadKeyTracker();
 
     this.maptheme = "btl1";
+    this.eptheme = "btl_en";
     this.battletheme = "fght2";
     this.enbattletheme = "fght";
     this.Music.play(this.maptheme);
@@ -445,6 +446,10 @@ class Game
 	      {
 		this.gameStatus = "blockInput";
 		this.toDraw.hide("cursor");
+	        
+		await this.Music.fadestop(this.maptheme);
+		this.Music.play(this.eptheme);
+
 		this.toDraw.del("mapActionPanel");
 		for (let u of this.Units){ u.turnInit();}
 		
@@ -457,11 +462,19 @@ class Game
 		    this.camera.setTarget(unit.vis);
 
 		    let info = await t.offense(unit);
+		    
+		    this.cursor.moveInstant(unit);
+		    this.toDraw.show("cursor");
+		    this.cursor.curAnim().reset();
+		    await waitTime(500);
+		    this.toDraw.hide("cursor");
+
 		    await new Promise( resolve => {unit.tentativeMove(this, info.path, resolve);} )
 
 		    if (info.attacks == true)
 		    {
 		      let battle = new Battle(this, unit, info.target);
+
 
 		      this.cursor.moveInstant(info.target);
 		      this.toDraw.show("cursor");
@@ -469,7 +482,7 @@ class Game
 		      await waitTime(500);
 		      this.toDraw.hide("cursor");
 
-		      await this.Music.fadeout(this.maptheme);
+		      await this.Music.fadeout(this.eptheme);
 		      this.Music.play(this.enbattletheme);
 
 		      this.temp["mapstate"] = this.toDraw;
@@ -479,7 +492,7 @@ class Game
 		      await new Promise( resolve => { battle.begin( resolve ); } );
 
 		      await this.Music.fadestop(this.enbattletheme);
-		      this.Music.fadein(this.maptheme);
+		      this.Music.fadein(this.eptheme);
 
 
 		      // restore the gamestate
@@ -492,11 +505,14 @@ class Game
 
 		  }
 		}
-		await waitTime(1000);
+		//await waitTime(1000);
+		await this.Music.fadestop(this.eptheme);
+
 		this.cursor.moveInstant(this.temp.cursorPrev);
 		await new Promise(resolve => {this.camera.shiftTo(this.cursor.vis, resolve)});
 		this.camera.setTarget(this.cursor.vis);
 
+		this.Music.play(this.maptheme);
 		
 		for (let u of this.Units){ u.turnInit();}
 		this.cursor.curAnim().reset();

@@ -112,11 +112,18 @@ export function generateMovable(g, x, y, mov, cost)
   return mem;
 }
 
+export function randRange(lb, ub)
+{
+  return Math.random()*(ub-lb)+lb;
+}
+export function randInt(lb, ub)
+{
+  return Math.floor(randRange(lb, ub));
+}
 
 // range is array of range numbers ie [1,2] or [1]
 export function inRange(c,range,type, map, t = null, conditions = [(x)=>{return true}])
 {
-  console.log(conditions);
   if (t == null)
   {
     t = new Queue();
@@ -152,14 +159,20 @@ export function inRange(c,range,type, map, t = null, conditions = [(x)=>{return 
 }
 function _inrange(x,y, t,map, conditions)
 {
-  t.push(new Coord(x, y));
+  if (map.contains(x,y))
+  {
+    t.push(new Coord(x, y));
+  }
 }
 function _unitinrange(x,y, t,map, conditions)
 {
-  let tl = map.getTile(x, y);
-  if (tl != null && tl.unit != null && all( conditions, tl.unit))
+  if (map.contains(x,y))
   {
-    t.push(new Coord(x, y));
+    let tl = map.getTile(x, y);
+    if (tl != null && tl.unit != null && all( conditions, tl.unit))
+    {
+      t.push(new Coord(x, y));
+    }
   }
 }
 

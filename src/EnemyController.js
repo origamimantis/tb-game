@@ -1,5 +1,5 @@
 'use strict';
-import {generatePath, inRange} from "./Utils.js";
+import {generatePath, inRange, randInt} from "./Utils.js";
 import {Battle} from "./Battle.js";
 
 
@@ -36,7 +36,16 @@ export class EnemyController
 	break;
       }
     }
-    let coord = movable.last();
+    let m = movable.toArray();
+    let ind = randInt(0, m.length);
+    let coord = m[ind];
+    while (this.g.Map.getTile(coord).unit != null)
+    {
+      m.splice(ind, 1);
+      ind = randInt(0, m.length);
+      coord = m[ind];
+    }
+
     if (target != null)
     {
       let possible = inRange(target, unit.getRange(), "tiles", this.g.Map)

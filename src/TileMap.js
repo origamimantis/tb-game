@@ -135,6 +135,10 @@ export class TileMap
 	  return null;
       }
     }
+  contains(x,y)
+  {
+    return (x >= 0 && x < this.dimension.x && y >= 0 && y < this.dimension.y);
+  }
     removeUnit( unit )
     {
 	this.getTile(unit.x, unit.y).unit = null;

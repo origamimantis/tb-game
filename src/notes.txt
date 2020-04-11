@@ -1,3 +1,7 @@
+ver0.17 2020-04-10
+Added some polish (AKA make myself seem productive when
+I'm actually not). Enemy phase music is here though
+
 ver0.16 2020-04-06
 Fixed a bug where units would sometimes not gray out when
 ending turn. Also, disallowed attacking your own units.

@@ -33,7 +33,9 @@ class MusicPlayer
   {
     return new Promise( async (resolve, reject) =>
       {
+	// load(name, hasIntro = true, loops = false)
 	await this.load("btl1", false);
+	await this.load("btl_en", false);
 	await this.load("fght",false);
 	await this.load("fght2",false);
 	await this.load("oss");

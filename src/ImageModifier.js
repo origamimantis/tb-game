@@ -22,7 +22,6 @@ export class ImageModifier
   {
     return new Promise( (resolve) => 
     {
-      console.log(img, map,name);
       let [can, ctx, imageData] = this.setup(img, name, overwrite);
 
       // examine every pixel,
@@ -270,7 +269,6 @@ export class ImageModifier
 	    ++i;
 	  }
 	  await this.recolor(this.album.get(tokens[1]), map, tokens[2]);
-	  console.log(this.album.get("S_kn1_wait"));
 	}
 	else
 	{
