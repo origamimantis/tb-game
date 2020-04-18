@@ -1,3 +1,8 @@
+ver0.18 2020-04-18
+Banners now fly around when to mark the start of someone's
+turn. Improved to spritefont also right and center justify
+to a point.
+
 ver0.17 2020-04-10
 Added some polish (AKA make myself seem productive when
 I'm actually not). Enemy phase music is here though

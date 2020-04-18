@@ -19,9 +19,10 @@ class Interpreter
     this.g = g;
     this.commands = 
     {
-      ADDUNIT: (id, x, y, alliance = "player") => {return new Promise( (resolve) =>
+      ADDUNIT: (id, x, y, alliance = "Player") => {return new Promise( (resolve) =>
       {
 	id = parseInt(id); x = parseInt(x); y = parseInt(y);  
+	
 	let u = new Units.SwordKnight(id, x, y, {mov: 7});
 	u.team = alliance;
 	u.setAnim( "idle" );

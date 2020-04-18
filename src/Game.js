@@ -23,6 +23,7 @@ import {Action} from "./ActionGenerator.js";
 //import {RNG} from "./RNG.js";
 import {scrollSelector, triggerEvent, respondToEvent, getCost, generatePath, nextFrameDo, cursorStop, waitTime} from "./Utils.js";
 import {EnemyController} from "./EnemyController.js";
+import {TurnBanner} from "./TurnBanner.js";
 
 const C_WIDTH = 1024;
 const C_HEIGHT = 768;
@@ -72,11 +73,11 @@ class Game
     this.Inputter = new Inputter(this);
     this.loadKeyTracker();
 
-    this.maptheme = "btl1";
-    this.eptheme = "btl_en";
+    this.mapTheme = "btl1";
+    this.phaseMusic = {Player:"btl1", Enemy:"btl_en", Allied:"oss"};
     this.battletheme = "fght2";
     this.enbattletheme = "fght";
-    this.Music.play(this.maptheme);
+    this.Music.play(this.mapTheme);
     
     this.toDraw.set("cursor", this.cursor);
     this.toDraw.set("map", this.Map);
@@ -89,11 +90,13 @@ class Game
     this.toDraw.get("fps").addComponent(this.fpspanel, "fps", 0,0);
     this.toDraw.toggleVisible("fps");
 
+    this.toDraw.set("banner", new TurnBanner(this));
     this.temp = {};
     
     this.counter = 0;
     
-    this.turn = new LoopSelector(["Player", "Eneny"]);
+    //this.turn = new LoopSelector(["Player", "Enemy", "Allied"]);
+    this.turn = new LoopSelector(["Player", "Enemy"]);
     
     this.gameStatus = "map";
     this.cursorOutsideMovable = false;
@@ -104,6 +107,8 @@ class Game
 
     respondToEvent("input_select",  () => {this.stateAction[this.gameStatus].select();});
     respondToEvent("input_cancel",  () => {this.stateAction[this.gameStatus].cancel();});
+    
+    respondToEvent("game_test",  () => {});
     this.stateAction = {};
     this.initStateAction();
   }
@@ -165,7 +170,7 @@ class Game
 
 	let battle = new Battle(this, this.temp.selectedUnit, enemy);
 
-	await this.Music.fadeout(this.maptheme);
+	await this.Music.fadeout(this.mapTheme);
 	this.Music.play(this.battletheme);
 	
 	this.toDraw = battle;
@@ -174,7 +179,7 @@ class Game
 	  {
 
 	    await this.Music.fadestop(this.battletheme);
-	    this.Music.fadein(this.maptheme);
+	    this.Music.fadein(this.mapTheme);
 
 	    // restore the gamestate
 	    this.toDraw = this.temp["mapstate"];
@@ -447,75 +452,40 @@ class Game
 		this.gameStatus = "blockInput";
 		this.toDraw.hide("cursor");
 	        
-		await this.Music.fadestop(this.maptheme);
-		this.Music.play(this.eptheme);
-
+		// TODO make camera go to original location instead of seeking to cursor's original location
 		this.toDraw.del("mapActionPanel");
-		for (let u of this.Units){ u.turnInit();}
-		
-		let t = new EnemyController(this);
-		for (let unit of this.Units)
+		await this.Music.fadestop(this.mapTheme);
+
+		let x = {Enemy:"red", Allied:"lightgreen"};
+		this.turn.next();
+		while (this.turn.get() != "Player")
 		{
-		  if (unit.team == "enemy")
-		  {
-		    await this.camera.waitShiftTo(unit);
-		    this.camera.setTarget(unit.vis);
+		  let turno = this.turn.get();
+		  await this.Music.fadestop(this.mapTheme);
+		  await new Promise((resolve)=>{this.toDraw.get("banner").flyBanner(turno + " Phase", x[turno], resolve)});;
+		  this.mapTheme = this.phaseMusic[turno];
+		  this.Music.play(this.mapTheme);
 
-		    let info = await t.offense(unit);
-		    
-		    this.cursor.moveInstant(unit);
-		    this.toDraw.show("cursor");
-		    this.cursor.curAnim().reset();
-		    await waitTime(500);
-		    this.toDraw.hide("cursor");
+		  for (let u of this.Units){ u.turnInit();}
 
-		    await new Promise( resolve => {unit.tentativeMove(this, info.path, resolve);} )
+		  await this.nonPlayerTurn(turno);
+		
+		  await this.Music.fadestop(this.mapTheme);
+		  this.turn.next();
 
-		    if (info.attacks == true)
-		    {
-		      let battle = new Battle(this, unit, info.target);
-
-
-		      this.cursor.moveInstant(info.target);
-		      this.toDraw.show("cursor");
-		      this.cursor.curAnim().reset();
-		      await waitTime(500);
-		      this.toDraw.hide("cursor");
-
-		      await this.Music.fadeout(this.eptheme);
-		      this.Music.play(this.enbattletheme);
-
-		      this.temp["mapstate"] = this.toDraw;
-
-		      this.toDraw = battle;
-
-		      await new Promise( resolve => { battle.begin( resolve ); } );
-
-		      await this.Music.fadestop(this.enbattletheme);
-		      this.Music.fadein(this.eptheme);
-
-
-		      // restore the gamestate
-		      this.toDraw = this.temp["mapstate"];
-
-		    }
-		    unit.confirmMove(this);
-		    unit.endTurn(this);
-		    await waitTime(500);
-
-		  }
 		}
-		//await waitTime(1000);
-		await this.Music.fadestop(this.eptheme);
 
 		this.cursor.moveInstant(this.temp.cursorPrev);
-		await new Promise(resolve => {this.camera.shiftTo(this.cursor.vis, resolve)});
-		this.camera.setTarget(this.cursor.vis);
-
-		this.Music.play(this.maptheme);
-		
 		for (let u of this.Units){ u.turnInit();}
 		this.cursor.curAnim().reset();
+		await new Promise((resolve)=>{this.toDraw.get("banner").flyBanner("Player Phase","#aaaaff", resolve)});;
+		this.mapTheme = this.phaseMusic.Player;
+		this.Music.play(this.mapTheme);
+		await new Promise(resolve => {this.camera.shiftTo(this.cursor.vis, resolve)});
+		this.camera.setTarget(this.cursor.vis);
+		
+
+		
 		
 		this.toDraw.show("cursor");
 		
@@ -571,6 +541,67 @@ class Game
       arrows:(a)=>{}
 
     }
+  }
+
+  nonPlayerTurn(team)
+  {
+    team = team.toLowerCase();
+    return new Promise( async (resolve) =>
+    {
+      let t = new EnemyController(this);
+      for (let unit of this.Units)
+      {
+	if (unit.team.toLowerCase() == team)
+	{
+	  await this.camera.waitShiftTo(unit);
+	  this.camera.setTarget(unit.vis);
+
+	  let info = await t.offense(unit);
+
+	  this.cursor.moveInstant(unit);
+	  this.toDraw.show("cursor");
+	  this.cursor.curAnim().reset();
+	  await waitTime(500);
+	  this.toDraw.hide("cursor");
+
+	  await new Promise( resolve => {unit.tentativeMove(this, info.path, resolve);} )
+
+	  if (info.attacks == true)
+	  {
+	    let battle = new Battle(this, unit, info.target);
+
+	    this.cursor.moveInstant(info.target);
+
+	    this.toDraw.show("cursor");
+	    this.cursor.curAnim().reset();
+	    await waitTime(500);
+	    this.toDraw.hide("cursor");
+
+	    await this.Music.fadeout(this.mapTheme);
+	    this.Music.play(this.enbattletheme);
+
+	    this.temp["mapstate"] = this.toDraw;
+
+	    this.toDraw = battle;
+
+	    await new Promise( resolve => { battle.begin( resolve ); } );
+
+	    await this.Music.fadestop(this.enbattletheme);
+	    this.Music.fadein(this.mapTheme);
+
+
+	    // restore the gamestate
+	    this.toDraw = this.temp["mapstate"];
+
+	  }
+	  unit.confirmMove(this);
+	  unit.endTurn(this);
+	  await waitTime(500);
+
+	}
+      }
+      resolve();
+    });
   }
 
   

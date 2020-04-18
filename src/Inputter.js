@@ -94,9 +94,8 @@ export class Inputter
 	triggerEvent("input_cancel");
 	break;
       case "KeyX":
-	//this.g.toDraw.toggleActive("cursor");
-	//this.g.toDraw.toggleActive("Units");
 	this.g.toDraw.toggleVisible("fps");
+	triggerEvent("game_test");
       }
     }
     else

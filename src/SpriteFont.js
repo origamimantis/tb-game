@@ -1,7 +1,8 @@
 'use strict';
 
 //[y,x]
-const MAPPER = 
+export const SEP = 8;
+export const MAPPER = 
     {
 	"A":[0,0],   "a":[4,5],
 	"B":[0,1],   "b":[4,6],
@@ -48,10 +49,23 @@ const MAPPER =
 
 export class SpriteFont
 {
-    constructor()
-    {
-      this.fonts = {};
-    }
+  constructor()
+  {
+    this.fonts = {};
+    this.subCanvas = document.createElement("canvas");
+    this.subCtx = this.subCanvas.getContext("2d");
+
+    this.subCanvas.style.background = "transparent";
+  }
+
+  resizeCanvas(w, h)
+  {
+    this.subCanvas.width = w;
+    this.subCanvas.height = h;
+
+    this.subCtx.imageSmoothingEnabled = false;
+    this.subCtx.clearRect(0,0,this.subCanvas.width, this.subCanvas.height);
+  }
   loadFont(file)
   {
     return new Promise((resolve) =>
@@ -66,65 +80,82 @@ export class SpriteFont
   {
     return this.fonts[font];
   }
+  //justify: 0=left, 1=right 2=center
+  drawText(g, ctx, string, off, scale = 1, justify = 0, wh = {x:10000, y:10000})
+  {
+    let fsize = 8;
+    let width = Math.floor(wh.x/fsize/scale);
+    let height = Math.floor(wh.y/(fsize+SEP)/scale);
 
-    drawText(ctx, str, x, y, scale = 1, width = 100, height= 4)
+    let data = string.split(" ");
+
+    let x = 0;
+    let y = 0;
+
+    this.resizeCanvas(wh.x*scale, fsize*scale);
+
+
+    for (let u = 0; u < data.length; ++u)
     {
-	if (typeof str == "number")
+      for (let t = 0; t < data[u].length; ++t)
+      {
+	if (data[u][t] == "\n")
 	{
-	    str = str.toString();
+	  this._attachToMainCanvas(g, ctx, off, x, y, fsize, scale, justify)
+	  
+	  x = 0;
+	  ++y;
+	  if (y > height)
+	  {
+	    return;
+	  }
+	  continue;
 	}
+	else
+	{
+	  let k = MAPPER[data[u][t]];
+	  if (k && x < width)
+	  {
+	    this.subCtx.drawImage(this.get("F_0"),
+		fsize*k[1], fsize*k[0], fsize, fsize,
+		fsize*scale*x, 0,
+		scale*fsize, scale*fsize);
+	  }
+	  ++x;
+	}
+      }
+      ++x;
+      if (u + 1 < data.length && x+data[u+1].length > width)
+      {
+	this._attachToMainCanvas(g, ctx, off, x, y, fsize, scale, justify)
 
-	//ctx.fillRect(0,0,c.width, c.height);
-	// x,y are string positions
-	let splits = str.split(' ');
-	let lines = [];
-	let cur = "";
-	let tmp;
-	for (let word of splits)
+	x = 0;
+	++y;
+	if (y > height)
 	{
-	    let dos = word.split('\n');
-	    tmp = " " + dos[0];
-	    if ( (cur +tmp).length <= width )
-	    {
-		cur += tmp;
-	    }
-	    else
-	    {
-		lines.push(cur.slice(1,cur.length));
-		cur = tmp;
-	    }
-	    if (dos.length > 1)
-	    {
-		lines.push(cur.slice(1,cur.length));
-		dos.shift();
-		for (let d = 0; d < dos.length - 1; d++)
-		{
-		    lines.push(dos[d]);
-		}
-		cur = " " + dos[dos.length - 1];
-	    }
+	  return;
 	}
-	lines.push(cur.slice(1,cur.length));
-	for (let t = 0; t < lines.length; t++)
-	{
-	    for (let i = 0; i < lines[t].length; i++)
-	    {
-		if (lines[t][i] == " ") {continue;}
-		let k = MAPPER[lines[t][i]];
-		if (k)
-		{
-		    let offx = this.fsize*k[1];
-		    let offy = this.fsize*k[0];
-		    this.g.ctx[ctx].drawImage(this.img,
-			offx, offy, this.fsize, this.fsize,
-			x + this.fsize*i*scale, y+(this.fsize+8)*t*scale,
-			this.fsize*scale, this.fsize*scale);
-		}
-	    }
-	}
-
+      }
     }
+    this._attachToMainCanvas(g, ctx, off, x, y, fsize, scale, justify)
+  }
 
+  // lx, ly are for additional offsets after applying the main offset
+  _attachToMainCanvas(g, ctx, off, lx, ly, fsize, scale, justify)
+  {
+      if (justify == 0)
+      {
+	g.ctx[ctx].drawImage(this.subCanvas, off.x, off.y + (fsize+SEP)*scale*ly);
+      }
+      else if (justify == 1)
+      {
+	g.ctx[ctx].drawImage(this.subCanvas, off.x - fsize*scale*(lx-1), off.y + (fsize+SEP)*scale*ly);
+      }
+      else if (justify == 2)
+      {
+	g.ctx[ctx].drawImage(this.subCanvas, off.x - fsize*scale*(lx-1)/2, off.y + (fsize+SEP)*scale*ly);
+      }
+  }
 }
 
 
