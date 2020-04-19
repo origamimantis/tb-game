@@ -427,7 +427,7 @@ class Game
 	await cursorStop(this.cursor);
 	triggerEvent("sfx_play_beep_effect");
 	let unit = this.Map.getTile(this.cursor.x, this.cursor.y).unit;
-	if (unit != null && unit.active == true && unit.team == "player")
+	if (unit != null && unit.active == true && unit.team == "Player")
 	{
 	  this.toDraw.set("selectedUnitMovable", unit.movable(this, true) );
 
