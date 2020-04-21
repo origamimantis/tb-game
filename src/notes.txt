@@ -3,7 +3,7 @@ code improvements to the start-of-turn sequence. You can
 now view an enemy's attackable tiles by selecting them.
 
 ver0.18 2020-04-18
-Banners now fly around when to mark the start of someone's
+Banners now fly around to mark the start of someone's
 turn. Improved spritefont to also right and center justify
 to a point.
 
