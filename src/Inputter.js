@@ -8,6 +8,7 @@ import {triggerEvent, respondToEvent, getCost, generatePath} from "./Utils.js";
 
 const SELECT = "Period";
 const CANCEL = "Comma";
+const HMMM = "Slash";
 
 export const ARROW =  {
 			UP : "KeyW",

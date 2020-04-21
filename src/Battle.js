@@ -49,23 +49,20 @@ export class Battle
     this.sprIni.setAnimation("idle");
     this.sprDef.setAnimation("idle");
 
-    this.healthPanels = new BattleInfo(new Panel(
-					  0, g.windowy - PANELS.HEALTH.HEIGHT,
-					  g.windowx/2, PANELS.HEALTH.HEIGHT),
-				       new Panel(
-					  g.windowx/2, g.windowy - PANELS.HEALTH.HEIGHT,
-					  g.windowx/2, PANELS.HEALTH.HEIGHT) );
+    this.healthPanels = new BattleInfo(
+			  new Panel(0, g.windowy - PANELS.HEALTH.HEIGHT,
+				    g.windowx/2, PANELS.HEALTH.HEIGHT),
+			  new Panel(g.windowx/2, g.windowy - PANELS.HEALTH.HEIGHT,
+				    g.windowx/2, PANELS.HEALTH.HEIGHT) );
 
-    this.statPanels = new BattleInfo(new Panel(
-					0, g.windowy - PANELS.HEALTH.HEIGHT-PANELS.STATS.HEIGHT,
-					PANELS.STATS.WIDTH, PANELS.STATS.HEIGHT),
-				     new Panel(
-					g.windowx - PANELS.STATS.WIDTH, g.windowy - PANELS.HEALTH.HEIGHT - PANELS.STATS.HEIGHT,
-					PANELS.STATS.WIDTH, PANELS.STATS.HEIGHT) );
+    this.statPanels = new BattleInfo(
+			new Panel(0, g.windowy - PANELS.HEALTH.HEIGHT-PANELS.STATS.HEIGHT,
+				  PANELS.STATS.WIDTH, PANELS.STATS.HEIGHT),
+			new Panel(g.windowx-PANELS.STATS.WIDTH, g.windowy-PANELS.HEALTH.HEIGHT-PANELS.STATS.HEIGHT,
+				  PANELS.STATS.WIDTH, PANELS.STATS.HEIGHT) );
 
-    this.commentPanel = new Panel(
-					PANELS.STATS.WIDTH, g.windowy - PANELS.HEALTH.HEIGHT-PANELS.STATS.HEIGHT,
-					g.windowx - 2*PANELS.STATS.WIDTH, PANELS.STATS.HEIGHT),
+    this.commentPanel = new Panel(PANELS.STATS.WIDTH, g.windowy - PANELS.HEALTH.HEIGHT-PANELS.STATS.HEIGHT,
+				  g.windowx - 2*PANELS.STATS.WIDTH, PANELS.STATS.HEIGHT),
 
 
     this.turns = new BattleQueue();

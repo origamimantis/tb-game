@@ -11,26 +11,22 @@ export class Queue
     this.sz = 0;
     this.drawArt = null;
   }
-  push(c, val = true)
+  push(c)
   {
-    this.enqueue(c, val);
+    this.enqueue(c);
   }
-  enqueue(c, val = true)
+  enqueue(c)
   {
-    if (val == undefined)
-    {
-      throw "Cannot set a value of undefined";
-    }
-    else if (this.c_x[c.x] == undefined)
+    if (this.c_x[c.x] == undefined)
     {
       this.c_x[c.x] = {};
     }
     if (this.c_x[c.x][c.y] == undefined)
     {
-      this.c_x[c.x][c.y] = {v: undefined, ct : 0};
+      // number of times coord appears
+      this.c_x[c.x][c.y] = 0;
     }
-    this.c_x[c.x][c.y].v = val;
-    ++this.c_x[c.x][c.y].ct;
+    ++this.c_x[c.x][c.y];
 
     if (this.sz > 0)
     {
@@ -51,14 +47,13 @@ export class Queue
 
       let v = this.h.v;
 
-      if (this.c_x[v.x][v.y].ct <= 1)
+      if (this.c_x[v.x][v.y] <= 1)
       {
 	delete this.c_x[v.x][v.y];
       }
       else
       {
-	--this.c_x[v.x][v.y].ct;
-	this.c_x[v.x][v.y].v = undefined;
+	--this.c_x[v.x][v.y];
       }
 
 
@@ -85,14 +80,13 @@ export class Queue
     {
       let v = this.t.v;
 
-      if (this.c_x[v.x][v.y].ct <= 1)
+      if (this.c_x[v.x][v.y] <= 1)
       {
 	delete this.c_x[v.x][v.y];
       }
       else
       {
-	--this.c_x[v.x][v.y].ct;
-	this.c_x[v.x][v.y].v = undefined;
+	--this.c_x[v.x][v.y];
       }
 
       this.t = this.t.p;
@@ -108,22 +102,7 @@ export class Queue
       throw "Attempted to dequeue an empty queue.";
     }
   }
-  get(c)
-  {
-    if (this.c_x[c.x] == undefined)
-    {
-      return undefined;
-    }
-    return this.c_x[c.x][c.y].v;
-  }
-  set(c, val)
-  {
-    if (this.c_x[c.x] == undefined || this.c_x[c.x][c.y] == undefined)
-    {
-      throw "Cannot set property of coordinate not in Queue.";
-    }
-    this.c_x[c.x][c.y].v = val;
-  }
+  
   
   count(c)
   {
@@ -131,7 +110,7 @@ export class Queue
       {
 	return 0;
       }
-    return this.c_x[c.x][c.y].ct;
+    return this.c_x[c.x][c.y];
   }
   contains(c)
   {
@@ -145,7 +124,6 @@ export class Queue
   {
     return this.contains(c) == false;
   }
-
 
   front()
   {
@@ -241,7 +219,6 @@ export class Queue
     let c = this.h;
     while (c != null)
     {
-      console.log(c.v);
       c = c.n;
     }
   }

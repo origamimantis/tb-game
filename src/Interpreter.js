@@ -26,6 +26,7 @@ class Interpreter
 	let u = new Units.SwordKnight(id, x, y, {mov: 7});
 	u.team = alliance;
 	u.setAnim( "idle" );
+	//u.stats.mov = id + 1;
 	//u.addWeapon(new Weapons.Spook());
 	u.addWeapon(new Weapons.BraveSword());
 	

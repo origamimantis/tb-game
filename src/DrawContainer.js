@@ -49,6 +49,13 @@ export class DrawContainer
     delete this.hidden.active[id];
     delete this.hidden.paused[id];
   }
+  delc(id)
+  {
+    if (this.contains(id))
+    {
+      this.del(id);
+    }
+  }
   draw( g )
   {
     for (let thing of Object.values(this.stuff.active))

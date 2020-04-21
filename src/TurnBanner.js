@@ -16,7 +16,15 @@ export class TurnBanner
 
     this.update = () => {};
   }
-  flyBanner(text, bg, onDone = ()=>{})
+  flyBanner(text, bg)
+  {
+    return new Promise((resolve) =>
+      {
+	this.flyBannerAsync(text, bg, resolve);
+      }
+    );
+  }
+  flyBannerAsync(text, bg, onDone = ()=>{})
   {
     this.text = text;
     this.bg = bg;

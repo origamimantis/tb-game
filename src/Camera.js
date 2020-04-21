@@ -17,9 +17,8 @@ class Camera
     
     this.wsize = {x: wx, y: wy};
     this.max = {x: mx - wx, y: my - wy};
-    // topleft is camera's internal position relative to map (but seems kinda useless)
-    this.topleft = {x: 0, y: 0};
-    // offset is camera's visible position relative to map
+    
+    // offset is camera's top left coordinate
     this.offset = {x: 0, y: 0};
 
     this.moveTriggers = { l: MOVE_BORDER.x,

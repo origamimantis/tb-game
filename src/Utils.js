@@ -4,7 +4,7 @@ import {PathFinder} from "./PathFinder.js";
 import {Path, Coord} from "./Path.js";
 import {FPS, TICK_RATE} from "./Constants.js";
 import {Queue} from "./Queue.js";
-import {CoordLookup} from "./CoordLookup.js";
+import {CoordLookup, MapCoordBlob} from "./CoordLookup.js";
 import {ARROW} from "./Inputter.js";
 
 
@@ -55,6 +55,60 @@ export function getCost(g, x, y, cost)
 }
 
 export function generateMovable(g, x, y, mov, cost)
+{
+  let min = new Coord(0,0);
+  let max = new Coord(g.Map.dimension.x - 1, g.Map.dimension.y - 1);
+
+  let toVisit = new Queue();
+  let previouslyVisited = new MapCoordBlob();
+  let mostMovAt = new CoordLookup();
+  let mostMovPrev = new MapCoordBlob();
+
+  let tmp = getCost(g, x, y, cost);
+  let curCoord = new Coord(x, y);
+
+  toVisit.enqueue( curCoord);
+  mostMovAt.add(curCoord, -tmp);
+
+  // breadth-first search
+  while (toVisit.nonempty())
+  {
+    //check first coordinate
+    let cd = toVisit.front();
+    toVisit.dequeue();
+
+    let mv = mostMovAt.get(cd);
+
+    let costOfWalking = getCost(g, cd.x, cd.y, cost);
+
+    if (costOfWalking != undefined && mv + costOfWalking <= mov && previouslyVisited.doesNotContain(cd) )
+    {
+      previouslyVisited.add(cd, mv);
+
+      for (let nex of [ new Coord(cd.x + 1, cd.y    ),
+			new Coord(cd.x - 1, cd.y    ),
+			new Coord(cd.x    , cd.y + 1),
+			new Coord(cd.x    , cd.y - 1)])
+      {
+	if (inMap(nex, min, max))
+	{
+	  if ( toVisit.doesNotContain(nex) )
+	  {
+	    toVisit.enqueue(nex);
+	    mostMovAt.add(nex, mv + costOfWalking);
+	  }
+	  else if ( mostMovAt.get(nex) > mv + costOfWalking )
+	  {
+	    mostMovAt.add(nex, mv + costOfWalking);
+	  }
+	}
+      }
+    }
+  }
+  return previouslyVisited;
+}
+
+export function generateMovable_(g, x, y, mov, cost)
 {
   let mem = new Queue();
   let min = new Coord(0,0);

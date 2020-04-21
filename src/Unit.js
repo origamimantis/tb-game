@@ -157,6 +157,7 @@ export class Unit extends AnimatedObject
       if (this.path_iter.left() > 0)
       {
 	let i = this.path_iter.val();
+	
 	this.vis.dx = i.x - this.x;
 	this.vis.dy = i.y - this.y;
 

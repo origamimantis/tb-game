@@ -64,17 +64,75 @@ export class CoordLookup
   {
     return this.sz;
   }
-  *iter()
+  *[Symbol.iterator]()
   {
     for (let x of Object.keys(this.c_x))
     {
       for (let y of Object.keys(this.c_x[x]))
       {
-	yield new Coord(x, y);
+	yield new Coord(parseInt(x), parseInt(y));
       }
     }
   }
 
+}
+
+export class MapCoordBlob extends CoordLookup
+{
+  static FRAMES_TO_MAX = 90;
+  static ALPHA_MAX = 0.2;
+
+  constructor()
+  {
+    super();
+  }
+  setArt( art )
+  {
+    this.art_counter = 0;
+    this.drawArt = art;
+    this.drawframe = 0;
+    this.drawdelta = 1;
+    this.drawtimer = 0;
+  }
+  draw(g)
+  {
+    let img = g.Album.get(this.drawArt);
+
+    let off = g.camera.offset;
+    let alph = Math.abs(MapCoordBlob.FRAMES_TO_MAX - g.counter%(2*MapCoordBlob.FRAMES_TO_MAX)) / MapCoordBlob.FRAMES_TO_MAX;
+    for (let c of this)
+    {
+      if (g.camera.visible(c))
+      {
+        let x = (c.x - off.x)*g.grid.x;
+        let y = (c.y - off.y)*g.grid.y;
+
+        g.ctx[1].drawImage( img, x, y, g.grid.x, g.grid.y);
+
+        g.ctx[1].globalAlpha = alph*MapCoordBlob.ALPHA_MAX;
+        g.ctx[1].fillRect(x, y, g.grid.x - 1, g.grid.y - 1);
+        g.ctx[1].globalAlpha = 1;
+      }
+    }
+
+    if (this.drawframe >= MapCoordBlob.FRAMES_TO_MAX)
+    {
+      this.drawdelta = -1;
+    }
+    if (this.drawframe <= 0)
+    {
+      this.drawdelta = 1;
+    }
+  }
+  toArray()
+  {
+    let t = [];
+    for (let c of this)
+    {
+      t.push(c);
+    }
+    return t;
+  }
 }
 
 

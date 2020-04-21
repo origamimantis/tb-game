@@ -24,6 +24,7 @@ import {Action} from "./ActionGenerator.js";
 import {scrollSelector, triggerEvent, respondToEvent, getCost, generatePath, nextFrameDo, cursorStop, waitTime} from "./Utils.js";
 import {EnemyController} from "./EnemyController.js";
 import {TurnBanner} from "./TurnBanner.js";
+import {TurnData} from "./TurnData.js";
 
 const C_WIDTH = 1024;
 const C_HEIGHT = 768;
@@ -74,12 +75,9 @@ class Game
     this.loadKeyTracker();
 
     this.mapTheme = "btl1";
-    this.phaseMusic = {Player:"btl1", Enemy:"btl_en", Allied:"oss"};
-    this.battletheme = "fght2";
-    this.enbattletheme = "fght";
-    this.Music.play(this.mapTheme);
     
     this.toDraw.set("cursor", this.cursor);
+    this.toDraw.hide("cursor");
     this.toDraw.set("map", this.Map);
     this.toDraw.set("Units", this.Units);
     this.toDraw.set("fps", new Panel(420,0, 92, 36, 1, 1000, 0));
@@ -94,11 +92,12 @@ class Game
     this.temp = {};
     
     this.counter = 0;
+    this.gameStatus = "blockInput";
     
     //this.turn = new LoopSelector(["Player", "Enemy", "Allied"]);
-    this.turn = new LoopSelector(["Player", "Enemy"]);
+    this.turn = new LoopSelector( [ TurnData("Player", "#aaaaff", "btl1","fght2"),
+				    TurnData("Enemy", "red", "btl_en", "fght")    ]);
     
-    this.gameStatus = "map";
     this.cursorOutsideMovable = false;
 
 
@@ -111,6 +110,14 @@ class Game
     respondToEvent("game_test",  () => {});
     this.stateAction = {};
     this.initStateAction();
+    this.beginGame();
+  }
+  async beginGame()
+  {
+    await this.beginTurn(this.turn.get());
+    this.toDraw.show("cursor");
+    this.cursor.curAnim().reset();
+    this.gameStatus = "map";
   }
 
   generateUnitActions(g, unit)
@@ -171,14 +178,14 @@ class Game
 	let battle = new Battle(this, this.temp.selectedUnit, enemy);
 
 	await this.Music.fadeout(this.mapTheme);
-	this.Music.play(this.battletheme);
+	this.Music.play(this.turn.get().btltheme);
 	
 	this.toDraw = battle;
 
 	battle.begin( async ()=>
 	  {
 
-	    await this.Music.fadestop(this.battletheme);
+	    await this.Music.fadestop(this.turn.get().btltheme);
 	    this.Music.fadein(this.mapTheme);
 
 	    // restore the gamestate
@@ -283,6 +290,8 @@ class Game
 
 	let target = new Coord( this.cursor.x, this.cursor.y );
 	let unitOnTarget = this.Map.getTile(this.toDraw.get("selectedUnitPath").last()).unit;
+	//TODO make units have another object detainling whattiles that can end turn on
+	// ie flyers can fly over spikes but not land on it
 	if (this.toDraw.get("selectedUnitMovable")[0].contains(target)
 	  && (unitOnTarget == null || unitOnTarget == this.temp.selectedUnit))
 	{
@@ -427,20 +436,30 @@ class Game
 	await cursorStop(this.cursor);
 	triggerEvent("sfx_play_beep_effect");
 	let unit = this.Map.getTile(this.cursor.x, this.cursor.y).unit;
-	if (unit != null && unit.active == true && unit.team == "Player")
+	if (unit != null && unit.active == true)
 	{
-	  this.toDraw.set("selectedUnitMovable", unit.movable(this, true) );
+	  if (unit.team == "Player")
+	  {
+	    // TODO when i decide to remove this for danger area
+	    this.toDraw.delc("enemyAtackable");
 
-	  let p = new Queue();
-	  p.setArt("C_walk");
-	  
-	  p.push(new Coord(unit.x, unit.y));
+	    this.toDraw.set("selectedUnitMovable", unit.movable(this, true) );
+	    let p = new Queue();
+	    p.setArt("C_walk");
+	    
+	    p.push(new Coord(unit.x, unit.y));
 
-	  this.toDraw.set("selectedUnitPath", p);
-	  this.temp["selectedUnit"] = unit;
-	  this.temp["selectedUnitMov"] = unit.getMov();
-	  
-	  this.gameStatus = "unitMoveLocation";
+	    this.toDraw.set("selectedUnitPath", p);
+	    this.temp["selectedUnit"] = unit;
+	    this.temp["selectedUnitMov"] = unit.getMov();
+	    
+	    this.gameStatus = "unitMoveLocation";
+	  }
+	  else
+	  {
+	    // TODO when i decide to remove this for danger area
+	    this.toDraw.set("enemyAtackable", unit.movable(this, true)[1] );
+	  }
 	}
 	else
 	{
@@ -449,44 +468,37 @@ class Game
 	    [new Action("????????", ()=>{console.log("testo");}),
 	     new Action("End Turn", async ()=>
 	      {
+		// TODO when i decide to remove this for danger area
+		this.toDraw.delc("enemyAtackable");
+
 		this.gameStatus = "blockInput";
 		this.toDraw.hide("cursor");
 	        
 		// TODO make camera go to original location instead of seeking to cursor's original location
 		this.toDraw.del("mapActionPanel");
-		await this.Music.fadestop(this.mapTheme);
 
-		let x = {Enemy:"red", Allied:"lightgreen"};
+
 		this.turn.next();
-		while (this.turn.get() != "Player")
+		let turno = this.turn.get();
+		while (turno.turn != "Player")
 		{
-		  let turno = this.turn.get();
-		  await this.Music.fadestop(this.mapTheme);
-		  await new Promise((resolve)=>{this.toDraw.get("banner").flyBanner(turno + " Phase", x[turno], resolve)});;
-		  this.mapTheme = this.phaseMusic[turno];
-		  this.Music.play(this.mapTheme);
-
-		  for (let u of this.Units){ u.turnInit();}
+		  await this.beginTurn(turno);
 
 		  await this.nonPlayerTurn(turno);
 		
-		  await this.Music.fadestop(this.mapTheme);
-		  this.turn.next();
 
+		  this.turn.next();
+		  turno = this.turn.get();
 		}
 
+		await this.beginTurn(turno);
+
 		this.cursor.moveInstant(this.temp.cursorPrev);
-		for (let u of this.Units){ u.turnInit();}
-		this.cursor.curAnim().reset();
-		await new Promise((resolve)=>{this.toDraw.get("banner").flyBanner("Player Phase","#aaaaff", resolve)});;
-		this.mapTheme = this.phaseMusic.Player;
-		this.Music.play(this.mapTheme);
+
 		await new Promise(resolve => {this.camera.shiftTo(this.cursor.vis, resolve)});
 		this.camera.setTarget(this.cursor.vis);
 		
-
-		
-		
+		this.cursor.curAnim().reset();
 		this.toDraw.show("cursor");
 		
 		this.temp = {};
@@ -527,6 +539,8 @@ class Game
 
       cancel: ()=>
       {
+	// TODO when i decide to remove this for danger area
+	this.toDraw.delc("enemyAtackable");
       }
     }
 
@@ -542,10 +556,30 @@ class Game
 
     }
   }
-
-  nonPlayerTurn(team)
+  beginTurn(turnData)
   {
-    team = team.toLowerCase();
+    return new Promise( async (resolve) =>
+      {
+	await this.Music.fadestop(this.mapTheme);
+
+	for (let u of this.Units){ u.turnInit();}
+
+	await this.toDraw.get("banner").flyBanner(turnData.turn + " Phase", turnData.bannercolor);
+
+	this.mapTheme = turnData.maptheme;
+	this.Music.play(this.mapTheme);
+
+	resolve();
+      }
+    );
+  }
+
+  /*************************************/
+  /* NON-PLAYER TURN                   */
+  /*************************************/
+  nonPlayerTurn(turndata)
+  {
+    let team = turndata.turn.toLowerCase();
     return new Promise( async (resolve) =>
     {
       let t = new EnemyController(this);
@@ -578,7 +612,7 @@ class Game
 	    this.toDraw.hide("cursor");
 
 	    await this.Music.fadeout(this.mapTheme);
-	    this.Music.play(this.enbattletheme);
+	    this.Music.play(turndata.btltheme);
 
 	    this.temp["mapstate"] = this.toDraw;
 
@@ -586,7 +620,7 @@ class Game
 
 	    await new Promise( resolve => { battle.begin( resolve ); } );
 
-	    await this.Music.fadestop(this.enbattletheme);
+	    await this.Music.fadestop(turndata.btltheme);
 	    this.Music.fadein(this.mapTheme);
 
 
