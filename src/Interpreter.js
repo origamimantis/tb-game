@@ -23,6 +23,9 @@ class Interpreter
       {
 	id = parseInt(id); x = parseInt(x); y = parseInt(y);  
 	
+	// TODO make teams an enum or map or something
+	alliance = alliance[0].toUpperCase() + alliance.slice(1)
+	
 	let u = new Units.SwordKnight(id, x, y, {mov: 7});
 	u.team = alliance;
 	u.setAnim( "idle" );

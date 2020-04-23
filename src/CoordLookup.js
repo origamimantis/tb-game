@@ -77,10 +77,10 @@ export class CoordLookup
 
 }
 
+const FRAMES_TO_MAX = 90;
+const ALPHA_MAX = 0.2;
 export class MapCoordBlob extends CoordLookup
 {
-  static FRAMES_TO_MAX = 90;
-  static ALPHA_MAX = 0.2;
 
   constructor()
   {
@@ -99,7 +99,7 @@ export class MapCoordBlob extends CoordLookup
     let img = g.Album.get(this.drawArt);
 
     let off = g.camera.offset;
-    let alph = Math.abs(MapCoordBlob.FRAMES_TO_MAX - g.counter%(2*MapCoordBlob.FRAMES_TO_MAX)) / MapCoordBlob.FRAMES_TO_MAX;
+    let alph = Math.abs(FRAMES_TO_MAX - g.counter%(2*FRAMES_TO_MAX)) / FRAMES_TO_MAX;
     for (let c of this)
     {
       if (g.camera.visible(c))
@@ -109,13 +109,13 @@ export class MapCoordBlob extends CoordLookup
 
         g.ctx[1].drawImage( img, x, y, g.grid.x, g.grid.y);
 
-        g.ctx[1].globalAlpha = alph*MapCoordBlob.ALPHA_MAX;
+        g.ctx[1].globalAlpha = alph*ALPHA_MAX;
         g.ctx[1].fillRect(x, y, g.grid.x - 1, g.grid.y - 1);
         g.ctx[1].globalAlpha = 1;
       }
     }
 
-    if (this.drawframe >= MapCoordBlob.FRAMES_TO_MAX)
+    if (this.drawframe >= FRAMES_TO_MAX)
     {
       this.drawdelta = -1;
     }

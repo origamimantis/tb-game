@@ -29,7 +29,7 @@ export function nextFrameDo(f)
 }
 
 
-export async function generatePath(g, x0, y0, xf, yf, cost)
+export async function generatePath(g, x0, y0, xf, yf, cost, hostile)
 {
   return new Promise( (resolve, reject) => 
     {
@@ -49,22 +49,22 @@ function inMap(pos, min, max)
   return (pos.x >= min.x && pos.x <= max.x && pos.y >= min.y && pos.y <= max.y);
 }
 
-export function getCost(g, x, y, cost)
+export function getCost(map, x, y, cost)
 {
-  return cost[g.Map.getTile(x, y).tile];
+  return cost[map.pather[y][x]];
 }
 
-export function generateMovable(g, x, y, mov, cost)
+export function generateMovable(map, x, y, mov, cost)
 {
   let min = new Coord(0,0);
-  let max = new Coord(g.Map.dimension.x - 1, g.Map.dimension.y - 1);
+  let max = new Coord(map.dimension.x - 1, map.dimension.y - 1);
 
   let toVisit = new Queue();
   let previouslyVisited = new MapCoordBlob();
   let mostMovAt = new CoordLookup();
   let mostMovPrev = new MapCoordBlob();
 
-  let tmp = getCost(g, x, y, cost);
+  let tmp = getCost(map, x, y, cost);
   let curCoord = new Coord(x, y);
 
   toVisit.enqueue( curCoord);
@@ -79,7 +79,7 @@ export function generateMovable(g, x, y, mov, cost)
 
     let mv = mostMovAt.get(cd);
 
-    let costOfWalking = getCost(g, cd.x, cd.y, cost);
+    let costOfWalking = getCost(map, cd.x, cd.y, cost);
 
     if (costOfWalking != undefined && mv + costOfWalking <= mov && previouslyVisited.doesNotContain(cd) )
     {
@@ -149,6 +149,7 @@ export function generateMovable_(g, x, y, mov, cost)
 			new Coord(cd.x    , cd.y + 1),
 			new Coord(cd.x    , cd.y - 1)])
       {
+
 	if (inMap(nex, min, max))
 	{
 	  if ( toVisit.doesNotContain(nex) )

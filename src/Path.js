@@ -4,10 +4,18 @@ import {Queue} from "./Queue.js";
 
 class Coord
 {
-  constructor(x, y)
+  constructor(x, y = null)
   {
-    this.x = x;
-    this.y = y;
+    if (y != null)
+    {
+      this.x = x;
+      this.y = y;
+    }
+    else
+    {
+      this.x = x.x;
+      this.y = x.y;
+    }
   }
   equals(crd)
   {

@@ -11,7 +11,7 @@ import {FPS, TICK_RATE} from "./Constants.js";
 import {Camera} from "./Camera.js";
 import {Queue} from "./Queue.js";
 import {MusicPlayer} from "./MusicPlayer.js";
-import {DrawContainer} from "./DrawContainer.js";
+import {DrawContainer, UnitContainer} from "./DrawContainer.js";
 import {Inputter, ARROWS, ARROW} from "./Inputter.js";
 import {Panel, SelectionPanel} from "./Panel.js";
 import {PanelComponent} from "./PanelComponent.js";
@@ -62,7 +62,13 @@ class Game
     this.ctx = [];
     this.generateCanvasLayers();
   
-    this.Units = new DrawContainer();
+    this.turn = new LoopSelector( [ TurnData("Player", "#aaaaff", "btl1","fght2"),
+				    TurnData("Enemy", "red", "btl_en", "fght")    ] );
+    this.Units = new UnitContainer();
+    for (let td of this.turn)
+    {
+      this.Units.addTeam(td.turn);
+    }
     
     this.toDraw = new DrawContainer();
     this.grid = new Coord( gx, gy );
@@ -94,9 +100,6 @@ class Game
     this.counter = 0;
     this.gameStatus = "blockInput";
     
-    //this.turn = new LoopSelector(["Player", "Enemy", "Allied"]);
-    this.turn = new LoopSelector( [ TurnData("Player", "#aaaaff", "btl1","fght2"),
-				    TurnData("Enemy", "red", "btl_en", "fght")    ]);
     
     this.cursorOutsideMovable = false;
 
@@ -111,6 +114,18 @@ class Game
     this.stateAction = {};
     this.initStateAction();
     this.beginGame();
+  }
+  getHostile(team)
+  {
+    let a = [];
+    for (let td of this.turn)
+    {
+      if (td.turn != team)
+      {
+	a.push(td.turn);
+      }
+    }
+    return a;
   }
   async beginGame()
   {
@@ -438,6 +453,8 @@ class Game
 	let unit = this.Map.getTile(this.cursor.x, this.cursor.y).unit;
 	if (unit != null && unit.active == true)
 	{
+	  this.temp["hostileUnits"] = this.Units.getTeams(this.getHostile(unit.team) )
+	  this.Map.getPathingMap(this.temp.hostileUnits);
 	  if (unit.team == "Player")
 	  {
 	    // TODO when i decide to remove this for danger area
@@ -579,60 +596,61 @@ class Game
   /*************************************/
   nonPlayerTurn(turndata)
   {
-    let team = turndata.turn.toLowerCase();
+    let team = turndata.turn;
     return new Promise( async (resolve) =>
     {
       let t = new EnemyController(this);
-      for (let unit of this.Units)
+
+      let hostile = this.Units.getTeams(this.getHostile(team));
+      this.Map.getPathingMap(hostile);
+
+      for (let unit of this.Units.teams[team])
       {
-	if (unit.team.toLowerCase() == team)
+	await this.camera.waitShiftTo(unit);
+	this.camera.setTarget(unit.vis);
+
+	let info = await t.offense(unit);
+
+	this.cursor.moveInstant(unit);
+	this.toDraw.show("cursor");
+	this.cursor.curAnim().reset();
+	await waitTime(500);
+	this.toDraw.hide("cursor");
+
+	await new Promise( resolve => {unit.tentativeMove(this, info.path, resolve);} )
+
+	if (info.attacks == true)
 	{
-	  await this.camera.waitShiftTo(unit);
-	  this.camera.setTarget(unit.vis);
+	  let battle = new Battle(this, unit, info.target);
 
-	  let info = await t.offense(unit);
+	  this.cursor.moveInstant(info.target);
 
-	  this.cursor.moveInstant(unit);
 	  this.toDraw.show("cursor");
 	  this.cursor.curAnim().reset();
 	  await waitTime(500);
 	  this.toDraw.hide("cursor");
 
-	  await new Promise( resolve => {unit.tentativeMove(this, info.path, resolve);} )
+	  await this.Music.fadeout(this.mapTheme);
+	  this.Music.play(turndata.btltheme);
 
-	  if (info.attacks == true)
-	  {
-	    let battle = new Battle(this, unit, info.target);
+	  this.temp["mapstate"] = this.toDraw;
 
-	    this.cursor.moveInstant(info.target);
+	  this.toDraw = battle;
 
-	    this.toDraw.show("cursor");
-	    this.cursor.curAnim().reset();
-	    await waitTime(500);
-	    this.toDraw.hide("cursor");
+	  await new Promise( resolve => { battle.begin( resolve ); } );
 
-	    await this.Music.fadeout(this.mapTheme);
-	    this.Music.play(turndata.btltheme);
-
-	    this.temp["mapstate"] = this.toDraw;
-
-	    this.toDraw = battle;
-
-	    await new Promise( resolve => { battle.begin( resolve ); } );
-
-	    await this.Music.fadestop(turndata.btltheme);
-	    this.Music.fadein(this.mapTheme);
+	  await this.Music.fadestop(turndata.btltheme);
+	  this.Music.fadein(this.mapTheme);
 
 
-	    // restore the gamestate
-	    this.toDraw = this.temp["mapstate"];
-
-	  }
-	  unit.confirmMove(this);
-	  unit.endTurn(this);
-	  await waitTime(500);
+	  // restore the gamestate
+	  this.toDraw = this.temp["mapstate"];
 
 	}
+	unit.confirmMove(this);
+	unit.endTurn(this);
+	await waitTime(500);
+
       }
       resolve();
     });
@@ -642,7 +660,7 @@ class Game
   /*************************************/
   /* OTHER STUFF                       */
   /*************************************/
-  _arrow_editPath(delta)
+  _arrow_editPath(delta, hostile)
   {
     let c = new Coord(this.cursor.x, this.cursor.y);
     let prevcursor = new Coord(this.cursor.x - delta.x, this.cursor.y - delta.y);
@@ -657,7 +675,7 @@ class Game
 	
 	if (p.doesNotContain(c))
 	{
-	  let ccost = getCost(this, c.x, c.y, cost);
+	  let ccost = getCost(this.Map, c.x, c.y, cost);
 
 	  let prev = p.last();
 	  // if the term-wise product is not zero, then neither x nor y is 0 => diagonal
@@ -667,7 +685,7 @@ class Game
 	    np.dequeue();
 
 	    let addcost = 0;
-	    np.forEach((tile) => {addcost += getCost(this, tile.x, tile.y, cost);} );
+	    np.forEach((tile) => {addcost += getCost(this.Map, tile.x, tile.y, cost);} );
 
 	    // if this is a legit move
 	    if (this.temp.selectedUnitMov >= addcost && p.intersect(np) == false)
@@ -684,8 +702,8 @@ class Game
 	      np = await generatePath(this, unit.x, unit.y, c.x, c.y, cost);
 
 	      let first = np.front();
-	      let newcost = - getCost(this, first.x, first.y, cost);
-	      np.forEach((tile) => {newcost += getCost(this, tile.x, tile.y, cost);} );
+	      let newcost = - getCost(this.Map, first.x, first.y, cost);
+	      np.forEach((tile) => {newcost += getCost(this.Map, tile.x, tile.y, cost);} );
 	      this.temp.selectedUnitMov = unit.getMov() - newcost;
 	      p.consume(np);
 
@@ -701,8 +719,8 @@ class Game
 	    let np = await generatePath(this, unit.x, unit.y, c.x, c.y, cost);
 
 	    let first = np.front();
-	    let newcost = - getCost(this, first.x, first.y, cost);
-	    np.forEach((tile) => {newcost += getCost(this, tile.x, tile.y, cost);} );
+	    let newcost = - getCost(this.Map, first.x, first.y, cost);
+	    np.forEach((tile) => {newcost += getCost(this.Map, tile.x, tile.y, cost);} );
 	    this.temp.selectedUnitMov = unit.getMov() - newcost;
 	    p.consume(np);
 	  }
@@ -712,7 +730,7 @@ class Game
 	  while (p.last().equals(c) == false)
 	  {
 	    let t = p.pop();
-	    this.temp.selectedUnitMov += getCost(this, t.x, t.y, cost);
+	    this.temp.selectedUnitMov += getCost(this.Map, t.x, t.y, cost);
 	  }
 	}
 	resolve();
@@ -784,7 +802,7 @@ class Game
     if ( curTile.unit == null )
     {
       curTile.unit = unit;
-      this.Units.set(unit.id, unit);
+      this.Units.addUnit(unit);
     }
     else
     {

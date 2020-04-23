@@ -257,3 +257,46 @@ export class DrawContainer
 
 }
 
+export class UnitContainer extends DrawContainer
+{
+  constructor()
+  {
+    super();
+    this.teams = {};
+  }
+  addTeam(name)
+  {
+    this.teams[name] = [];
+  }
+  addUnit(unit)
+  {
+    this.teams[unit.team].push(unit);
+    this.set(unit.id, unit)
+  }
+  delUnit(unit)
+  {
+    let t = this.get(unit.team);
+    for (let i = 0; i < t.length; ++i)
+    {
+      if (t[i].id == unit.id)
+      {
+	t.splice(i, 1);
+	delete this.get(unit.team)[unit.id];
+	return;
+      }
+    }
+  }
+  //	   [str]
+  getTeams(teams)
+  {
+    let ret = [];
+    for (let t of teams)
+    {
+      if (this.teams[t] != undefined)
+      {
+	ret = ret.concat(this.teams[t]);
+      }
+    }
+    return ret;
+  }
+}

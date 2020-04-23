@@ -57,6 +57,14 @@ export class LoopSelector
   {
     this.idx = this._initIdx;
   }
+  *[Symbol.iterator]()
+  {
+    for (let u of this.list)
+    {
+      yield u;
+    }
+  }
+
 }
 
 export class QueueSelector

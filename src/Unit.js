@@ -26,6 +26,7 @@ export class Unit extends AnimatedObject
     this.movcost[TILES.ROAD] = 1;
     this.movcost[TILES.TREE] = 2;
     this.movcost[TILES.WALL] = 5000;
+    this.movcost[TILES.ENEMY] = 5000;
     
     this.caps = {};
     this.stats = {};
@@ -201,7 +202,7 @@ export class Unit extends AnimatedObject
   
   movable(g, includeAttackable, draw = true)
   {
-    let p = generateMovable(g, this.x, this.y, this.getMov(), this.movcost);
+    let p = generateMovable(g.Map, this.x, this.y, this.getMov(), this.movcost);
 
     let a = new Queue();
     let adraw = new Queue();
