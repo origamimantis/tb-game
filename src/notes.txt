@@ -1,3 +1,6 @@
+ver0.20 2020-04-23
+Units are now unable to walk through enemy units.
+
 ver0.19 2020-04-21
 code improvements to the start-of-turn sequence. You can
 now view an enemy's attackable tiles by selecting them.
