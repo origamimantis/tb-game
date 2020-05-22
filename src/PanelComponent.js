@@ -59,7 +59,7 @@ export class PanelComponent
   }
   drawArt(g, off, xy)
   {
-    g.Album.draw(g, 3, this.data, off.x + xy.x, off.y + xy.y, xy.sx, xy.sy);
+    g.Album.draw(g, 4, this.data, off.x + xy.x, off.y + xy.y, xy.sx, xy.sy);
   }
 
   drawText(g, off, xy)
@@ -90,7 +90,7 @@ export class PanelComponent
 	  let k = MAPPER[this.data[u][t]];
 	  if (k && x < width)
 	  {
-	    g.ctx[3].drawImage(g.Fonts.get("F_0"),
+	    g.ctx[4].drawImage(g.Fonts.get("F_0"),
 		fsize*k[1], fsize*k[0], fsize, fsize,
 		off.x + xy.x + fsize*x, off.y + xy.y+(fsize+SEP)*y + SEP/2,
 		fsize, fsize);

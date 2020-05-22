@@ -1,3 +1,7 @@
+ver0.21 2020-05-21
+Added day/night cycle and cleaned up some code.
+Additionally, updated menus for clearer selection.
+
 ver0.20 2020-04-23
 Units are now unable to walk through enemy units.
 

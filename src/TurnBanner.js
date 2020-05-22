@@ -64,16 +64,16 @@ export class TurnBanner
   }
   draw(g)
   {
-    let olda = this.g.ctx[3].globalAlpha;
-    let oldf = this.g.ctx[3].fillStyle;
-    this.g.ctx[3].globalAlpha = this.a;
-    this.g.ctx[3].fillStyle = this.bg;
+    let olda = this.g.ctx[4].globalAlpha;
+    let oldf = this.g.ctx[4].fillStyle;
+    this.g.ctx[4].globalAlpha = this.a;
+    this.g.ctx[4].fillStyle = this.bg;
 
-    this.g.ctx[3].fillRect(0, 798/6-20, 512, 32+20);
-    this.g.Fonts.drawText(this.g, 3, this.text, {x:this.x*512, y:768/6}, this.tscale, 2);
+    this.g.ctx[4].fillRect(0, 798/6-20, 512, 32+20);
+    this.g.Fonts.drawText(this.g, 4, this.text, {x:this.x*512, y:768/6}, this.tscale, 2);
 
-    this.g.ctx[3].globalAlpha = olda;
-    this.g.ctx[3].fillStyle = oldf;
+    this.g.ctx[4].globalAlpha = olda;
+    this.g.ctx[4].fillStyle = oldf;
   }
 
 

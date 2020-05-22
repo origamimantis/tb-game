@@ -183,6 +183,13 @@ export class Axe extends Weapon
 	super(name, might, hit, crit, range, uses, effects, statbon, eff, strong, weak)
     }
 }
+export class LongSword extends Sword
+{
+    constructor()
+    {
+	super("Brave Sword", 12, 100, 0, [5], 48, [], {});
+    }
+}
 export class BraveSword extends Sword
 {
     constructor()

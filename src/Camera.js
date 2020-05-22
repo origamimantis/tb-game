@@ -50,6 +50,10 @@ class Camera
   {
     return new Promise( resolve => {this.shiftTo(c, resolve);} );
   }
+  waitShiftAbsolute(c)
+  {
+    return new Promise( resolve => {this.shiftAbsolute(c, resolve);} );
+  }
 
   shiftTo(c, onDone)
   {
@@ -88,6 +92,40 @@ class Camera
 	dy -= this.moveTriggers.t;
       }
       dy = Math.sign(dy);
+      off.y += dy;
+      this.path.enqueue(new Coord(0, dy));
+    }
+
+    if (this.path.nonempty())
+    {
+      this.path.onDone = onDone;
+      this.path.counter = this.shiftSpeed;
+      this.shift = true;
+    }
+    else
+    {
+      onDone();
+    }
+
+  }
+
+  shiftAbsolute(c, onDone)
+  {
+    if (this.path.nonempty())
+    {
+      throw "Cannot shift camera while moving.";
+    }
+    let off = new Coord( this.offset.x, this.offset.y );
+
+    while (c.x != off.x)
+    {
+      let dx = Math.sign(c.x - off.x);
+      off.x += dx;
+      this.path.enqueue(new Coord(dx, 0));
+    }
+    while (c.y != off.y)
+    {
+      let dy = Math.sign(c.y - off.y);
       off.y += dy;
       this.path.enqueue(new Coord(0, dy));
     }

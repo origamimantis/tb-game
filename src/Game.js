@@ -1,5 +1,14 @@
 'use strict';
 
+//TODO maybe for states, add a changeTo() method (like map.changeTo())
+//     so I can put everything that changing to that state needs to do,
+//     instead of doing those things everywhere I need to switch to that state.
+//     ie map.changeTo()
+//	  {
+//	    this.gameStatus = "map";
+//	    something();
+//	    somethingElse();
+//	  }
 
 import {Unit} from "./Unit.js";
 import {Coord} from "./Path.js";
@@ -98,7 +107,9 @@ class Game
     this.temp = {};
     
     this.counter = 0;
-    this.gameStatus = "blockInput";
+    this.turncount = 1;
+    this.gameStatus = "";
+    this.inputting = false;
     
     
     this.cursorOutsideMovable = false;
@@ -107,8 +118,24 @@ class Game
     respondToEvent("input_arrowStall", (e) =>{ this.Inputter.arrowStall(e.start); });
     respondToEvent("cursor_finishMoveTo", (e) =>{ this.handleArrows = this.arrow_map; });
 
-    respondToEvent("input_select",  () => {this.stateAction[this.gameStatus].select();});
-    respondToEvent("input_cancel",  () => {this.stateAction[this.gameStatus].cancel();});
+    respondToEvent("input_select",  async () => 
+    {
+      if (this.inputting)
+      {
+	this.blockInput();
+	await this.stateAction[this.gameStatus].select();
+	this.unblockInput();
+      }
+    });
+    respondToEvent("input_cancel",  async () => 
+    {
+      if (this.inputting)
+      {
+	this.blockInput();
+	await this.stateAction[this.gameStatus].cancel();
+	this.unblockInput();
+      }
+    });
     
     respondToEvent("game_test",  () => {});
     this.stateAction = {};
@@ -130,9 +157,9 @@ class Game
   async beginGame()
   {
     await this.beginTurn(this.turn.get());
-    this.toDraw.show("cursor");
     this.cursor.curAnim().reset();
-    this.gameStatus = "map";
+    this.setStatus("map");
+    this.unblockInput();
   }
 
   generateUnitActions(g, unit)
@@ -144,11 +171,7 @@ class Game
       // attack
       p.push( new Action( "attack", () =>
 	{
-	  this.temp["selectedUnitAttackCoords"] = new QueueSelector( attackable );
-	  this.toDraw.hide("selectedUnitActionPanel");
-	  this.cursor.moveInstant(attackable.front());
-
-	  this.gameStatus = "unitAttackTargetSelect";
+	  this.setStatus("unitAttackTargetSelect", attackable);
 	}));
     }
     
@@ -164,15 +187,16 @@ class Game
         this.toDraw.del("selectedUnitPath");
 	this.toDraw.del("selectedUnitAttackableTiles");
 
-        delete this.temp["selectedUnitMov"];
-        delete this.temp["selectedUnit"];
-        delete this.temp["selectedUnitActions"];
-
-        this.gameStatus = "map";
+        this.setStatus("map");
       }));
 
     return new LoopSelector(p);
 
+  }
+  async setStatus(state, ...args)
+  {
+    await this.stateAction[state].onBegin(...args);
+    this.gameStatus = state;
   }
 
   initStateAction()
@@ -183,12 +207,20 @@ class Game
     /*************************************/
     /* ACTION UNIT ATTACK TARGET SELECT  */
     /*************************************/
-      select:async()=>
+      onBegin: async ( attackable )=>
+      {
+	  this.temp["selectedUnitAttackCoords"] = new QueueSelector( attackable );
+	  this.toDraw.show("cursor");
+	  this.toDraw.hide("selectedUnitActionPanel");
+	  await this.camera.waitShiftTo(attackable.front());
+	  this.cursor.moveInstant(attackable.front());
+      },
+
+      select: async()=>
       {
         let enemy = this.Map.getTile(this.temp.selectedUnitAttackCoords.get()).unit;
 	// hide everything
 	this.temp["mapstate"] = this.toDraw;
-        this.gameStatus = "blockInput";
 
 	let battle = new Battle(this, this.temp.selectedUnit, enemy);
 
@@ -226,25 +258,21 @@ class Game
 	    
 	    this.cursor.moveInstant(this.temp.selectedUnit);
 
-	    // delete temporaries
-	    this.temp = {};
-
 	    // update gamestate
-	    this.gameStatus = "map";
+	    this.setStatus("map");
 	  }
 	);
-	
+
       },
-      cancel:()=>
+      cancel:async ()=>
       {
-	this.cursor.moveInstant(this.temp.selectedUnit);
+	await this.setStatus("unitActionSelect");
 	this.toDraw.show("selectedUnitActionPanel");
-	
-	this.gameStatus = "unitActionSelect";
       },
-      arrows:(a)=>
+      arrows:async (a)=>
       {
 	//scrollSelector(a, this.temp.selectedUnitAttackCoords);
+	this.blockInput();
 	for (let k of a.once)
 	{
 	  switch (k)
@@ -259,7 +287,10 @@ class Game
 	    break;
 	  }
 	}
-	this.cursor.moveInstant(this.temp.selectedUnitAttackCoords.get());
+	let target = this.temp.selectedUnitAttackCoords.get();
+	await this.camera.waitShiftTo(target);
+	this.cursor.moveInstant(target);
+	this.unblockInput();
       }
     }
 
@@ -270,25 +301,31 @@ class Game
     /*************************************/
     /* ACTION UNIT ACTION SELECT         */
     /*************************************/
+      onBegin: async ()=>
+      {
+	//await this.camera.waitShiftAbsolute(this.temp.cameraPrev);
+	await this.camera.waitShiftTo(this.temp.selectedUnit);
+	this.cursor.moveInstant(this.temp.selectedUnit);
+	this.toDraw.hide("cursor");
+      },
+
       select:()=>
       {
-	this.temp["selectedUnitActions"].get().execute();
+	this.toDraw.get("selectedUnitActionPanel").get().execute();
       },
       cancel:()=>
       {
-	delete this.temp["selectedUnitActions"];
 	this.toDraw.del("selectedUnitActionPanel");
 	this.toDraw.del("selectedUnitAttackableTiles");
 	
 	this.temp.selectedUnit.revertMove();
-	this.toDraw.show("selectedUnitMovable");
-	this.toDraw.show("selectedUnitPath");
-	this.cursor.moveInstant(this.toDraw.get("selectedUnitPath").last());
-	this.gameStatus = "unitMoveLocation";
+	this.setStatus("unitMoveLocation");
+	
+	this.toDraw.show("cursor");
       },
       arrows:(a)=>
       {
-	scrollSelector(a, this.temp.selectedUnitActions);
+	scrollSelector(a, this.toDraw.get("selectedUnitActionPanel"));
       }
 
     }
@@ -298,6 +335,14 @@ class Game
     /*************************************/
     /* ACTION UNIT MOVE LOCATION         */
     /*************************************/
+      onBegin: async ()=>
+      {
+	await this.camera.waitShiftTo(this.temp.selectedUnit);
+	this.toDraw.show("selectedUnitMovable");
+	this.toDraw.show("selectedUnitPath");
+	this.cursor.moveInstant(this.toDraw.get("selectedUnitPath").last());
+	this.toDraw.show("cursor");
+      },
     
       select: async ()=>
       {
@@ -311,34 +356,32 @@ class Game
 	  && (unitOnTarget == null || unitOnTarget == this.temp.selectedUnit))
 	{
 	  triggerEvent("sfx_play_beep_effect");
-	  this.gameStatus = "blockInput";
-	  this.camera.shiftTo(this.temp.selectedUnit, () =>
+
+	  await this.camera.waitShiftTo(this.temp.selectedUnit);
+	  this.camera.setTarget(this.temp.selectedUnit.vis);
+
+	  await this.temp.selectedUnit.tentativeMove(this, this.toDraw.get("selectedUnitPath") )
+	  
+	  this.camera.setTarget(this.cursor.vis);
+	  this.camera.resetBorders();
+
+	  this.toDraw.hide("selectedUnitMovable");
+	  this.toDraw.hide("selectedUnitPath");
+
+	  this.toDraw.set("selectedUnitAttackableTiles", this.temp.selectedUnit.attackableTiles(this.Map));
+	  let uActions = this.generateUnitActions(this, this.temp.selectedUnit);
+
+	  let numActions = uActions.length;
+	  this.toDraw.set("selectedUnitActionPanel",
+	    new SelectionPanel(50,50, 20+64,16*numActions+20, 1, numActions, 398, 50, uActions));
+
+	  this.temp.cameraPrev = new Coord(this.camera.offset);
+	  if (this.camera.onLeft(this.temp.selectedUnit))
 	  {
-	    this.camera.setTarget(this.temp.selectedUnit.vis);
-	    this.temp.selectedUnit.tentativeMove(this, this.toDraw.get("selectedUnitPath"), () =>
-	    {
-	      this.gameStatus = "unitActionSelect";
+	    this.toDraw.get("selectedUnitActionPanel").shift();
+	  }
 
-	      this.camera.setTarget(this.cursor.vis);
-	      this.camera.resetBorders();
-
-	      this.toDraw.hide("selectedUnitMovable");
-	      this.toDraw.hide("selectedUnitPath");
-
-	      this.toDraw.set("selectedUnitAttackableTiles", this.temp.selectedUnit.attackableTiles(this.Map));
-	      this.temp["selectedUnitActions"] = this.generateUnitActions(this, this.temp.selectedUnit);
-
-	      let numActions = this.temp.selectedUnitActions.length;
-	      this.toDraw.set("selectedUnitActionPanel",
-		new SelectionPanel(50,50, 20+64,16*numActions+20, 1, numActions, 398, 50, this.temp.selectedUnitActions));
-
-	      if (this.camera.onLeft(this.temp.selectedUnit))
-	      {
-		this.toDraw.get("selectedUnitActionPanel").shift();
-	      }
-	    });
-	  });
-
+	  this.setStatus("unitActionSelect");
 	}
 	else
 	{
@@ -349,7 +392,6 @@ class Game
       cancel: async ()=>
       {
 	// disable further cursor movement
-	this.gameStatus = "blockInput";
 	triggerEvent("sfx_play_beep_effect");
 
 	// wait until cursor stops moving
@@ -358,16 +400,12 @@ class Game
 
 	// move the cursor back to the unit and update state on complete
 	this.cursor.moveInstant(this.temp.selectedUnit);
-	this.camera.shiftTo(this.temp.selectedUnit, () => 
-	  {
-	    this.gameStatus = "map";
-	    this.toDraw.show("cursor");
-	  }
-	);
+	await this.camera.waitShiftTo(this.temp.selectedUnit);
+	
 	this.toDraw.del("selectedUnitMovable");
 	this.toDraw.del("selectedUnitPath");
-	delete this.temp["selectedUnitMov"];
-	delete this.temp["selectedUnit"];
+	
+	this.setStatus("map");
       },
 
       arrows: async (a) =>
@@ -419,23 +457,47 @@ class Game
     
     this.stateAction.mapOptionSelect = 
     {
-      select: async () =>
+      onBegin: ()=>
       {
-	this.temp.mapActions.get().execute();
+	// TODO map options might be the same no matter what. See if I can make this constant.
+	this.temp["mapActions"] = new LoopSelector(
+	  [new Action("????????", ()=>{console.log("testo");}),
+	   new Action("End Turn", async (resolve)=>
+	    {
+	      // TODO when i decide to remove this for danger area
+	      this.toDraw.delc("enemyAtackable");
+
+	      // TODO make camera go to original location instead of seeking to cursor's original location
+	      this.toDraw.del("mapActionPanel");
+
+	      await this.enemyPhase();
+	    })
+	  ]);
+
+	let numActions = this.temp.mapActions.length;
+	this.toDraw.set("mapActionPanel",
+	  new SelectionPanel(398,50, 20+64,16*numActions+20, 1, numActions, 398, 50, this.temp.mapActions));
+	this.temp["cursorPrev"] = new Coord(this.cursor.x, this.cursor.y);
+	
+	this.toDraw.hide("cursor");
+      },
+
+      select: () =>
+      {
+	return new Promise( resolve => {this.temp.mapActions.get().execute(resolve);} );
       },
       
       cancel: ()=>
       {
-	this.gameStatus = this.temp.prevState;
-	delete this.temp.prevState;
-	delete this.temp.mapActions;
 	this.toDraw.del("mapActionPanel")
+
+	this.setStatus("map");
       },
       
       
       arrows: (a) =>
       {
-	scrollSelector(a, this.temp.mapActions);
+	scrollSelector(a, this.toDraw.get("mapActionPanel"));
       }
     },
     
@@ -446,6 +508,12 @@ class Game
     
     this.stateAction.map = 
     {
+      onBegin: ()=>
+      {
+	this.toDraw.show("cursor");
+        this.temp = {};
+      },
+      
       select: async () =>
       {
 	await cursorStop(this.cursor);
@@ -470,7 +538,7 @@ class Game
 	    this.temp["selectedUnit"] = unit;
 	    this.temp["selectedUnitMov"] = unit.getMov();
 	    
-	    this.gameStatus = "unitMoveLocation";
+	    this.setStatus("unitMoveLocation");
 	  }
 	  else
 	  {
@@ -480,56 +548,7 @@ class Game
 	}
 	else
 	{
-	  // TODO map options might be the same no matter what. See if I can make this constant.
-	  this.temp["mapActions"] = new LoopSelector(
-	    [new Action("????????", ()=>{console.log("testo");}),
-	     new Action("End Turn", async ()=>
-	      {
-		// TODO when i decide to remove this for danger area
-		this.toDraw.delc("enemyAtackable");
-
-		this.gameStatus = "blockInput";
-		this.toDraw.hide("cursor");
-	        
-		// TODO make camera go to original location instead of seeking to cursor's original location
-		this.toDraw.del("mapActionPanel");
-
-
-		this.turn.next();
-		let turno = this.turn.get();
-		while (turno.turn != "Player")
-		{
-		  await this.beginTurn(turno);
-
-		  await this.nonPlayerTurn(turno);
-		
-
-		  this.turn.next();
-		  turno = this.turn.get();
-		}
-
-		await this.beginTurn(turno);
-
-		this.cursor.moveInstant(this.temp.cursorPrev);
-
-		await new Promise(resolve => {this.camera.shiftTo(this.cursor.vis, resolve)});
-		this.camera.setTarget(this.cursor.vis);
-		
-		this.cursor.curAnim().reset();
-		this.toDraw.show("cursor");
-		
-		this.temp = {};
-		this.gameStatus = "map";
-	      })
-	    ]);
-
-	  let numActions = this.temp.mapActions.length;
-	  this.toDraw.set("mapActionPanel",
-	    new SelectionPanel(398,50, 20+64,16*numActions+20, 1, numActions, 398, 50, this.temp.mapActions));
-	  this.temp["prevState"] = "map";
-	  this.temp["cursorPrev"] = new Coord(this.cursor.x, this.cursor.y);
-
-	  this.gameStatus = "mapOptionSelect";
+	  this.setStatus("mapOptionSelect");
 	}
       },
 
@@ -591,6 +610,41 @@ class Game
     );
   }
 
+  enemyPhase()
+  {
+    return new Promise( async (resolve) =>
+    {
+      this.turn.next();
+      let turno = this.turn.get();
+      while (turno.turn != "Player")
+      {
+	await this.beginTurn(turno);
+
+	await this.nonPlayerTurn(turno);
+      
+
+	this.turn.next();
+	turno = this.turn.get();
+      }
+
+      await this.beginTurn(turno);
+
+      this.cursor.moveInstant(this.temp.cursorPrev);
+
+      await new Promise(resolve => {this.camera.shiftTo(this.cursor.vis, resolve)});
+      this.camera.setTarget(this.cursor.vis);
+      
+      this.cursor.curAnim().reset();
+      
+      this.setStatus("map");
+      
+      ++this.turncount;
+
+      resolve();
+    });
+  }
+
+
   /*************************************/
   /* NON-PLAYER TURN                   */
   /*************************************/
@@ -617,7 +671,7 @@ class Game
 	await waitTime(500);
 	this.toDraw.hide("cursor");
 
-	await new Promise( resolve => {unit.tentativeMove(this, info.path, resolve);} )
+	await unit.tentativeMove(this, info.path);
 
 	if (info.attacks == true)
 	{
@@ -783,6 +837,14 @@ class Game
       this.ctx[i].fillStyle = "white";
     }
   }
+  blockInput()
+  {
+    this.inputting = false;
+  }
+  unblockInput()
+  {
+    this.inputting = true;
+  }
   
   getUnitById(id)
   {
@@ -809,6 +871,19 @@ class Game
       throw "ERROR - attempted to add unit in position (", unit.x, ", ",unit.y,")!";
     }
   }
+  removeUnit( unit )
+  {
+    let curTile = this.Map.getTile(unit.x, unit.y);
+    if ( curTile.unit == null )
+    {
+      curTile.unit = unit;
+      this.Units.addUnit(unit);
+    }
+    else
+    {
+      throw "ERROR - attempted to add unit in position (", unit.x, ", ",unit.y,")!";
+    }
+  }
   draw()
   {
     //TODO TODO TODO TODO TODO TODO TODO TODO TODO
@@ -821,15 +896,23 @@ class Game
     this.ctx[1].clearRect(0,0,C_WIDTH, C_HEIGHT);
     this.ctx[2].clearRect(0,0,C_WIDTH, C_HEIGHT);
     this.ctx[3].clearRect(0,0,C_WIDTH, C_HEIGHT);
+    this.ctx[4].clearRect(0,0,C_WIDTH, C_HEIGHT);
 
     this.toDraw.draw(this);
+    if (this.turncount % 2 == 0)
+    {
+      this.ctx[3].fillStyle = "#00008D";
+      this.ctx[3].globalAlpha = 0.3;
+      this.ctx[3].fillRect(0,0,C_WIDTH, C_HEIGHT);
+      this.ctx[3].globalAlpha = 1;
+    }
   }
   update()
   {
     // if (this.toDraw.isActive("cursor") && this.Inputter.arrowStates().input == true)
-    if (this.Inputter.arrowStates().input == true)
+    if (this.Inputter.arrowStates().input == true && this.inputting)
     {
-      this.stateAction[this.gameStatus].arrows(this.Inputter.arrowStates());
+	this.stateAction[this.gameStatus].arrows(this.Inputter.arrowStates());
     }
 
     this.Inputter.update();

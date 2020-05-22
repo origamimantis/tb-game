@@ -79,12 +79,38 @@ export class DrawContainer
       this.hidden.paused[id] = this.stuff.paused[id];
       delete this.stuff.paused[id];
     }
+  }
+  show( id )
+  {
+    if ( this.hidden.active[id] != undefined )
+    {
+      this.stuff.active[id] = this.hidden.active[id];
+      delete this.hidden.active[id];
+    }
+    else if ( this.hidden.paused[id] != undefined )
+    {
+      this.stuff.paused[id] = this.stuff.paused[id];
+      delete this.hidden.paused[id];
+    }
+  }
+  hideTough( id )
+  {
+    if ( this.stuff.active[id] != undefined )
+    {
+      this.hidden.active[id] = this.stuff.active[id];
+      delete this.stuff.active[id];
+    }
+    else if ( this.stuff.paused[id] != undefined )
+    {
+      this.hidden.paused[id] = this.stuff.paused[id];
+      delete this.stuff.paused[id];
+    }
     else
     {
       throw id + " cannot be hidden; it doesn't exist!";
     }
   }
-  show( id )
+  showTough( id )
   {
     if ( this.hidden.active[id] != undefined )
     {

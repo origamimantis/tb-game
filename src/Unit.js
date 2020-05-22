@@ -61,6 +61,10 @@ export class Unit extends AnimatedObject
   {
     this.weapons.push(weap);
   }
+  getWeapon()
+  {
+    return this.weapons[0];
+  }
   
   instantMove(g, x, y)
   {
@@ -77,7 +81,12 @@ export class Unit extends AnimatedObject
       throw "Can't move there.";
     }
   }
-  async tentativeMove(g, path, onDone)
+  
+  async tentativeMove(g, path)
+  {
+    return new Promise( resolve => { this._tentativeMove(g, path, resolve) } );
+  }
+  _tentativeMove(g, path, onDone)
   {
     // since move is tentative, save old location for potential revert
     this.old.x = this.x;

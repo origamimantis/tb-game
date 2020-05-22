@@ -42,7 +42,7 @@ window.onload = () =>
 		  "BS_kn_run", "BS_kn_hit", "BS_kn_idle", "BS_kn_hit2",
 		  "B_backdrop",
 		  "W_spook", "W_stick", "W_sword",
-		  "C_c0", "C_move", "C_walk", "C_atk",
+		  "C_c0", "C_ptr", "C_move", "C_walk", "C_atk",
 		  "C_menutl",
 		  "C_menuel", "C_menucn"
 		],
