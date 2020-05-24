@@ -292,24 +292,20 @@ export class UnitContainer extends DrawContainer
   }
   addTeam(name)
   {
-    this.teams[name] = [];
+    this.teams[name] = new Set();
   }
   addUnit(unit)
   {
-    this.teams[unit.team].push(unit);
+    this.teams[unit.team].add(unit);
     this.set(unit.id, unit)
   }
   delUnit(unit)
   {
-    let t = this.get(unit.team);
-    for (let i = 0; i < t.length; ++i)
+    this.del(unit.id);
+    this.teams[unit.team].delete(unit);
+    if (this.teams[unit.team].size == 0)
     {
-      if (t[i].id == unit.id)
-      {
-	t.splice(i, 1);
-	delete this.get(unit.team)[unit.id];
-	return;
-      }
+      delete this.teams[unit.team];
     }
   }
   //	   [str]

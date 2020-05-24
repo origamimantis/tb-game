@@ -8,9 +8,9 @@ export class Action
     this.name = name;
     this.action = action;
   }
-  execute()
+  async execute()
   {
-    this.action();
+    await this.action();
   }
 }
 

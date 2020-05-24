@@ -26,7 +26,7 @@ class Interpreter
 	// TODO make teams an enum or map or something
 	alliance = alliance[0].toUpperCase() + alliance.slice(1)
 	
-	let u = new Units.SwordKnight(id, x, y, {mov: 7});
+	let u = new Units.SwordKnight(id, x, y, {maxhp:30, atk:10,spd:10,skl:5,def:7,con:4,mov: 7});
 	u.team = alliance;
 	u.setAnim( "idle" );
 	//u.stats.mov = id + 1;

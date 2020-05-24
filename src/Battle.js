@@ -26,10 +26,14 @@ function attack(a_info, d_info, turnqueue)
 
 
 
-  d_info.stats.hp -= Math.min(0, pow - def);
-
-
-
+  d_info.stats.hp -= (pow - def);
+  if (d_info.stats.hp <= 0)
+  {
+    d_info.stats.hp = 0;
+    turnqueue.clear();
+    return true;
+  }
+  return false;
 }
 
 const AFTER_BATTLE_DELAY = 1000;
@@ -48,12 +52,14 @@ class BattleInfo
     this.hits = 0;
     this.atks = 0;
     this.stats = {};
-    for (let s of [ "maxhp","atk","spd","skl","def","con","mov" ])
+    for (let s of [ "maxhp","hp","atk","spd","skl","def","con","mov" ])
     {
       this.stats[s] = u.stats[s]; // + bonuses[s] TODO
     }
+    let weap = u.getWeapon();
+    this.stats.atk += weap.pow;
     this.skills = new Set();
-    for (let eff of u.getWeapon().effects)
+    for (let eff of weap.effects)
     {
       this.skills.add(eff);
     }
@@ -89,7 +95,7 @@ export class Battle
   {
     this.g = g;
     this.sfx = g.Music;
-    this.units = {ini: initiator,
+    this.units = {atk: initiator,
 		  def: defender};
 
     this.info = { atk: new BattleInfo(initiator),
@@ -148,37 +154,49 @@ export class Battle
       this.turns.enqueue(new BattlePair(this.sprDef, this.sprIni));
     }
   }
-  async begin(onDone)
+  begin()
   {
-    while(this.turns.nonempty())
+    return new Promise( async (resolve) =>
     {
-      await this.executeAction();
-    }
-    setTimeout( onDone, AFTER_BATTLE_DELAY);
+      while(this.turns.nonempty())
+      {
+	await this.executeAction();
+      }
+      setTimeout( resolve, AFTER_BATTLE_DELAY);
+    });
   }
-  executeAction()
+  async executeAction()
   {
     let btl = this.turns.dequeue();
     let atkr = btl.a;
     let defr = btl.d;
-    return new Promise( async (resolve) => 
+    
+    await atkr.moveCloser(defr, this);
+    
+    atkr.setAnimation("hit");
+    await waitTime(500);
+    
+    this.sfx.play("whack");
+    await waitTime(220);
+    // damage here, and remove await on knockback
+    let battleOver = attack(this.info[atkr.id], this.info[defr.id], this.turns);
+
+    if (battleOver)
+    {
+      for (let id of ["atk", "def"])
       {
-	await atkr.moveCloser(defr, this);
-	
-	atkr.setAnimation("hit");
-	await waitTime(500);
-	
-	this.sfx.play("whack");
-	await waitTime(220);
-	// damage here, and remove await on knockback
-	attack(this.info[atkr.id], this.info[defr.id], this.turns);
-
-	await this.knockBack(atkr, defr, 4)
-	await waitTime(720);
-	resolve();
-
+	if (this.info[id].stats.hp == 0)
+	{
+	  this.g.removeUnit(this.units[id]);
+	}
       }
-    );
+    }
+    else
+    {
+      await this.knockBack(atkr, defr, 4)
+      await waitTime(720);
+    }
+    
   }
 
   knockBack(atkr, defr, time = 4)
@@ -201,6 +219,29 @@ export class Battle
     this.sprIni.update();
     this.sprDef.update();
   }
+  drawHealthBars(g)
+  {
+    g.ctx[4].globalAlpha = 1;
+    g.ctx[4].fillStyle = "#c0c0c0";
+    g.ctx[4].fillRect(48             , 384 - PANELS.HEALTH.HEIGHT/2 - 2, 184, 10);
+    g.ctx[4].fillRect(WINDOW.X/2 + 48, 384 - PANELS.HEALTH.HEIGHT/2 - 2, 184, 10);
+
+    g.ctx[4].fillStyle = "grey";
+    g.ctx[4].fillRect(50             , 384 - PANELS.HEALTH.HEIGHT/2, 180, 6);
+    g.ctx[4].fillRect(WINDOW.X/2 + 50, 384 - PANELS.HEALTH.HEIGHT/2, 180, 6);
+
+    g.ctx[4].fillStyle = "red";
+    g.ctx[4].fillRect(50             , 384 - PANELS.HEALTH.HEIGHT/2,
+      180*this.info.atk.stats.hp/this.info.def.stats.maxhp, 6);
+
+    g.ctx[4].fillRect(WINDOW.X/2 + 50, 384 - PANELS.HEALTH.HEIGHT/2,
+      180*this.info.def.stats.hp/this.info.def.stats.maxhp, 6);
+
+    g.Fonts.drawText(this.g, 4, this.info.atk.stats.hp.toString(),
+      {x:40, y: 382 - PANELS.HEALTH.HEIGHT/2}, 1,1);
+    g.Fonts.drawText(this.g, 4, this.info.def.stats.hp.toString(),
+      {x:WINDOW.X/2 + 40, y: 382 - PANELS.HEALTH.HEIGHT/2}, 1,1);
+  }
   draw(g)
   {
     g.Album.draw(g, 0, "B_backdrop", 0,0, WINDOW.X, WINDOW.Y);
@@ -210,8 +251,8 @@ export class Battle
     this.healthPanels.draw(g);
     this.statPanels.draw(g);
     this.commentPanel.draw(g);
-    
-    this.healthPanels.draw(g);
+
+    this.drawHealthBars(g);
   }
 
 }

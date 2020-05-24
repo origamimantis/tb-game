@@ -35,6 +35,8 @@ export class Unit extends AnimatedObject
       this.caps[s] = (caps[s] == undefined) ? 0 : caps[s];
       this.stats[s] = (stats[s] == undefined) ? 0 : stats[s];
     }
+    this.stats.hp = this.stats.maxhp;
+
     this.mapSpeed = 4;
 
     this.vis = {

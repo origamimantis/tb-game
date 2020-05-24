@@ -229,40 +229,36 @@ class Game
 	
 	this.toDraw = battle;
 
-	battle.begin( async ()=>
-	  {
+	await battle.begin();
 
-	    await this.Music.fadestop(this.turn.get().btltheme);
-	    this.Music.fadein(this.mapTheme);
+	await this.Music.fadestop(this.turn.get().btltheme);
+	this.Music.fadein(this.mapTheme);
 
-	    // restore the gamestate
-	    this.toDraw = this.temp["mapstate"];
+	// restore the gamestate
+	this.toDraw = this.temp["mapstate"];
 
-	    // deete stuff from selecting a unit
-	    this.toDraw.del("selectedUnitAttackableTiles");
-	    this.toDraw.del("selectedUnitMovable");
-	    this.toDraw.del("selectedUnitPath");
-	    this.toDraw.del("selectedUnitActionPanel");
+	// deete stuff from selecting a unit
+	this.toDraw.del("selectedUnitAttackableTiles");
+	this.toDraw.del("selectedUnitMovable");
+	this.toDraw.del("selectedUnitPath");
+	this.toDraw.del("selectedUnitActionPanel");
 
-	    // confirm move
-	    this.temp.selectedUnit.confirmMove(this);
-	    
-	    // end turn TODO change for canto/other stuff
-	    //
-	    // if canto
-	    //	  temp.selectedunit = the unit
-	    //	  gamestatus = unitmovelocation
-	    //
-	    // ie force the player to move this unit again
-	    this.temp.selectedUnit.endTurn(this);
-	    
-	    this.cursor.moveInstant(this.temp.selectedUnit);
+	// confirm move
+	this.temp.selectedUnit.confirmMove(this);
+	
+	// end turn TODO change for canto/other stuff
+	//
+	// if canto
+	//	  temp.selectedunit = the unit
+	//	  gamestatus = unitmovelocation
+	//
+	// ie force the player to move this unit again
+	this.temp.selectedUnit.endTurn(this);
+	
+	this.cursor.moveInstant(this.temp.selectedUnit);
 
-	    // update gamestate
-	    this.setStatus("map");
-	  }
-	);
-
+	// update gamestate
+	this.setStatus("map");
       },
       cancel:async ()=>
       {
@@ -461,8 +457,8 @@ class Game
       {
 	// TODO map options might be the same no matter what. See if I can make this constant.
 	this.temp["mapActions"] = new LoopSelector(
-	  [new Action("????????", ()=>{console.log("testo");}),
-	   new Action("End Turn", async (resolve)=>
+	  [new Action("????????", ()=>{console.log("You clicked the test button!");}),
+	   new Action("End Turn", async ()=>
 	    {
 	      // TODO when i decide to remove this for danger area
 	      this.toDraw.delc("enemyAtackable");
@@ -482,9 +478,9 @@ class Game
 	this.toDraw.hide("cursor");
       },
 
-      select: () =>
+      select: async () =>
       {
-	return new Promise( resolve => {this.temp.mapActions.get().execute(resolve);} );
+	await this.temp.mapActions.get().execute();
       },
       
       cancel: ()=>
@@ -592,204 +588,183 @@ class Game
 
     }
   }
-  beginTurn(turnData)
+  async beginTurn(turnData)
   {
-    return new Promise( async (resolve) =>
-      {
-	await this.Music.fadestop(this.mapTheme);
+    await this.Music.fadestop(this.mapTheme);
 
-	for (let u of this.Units){ u.turnInit();}
+    for (let u of this.Units){ u.turnInit();}
 
-	await this.toDraw.get("banner").flyBanner(turnData.turn + " Phase", turnData.bannercolor);
+    await this.toDraw.get("banner").flyBanner(turnData.turn + " Phase", turnData.bannercolor);
 
-	this.mapTheme = turnData.maptheme;
-	this.Music.play(this.mapTheme);
-
-	resolve();
-      }
-    );
+    this.mapTheme = turnData.maptheme;
+    this.Music.play(this.mapTheme);
   }
 
-  enemyPhase()
+  async enemyPhase()
   {
-    return new Promise( async (resolve) =>
+    this.turn.next();
+    let turno = this.turn.get();
+    while (turno.turn != "Player")
     {
-      this.turn.next();
-      let turno = this.turn.get();
-      while (turno.turn != "Player")
-      {
-	await this.beginTurn(turno);
-
-	await this.nonPlayerTurn(turno);
-      
-
-	this.turn.next();
-	turno = this.turn.get();
-      }
-
       await this.beginTurn(turno);
 
-      this.cursor.moveInstant(this.temp.cursorPrev);
+      await this.nonPlayerTurn(turno);
 
-      await new Promise(resolve => {this.camera.shiftTo(this.cursor.vis, resolve)});
-      this.camera.setTarget(this.cursor.vis);
-      
-      this.cursor.curAnim().reset();
-      
-      this.setStatus("map");
-      
-      ++this.turncount;
+      this.turn.next();
+      turno = this.turn.get();
+    }
 
-      resolve();
-    });
+    await this.beginTurn(turno);
+
+    this.cursor.moveInstant(this.temp.cursorPrev);
+
+    await this.camera.waitShiftTo(this.cursor.vis);
+    this.camera.setTarget(this.cursor.vis);
+    
+    this.cursor.curAnim().reset();
+    
+    this.setStatus("map");
+    
+    ++this.turncount;
   }
 
 
   /*************************************/
   /* NON-PLAYER TURN                   */
   /*************************************/
-  nonPlayerTurn(turndata)
+  async nonPlayerTurn(turndata)
   {
     let team = turndata.turn;
-    return new Promise( async (resolve) =>
+    let t = new EnemyController(this);
+
+    let hostile = this.Units.getTeams(this.getHostile(team));
+    this.Map.getPathingMap(hostile);
+
+    for (let unit of this.Units.teams[team])
     {
-      let t = new EnemyController(this);
+      await this.camera.waitShiftTo(unit);
+      this.camera.setTarget(unit.vis);
 
-      let hostile = this.Units.getTeams(this.getHostile(team));
-      this.Map.getPathingMap(hostile);
+      let info = await t.offense(unit);
 
-      for (let unit of this.Units.teams[team])
+      this.cursor.moveInstant(unit);
+      this.toDraw.show("cursor");
+      this.cursor.curAnim().reset();
+      await waitTime(500);
+      this.toDraw.hide("cursor");
+
+      await unit.tentativeMove(this, info.path);
+
+      if (info.attacks == true)
       {
-	await this.camera.waitShiftTo(unit);
-	this.camera.setTarget(unit.vis);
+	let battle = new Battle(this, unit, info.target);
 
-	let info = await t.offense(unit);
+	this.cursor.moveInstant(info.target);
 
-	this.cursor.moveInstant(unit);
 	this.toDraw.show("cursor");
 	this.cursor.curAnim().reset();
 	await waitTime(500);
 	this.toDraw.hide("cursor");
 
-	await unit.tentativeMove(this, info.path);
+	await this.Music.fadeout(this.mapTheme);
+	this.Music.play(turndata.btltheme);
 
-	if (info.attacks == true)
-	{
-	  let battle = new Battle(this, unit, info.target);
+	this.temp["mapstate"] = this.toDraw;
 
-	  this.cursor.moveInstant(info.target);
+	this.toDraw = battle;
 
-	  this.toDraw.show("cursor");
-	  this.cursor.curAnim().reset();
-	  await waitTime(500);
-	  this.toDraw.hide("cursor");
+	await battle.begin();
 
-	  await this.Music.fadeout(this.mapTheme);
-	  this.Music.play(turndata.btltheme);
-
-	  this.temp["mapstate"] = this.toDraw;
-
-	  this.toDraw = battle;
-
-	  await new Promise( resolve => { battle.begin( resolve ); } );
-
-	  await this.Music.fadestop(turndata.btltheme);
-	  this.Music.fadein(this.mapTheme);
+	await this.Music.fadestop(turndata.btltheme);
+	this.Music.fadein(this.mapTheme);
 
 
-	  // restore the gamestate
-	  this.toDraw = this.temp["mapstate"];
-
-	}
-	unit.confirmMove(this);
-	unit.endTurn(this);
-	await waitTime(500);
+	// restore the gamestate
+	this.toDraw = this.temp["mapstate"];
 
       }
-      resolve();
-    });
+      unit.confirmMove(this);
+      unit.endTurn(this);
+      await waitTime(500);
+
+    }
   }
 
   
   /*************************************/
   /* OTHER STUFF                       */
   /*************************************/
-  _arrow_editPath(delta, hostile)
+  async _arrow_editPath(delta, hostile)
   {
     let c = new Coord(this.cursor.x, this.cursor.y);
     let prevcursor = new Coord(this.cursor.x - delta.x, this.cursor.y - delta.y);
     if (this.toDraw.get("selectedUnitMovable")[0].contains(c))
     {
-      return new Promise( async (resolve) =>
+      //unit.movcost[this.getTile(this.cursor.x, this.cursor.y)];
+      let p = this.toDraw.get("selectedUnitPath");
+      let unit = this.temp.selectedUnit;
+      let cost = unit.movcost;
+      
+      if (p.doesNotContain(c))
       {
-	//unit.movcost[this.getTile(this.cursor.x, this.cursor.y)];
-	let p = this.toDraw.get("selectedUnitPath");
-	let unit = this.temp.selectedUnit;
-	let cost = unit.movcost;
-	
-	if (p.doesNotContain(c))
+	let ccost = getCost(this.Map, c.x, c.y, cost);
+
+	let prev = p.last();
+	// if the term-wise product is not zero, then neither x nor y is 0 => diagonal
+	if (Math.abs(c.x - prev.x) + Math.abs(c.y - prev.y) >= 2)
 	{
-	  let ccost = getCost(this.Map, c.x, c.y, cost);
+	  let np = await generatePath(this, prev.x, prev.y, c.x, c.y, cost);
+	  np.dequeue();
 
-	  let prev = p.last();
-	  // if the term-wise product is not zero, then neither x nor y is 0 => diagonal
-	  if (Math.abs(c.x - prev.x) + Math.abs(c.y - prev.y) >= 2)
+	  let addcost = 0;
+	  np.forEach((tile) => {addcost += getCost(this.Map, tile.x, tile.y, cost);} );
+
+	  // if this is a legit move
+	  if (this.temp.selectedUnitMov >= addcost && p.intersect(np) == false)
 	  {
-	    let np = await generatePath(this, prev.x, prev.y, c.x, c.y, cost);
-	    np.dequeue();
-
-	    let addcost = 0;
-	    np.forEach((tile) => {addcost += getCost(this.Map, tile.x, tile.y, cost);} );
-
-	    // if this is a legit move
-	    if (this.temp.selectedUnitMov >= addcost && p.intersect(np) == false)
+	    this.temp.selectedUnitMov -= addcost;
+	    while (np.nonempty())
 	    {
-	      this.temp.selectedUnitMov -= addcost;
-	      while (np.nonempty())
-	      {
-		p.push(np.dequeue())
-	      }
-	      resolve();
+	      p.push(np.dequeue())
 	    }
-	    else
-	    {
-	      np = await generatePath(this, unit.x, unit.y, c.x, c.y, cost);
-
-	      let first = np.front();
-	      let newcost = - getCost(this.Map, first.x, first.y, cost);
-	      np.forEach((tile) => {newcost += getCost(this.Map, tile.x, tile.y, cost);} );
-	      this.temp.selectedUnitMov = unit.getMov() - newcost;
-	      p.consume(np);
-
-	    }
-	  }
-	  else if (this.temp.selectedUnitMov >= ccost)
-	  {
-	    p.push(c);
-	    this.temp.selectedUnitMov -= ccost;
+	    return;
 	  }
 	  else
 	  {
-	    let np = await generatePath(this, unit.x, unit.y, c.x, c.y, cost);
+	    np = await generatePath(this, unit.x, unit.y, c.x, c.y, cost);
 
 	    let first = np.front();
 	    let newcost = - getCost(this.Map, first.x, first.y, cost);
 	    np.forEach((tile) => {newcost += getCost(this.Map, tile.x, tile.y, cost);} );
 	    this.temp.selectedUnitMov = unit.getMov() - newcost;
 	    p.consume(np);
+
 	  }
+	}
+	else if (this.temp.selectedUnitMov >= ccost)
+	{
+	  p.push(c);
+	  this.temp.selectedUnitMov -= ccost;
 	}
 	else
 	{
-	  while (p.last().equals(c) == false)
-	  {
-	    let t = p.pop();
-	    this.temp.selectedUnitMov += getCost(this.Map, t.x, t.y, cost);
-	  }
-	}
-	resolve();
+	  let np = await generatePath(this, unit.x, unit.y, c.x, c.y, cost);
 
-      });
+	  let first = np.front();
+	  let newcost = - getCost(this.Map, first.x, first.y, cost);
+	  np.forEach((tile) => {newcost += getCost(this.Map, tile.x, tile.y, cost);} );
+	  this.temp.selectedUnitMov = unit.getMov() - newcost;
+	  p.consume(np);
+	}
+      }
+      else
+      {
+	while (p.last().equals(c) == false)
+	{
+	  let t = p.pop();
+	  this.temp.selectedUnitMov += getCost(this.Map, t.x, t.y, cost);
+	}
+      }
     }
   }
 
@@ -868,20 +843,20 @@ class Game
     }
     else
     {
-      throw "ERROR - attempted to add unit in position (", unit.x, ", ",unit.y,")!";
+      console.error( "ERROR - attempted to add unit in position (", unit.x, ", ",unit.y,")!");
     }
   }
   removeUnit( unit )
   {
     let curTile = this.Map.getTile(unit.x, unit.y);
-    if ( curTile.unit == null )
+    if ( curTile.unit != null && curTile.unit.id == unit.id)
     {
-      curTile.unit = unit;
-      this.Units.addUnit(unit);
+      curTile.unit = null;
+      this.Units.delUnit(unit);
     }
     else
     {
-      throw "ERROR - attempted to add unit in position (", unit.x, ", ",unit.y,")!";
+      console.error( "ERROR - attempted to remove unit in position (", unit.x, ", ",unit.y,")!");
     }
   }
   draw()

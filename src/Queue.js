@@ -361,5 +361,12 @@ export class BattleQueue
   {
     return (this.sz > 0)
   }
+  clear()
+  {
+    while (this.nonempty())
+    {
+      this.dequeue();
+    }
+  }
 }
 

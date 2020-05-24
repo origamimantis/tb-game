@@ -39,7 +39,7 @@ export class UnitBattleSprite extends BattleSprite
     let c = g.ctx[3];
     let wimg = this.ws.image;
 
-    if (this.id == "atk")
+    if (this.id == "def")
     {
       c.scale(-1,1);
       c.translate(-512,0);
@@ -55,7 +55,7 @@ export class UnitBattleSprite extends BattleSprite
     c.rotate(-rad);
     c.translate(-this.ws.x, -this.ws.y);
 
-    if (this.id == "atk")
+    if (this.id == "def")
     {
       c.translate(512,0);
       c.scale(-1,1);
@@ -69,8 +69,6 @@ export class UnitBattleSprite extends BattleSprite
 
   addAnimation( name, lookup )
   {
-    //let lookup = "BS_kn_" + name + ((this.id == "aatk") ? "_reverse" : "");
-    //this.addAnim( name, new BattleAnimation(lookup , weights, loops));
     super.addAnim(name, lookup);
   }
 
