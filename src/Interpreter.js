@@ -31,7 +31,7 @@ class Interpreter
 	u.setAnim( "idle" );
 	//u.stats.mov = id + 1;
 	//u.addWeapon(new Weapons.Spook());
-	u.addWeapon(new Weapons.BraveSword());
+	u.addWeapon(new Weapons.BronzeSlicer());
 	
 	this.g.addUnit(u);
 	resolve();
