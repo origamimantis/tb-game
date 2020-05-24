@@ -162,6 +162,12 @@ export class Battle
       {
 	await this.executeAction();
       }
+
+      for (let id of ["atk", "def"])
+      {
+	this.units[id].stats.hp = this.info[id].stats.hp;
+      }
+
       setTimeout( resolve, AFTER_BATTLE_DELAY);
     });
   }
