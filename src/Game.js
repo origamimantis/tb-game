@@ -222,6 +222,9 @@ class Game
 	// hide everything
 	this.temp["mapstate"] = this.toDraw;
 
+	// confirm move
+	this.temp.selectedUnit.confirmMove(this);
+
 	let battle = new Battle(this, this.temp.selectedUnit, enemy);
 
 	await this.Music.fadeout(this.mapTheme);
@@ -243,9 +246,6 @@ class Game
 	this.toDraw.del("selectedUnitPath");
 	this.toDraw.del("selectedUnitActionPanel");
 
-	// confirm move
-	this.temp.selectedUnit.confirmMove(this);
-	
 	// end turn TODO change for canto/other stuff
 	//
 	// if canto
@@ -519,6 +519,7 @@ class Game
 	{
 	  this.temp["hostileUnits"] = this.Units.getTeams(this.getHostile(unit.team) )
 	  this.Map.getPathingMap(this.temp.hostileUnits);
+
 	  if (unit.team == "Player")
 	  {
 	    // TODO when i decide to remove this for danger area
@@ -654,6 +655,8 @@ class Game
       this.toDraw.hide("cursor");
 
       await unit.tentativeMove(this, info.path);
+      
+      unit.confirmMove(this);
 
       if (info.attacks == true)
       {
@@ -683,7 +686,6 @@ class Game
 	this.toDraw = this.temp["mapstate"];
 
       }
-      unit.confirmMove(this);
       unit.endTurn(this);
       await waitTime(500);
 

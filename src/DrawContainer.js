@@ -311,12 +311,15 @@ export class UnitContainer extends DrawContainer
   //	   [str]
   getTeams(teams)
   {
-    let ret = [];
+    let ret = new Set();
     for (let t of teams)
     {
       if (this.teams[t] != undefined)
       {
-	ret = ret.concat(this.teams[t]);
+	for ( let u of this.teams[t] )
+	{
+	  ret.add(u);
+	}
       }
     }
     return ret;

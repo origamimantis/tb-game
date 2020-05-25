@@ -8,6 +8,8 @@ import {PanelComponent} from "./PanelComponent.js";
 
 // TODO make Battle, attack return something to tell its caller
 //	what happened (ie unit died, amount of hp lost, etc)
+// TODO bug: when unit moves to attack someone and dies, there is an error
+//	on removal since unit updated coord but not tilemap
 
 function rand()
 {
