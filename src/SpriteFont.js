@@ -81,7 +81,7 @@ export class SpriteFont
     return this.fonts[font];
   }
   //justify: 0=left, 1=right 2=center
-  drawText(g, ctx, string, off, scale = 1, justify = 0, wh = {x:10000, y:10000})
+  drawText(g, ctx, string, offx, offy, scale = 1, justify = 0, wh = {x:10000, y:10000})
   {
     let fsize = 8;
     let width = Math.floor(wh.x/fsize/scale);
@@ -101,7 +101,7 @@ export class SpriteFont
       {
 	if (data[u][t] == "\n")
 	{
-	  this._attachToMainCanvas(g, ctx, off, x, y, fsize, scale, justify)
+	  this._attachToMainCanvas(g, ctx, offx, offy, x, y, fsize, scale, justify)
 	  
 	  x = 0;
 	  ++y;
@@ -127,7 +127,7 @@ export class SpriteFont
       ++x;
       if (u + 1 < data.length && x+data[u+1].length > width)
       {
-	this._attachToMainCanvas(g, ctx, off, x, y, fsize, scale, justify)
+	this._attachToMainCanvas(g, ctx, offx, offy, x, y, fsize, scale, justify)
 
 	x = 0;
 	++y;
@@ -137,23 +137,23 @@ export class SpriteFont
 	}
       }
     }
-    this._attachToMainCanvas(g, ctx, off, x, y, fsize, scale, justify)
+    this._attachToMainCanvas(g, ctx, offx, offy, x, y, fsize, scale, justify)
   }
 
   // lx, ly are for additional offsets after applying the main offset
-  _attachToMainCanvas(g, ctx, off, lx, ly, fsize, scale, justify)
+  _attachToMainCanvas(g, ctx, offx, offy, lx, ly, fsize, scale, justify)
   {
       if (justify == 0)
       {
-	g.ctx[ctx].drawImage(this.subCanvas, off.x, off.y + (fsize+SEP)*scale*ly);
+	g.ctx[ctx].drawImage(this.subCanvas, offx, offy + (fsize+SEP)*scale*ly);
       }
       else if (justify == 1)
       {
-	g.ctx[ctx].drawImage(this.subCanvas, off.x - fsize*scale*(lx-1), off.y + (fsize+SEP)*scale*ly);
+	g.ctx[ctx].drawImage(this.subCanvas, offx - fsize*scale*(lx-1), offy + (fsize+SEP)*scale*ly);
       }
       else if (justify == 2)
       {
-	g.ctx[ctx].drawImage(this.subCanvas, off.x - fsize*scale*(lx-1)/2, off.y + (fsize+SEP)*scale*ly);
+	g.ctx[ctx].drawImage(this.subCanvas, offx - fsize*scale*(lx-1)/2, offy + (fsize+SEP)*scale*ly);
       }
   }
 }

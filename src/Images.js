@@ -13,7 +13,31 @@ class Album
   }
   static draw(g, ctx, art, x, y, w, h)
   {
-    g.ctx[ctx].drawImage(this.get(art), x, y, w, h);
+    try
+    {
+      if ( w == null || h == null )
+	g.ctx[ctx].drawImage(this.get(art), x, y);
+      else
+	g.ctx[ctx].drawImage(this.get(art), x, y, w, h);
+    }
+    catch(e)
+    {
+      console.error("Could not draw '" + art + "'.");
+      console.error(this.images);
+    }
+  }
+  static drawHealthBar(g, ctx, percent, x, y, w=184, h=10)
+  {
+    g.ctx[ctx].globalAlpha = 1;
+    g.ctx[ctx].fillStyle = "#c0c0c0";
+    g.ctx[ctx].fillRect(x, y, w, h);
+
+    g.ctx[ctx].fillStyle = "grey";
+    g.ctx[ctx].fillRect(x+2, y+2, w-4, h-4);
+
+    g.ctx[ctx].fillStyle = "red";
+
+    g.ctx[ctx].fillRect(x+2, y+2, (w-4)*percent, h-4);
   }
 }
 

@@ -64,7 +64,16 @@ export class LoopSelector
       yield u;
     }
   }
+  deleteCurrent(toNext = false)
+  {
+    this.list.splice(this.idx, 1);
+    --this.length;
 
+    if (toNext == false)
+    {
+      -- this.idx;
+    }
+  }
 }
 
 export class QueueSelector

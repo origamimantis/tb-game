@@ -325,3 +325,43 @@ export class UnitContainer extends DrawContainer
     return ret;
   }
 }
+
+export class PanelContainer extends DrawContainer
+{
+  constructor(g)
+  {
+    super();
+    this.g = g;
+  }
+  set(id, val)
+  {
+    val.explicitDraw(this.g);
+    super.set(id, val);
+  }
+  del(id)
+  {
+    this.g.clearCtx(4);
+    super.del(id);
+  }
+  show(id)
+  {
+    this.get(id).explicitDraw(this.g);
+    super.show(id);
+  }
+  hide(id)
+  {
+    this.g.clearCtx(4);
+    super.hide(id);
+  }
+  shift(id)
+  {
+    this.get(id).shift();
+    this.redraw(id);
+  }
+  redraw(id)
+  {
+    this.g.clearCtx(4);
+    this.get(id).explicitDraw(this.g);
+    
+  }
+}

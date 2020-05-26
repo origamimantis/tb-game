@@ -2,6 +2,7 @@
 
 const BANNER_DISPLAY_TIME = 500;
 const BANNER_SPEED = 0.04;
+const BANNER_LAYER = 5;
 
 export class TurnBanner
 {
@@ -64,16 +65,16 @@ export class TurnBanner
   }
   draw(g)
   {
-    let olda = this.g.ctx[4].globalAlpha;
-    let oldf = this.g.ctx[4].fillStyle;
-    this.g.ctx[4].globalAlpha = this.a;
-    this.g.ctx[4].fillStyle = this.bg;
+    let olda = this.g.ctx[BANNER_LAYER].globalAlpha;
+    let oldf = this.g.ctx[BANNER_LAYER].fillStyle;
+    this.g.ctx[BANNER_LAYER].globalAlpha = this.a;
+    this.g.ctx[BANNER_LAYER].fillStyle = this.bg;
 
-    this.g.ctx[4].fillRect(0, 798/6-20, 512, 32+20);
-    this.g.Fonts.drawText(this.g, 4, this.text, {x:this.x*512, y:768/6}, this.tscale, 2);
+    this.g.ctx[BANNER_LAYER].fillRect(0, 798/6-20, 512, 32+20);
+    this.g.Fonts.drawText(this.g, BANNER_LAYER, this.text, this.x*512, 768/6, this.tscale, 2);
 
-    this.g.ctx[4].globalAlpha = olda;
-    this.g.ctx[4].fillStyle = oldf;
+    this.g.ctx[BANNER_LAYER].globalAlpha = olda;
+    this.g.ctx[BANNER_LAYER].fillStyle = oldf;
   }
 
 

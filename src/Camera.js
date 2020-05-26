@@ -225,7 +225,7 @@ class Camera
   {
     return this.adjustedPos(c).y < this.wsize.y/2
   }
-  onTop(c)
+  onBottom(c)
   {
     return this.adjustedPos(c).y >= this.wsize.y/2
   }

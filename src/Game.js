@@ -20,9 +20,9 @@ import {FPS, TICK_RATE} from "./Constants.js";
 import {Camera} from "./Camera.js";
 import {Queue} from "./Queue.js";
 import {MusicPlayer} from "./MusicPlayer.js";
-import {DrawContainer, UnitContainer} from "./DrawContainer.js";
+import {DrawContainer, UnitContainer, PanelContainer} from "./DrawContainer.js";
 import {Inputter, ARROWS, ARROW} from "./Inputter.js";
-import {Panel, SelectionPanel} from "./Panel.js";
+import {Panel, SelectionPanel, UnitMapPanel} from "./Panel.js";
 import {PanelComponent} from "./PanelComponent.js";
 import {Battle} from "./Battle.js";
 //import {SpriteFont} from "./SpriteFont.js";
@@ -35,8 +35,8 @@ import {EnemyController} from "./EnemyController.js";
 import {TurnBanner} from "./TurnBanner.js";
 import {TurnData} from "./TurnData.js";
 
-const C_WIDTH = 1024;
-const C_HEIGHT = 768;
+export const C_WIDTH = 1024;
+export const C_HEIGHT = 768;
 
 const SCALE = 2;
 
@@ -53,6 +53,7 @@ const CURSOR_SPEED = 4;
 const FONTSIZE = "48";
 const FONT = "Times New Roman";
 
+const NUMLAYER = 5;
 
 const TEST_ENABLED = false;
 
@@ -80,6 +81,7 @@ class Game
     }
     
     this.toDraw = new DrawContainer();
+    this.Panels = new PanelContainer(this);
     this.grid = new Coord( gx, gy );
     
     this.cursor = new Cursor(this, 0, 0, CURSOR_SPEED);
@@ -96,13 +98,14 @@ class Game
     this.toDraw.set("map", this.Map);
     this.toDraw.set("Units", this.Units);
     this.toDraw.set("fps", new Panel(420,0, 92, 36, 1, 1000, 0));
-    //this.toDraw.set("fps", new Panel(420,0, 0, 0, 1, 1000, 0));
 
     this.fpsUpdate = [0,0,0,0,0];
     this.fpspanel = new PanelComponent(0, "fps:");
-    this.toDraw.get("fps").addComponent(this.fpspanel, "fps", 0,0);
+    this.toDraw.get("fps").addComponent(this.fpspanel, "fps", 0, 0);
     this.toDraw.toggleVisible("fps");
 
+    this.Panels.set("UMP", new UnitMapPanel());
+    this.Panels.hide("UMP");
     this.toDraw.set("banner", new TurnBanner(this));
     this.temp = {};
     
@@ -141,6 +144,29 @@ class Game
     this.stateAction = {};
     this.initStateAction();
     this.beginGame();
+
+    respondToEvent("cursor_move", (c) =>
+    {
+      this.handlePortrait();
+    });
+  }
+  handlePortrait()
+  {
+    let u = this.Map.getTile(this.cursor).unit;
+    if (u != null)
+    {
+      if (this.camera.onLeft(this.cursor) && this.camera.onTop(this.cursor))
+	this.Panels.get("UMP").shiftAlternate();
+      else
+	this.Panels.get("UMP").shiftOriginal();
+      
+      this.Panels.get("UMP").setInfo(u);
+      this.Panels.show("UMP");
+    }
+    else
+    {
+      this.Panels.hide("UMP");
+    }
   }
   getHostile(team)
   {
@@ -182,7 +208,7 @@ class Game
 	unit.confirmMove(this);
 	unit.endTurn(this);
 
-	this.toDraw.del("selectedUnitActionPanel");
+	this.Panels.del("selectedUnitActionPanel");
 	this.toDraw.del("selectedUnitMovable");
         this.toDraw.del("selectedUnitPath");
 	this.toDraw.del("selectedUnitAttackableTiles");
@@ -211,7 +237,8 @@ class Game
       {
 	  this.temp["selectedUnitAttackCoords"] = new QueueSelector( attackable );
 	  this.toDraw.show("cursor");
-	  this.toDraw.hide("selectedUnitActionPanel");
+	  this.Panels.hide("selectedUnitActionPanel");
+
 	  await this.camera.waitShiftTo(attackable.front());
 	  this.cursor.moveInstant(attackable.front());
       },
@@ -235,6 +262,9 @@ class Game
 	await battle.begin();
 
 	await this.Music.fadestop(this.turn.get().btltheme);
+	
+	this.clearCtx(4);
+
 	this.Music.fadein(this.mapTheme);
 
 	// restore the gamestate
@@ -244,7 +274,7 @@ class Game
 	this.toDraw.del("selectedUnitAttackableTiles");
 	this.toDraw.del("selectedUnitMovable");
 	this.toDraw.del("selectedUnitPath");
-	this.toDraw.del("selectedUnitActionPanel");
+	this.Panels.del("selectedUnitActionPanel");
 
 	// end turn TODO change for canto/other stuff
 	//
@@ -263,7 +293,7 @@ class Game
       cancel:async ()=>
       {
 	await this.setStatus("unitActionSelect");
-	this.toDraw.show("selectedUnitActionPanel");
+	this.Panels.show("selectedUnitActionPanel");
       },
       arrows:async (a)=>
       {
@@ -307,11 +337,13 @@ class Game
 
       select:()=>
       {
-	this.toDraw.get("selectedUnitActionPanel").get().execute();
+	this.Panels.get("selectedUnitActionPanel").get().execute();
       },
       cancel:()=>
       {
-	this.toDraw.del("selectedUnitActionPanel");
+	this.ctx[4].clearRect(0,0,C_WIDTH, C_HEIGHT);
+	this.Panels.del("selectedUnitActionPanel");
+
 	this.toDraw.del("selectedUnitAttackableTiles");
 	
 	this.temp.selectedUnit.revertMove();
@@ -321,7 +353,7 @@ class Game
       },
       arrows:(a)=>
       {
-	scrollSelector(a, this.toDraw.get("selectedUnitActionPanel"));
+	scrollSelector(a, this.Panels.get("selectedUnitActionPanel"));
       }
 
     }
@@ -338,11 +370,14 @@ class Game
 	this.toDraw.show("selectedUnitPath");
 	this.cursor.moveInstant(this.toDraw.get("selectedUnitPath").last());
 	this.toDraw.show("cursor");
+	this.handlePortrait();
       },
     
       select: async ()=>
       {
 	await cursorStop(this.cursor);
+
+	this.clearCtx(4);
 
 	let target = new Coord( this.cursor.x, this.cursor.y );
 	let unitOnTarget = this.Map.getTile(this.toDraw.get("selectedUnitPath").last()).unit;
@@ -368,14 +403,16 @@ class Game
 	  let uActions = this.generateUnitActions(this, this.temp.selectedUnit);
 
 	  let numActions = uActions.length;
-	  this.toDraw.set("selectedUnitActionPanel",
-	    new SelectionPanel(50,50, 20+64,16*numActions+20, 1, numActions, 398, 50, uActions));
-
+	  
+	  let ap = new SelectionPanel(50,50, 20+64,16*numActions+20, 1, numActions, 398, 50, uActions);
+	  
 	  this.temp.cameraPrev = new Coord(this.camera.offset);
 	  if (this.camera.onLeft(this.temp.selectedUnit))
 	  {
-	    this.toDraw.get("selectedUnitActionPanel").shift();
+	    ap.shift();
 	  }
+
+	  this.Panels.set("selectedUnitActionPanel", ap);
 
 	  this.setStatus("unitActionSelect");
 	}
@@ -464,14 +501,14 @@ class Game
 	      this.toDraw.delc("enemyAtackable");
 
 	      // TODO make camera go to original location instead of seeking to cursor's original location
-	      this.toDraw.del("mapActionPanel");
+	      this.Panels.del("mapActionPanel");
 
 	      await this.enemyPhase();
 	    })
 	  ]);
 
 	let numActions = this.temp.mapActions.length;
-	this.toDraw.set("mapActionPanel",
+	this.Panels.set("mapActionPanel",
 	  new SelectionPanel(398,50, 20+64,16*numActions+20, 1, numActions, 398, 50, this.temp.mapActions));
 	this.temp["cursorPrev"] = new Coord(this.cursor.x, this.cursor.y);
 	
@@ -485,7 +522,7 @@ class Game
       
       cancel: ()=>
       {
-	this.toDraw.del("mapActionPanel")
+	this.Panels.del("mapActionPanel")
 
 	this.setStatus("map");
       },
@@ -493,7 +530,8 @@ class Game
       
       arrows: (a) =>
       {
-	scrollSelector(a, this.toDraw.get("mapActionPanel"));
+	scrollSelector(a, this.Panels.get("mapActionPanel"));
+	this.Panels.redraw("mapActionPanel");
       }
     },
     
@@ -508,6 +546,7 @@ class Game
       {
 	this.toDraw.show("cursor");
         this.temp = {};
+	this.handlePortrait();
       },
       
       select: async () =>
@@ -607,10 +646,16 @@ class Game
     let turno = this.turn.get();
     while (turno.turn != "Player")
     {
-      await this.beginTurn(turno);
+      if (this.Units.teams[turno.turn] === undefined)
+      {
+	this.turn.deleteCurrent();
+      }
+      else
+      {
+	await this.beginTurn(turno);
 
-      await this.nonPlayerTurn(turno);
-
+	await this.nonPlayerTurn(turno);
+      }
       this.turn.next();
       turno = this.turn.get();
     }
@@ -621,7 +666,7 @@ class Game
 
     await this.camera.waitShiftTo(this.cursor.vis);
     this.camera.setTarget(this.cursor.vis);
-    
+
     this.cursor.curAnim().reset();
     
     this.setStatus("map");
@@ -681,6 +726,7 @@ class Game
 	await this.Music.fadestop(turndata.btltheme);
 	this.Music.fadein(this.mapTheme);
 
+	this.clearCtx(4);
 
 	// restore the gamestate
 	this.toDraw = this.temp["mapstate"];
@@ -798,7 +844,7 @@ class Game
   {
     // 0: bg, 1: walkable/other effects, 2: units, 3: cursor/effects, 4: hud
     let canv = document.getElementById("canvases");
-    for (let i = 0; i < 5; i++)
+    for (let i = 0; i <= NUMLAYER; i++)
     {
       let can = canv.appendChild(document.createElement("canvas"));
       can.id = "canvas-" + i.toString();
@@ -838,7 +884,7 @@ class Game
   addUnit( unit )
   {
     let curTile = this.Map.getTile(unit.x, unit.y);
-    if ( curTile.unit == null )
+    if ( curTile != null && curTile.unit == null )
     {
       curTile.unit = unit;
       this.Units.addUnit(unit);
@@ -855,11 +901,16 @@ class Game
     {
       curTile.unit = null;
       this.Units.delUnit(unit);
+      // handle removing turnbanner somewhere else
     }
     else
     {
       console.error( "ERROR - attempted to remove unit in position (", unit.x, ", ",unit.y,")!");
     }
+  }
+  clearCtx(n)
+  {
+    this.ctx[n].clearRect(0,0,C_WIDTH, C_HEIGHT);
   }
   draw()
   {
@@ -869,13 +920,14 @@ class Game
     // for each layer, then only draw layers that have it set to true.
     //
     //TODO TODO TODO TODO TODO TODO TODO TODO TODO
-    this.ctx[0].clearRect(0,0,C_WIDTH, C_HEIGHT);
-    this.ctx[1].clearRect(0,0,C_WIDTH, C_HEIGHT);
-    this.ctx[2].clearRect(0,0,C_WIDTH, C_HEIGHT);
-    this.ctx[3].clearRect(0,0,C_WIDTH, C_HEIGHT);
-    this.ctx[4].clearRect(0,0,C_WIDTH, C_HEIGHT);
+    this.clearCtx(0);
+    this.clearCtx(1);
+    this.clearCtx(2);
+    this.clearCtx(3);
+    this.clearCtx(5);
 
     this.toDraw.draw(this);
+    this.Panels.draw(this);
     if (this.turncount % 2 == 0)
     {
       this.ctx[3].fillStyle = "#00008D";
@@ -894,6 +946,7 @@ class Game
 
     this.Inputter.update();
     this.toDraw.update(this);
+    this.Panels.update(this);
     this.camera.update(this);
   }
   mainloop()
@@ -915,7 +968,7 @@ class Game
     this.fpsUpdate.push(this.now - pt);
     let sum = 0;
     this.fpsUpdate.forEach(s => {sum += s});
-    this.fpspanel.setData(0, "FPS " + (5*1000/(sum)).toFixed(2));
+    this.fpspanel.setData("FPS " + (5*1000/(sum)).toFixed(2));
   }
 
 }

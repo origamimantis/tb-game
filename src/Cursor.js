@@ -168,8 +168,7 @@ class Cursor extends AnimatedObject
 	{
 	  this.buf.y = 0;
 	}
-	// trigger an event containing the cursor's position after moving
-	triggerEvent("game_cursorMoveStart", { x: this.x + this.buf.x, y: this.y + this.buf.y });
+	
 	this.triggerMove = false;
 	this.moving = true;
 	await this.moveChain(this.speed);
@@ -177,12 +176,11 @@ class Cursor extends AnimatedObject
 	this.clearMoveBuffer();
 	this.moving = false;
 
-	// trigger an event containing the cursor's current position
-	triggerEvent("game_cursorChange", {x:this.x, y:this.y});
 	if (this.path.onDone)
 	{
 	  this.path.onDone();
 	  delete this.path.onDone;
+	  this.triggerMoveEvent();
 	}
       }
       else
@@ -195,19 +193,18 @@ class Cursor extends AnimatedObject
       let i = this.path.dequeue();
       this.buf.x = i.x;
       this.buf.y = i.y;
-      triggerEvent("game_cursorMoveStart", { x: this.x + this.buf.x, y: this.y + this.buf.y });
+      
       this.moving = true;
       await this.moveChain(this.speed);
 
       this.clearMoveBuffer();
       this.moving = false;
 
-      // trigger an event containing the cursor's current position
-      triggerEvent("game_cursorChange", {x:this.x, y:this.y});
       if (this.path.empty())
       {
 	this.path.onDone();
 	delete this.path.onDone;
+	this.triggerMoveEvent();
       }
     }
   }
@@ -248,8 +245,6 @@ class Cursor extends AnimatedObject
 	  this.vis.x += dx;
 	  this.vis.y += dy;
 	  
-	  // trigger an event containing the cursor's change in position
-	  triggerEvent("game_cursorMovement", {x: dx, y: dy});
 	  await waitTick();
 	  -- framesLeft;
 	}
@@ -261,7 +256,10 @@ class Cursor extends AnimatedObject
       }
     );
   }
-
+  triggerMoveEvent()
+  {
+    triggerEvent("cursor_move", {x:this.x, y:this.y});
+  }
 
   
   draw(g)

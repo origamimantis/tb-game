@@ -7,6 +7,27 @@ import {Queue} from "./Queue.js";
 import {CoordLookup, MapCoordBlob} from "./CoordLookup.js";
 import {ARROW} from "./Inputter.js";
 
+export function formattedHP(hp, max)
+{
+  let s = "HP ";
+  if (hp < 10)
+    s += " ";
+  if (hp < 100)
+    s += hp.toString();
+  else
+    s += "??";
+
+  s += "/";
+  
+  if (max < 10)
+    s += " ";
+  if (max < 100)
+    s += max.toString();
+  else
+    s += "??";
+
+  return s;
+}
 
 export function cursorStop(cur)
 {

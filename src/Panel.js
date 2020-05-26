@@ -12,6 +12,9 @@ export class Panel
   {
     this.x = x;
     this.y = y;
+    this.xo = x;
+    this.yo = y;
+
     this.body = {x: x + EDGEW, y:y+EDGEW};
     this.xa = xalt;
     this.ya = yalt;
@@ -28,15 +31,17 @@ export class Panel
     this.components = {};
   }
 
-  addComponent(comp, name, x, y, sx = 1, sy = 1)
+  // if useGrid: x,y are grid indices; sx,sy are the scale of the component.
+  addComponent(comp, name, x, y, s = 1, sx = 1, sy = 1)
   {
-    if (x >= this.gx || y >= this.gy)
-    {
-      throw "index out of bounds";
-    }
     if (this.components[name] != undefined)
     {
       throw "component on panel already has this name!";
+    }
+
+    if (x >= this.gx || y >= this.gy)
+    {
+      throw "index out of bounds";
     }
     this.components[name] = 
       {
@@ -44,8 +49,10 @@ export class Panel
 	x: this.gsx*x,
 	y: this.gsy*y,
 	sx: sx*this.gsx,
-	sy: sy*this.gsy
+	sy: sy*this.gsy,
+	s: s
       };
+
   }
 
   // the standard 3 (*2) line swap
@@ -58,6 +65,16 @@ export class Panel
     this.xa = xx;
     this.ya = yy;
     this.body = {x: this.x + EDGEW, y:this.y+EDGEW};
+  }
+  shiftOriginal()
+  {
+    if (this.xa == this.xo && this.ya == this.yo)
+      this.shift();
+  }
+  shiftAlternate()
+  {
+    if (this.x == this.xo && this.y == this.yo)
+      this.shift();
   }
 
   drawBase( g )
@@ -85,6 +102,9 @@ export class Panel
 
   draw(g)
   {
+  }
+  explicitDraw(g)
+  {
     this.drawBase(g);
     this.drawComp(g);
   }
@@ -106,7 +126,7 @@ class SelectionPointer
     this.offy = sp.components[sp.get().name].y;
 
     this.offx = 0;
-    this.dx = 0.05;
+    this.dx = 0.06;
   }
   updateY(y)
   {
@@ -131,7 +151,7 @@ class SelectionPointer
   }
   draw(g)
   {
-    g.ctx[4].drawImage(g.Album.get("C_ptr"), this.x - EDGEW + OSCILLATION_AMT*(this.offx- 2), this.y + this.offy);
+    g.ctx[5].drawImage(g.Album.get("C_ptr"), this.x - EDGEW + OSCILLATION_AMT*(this.offx- 2), this.y + this.offy);
   }
 }
 
@@ -146,7 +166,7 @@ export class SelectionPanel extends Panel
     for (let i = 0; i < loopselector.length; ++i)
     {
       let action = loopselector.get().name;
-      this.addComponent( new PanelComponent( PanelType.TEXT, action ), action, 0, i);;
+      this.addComponent( new PanelComponent( PanelType.TEXT, action ), action, 0, i);
       loopselector.next();
     }
 
@@ -156,13 +176,17 @@ export class SelectionPanel extends Panel
   {
     this.ptr.update();
   }
-  draw(g)
+  explicitDraw(g)
   {
     this.drawBase(g);
     let y = this.components[this.get().name].y;
     g.ctx[4].fillStyle = "#9eefff";
     g.ctx[4].fillRect(this.body.x, this.body.y + y + 3, this.w-2*EDGEW, 12)
     this.drawComp(g);
+    this.draw(g);
+  }
+  draw(g)
+  {
     this.ptr.draw(g);
   }
   shift()
@@ -193,4 +217,51 @@ export class SelectionPanel extends Panel
   }
 
 
+}
+
+const UMP_W = 192;
+const UMP_H = 96;
+const UMP_X = 0;
+const UMP_XA = 512-UMP_W;
+const UMP_Y = 0;
+
+import {formattedHP} from "./Utils.js";
+
+export class UnitMapPanel extends Panel
+{
+  constructor()
+  {
+    super(UMP_X, UMP_Y, UMP_W, UMP_H, 1, 1, UMP_XA, UMP_Y);
+    this.addComponent(new PanelComponent(PanelType.ART , "P_gen"), "portrait", 3, 8);
+    this.addComponent(new PanelComponent(PanelType.TEXT, "???"), "name", 80, 8);
+    this.addComponent(new PanelComponent(PanelType.TEXT, "??/??"), "health", 80, 40);
+    this.addComponent(new PanelComponent(PanelType.HEALTHBAR, 1), "healthbar", 80, 60, 1, 86, 10);
+  }
+  setInfo(unit)
+  {
+    this.components.portrait.comp.setData(unit.pArt);
+    this.components.name.comp.setData(unit.name);
+    this.components.health.comp.setData(formattedHP(unit.stats.hp, unit.stats.maxhp));
+    this.components.healthbar.comp.setData(unit.stats.hp / unit.stats.maxhp);
+
+  }
+  addComponent(comp, name, x, y, s = 1, w = null, h = null)
+  {
+    this.components[name] = 
+      {
+	comp: comp,
+	x: x,
+	y: y,
+	w: w,
+	h: h,
+	s: s
+      };
+  }
+  drawComp( g )
+  {
+    for (let o of Object.values(this.components))
+    {
+      o.comp.draw(g, this.body, o, false);
+    }
+  }
 }

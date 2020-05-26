@@ -19,14 +19,14 @@ class Interpreter
     this.g = g;
     this.commands = 
     {
-      ADDUNIT: (id, x, y, alliance = "Player") => {return new Promise( (resolve) =>
+      ADDUNIT: (id, x, y, name = "Unit" + id, alliance = "Player") => {return new Promise( (resolve) =>
       {
 	id = parseInt(id); x = parseInt(x); y = parseInt(y);  
 	
 	// TODO make teams an enum or map or something
 	alliance = alliance[0].toUpperCase() + alliance.slice(1)
 	
-	let u = new Units.SwordKnight(id, x, y, {maxhp:30, atk:10,spd:10,skl:5,def:7,con:4,mov: 7});
+	let u = new Units.SwordKnight(id, x, y, {maxhp:30, atk:10,spd:10,skl:5,def:7,con:4,mov: 7}, name);
 	u.team = alliance;
 	u.setAnim( "idle" );
 	//u.stats.mov = id + 1;

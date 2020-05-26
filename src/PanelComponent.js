@@ -1,12 +1,13 @@
 import {SEP, MAPPER} from "./SpriteFont.js";
 
-export const PanelType = {TEXT : 0, ART : 1};
+export const PanelType = {TEXT : 0, ART : 1, HEALTHBAR : 2};
 
 
 export class PanelComponent
 {
   constructor(type, arg)
   {
+    this.type = type;
     switch (type)
     {
     case PanelType.TEXT:
@@ -15,11 +16,32 @@ export class PanelComponent
       {
 	arg = arg.toString();
       }
-      this.data = arg.split(" ");
       break;
 
     case PanelType.ART:
       this.draw = this.drawArt;
+      break;
+
+    case PanelType.HEALTHBAR:
+      this.draw = this.drawHB;
+      break;
+
+    default:
+      throw "a ball";
+    }
+    this.data = arg;
+  }
+  setData(arg)
+  {
+    switch (this.type)
+    {
+    case PanelType.TEXT:
+      if (typeof arg == "number")
+      {
+	arg = arg.toString();
+      }
+    case PanelType.ART:
+    case PanelType.HEALTHBAR:
       this.data = arg;
       break;
 
@@ -27,7 +49,7 @@ export class PanelComponent
       throw "a ball";
     }
   }
-  setData(type, arg)
+  setDataType(type, arg)
   {
     switch (type)
     {
@@ -37,17 +59,20 @@ export class PanelComponent
       {
 	arg = arg.toString();
       }
-      this.data = arg.split(" ");
       break;
 
     case PanelType.ART:
       this.draw = this.drawArt;
-      this.data = arg;
+      break;
+
+    case PanelType.HEALTHBAR:
+      this.draw = this.drawHB;
       break;
 
     default:
       throw "a ball";
     }
+    this.data = arg;
   }
 
   notes()
@@ -59,55 +84,20 @@ export class PanelComponent
   }
   drawArt(g, off, xy)
   {
-    g.Album.draw(g, 4, this.data, off.x + xy.x, off.y + xy.y, xy.sx, xy.sy);
+    g.Album.draw(g, 4, this.data, off.x + xy.x, off.y + xy.y, xy.w, xy.h);
   }
 
   drawText(g, off, xy)
   {
-    let fsize = 8;
-    let width = Math.floor(xy.sx/fsize);
-    let height = Math.floor(xy.sy/(fsize+SEP));
+    g.Fonts.drawText(g, 4, this.data, off.x+xy.x, off.y+xy.y + 4, xy.s);
+  }
+  drawHB(g, off, xy)
+  {
+    if (xy.w == null)
+      xy.w = 184;
+    if (xy.h == null)
+      xy.h = 10;
 
-    let x = 0;
-    let y = 0;
-
-    for (let u = 0; u < this.data.length; ++u)
-    {
-      for (let t = 0; t < this.data[u].length; ++t)
-      {
-	if (this.data[u][t] == "\n")
-	{
-	  x = 0;
-          ++y;
-	  if (y > height)
-	  {
-	    return;
-	  }
-	  continue;
-	}
-	else
-	{
-	  let k = MAPPER[this.data[u][t]];
-	  if (k && x < width)
-	  {
-	    g.ctx[4].drawImage(g.Fonts.get("F_0"),
-		fsize*k[1], fsize*k[0], fsize, fsize,
-		off.x + xy.x + fsize*x, off.y + xy.y+(fsize+SEP)*y + SEP/2,
-		fsize, fsize);
-	  }
-	  ++x;
-	}
-      }
-      ++x;
-      if (u + 1 < this.data.length && x+this.data[u+1].length > width)
-      {
-	x = 0;
-	++y;
-	if (y > height)
-	{
-	  return;
-	}
-      }
-    }
+    g.Album.drawHealthBar(g, 4, this.data, off.x + xy.x, off.y + xy.y, xy.w, xy.h);
   }
 }
