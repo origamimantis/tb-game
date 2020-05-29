@@ -36,7 +36,11 @@ class Cursor extends AnimatedObject
     this.path = new Queue();
   }
   
-  move( c, onDone )
+  move( c )
+  {
+    return new Promise( (resolve) => {this._move(c, resolve);});
+  }
+  _move( c, onDone )
   {
     if (this.moving == false && (c.x != 0 || c.y != 0))
     {
@@ -45,6 +49,7 @@ class Cursor extends AnimatedObject
       this.triggerMove = true;
       this.path.onDone = onDone;
       this.speed = this.baseSpeed;
+      triggerEvent("sfx_play_cursormove_effect");
     }
   }
   moveTo( c, onDone )

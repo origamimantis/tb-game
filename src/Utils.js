@@ -273,9 +273,11 @@ export function scrollSelector(keys, selector)
       switch (k)
       {
       case ARROW.UP:
+	triggerEvent("sfx_play_cursormove_effect");
 	selector.prev();
 	break;
       case ARROW.DOWN:
+	triggerEvent("sfx_play_cursormove_effect");
 	selector.next();
 	break;
       default:

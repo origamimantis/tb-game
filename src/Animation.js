@@ -67,8 +67,8 @@ class Animation
 
     if (snapGrid == true)
     {
-      x = x*g.grid.x + (g.grid.x - w*s)/2;
-      y = y*g.grid.y + (g.grid.y - h*s)/2;
+      x = x*g.gx + (g.gx - w*s)/2;
+      y = y*g.gy + (g.gy - h*s)/2;
     }
 
     g.ctx[layer].drawImage(img, w*this.curFrame, 0, w, h, x, y, w*s, h*s);

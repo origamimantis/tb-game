@@ -161,8 +161,9 @@ export class Battle
       this.turns.enqueue(new BattlePair(this.sprDef, this.sprIni));
     }
   }
-  begin()
+  begin(music)
   {
+    this.g.Music.play(music);
     this.drawStatics(this.g);
     
     return new Promise( async (resolve) =>
@@ -178,6 +179,10 @@ export class Battle
       }
 
       await waitTime(AFTER_BATTLE_DELAY);
+      await this.g.Music.fadestop(music);
+      
+      this.g.clearCtx(4);
+
       resolve();
     });
   }

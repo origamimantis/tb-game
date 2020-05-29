@@ -240,13 +240,13 @@ export class Queue
     {
       if (g.camera.visible(c))
       {
-	let x = (c.x - off.x)*g.grid.x;
-	let y = (c.y - off.y)*g.grid.y;
+	let x = (c.x - off.x)*g.gx;
+	let y = (c.y - off.y)*g.gy;
 
-	g.ctx[1].drawImage( img, x, y, g.grid.x, g.grid.y);
+	g.ctx[1].drawImage( img, x, y, g.gx, g.gy);
 
 	g.ctx[1].globalAlpha = alph*ALPHA_MAX;
-	g.ctx[1].fillRect(x, y, g.grid.x - 1, g.grid.y - 1);
+	g.ctx[1].fillRect(x, y, g.gx - 1, g.gy - 1);
 	g.ctx[1].globalAlpha = 1;
       }
     }

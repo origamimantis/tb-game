@@ -26,8 +26,9 @@ class MusicPlayer
   constructor()
   {
     this.album = {};
-    respondToEvent("sfx_play_beep_effect", () => {this.play("beep2");});
-    respondToEvent("sfx_play_err_effect", () => {this.play("bad2");});
+    respondToEvent("sfx_play_beep_effect", () => {this.play("beep");});
+    respondToEvent("sfx_play_cursormove_effect", () => {this.play("cbeep");});
+    respondToEvent("sfx_play_err_effect", () => {this.play("errbeep");});
   }
   loadMusic()
   {
@@ -39,10 +40,12 @@ class MusicPlayer
 	await this.load("fght",false);
 	await this.load("fght2",false);
 	await this.load("oss");
+	await this.load("split");
 	await this.load("bad", false, false);
+	await this.load("errbeep", false, false);
 	await this.load("beep", false, false);
+	await this.load("cbeep", false, false);
 	await this.load("bad2", false, false);
-	await this.load("beep2", false, false);
 	await this.load("whack", false, false);
 	resolve();
       }

@@ -64,6 +64,9 @@ class Game
   {
     this.windowx = C_WIDTH/SCALE;
     this.windowy = C_HEIGHT/SCALE;
+    this.gx = GRIDSIZE_X;
+    this.gy = GRIDSIZE_Y;
+
     this.Album = Album;
     this.Music = assets.Music;
     this.Map = assets.Map;
@@ -82,7 +85,6 @@ class Game
     
     this.toDraw = new DrawContainer();
     this.Panels = new PanelContainer(this);
-    this.grid = new Coord( gx, gy );
     
     this.cursor = new Cursor(this, 0, 0, CURSOR_SPEED);
 
@@ -161,7 +163,7 @@ class Game
 	this.Panels.get("UMP").shiftOriginal();
       
       this.Panels.get("UMP").setInfo(u);
-      this.Panels.show("UMP");
+      this.Panels.redraw("UMP");
     }
     else
     {
@@ -245,6 +247,7 @@ class Game
 
       select: async()=>
       {
+	triggerEvent("sfx_play_beep_effect");
         let enemy = this.Map.getTile(this.temp.selectedUnitAttackCoords.get()).unit;
 	// hide everything
 	this.temp["mapstate"] = this.toDraw;
@@ -255,15 +258,10 @@ class Game
 	let battle = new Battle(this, this.temp.selectedUnit, enemy);
 
 	await this.Music.fadeout(this.mapTheme);
-	this.Music.play(this.turn.get().btltheme);
 	
 	this.toDraw = battle;
 
-	await battle.begin();
-
-	await this.Music.fadestop(this.turn.get().btltheme);
-	
-	this.clearCtx(4);
+	await battle.begin(this.turn.get().btltheme);
 
 	this.Music.fadein(this.mapTheme);
 
@@ -337,6 +335,7 @@ class Game
 
       select:()=>
       {
+	triggerEvent("sfx_play_beep_effect");
 	this.Panels.get("selectedUnitActionPanel").get().execute();
       },
       cancel:()=>
@@ -354,6 +353,7 @@ class Game
       arrows:(a)=>
       {
 	scrollSelector(a, this.Panels.get("selectedUnitActionPanel"));
+	this.Panels.redraw("selectedUnitActionPanel");
       }
 
     }
@@ -454,11 +454,9 @@ class Game
 	  // usually outside movable == false. If keypressed, allow it to go outside but only if moves outside
 	  this.cursorOutsideMovable = (this.toDraw.get("selectedUnitMovable")[0]
 				      .doesNotContain(this.cursor.resultOf(delta)));
-	  this.cursor.move(delta, async () =>
-	  {
-	    triggerEvent("sfx_play_cursormove_effect");
-	    await this._arrow_editPath(delta);
-	  });
+
+	  await this.cursor.move(delta);
+	  await this._arrow_editPath(delta);
 	}
 	// if nothing was pressed this tick
 	else if (this.Inputter.accepting == true)
@@ -469,11 +467,9 @@ class Game
 
 	  if (this.cursorOutsideMovable == true || inside)
 	  {
-	    this.cursor.move(delta, async () =>
-	    {
-	      triggerEvent("sfx_play_cursormove_effect");
-	      await this._arrow_editPath(delta);
-	    });
+	    await this.cursor.move(delta);
+	    await this._arrow_editPath(delta);
+	    
 	    if (inside == true)
 	    {
 	      this.cursorOutsideMovable = false;
@@ -492,6 +488,7 @@ class Game
     {
       onBegin: ()=>
       {
+	this.Panels.hide("UMP");
 	// TODO map options might be the same no matter what. See if I can make this constant.
 	this.temp["mapActions"] = new LoopSelector(
 	  [new Action("????????", ()=>{console.log("You clicked the test button!");}),
@@ -517,6 +514,7 @@ class Game
 
       select: async () =>
       {
+	triggerEvent("sfx_play_beep_effect");
 	await this.temp.mapActions.get().execute();
       },
       
@@ -588,7 +586,7 @@ class Game
 	}
       },
 
-      arrows: (a) =>
+      arrows: async (a) =>
       {
 	let delta = new Coord(0,0);
 	
@@ -603,10 +601,8 @@ class Game
 	{
 	  a.held.forEach( (d) => { delta.add( ARROWS[d] );} );
 	}
-	this.cursor.move(delta, () =>
-	{
-	  triggerEvent("sfx_play_cursormove_effect");
-	});
+	
+	this.cursor.move(delta);
       },
 
       cancel: ()=>
@@ -715,18 +711,14 @@ class Game
 	this.toDraw.hide("cursor");
 
 	await this.Music.fadeout(this.mapTheme);
-	this.Music.play(turndata.btltheme);
 
 	this.temp["mapstate"] = this.toDraw;
 
 	this.toDraw = battle;
 
-	await battle.begin();
+	await battle.begin(turndata.btltheme);
 
-	await this.Music.fadestop(turndata.btltheme);
 	this.Music.fadein(this.mapTheme);
-
-	this.clearCtx(4);
 
 	// restore the gamestate
 	this.toDraw = this.temp["mapstate"];
