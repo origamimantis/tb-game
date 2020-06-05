@@ -44,12 +44,12 @@ class Cursor extends AnimatedObject
   {
     if (this.moving == false && (c.x != 0 || c.y != 0))
     {
+      triggerEvent("sfx_play_cursormove_effect");
       this.buf.x += c.x;
       this.buf.y += c.y;
       this.triggerMove = true;
       this.path.onDone = onDone;
       this.speed = this.baseSpeed;
-      triggerEvent("sfx_play_cursormove_effect");
     }
   }
   moveTo( c, onDone )

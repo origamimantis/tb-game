@@ -27,7 +27,7 @@ class MusicPlayer
   {
     this.album = {};
     respondToEvent("sfx_play_beep_effect", () => {this.play("beep");});
-    respondToEvent("sfx_play_cursormove_effect", () => {this.play("cbeep");});
+    respondToEvent("sfx_play_cursormove_effect", () => {this.play("cbeep2");});
     respondToEvent("sfx_play_err_effect", () => {this.play("errbeep");});
   }
   loadMusic()
@@ -44,9 +44,11 @@ class MusicPlayer
 	await this.load("bad", false, false);
 	await this.load("errbeep", false, false);
 	await this.load("beep", false, false);
-	await this.load("cbeep", false, false);
+	await this.load("cbeep2", false, false);
 	await this.load("bad2", false, false);
 	await this.load("whack", false, false);
+	await this.load("FX_slash", false, false);
+	await this.load("FX_unitdeath", false, false);
 	resolve();
       }
     );

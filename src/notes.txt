@@ -1,3 +1,7 @@
+ver0.25 2020-06-04
+some battle sound effects have been updated. No actual
+progress, though.
+
 ver0.24 2020-05-28
 Map and menu sound effects have been added.
 

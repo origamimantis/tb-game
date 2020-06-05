@@ -197,8 +197,7 @@ export class Battle
     atkr.setAnimation("hit");
     await waitTime(500);
     
-    this.sfx.play("whack");
-    await waitTime(220);
+    this.sfx.play("FX_slash");
     // damage here, and remove await on knockback
     let battleOver = attack(this.info[atkr.id], this.info[defr.id], this.turns);
 
@@ -208,12 +207,15 @@ export class Battle
       {
 	if (this.info[id].stats.hp == 0)
 	{
+	  this.sfx.play("FX_unitdeath");
 	  this.g.removeUnit(this.units[id]);
 	}
       }
+      await waitTime(220);
     }
     else
     {
+      await waitTime(220);
       await this.knockBack(atkr, defr, 4)
       await waitTime(720);
     }
