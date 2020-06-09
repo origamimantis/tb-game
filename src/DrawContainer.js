@@ -324,6 +324,35 @@ export class UnitContainer extends DrawContainer
     }
     return ret;
   }
+  draw( g )
+  {
+    for (let thing of Object.values(this.stuff.active))
+    {
+      if (g.camera.visible(thing))
+	thing.draw( g );
+    }
+    for (let thing of Object.values(this.stuff.paused))
+    {
+      if (g.camera.visible(thing))
+	thing.draw( g );
+    }
+  }
+  update(g)
+  {
+    for (let t of Object.values(this.stuff.active))
+    {
+      t.tickAnim();
+      t.update(g);
+    }
+    
+    for (let t of Object.values(this.hidden.active))
+    {
+      t.tickAnim();
+      t.update(g);
+    }
+  }
+
+
 }
 
 export class PanelContainer extends DrawContainer

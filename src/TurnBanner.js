@@ -67,11 +67,14 @@ export class TurnBanner
   {
     let olda = this.g.ctx[BANNER_LAYER].globalAlpha;
     let oldf = this.g.ctx[BANNER_LAYER].fillStyle;
+
     this.g.ctx[BANNER_LAYER].globalAlpha = this.a;
     this.g.ctx[BANNER_LAYER].fillStyle = this.bg;
 
     this.g.ctx[BANNER_LAYER].fillRect(0, 798/6-20, g.windowx, 32+20);
-    this.g.Fonts.drawText(this.g, BANNER_LAYER, this.text, this.x*512, 768/6, this.tscale, 2);
+
+    this.g.setTextProperty(BANNER_LAYER, "#000000", "33px ABCD Mono", "center");
+    this.g.drawText(BANNER_LAYER, this.text, this.x*512, 798/6 - 8);
 
     this.g.ctx[BANNER_LAYER].globalAlpha = olda;
     this.g.ctx[BANNER_LAYER].fillStyle = oldf;

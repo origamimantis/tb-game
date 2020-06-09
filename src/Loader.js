@@ -4,7 +4,6 @@ import {requestFile} from "./Utils.js";
 import {TileMap} from "./TileMap.js";
 import {Album, ImageLoader} from "./Images.js";
 import {MusicPlayer} from "./MusicPlayer.js";
-import {SpriteFont} from "./SpriteFont.js";
 import {ImageModifier} from "./ImageModifier.js";
 import {BattleAnimationAlbum} from "./BattleAnimationAlbum.js";
 
@@ -23,7 +22,6 @@ function load(thingsToLoad)
     let thingy = {
 		  Map : new TileMap(),
 		  Music : new MusicPlayer(),
-		  sf : new SpriteFont()
 		};
 
     return new Promise( async (resolve, reject) => 
@@ -43,9 +41,6 @@ function load(thingsToLoad)
 	ImageModifier.init(Album);
 	ImageModifier.execute(imscript)
 
-	// load images
-	await thingy.sf.loadFont( thingsToLoad.SpriteFont );
-	
 	// TODO make this an argument from main
 	BattleAnimationAlbum.init();
 	await BattleAnimationAlbum.addAnim("anim0", "assets/scripts/anim0.txt");

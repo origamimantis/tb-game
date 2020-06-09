@@ -208,7 +208,6 @@ export class Unit extends AnimatedObject
       let off = g.camera.offset;
       super.draw(g, 2, this.vis.x - off.x, this.vis.y - off.y)
     }
-    super.tickAnim();
   }
   
   movable(g, includeAttackable, draw = true)

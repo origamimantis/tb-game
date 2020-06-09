@@ -39,55 +39,74 @@ class MusicPlayer
 	await this.load("btl_en", false);
 	await this.load("fght",false);
 	await this.load("fght2",false);
+	//await this.load("rfgh");
 	await this.load("oss");
-	await this.load("split");
-	await this.load("bad", false, false);
-	await this.load("errbeep", false, false);
-	await this.load("beep", false, false);
-	await this.load("cbeep2", false, false);
-	await this.load("bad2", false, false);
-	await this.load("whack", false, false);
-	await this.load("FX_slash", false, false);
-	await this.load("FX_unitdeath", false, false);
+	await this.loadFX("bad");
+	await this.loadFX("errbeep");
+	await this.loadFX("beep");
+	await this.loadFX("cbeep2");
+	await this.loadFX("bad2");
+	await this.loadFX("whack");
+	await this.loadFX("FX_slash");
+	await this.loadFX("FX_unitdeath");
 	resolve();
       }
     );
   }
   
-  load( name, intro = true, loops = true)
+  async load( name, intro = true, loops = true)
   {
-    return new Promise ( (resolve, reject) => 
+    this.album[name] = {l:[], fade:null, playing:false};
+
+    let loop = await new Promise ( (resolve, reject) => 
       {
 	let fullname = "assets/music/" + name + (loops ? "_L" : "") + EXT;
 	let s = new WaudSound(fullname,
 	  {
 	    loop: loops,
 	    volume: 0.5,
-	    onload : (intro ? () => {} : () => {console.log(name + " loaded"); resolve();})
-	  }
-	);
-	this.album[name] = {l:[], fade:null};
+	    onload : () => {resolve(s);}
+	  });
+      });
 
-	if (intro)
+    if (intro)
+    {
+      let intro = await new Promise( (resolve) =>
 	{
 	  let i = new WaudSound("assets/music/" + name + "_I" + EXT,
 	    {
 	      loop: false,
 	      volume: 0.5,
-	      onload : () => {console.log(name + " loaded"); resolve();}
-	    }
-	  );
-	  i.onEnd( ()=> {this.album[name].l[1].play() });
-	  this.album[name].l.push(i);
-	}
-	this.album[name].l.push(s);
-      }
-    );
+	      onload : () => {resolve(i);}
+	    })
+	});
+      intro.onEnd( ()=> {if (this.album[name].playing) this.album[name].l[1].play() } );
+      
+      this.album[name].l.push(intro);
+    }
+    this.album[name].l.push(loop);
+    console.log(name + " loaded");
+  }
+  async loadFX( name )
+  {
+    this.album[name] = {l:[], fade:null};
+    let loaded_sound = await new Promise ( (resolve, reject) => {
+	let fullname = "assets/music/" + name + EXT;
+	let s = new WaudSound(fullname,
+	  {
+	    loop: false,
+	    volume: 0.5,
+	    onload : () => {resolve(s);}
+	  });
+      });
+    this.album[name].l.push(loaded_sound);
+    console.log(name + " loaded");
   }
   play( name )
   {
-    this.setVol(name, 0.5)
+    this.album[name].playing = true;
     this.album[name].l[0].play();
+    this.unmute(name);
   }
   unmute( name )
   {
@@ -168,6 +187,7 @@ class MusicPlayer
   }
   stop( name )
   {
+    this.album[name].playing = false;
     for (let a of this.album[name].l)
     {
       a.stop();

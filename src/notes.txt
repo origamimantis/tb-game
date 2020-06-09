@@ -1,3 +1,8 @@
+ver0.26 2020-06-09
+Implemented a better sprite font system (except now it's
+an actual embedded font). Fixed a music looping issue for
+tracks with an intro.
+
 ver0.25 2020-06-04
 some battle sound effects have been updated. No actual
 progress, though.

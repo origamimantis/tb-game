@@ -47,7 +47,6 @@ window.onload = () =>
 		  "C_menuel", "C_menucn"
 		],
       ImgMod : "assets/scripts/imgmod.txt",
-      SpriteFont: [ "F_0" ],
       MapScript : "assets/scripts/test.txt"
     }
   )

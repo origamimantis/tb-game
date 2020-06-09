@@ -95,6 +95,14 @@ class BattlePair
 }
 
 // battle sprites should have frames with dimension 64x64
+//
+//
+
+
+
+const HEALTHTEXT_XL = 40;
+const HEALTHTEXT_XR = WINDOW.X/2 + 40;
+const HEALTHTEXT_Y = 382 - PANELS.HEALTH.HEIGHT/2 + 1;
 
 export class Battle
 {
@@ -249,10 +257,9 @@ export class Battle
     g.Album.drawHealthBar(g, 5, this.info.def.stats.hp/this.info.def.stats.maxhp,
       WINDOW.X/2 + 48, 382 - PANELS.HEALTH.HEIGHT/2);
 
-    g.Fonts.drawText(this.g, 5, this.info.atk.stats.hp.toString(),
-      40, 382 - PANELS.HEALTH.HEIGHT/2, 1,1);
-    g.Fonts.drawText(this.g, 5, this.info.def.stats.hp.toString(),
-      WINDOW.X/2 + 40, 382 - PANELS.HEALTH.HEIGHT/2, 1,1);
+    g.setTextProperty(5, "#000000", "11px ABCD Mono",  "right");
+    g.drawText(5, this.info.atk.stats.hp.toString(), HEALTHTEXT_XL, HEALTHTEXT_Y);
+    g.drawText(5, this.info.def.stats.hp.toString(), HEALTHTEXT_XR, HEALTHTEXT_Y);
   }
   drawStatics(g)
   {

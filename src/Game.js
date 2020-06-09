@@ -25,11 +25,8 @@ import {Inputter, ARROWS, ARROW} from "./Inputter.js";
 import {Panel, SelectionPanel, UnitMapPanel} from "./Panel.js";
 import {PanelComponent} from "./PanelComponent.js";
 import {Battle} from "./Battle.js";
-//import {SpriteFont} from "./SpriteFont.js";
-//import {Tester} from "./Tester.js";
 import {LoopSelector, QueueSelector} from "./LoopSelector.js";
 import {Action} from "./ActionGenerator.js";
-//import {RNG} from "./RNG.js";
 import {scrollSelector, triggerEvent, respondToEvent, getCost, generatePath, nextFrameDo, cursorStop, waitTime} from "./Utils.js";
 import {EnemyController} from "./EnemyController.js";
 import {TurnBanner} from "./TurnBanner.js";
@@ -70,13 +67,12 @@ class Game
     this.Album = Album;
     this.Music = assets.Music;
     this.Map = assets.Map;
-    this.Fonts = assets.sf;
     
     this.ctx = [];
     this.generateCanvasLayers();
   
-    this.turn = new LoopSelector( [ TurnData("Player", "#aaaaff", "btl1","fght2"),
-				    TurnData("Enemy", "red", "btl_en", "fght")    ] );
+    this.turn = new LoopSelector( [ TurnData("Player", "#aaaaff", "btl1",   "fght2"),
+				    TurnData("Enemy",  "#bd4900", "btl_en", "fght" ) ] );
     this.Units = new UnitContainer();
     for (let td of this.turn)
     {
@@ -142,7 +138,7 @@ class Game
       }
     });
     
-    respondToEvent("game_test",  () => {});
+    //respondToEvent("game_test",  () => {this.Music.stop("rfgh")});
     this.stateAction = {};
     this.initStateAction();
     this.beginGame();
@@ -633,6 +629,7 @@ class Game
     await this.toDraw.get("banner").flyBanner(turnData.turn + " Phase", turnData.bannercolor);
 
     this.mapTheme = turnData.maptheme;
+    console.log(this.Music);
     this.Music.play(this.mapTheme);
   }
 
@@ -850,6 +847,8 @@ class Game
       this.ctx[i].imageSmoothingEnabled = false;
       this.ctx[i].scale(SCALE, SCALE);
       this.ctx[i].fillStyle = "white";
+      this.ctx[i].textBaseline = "top";
+      //this.ctx[i]["font-smooth"] = "never";
     }
   }
   blockInput()
@@ -903,6 +902,20 @@ class Game
   clearCtx(n)
   {
     this.ctx[n].clearRect(0,0,C_WIDTH, C_HEIGHT);
+  }
+  setTextProperty(ctx, color=null, font=null, justify=null)
+  {
+    let c = this.ctx[ctx];
+    if (color !== null)
+      c.fillStyle = color;
+    if (font !== null)
+      c.font = font;
+    if (justify !== null)
+      c.textAlign = justify;
+  }
+  drawText(ctx, text, x, y)
+  {
+    let c = this.ctx[ctx].fillText(text, x, y);
   }
   draw()
   {

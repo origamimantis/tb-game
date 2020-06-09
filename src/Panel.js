@@ -176,6 +176,11 @@ export class SelectionPanel extends Panel
   {
     this.ptr.update();
   }
+  drawComp(g)
+  {
+    g.setTextProperty(4, "#000000",  "11px ABCD Mono", "left");
+    super.drawComp(g);
+  }
   explicitDraw(g)
   {
     this.drawBase(g);
@@ -259,6 +264,7 @@ export class UnitMapPanel extends Panel
   }
   drawComp( g )
   {
+    g.setTextProperty(4, "#000000",  "11px ABCD Mono", "left");
     for (let o of Object.values(this.components))
     {
       o.comp.draw(g, this.body, o, false);

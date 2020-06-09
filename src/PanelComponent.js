@@ -89,7 +89,7 @@ export class PanelComponent
 
   drawText(g, off, xy)
   {
-    g.Fonts.drawText(g, 4, this.data, off.x+xy.x, off.y+xy.y + 4, xy.s);
+    g.drawText(4, this.data, off.x+xy.x, off.y+xy.y + 4);
   }
   drawHB(g, off, xy)
   {
