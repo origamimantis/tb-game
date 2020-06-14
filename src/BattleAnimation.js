@@ -77,6 +77,8 @@ export class BattleAnimation
     this.numFrame = parseInt(info.options.frames);
     this.loops = (info.loops == "true");
     this.done = false;
+    this._onHit = null;
+    this._onHit_resolve = null;
     this.onDone = onDone;
 
     this.img = Album.get(info.options.usrc);
@@ -111,6 +113,11 @@ export class BattleAnimation
   {
     g.ctx[layer].drawImage(this.img, this.w*this.curFrame, 0, this.w, this.h, x, y, this.w*s, this.h*s);
   }
+  onHit(f)
+  {
+    this._onHit = f;
+    return new Promise( (resolve) => {this._onHit_resolve = resolve;} );
+  }
   execute( cmd, args)
   {
     switch (cmd)
@@ -135,6 +142,9 @@ export class BattleAnimation
 	  this.execute(cmd2, line.slice(1));
 	}
       }
+      break;
+    case "hit":
+      this._onHit(this._onHit_resolve);
       break;
     case "end":
       this.done = true;

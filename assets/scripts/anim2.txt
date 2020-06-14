@@ -9,6 +9,7 @@ begin
 0 uframe 0 hand 37 26 90
 10 uframe 1 hand 42 7 160
 40 uframe 2 hand 38 24 60
+41 hit
 42 uframe 3 hand 32 30 -30
 40 wframe 1
 48 wframe 0

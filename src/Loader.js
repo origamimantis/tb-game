@@ -46,6 +46,7 @@ function load(thingsToLoad)
 	await BattleAnimationAlbum.addAnim("anim0", "assets/scripts/anim0.txt");
 	await BattleAnimationAlbum.addAnim("anim1", "assets/scripts/anim1.txt");
 	await BattleAnimationAlbum.addAnim("anim2", "assets/scripts/anim2.txt");
+	await BattleAnimationAlbum.addAnim("anim3", "assets/scripts/anim3.txt");
 
 	// load sound library
 	Waud.init();

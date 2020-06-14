@@ -31,6 +31,7 @@ import {scrollSelector, triggerEvent, respondToEvent, getCost, generatePath, nex
 import {EnemyController} from "./EnemyController.js";
 import {TurnBanner} from "./TurnBanner.js";
 import {TurnData} from "./TurnData.js";
+import {EventHandler} from "./EventHandler.js";
 
 export const C_WIDTH = 1024;
 export const C_HEIGHT = 768;
@@ -64,6 +65,12 @@ class Game
     this.gx = GRIDSIZE_X;
     this.gy = GRIDSIZE_Y;
 
+    this.Events = new EventHandler();
+    /*
+    this.Events.addEvent("noEnemies", 0,
+      ()=>{return this.Units.teams["Enemy"] == undefined},
+      ()=>{console.log("HAHAHA")});
+    */
     this.Album = Album;
     this.Music = assets.Music;
     this.Map = assets.Map;
@@ -118,6 +125,9 @@ class Game
 
     respondToEvent("input_arrowStall", (e) =>{ this.Inputter.arrowStall(e.start); });
     respondToEvent("cursor_finishMoveTo", (e) =>{ this.handleArrows = this.arrow_map; });
+    
+    respondToEvent("game_win", (e) =>{ console.log("you won"); } );
+    respondToEvent("game_lose", (e) =>{ console.log("you lost"); } );
 
     respondToEvent("input_select",  async () => 
     {
@@ -624,12 +634,13 @@ class Game
   {
     await this.Music.fadestop(this.mapTheme);
 
+    this.Events.execute();
+
     for (let u of this.Units){ u.turnInit();}
 
     await this.toDraw.get("banner").flyBanner(turnData.turn + " Phase", turnData.bannercolor);
 
     this.mapTheme = turnData.maptheme;
-    console.log(this.Music);
     this.Music.play(this.mapTheme);
   }
 
@@ -653,6 +664,8 @@ class Game
       turno = this.turn.get();
     }
 
+    ++this.turncount;
+
     await this.beginTurn(turno);
 
     this.cursor.moveInstant(this.temp.cursorPrev);
@@ -663,8 +676,6 @@ class Game
     this.cursor.curAnim().reset();
     
     this.setStatus("map");
-    
-    ++this.turncount;
   }
 
 
@@ -925,7 +936,7 @@ class Game
     // for each layer, then only draw layers that have it set to true.
     //
     //TODO TODO TODO TODO TODO TODO TODO TODO TODO
-    this.clearCtx(0);
+    //this.clearCtx(0);
     this.clearCtx(1);
     this.clearCtx(2);
     this.clearCtx(3);

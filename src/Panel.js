@@ -54,6 +54,15 @@ export class Panel
       };
 
   }
+  setComponentData(name, arg)
+  {
+    this.components[name].comp.setData(arg);
+  }
+ 
+  getComponent(name)
+  {
+    return this.components[name].comp;
+  }
 
   // the standard 3 (*2) line swap
   shift()
@@ -109,6 +118,7 @@ export class Panel
     this.drawComp(g);
   }
 }
+
 
 
 const OSCILLATION_AMT = 8;

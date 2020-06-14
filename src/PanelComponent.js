@@ -12,10 +12,6 @@ export class PanelComponent
     {
     case PanelType.TEXT:
       this.draw = this.drawText;
-      if (typeof arg == "number")
-      {
-	arg = arg.toString();
-      }
       break;
 
     case PanelType.ART:

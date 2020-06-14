@@ -1,0 +1,26 @@
+name crt
+type melee
+frames 4
+usrc BS_kn_hit
+wsrc W_sword
+
+begin
+#	        x  y  angle
+0 uframe 0 hand 37 26 90
+10 uframe 1 hand 42 7 160
+40 uframe 2 hand 38 24 60
+40 wframe 1
+43 uframe 3 hand 32 30 -30
+43 wframe 0
+46 uframe 2 hand 38 24 60
+46 wframe 1
+49 uframe 1 hand 42 7 160
+#49 uframe 3 hand 32 30 -30
+49 wframe 0
+52 uframe 2 hand 38 24 60
+52 wframe 1
+52 hit
+55 uframe 3 hand 32 30 -30
+55 wframe 0
+# here, wframe 1 is the slash effect
+60 end

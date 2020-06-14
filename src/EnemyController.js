@@ -39,12 +39,14 @@ export class EnemyController
     let m = movable.toArray();
     let ind = randInt(0, m.length);
     let coord = m[ind];
-    while (this.g.Map.getTile(coord).unit != null)
+    while (coord !== undefined && this.g.Map.getTile(coord).unit != null)
     {
       m.splice(ind, 1);
       ind = randInt(0, m.length);
       coord = m[ind];
     }
+    if (coord === undefined)
+      coord = new Coord(unit);
 
     if (target != null)
     {

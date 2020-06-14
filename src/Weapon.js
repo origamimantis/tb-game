@@ -214,7 +214,7 @@ export class SilverBow extends Bow
 }
 export class BronzeSlicer extends Sword
 {
-    constructor(){ super("Bronze Slicer", 8, 100, 30, [1], 48, [], {}); }
+    constructor(){ super("Bronze Slicer", 8, 70, 30, [1], 48, [], {}); }
 }
 
 export class Sweeper extends Sword

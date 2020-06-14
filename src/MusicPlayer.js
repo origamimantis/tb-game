@@ -48,6 +48,8 @@ class MusicPlayer
 	await this.loadFX("bad2");
 	await this.loadFX("whack");
 	await this.loadFX("FX_slash");
+	await this.loadFX("FX_miss");
+	await this.loadFX("FX_crit");
 	await this.loadFX("FX_unitdeath");
 	resolve();
       }

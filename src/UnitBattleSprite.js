@@ -21,14 +21,15 @@ export class UnitBattleSprite extends BattleSprite
     this.addAnimation("idle","anim0");
     this.addAnimation("run","anim1");
     this.addAnimation("hit","anim2");
+    this.addAnimation("crt","anim3");
     //"hit2", [new BAFrame(10, 0,0,0),new BAFrame(30, 0,0,0),new BAFrame(5, 0,0,0),new BAFrame(35, 0,0,0)]
 
     this.walkFunction = unit.walkFunction;
 
     // TODO make this a property of Unit and pull from that
     this.anims = {
-      melee :{run:"run",hit:"hit",idle:"idle"},
-      ranged :{run:"run",hit:"hit2",idle:"idle"}
+      melee :{run:"run",hit:"hit",crt:"crt",idle:"idle"},
+      ranged :{run:"run",hit:"hit2",crt:"crt2",idle:"idle"}
     };
   }
 
@@ -65,6 +66,10 @@ export class UnitBattleSprite extends BattleSprite
   update()
   {
     super.tickAnim();
+  }
+  onHit(f)
+  {
+    return this.curAnim().onHit(f);
   }
 
   addAnimation( name, lookup )
