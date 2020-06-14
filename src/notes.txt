@@ -1,3 +1,7 @@
+ver0.27 2020-06-14
+Hit and crit rates, damage calculation, better battle
+engine!
+
 ver0.26 2020-06-09
 Implemented a better sprite font system (except now it's
 an actual embedded font). Fixed a music looping issue for

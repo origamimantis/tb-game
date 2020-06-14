@@ -44,7 +44,7 @@ function attack(a_info, d_info, turnqueue)
     let crt_rn = rand();
     let dmg_scale = 1;
 
-    if (crt_rn < effHit)
+    if (crt_rn < effCrt)
     {
       ++ a_info.crts;
       pow *= 1.5;
