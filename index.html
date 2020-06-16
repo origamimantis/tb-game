@@ -6,8 +6,9 @@
     <style>
         canvas {background: white}
 	body {background-color: white}
-	@font-face {font-family: 'ABCD'; src: url('assets/fonts/abcd.ttf') format('trueType');}
 	@font-face {font-family: 'ABCD Mono'; src: url('assets/fonts/abcdmono.ttf') format('trueType');}
+	@font-face {font-family: 'ABCD Mono Bold'; src: url('assets/fonts/abcd-mono-bold.ttf') format('trueType');}
+	@font-face {font-family: 'ABCD'; src: url('assets/fonts/abcd.ttf') format('trueType');}
     </style>
 </head>
 
@@ -15,7 +16,7 @@
 <body>
     <div id="canvases"  width ="1024px" height="768px"></div>
     <object id="notes" type="text/html" data="src/notes.txt" width="500px" height="100px"></object>
-    <div id="controls" type="text/html" width="500px" height="100px">WASD to move.<br>Period (".") to select.<br>Comma (",") to cancel.</div>
+    <div id="controls" type="text/html" width="500px" height="100px">WASD to move.<br>Period (".") to select.<br>Comma (",") to cancel.<br>Slash("/") for unit information.</div>
     <script>
 	    document.getElementById("notes").style["margin-top"]= "790px"
     	    document.getElementById("controls").style["margin-top"]= "-90px"

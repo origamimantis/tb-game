@@ -27,11 +27,13 @@ import {PanelComponent} from "./PanelComponent.js";
 import {Battle} from "./Battle.js";
 import {LoopSelector, QueueSelector} from "./LoopSelector.js";
 import {Action} from "./ActionGenerator.js";
-import {scrollSelector, triggerEvent, respondToEvent, getCost, generatePath, nextFrameDo, cursorStop, waitTime} from "./Utils.js";
+import {scrollSelect_UD, scrollSelect_4W, triggerEvent, respondToEvent,
+  getCost, generatePath, nextFrameDo, cursorStop, waitTime} from "./Utils.js";
 import {EnemyController} from "./EnemyController.js";
 import {TurnBanner} from "./TurnBanner.js";
 import {TurnData} from "./TurnData.js";
 import {EventHandler} from "./EventHandler.js";
+import {UnitInfoScreen} from "./UnitInfoScreen.js";
 
 export const C_WIDTH = 1024;
 export const C_HEIGHT = 768;
@@ -147,6 +149,20 @@ class Game
 	this.unblockInput();
       }
     });
+    respondToEvent("input_inform",  async () => 
+    {
+      if (this.inputting)
+      {
+	let i = this.stateAction[this.gameStatus].inform;
+	if (i !== undefined)
+	{
+	  this.blockInput();
+	  await i();
+	  this.unblockInput();
+	}
+      }
+    });
+
     
     //respondToEvent("game_test",  () => {this.Music.stop("rfgh")});
     this.stateAction = {};
@@ -209,6 +225,17 @@ class Game
 	}));
     }
     
+    let adjacent = unit.adjacentUnits(this.Map, [this.temp.selectedUnit.team]);
+    if (adjacent.nonempty())
+    {
+      // trade TODO
+      p.push( new Action( "trade", () =>
+      {
+	console.log("TODO!");
+      }));
+    }
+
+
 
     // wait
     p.push( new Action( "wait", () =>
@@ -235,12 +262,50 @@ class Game
 
   initStateAction()
   {
-    this.stateAction.unitAttackTargetSelect =
+    /*************************************/
+    /* ACTION UNIT ALLY SELECT           */
+    /*************************************/
+    this.stateAction.unitAllySelect =
     {
+      onBegin: async ( allies )=>
+      {
+	  this.temp["selectedUnitAllySelector"] = new QueueSelector( attackable );
+	  this.toDraw.show("cursor");
+	  this.Panels.hide("selectedUnitActionPanel");
+
+	  await this.camera.waitShiftTo(allies.front());
+	  this.cursor.moveInstant(allies.front());
+      },
+      select: async()=>
+      {
+	triggerEvent("sfx_play_beep_effect");
+        let target = this.Map.getTile(this.temp.selectedUnitAllySelector.get()).unit;
+	await this.temp.allyInteract();
+      },
+
+      cancel:async ()=>
+      {
+	await this.setStatus("unitActionSelect");
+	this.Panels.show("selectedUnitActionPanel");
+      },
+      arrows:async (a)=>
+      {
+	this.blockInput();
+	scrollSelect_4W(a, this.temp.selectedUnitAllySelector);
+	
+	let target = this.temp.selectedUnitAllySelector.get();
+	await this.camera.waitShiftTo(target);
+	this.cursor.moveInstant(target);
+	this.unblockInput();
+      }
+	
+    },
 
     /*************************************/
     /* ACTION UNIT ATTACK TARGET SELECT  */
     /*************************************/
+    this.stateAction.unitAttackTargetSelect =
+    {
       onBegin: async ( attackable )=>
       {
 	  this.temp["selectedUnitAttackCoords"] = new QueueSelector( attackable );
@@ -301,22 +366,9 @@ class Game
       },
       arrows:async (a)=>
       {
-	//scrollSelector(a, this.temp.selectedUnitAttackCoords);
 	this.blockInput();
-	for (let k of a.once)
-	{
-	  switch (k)
-	  {
-	  case ARROW.UP:
-	  case ARROW.LEFT:
-	    this.temp.selectedUnitAttackCoords.prev();
-	    break;
-	  case ARROW.DOWN:
-	  case ARROW.RIGHT:
-	    this.temp.selectedUnitAttackCoords.next();
-	    break;
-	  }
-	}
+	scrollSelect_4W(a, this.temp.selectedUnitAttackCoords);
+	
 	let target = this.temp.selectedUnitAttackCoords.get();
 	await this.camera.waitShiftTo(target);
 	this.cursor.moveInstant(target);
@@ -358,7 +410,7 @@ class Game
       },
       arrows:(a)=>
       {
-	scrollSelector(a, this.Panels.get("selectedUnitActionPanel"));
+	scrollSelect_UD(a, this.Panels.get("selectedUnitActionPanel"));
 	this.Panels.redraw("selectedUnitActionPanel");
       }
 
@@ -534,7 +586,7 @@ class Game
       
       arrows: (a) =>
       {
-	scrollSelector(a, this.Panels.get("mapActionPanel"));
+	scrollSelect_UD(a, this.Panels.get("mapActionPanel"));
 	this.Panels.redraw("mapActionPanel");
       }
     },
@@ -610,7 +662,20 @@ class Game
 	
 	this.cursor.move(delta);
       },
+      inform: async ()=>
+      {
+	await cursorStop(this.cursor);
+        triggerEvent("sfx_play_beep_effect");
+        let unit = this.Map.getTile(this.cursor.x, this.cursor.y).unit;
+        if (unit != null)
+        {
+          this.temp["mapState"] = this.toDraw;
+          this.temp["prevStatus"] = this.gameStatus;
+	  this.toDraw = new UnitInfoScreen(this, unit);
+	  await this.setStatus("other");
+	}
 
+      },
       cancel: ()=>
       {
 	// TODO when i decide to remove this for danger area
@@ -628,6 +693,28 @@ class Game
       cancel:()=>{},
       arrows:(a)=>{}
 
+    }
+
+    /*************************************/
+    /* ACTION OTHER                      */
+    /*************************************/
+    
+    this.stateAction.other = 
+    {
+      onBegin: async ()=>
+      {
+	await this.toDraw.begin( () =>
+	{
+	  this.toDraw = this.temp.mapState;
+	  this.setStatus(this.temp.prevStatus);
+	  delete this.temp.mapState;
+	  delete this.temp.prevStatus;
+	});
+      },
+      select: async () => { await this.toDraw.select(); },
+      arrows: async (a) => { await this.toDraw.arrows(a); },
+      inform: async ()=> { await this.toDraw.inform(); },
+      cancel: async ()=> { await this.toDraw.cancel(); }
     }
   }
   async beginTurn(turnData)
@@ -914,6 +1001,18 @@ class Game
   {
     this.ctx[n].clearRect(0,0,C_WIDTH, C_HEIGHT);
   }
+  setTextColor(ctx, color)
+  {
+    this.ctx[ctx].fillStyle = color;
+  }
+  setTextFont(ctx, font)
+  {
+    this.ctx[ctx].font = font;
+  }
+  setTextJustify(ctx, justify)
+  {
+    this.ctx[ctx].textAlign = justify;
+  }
   setTextProperty(ctx, color=null, font=null, justify=null)
   {
     let c = this.ctx[ctx];
@@ -924,9 +1023,29 @@ class Game
     if (justify !== null)
       c.textAlign = justify;
   }
+  drawImage(ctx, image, x, y, w, h)
+  {
+    if ( w == null || h == null )
+      this.ctx[ctx].drawImage(this.Album.get(image), x, y);
+    else
+      this.ctx[ctx].drawImage(this.Album.get(image), x, y, w, h);
+  }
+
+  drawOutlinedText(ctx, text, x, y, font, incolor, outcolor)
+  {
+    this.setTextFont(ctx, font);
+    this.setTextColor(ctx, incolor);
+    this.drawText(ctx, text, x, y);
+    this.setTextColor(ctx, outcolor);
+    this.strokeText(ctx, text, x, y);
+  }
   drawText(ctx, text, x, y)
   {
-    let c = this.ctx[ctx].fillText(text, x, y);
+    this.ctx[ctx].fillText(text, x, y);
+  }
+  strokeText(ctx, text, x, y)
+  {
+    this.ctx[ctx].strokeText(text, x, y);
   }
   draw()
   {

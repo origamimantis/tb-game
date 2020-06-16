@@ -7,9 +7,22 @@ import {Queue} from "./Queue.js";
 import {CoordLookup, MapCoordBlob} from "./CoordLookup.js";
 import {ARROW} from "./Inputter.js";
 
+export function formattedEXP(exp)
+{
+  let s = "EXP ";
+  if (exp < 10)
+    s += " ";
+  s += hp.toString();
+  s += "/";
+  return s;
+}
+export function leftPad(num, amount)
+{
+  return num.toString().padStart(amount, " ");
+}
 export function formattedHP(hp, max)
 {
-  let s = "HP ";
+  let s = "";
   if (hp < 10)
     s += " ";
   if (hp < 100)
@@ -265,26 +278,43 @@ function all(conditions, param)
 }
 
 
-export function scrollSelector(keys, selector)
+export function scrollSelect_UD(keys, selector)
 {
-
-    for (let k of keys.once)
+  for (let k of keys.once)
+  {
+    switch (k)
     {
-      switch (k)
-      {
-      case ARROW.UP:
-	triggerEvent("sfx_play_cursormove_effect");
-	selector.prev();
-	break;
-      case ARROW.DOWN:
-	triggerEvent("sfx_play_cursormove_effect");
-	selector.next();
-	break;
-      default:
-	triggerEvent("sfx_play_err_effect");
-      }
+    case ARROW.UP:
+      triggerEvent("sfx_play_cursormove_effect");
+      selector.prev();
+      break;
+    case ARROW.DOWN:
+      triggerEvent("sfx_play_cursormove_effect");
+      selector.next();
+      break;
+    default:
+      triggerEvent("sfx_play_err_effect");
     }
+  }
 }
+export function scrollSelect_4W(keys, selector)
+{
+  for (let k of keys.once)
+  {
+    switch (k)
+    {
+    case ARROW.UP:
+    case ARROW.LEFT:
+      selector.prev();
+      break;
+    case ARROW.DOWN:
+    case ARROW.RIGHT:
+      selector.next();
+      break;
+    }
+  }
+}
+
 
 
 export function waitTime(time)

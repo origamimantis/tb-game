@@ -5,7 +5,7 @@ import {Path} from "./Path.js";
 import {Queue} from "./Queue.js";
 import {recolor} from "./UsefulFunctions.js";
 import {Range} from "./Range.js";
-import {TILES} from "./Constants.js";
+import {TILES, UNIT_MAX_WEAP, UNIT_MAX_ITEM} from "./Constants.js";
 import {ImageModifier} from "./ImageModifier.js";
 import {triggerEvent, generatePath, inRange, generateMovable, nextFrameDo, waitTick} from "./Utils.js";
 
@@ -21,6 +21,7 @@ export class Unit extends AnimatedObject
     this.name = name;
     this.classname = classname;
     this.pArt = pArt;
+    this.team;
 
     this.movcost = {};
     this.movcost[TILES.ROAD] = 1;
@@ -30,6 +31,11 @@ export class Unit extends AnimatedObject
     
     this.caps = {};
     this.stats = {};
+    // TODO
+    this.growth = {};
+    this.lvl = 10;
+    this.exp = 99;
+
     for (let s of [ "maxhp","atk","spd","skl","def","con","mov" ])
     {
       this.caps[s] = (caps[s] == undefined) ? 0 : caps[s];
@@ -55,13 +61,17 @@ export class Unit extends AnimatedObject
     this.color = [1, 253, 40];
     
     this.weapons = [];
+    this.items = [];
     this.walkFunction = walkFunction;
     
   }
   
   addWeapon(weap)
   {
-    this.weapons.push(weap);
+    if (this.weapons.length < UNIT_MAX_WEAP)
+      this.weapons.push(weap);
+    else
+      throw new Error("Unit.addWeapon: max weapon amount exceeded.");
   }
   getWeapon()
   {
@@ -210,6 +220,12 @@ export class Unit extends AnimatedObject
     }
   }
   
+  //          g.Map, ["teamname"]
+  adjacentUnits(map, teams)
+  {
+    return inRange(this, [1], "units", map, null, 
+      [(x)=>{return (x !== this && teams.includes(x.team));}]);
+  }
   movable(g, includeAttackable, draw = true)
   {
     let p = generateMovable(g.Map, this.x, this.y, this.getMov(), this.movcost);

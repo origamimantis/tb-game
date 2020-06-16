@@ -8,7 +8,7 @@ import {triggerEvent, respondToEvent, getCost, generatePath} from "./Utils.js";
 
 const SELECT = "Period";
 const CANCEL = "Comma";
-const HMMM = "Slash";
+const INFORM = "Slash";
 
 export const ARROW =  {
 			UP : "KeyW",
@@ -93,6 +93,9 @@ export class Inputter
 	break;
       case CANCEL:
 	triggerEvent("input_cancel");
+	break;
+      case INFORM:
+	triggerEvent("input_inform");
 	break;
       case "KeyX":
 	this.g.toDraw.toggleVisible("fps");

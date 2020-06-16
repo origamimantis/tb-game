@@ -1,3 +1,7 @@
+ver0.28 2020-06-15
+In-progress work on unit profile screen. To see it,
+press slash when the cursor is over a unit.
+
 ver0.27 2020-06-14
 Hit and crit rates, damage calculation, better battle
 engine!

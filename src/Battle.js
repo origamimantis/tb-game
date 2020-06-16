@@ -79,7 +79,7 @@ const PANELS =
     STATS: {HEIGHT: 100, WIDTH:100},
     fish:4
   };
-const WINDOW = {X: 512, Y:384 - PANELS.HEALTH.HEIGHT - PANELS.STATS.HEIGHT};
+const WINDOW = {X: 512, Y:384 - PANELS.HEALTH.HEIGHT - PANELS.STATS.HEIGHT + 10};
 
 class BattleInfo
 {
@@ -212,7 +212,6 @@ export class Battle
 				    g.windowx/2, PANELS.HEALTH.HEIGHT) );
 
     this.statPanels = this.initStatPanels();
-    //this.statPanels.explicitDraw(g);
 
     this.commentPanel = new Panel(PANELS.STATS.WIDTH, g.windowy - PANELS.HEALTH.HEIGHT-PANELS.STATS.HEIGHT,
 				  g.windowx - 2*PANELS.STATS.WIDTH, PANELS.STATS.HEIGHT),
@@ -447,7 +446,9 @@ export class Battle
   }
   drawStatics(g)
   {
-    g.Album.draw(g, 0, "B_backdrop", 0,0, WINDOW.X, WINDOW.Y);
+    g.ctx[0].fillStyle = "#000000";
+    g.ctx[0].fillRect( 0, WINDOW.Y, WINDOW.X, 384);
+    g.Album.draw(g, 0, "B_backdrop", 0, 0, WINDOW.X, WINDOW.Y);
 
     this.healthPanels.explicitDraw(g);
     this.statPanels.explicitDraw(g);

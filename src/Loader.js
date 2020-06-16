@@ -55,6 +55,13 @@ function load(thingsToLoad)
 
 	let script = await requestFile(thingsToLoad.MapScript);
 	script = script.responseText;
+
+	document.fonts.load("11px ABCD Mono");
+	document.fonts.load("11px ABCD Mono Bold");
+	document.fonts.load("16.5px ABCD Mono");
+	document.fonts.load("16.5px ABCD Mono Bold");
+	document.fonts.load("22px ABCD Mono");
+	document.fonts.load("22px ABCD Mono Bold");
 	
 	// "return"
 	resolve({assets: thingy, script: script});
