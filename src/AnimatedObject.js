@@ -31,6 +31,10 @@ class AnimatedObject
     this.curAnim().reset();
     this.curAnim().onDone = onDone;
   }
+  getAnim( name )
+  {
+    return this.animations[name];
+  }
   draw( g, ctx, x = this.x, y = this.y, s = 1, snapGrid = true)
   {
     this.curAnim().draw(g, ctx, x, y, s, snapGrid);

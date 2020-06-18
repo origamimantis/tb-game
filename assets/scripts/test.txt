@@ -1,20 +1,54 @@
-ADDUNIT 0 0 0 Leploss
-ADDUNIT 1 0 2 Pythagris
-ADDUNIT 2 1 6 Oylir
-ADDUNIT 3 2 4 Kouchi
-ADDUNIT 4 19 3 Gowse
-ADDUNIT 5 7 7 Rimun
-ADDUNIT 6 9 9 Paskell
-ADDUNIT 7 3 18 Kantoor
-ADDUNIT 8 8 8 Forayor
-ADDUNIT 9 9 7 Birnoole
+ADDUNIT 0 0 0 Leploss SwordKnight
+GIVEWPN 0 BronzeSlicer
+GIVEWPN 0 BronzeSlicer
+GIVEWPN 0 BronzeSlicer
+GIVEWPN 0 BraveSword
+GIVEWPN 0 BraveSword
+GIVEWPN 0 VampireFang
+GIVEWPN 0 BraveSword
+GIVEWPN 0 BronzeSlicer
+GIVEITM 0 Bandages
+GIVEITM 0 Bandages
 
-ADDUNIT 10 17 18 Russel enemy
-ADDUNIT 11 16 22 Galloy enemy
-ADDUNIT 12 12 8 Emmla enemy
-ADDUNIT 13 14 4 Oroclary enemy
-ADDUNIT 14 12 4 Eorthem enemy
-ADDUNIT 15 12 20 Hermitt enemy
+ADDUNIT 1 0 2 Pythagris SwordKnight
+GIVEWPN 1 BronzeSlicer
+
+ADDUNIT 2 1 6 Oylir SwordKnight
+GIVEWPN 2 BronzeSlicer
+
+ADDUNIT 3 2 4 Kouchi SwordKnight
+GIVEWPN 3 BronzeSlicer
+
+ADDUNIT 4 19 3 Gowse SwordKnight
+GIVEWPN 4 BronzeSlicer
+
+ADDUNIT 5 7 7 Rimun SwordKnight
+GIVEWPN 5 BronzeSlicer
+
+ADDUNIT 6 9 9 Paskell SwordKnight
+GIVEWPN 6 BronzeSlicer
+
+ADDUNIT 7 3 18 Kantoor SwordKnight
+GIVEWPN 7 BronzeSlicer
+
+ADDUNIT 8 8 8 Forayor SwordKnight
+GIVEWPN 8 BronzeSlicer
+
+ADDUNIT 9 9 7 Birnoole Vampire
+GIVEWPN 9 VampireFang
+
+ADDUNIT 10 17 18 Russel SwordKnight enemy
+GIVEWPN 10 BronzeSlicer
+ADDUNIT 11 16 22 Galloy SwordKnight enemy
+GIVEWPN 11 BraveSword
+ADDUNIT 12 13 6 Emmla SwordKnight enemy
+GIVEWPN 12 BraveSword
+ADDUNIT 13 14 4 Oroclary SwordKnight enemy
+GIVEWPN 13 BronzeSlicer
+ADDUNIT 14 12 4 Eorthem SwordKnight enemy
+GIVEWPN 14 BronzeSlicer
+ADDUNIT 15 12 20 Hermitt SwordKnight enemy
+GIVEWPN 15 BraveSword
 
 COLORUNIT 0 100 100 250
 COLORUNIT 1 100 100 250

@@ -13,6 +13,7 @@ export class Weapon
 	this.hit = hit;
 	this.crt = crit;
 	this.range = new Range(...range);
+	this.maxUses = uses;
 	this.uses = uses;
 	this.effects = effects.slice(0);
 	this.bonus = statbon;
@@ -48,7 +49,22 @@ export class WeaponSprite
 {
   constructor(img, animations, moveRange, handx, handy, numAnim, updateFunc)
   {
-    this.image = Album.get(img);
+    if (img !== null)
+    {
+      this.image = Album.get(img);
+      this.numAnim = numAnim;
+      this.curAnim = 0;
+      this.w = this.image.width/numAnim;
+      this.h = this.image.height;
+    }
+    else
+    {
+      this.image = null;
+      this.numAnim = 0;
+      this.curAnim = null;
+      this.w = 0;
+      this.h = 0;
+    }
     this.animType = animations;
     this.moveRange = moveRange;
     this.update = updateFunc;
@@ -57,11 +73,8 @@ export class WeaponSprite
     this.x = 0;
     this.y = 0;
     this.a = 0;
-    
-    this.numAnim = numAnim;
-    this.curAnim = 0;
-    this.w = this.image.width/numAnim;
-    this.h = this.image.height;
+      
+
   }
 }
 
@@ -69,15 +82,7 @@ class NoWeapon_Sprite extends WeaponSprite
 {
   constructor()
   {
-    super("W_sword", "melee", {min: 15, max:40}, 3, 3, 1,
-      (unit, state) =>
-      {
-	let hand = unit.curAnim().weights[unit.curFrame()];
-	this.x = unit.x + hand.x;
-	this.y = unit.y + hand.y
-	this.a = hand.a;
-      }
-    );
+    super(null, "melee", {min: 15, max:40}, 3, 3, 1, (unit, state) =>{});
   }
 }
 
@@ -120,12 +125,17 @@ export class Spook extends Weapon
     return new Spook_Sprite();
   }
 }
+
 export class VampireFang extends Weapon
 {
-    constructor()
-    {
-	super("Vampire Fang", 18, 85, 20, [1], 80, ["vampiric"], {}, [],[],[]);
-    }
+  constructor()
+  {
+    super("Vampire Fang", 18, 85, 20, [1], 80, ["vampiric"], {}, [],[],[]);
+  }
+  sprite()
+  {
+    return new NoWeapon_Sprite();
+  }
 }
 export class Bow extends Weapon
 {

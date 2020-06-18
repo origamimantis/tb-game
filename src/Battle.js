@@ -17,10 +17,10 @@ function rand()
   return Math.random()*100;
 }
 
-function attack(a_info, d_info, turnqueue)
+function attack(a, d, turnqueue)
 {
-  let a_stats = a_info.stats;
-  let d_stats = d_info.stats;
+  let a_stats = a.stats;
+  let d_stats = d.stats;
 
   let a_hp = a_stats.hp;
   let d_hp = d_stats.hp;
@@ -30,31 +30,39 @@ function attack(a_info, d_info, turnqueue)
   let crit = false;
   let miss = false;
 
-  let effHit = a_info.effHit(d_info);
-  let effCrt = a_info.effCrt(d_info);
+  let effHit = a.effHit(d);
+  let effCrt = a.effCrt(d);
 
-  ++ a_info.atks;
+  ++ a.atks;
 
   let hit_rn = rand();
   if (hit_rn < effHit)
   {
-    ++ a_info.hits;
-    let pow = a_info.stats.atk;
-    let def = d_info.stats.def;
+    ++ a.hits;
+    let pow = a_stats.atk;
+    let def = d_stats.def;
     let crt_rn = rand();
     let dmg_scale = 1;
 
     if (crt_rn < effCrt)
     {
-      ++ a_info.crts;
+      ++ a.crts;
       pow *= 1.5;
       dmg_scale = 1.5;
       crit = true;
     }
 
     let dmg = dmg_scale*(pow - def);
+    [ d_hp, dmg ] = dealDamage(dmg, d_hp, d.stats.maxhp);
     d_dmg = (dmg > 0);
-    d_hp -= dmg;
+
+    if (a.hasSkill("vampiric"))
+    {
+      let heal = - Math.floor(dmg/2);
+      [ a_hp, heal ] = dealDamage(heal, a_hp, a.stats.maxhp);
+      a_dmg = ( heal > 0 );
+    }
+    // TODO: non-lethal recoil
   }
   else
     miss = true;
@@ -69,6 +77,13 @@ function attack(a_info, d_info, turnqueue)
 	  crit: crit,
 	  miss: miss
 	 };
+}
+
+function dealDamage(dmg, hp, maxhp)
+{
+  let new_hp = Math.max(0, Math.min( maxhp, hp - dmg ) );
+  dmg = hp - new_hp;
+  return [new_hp, dmg];
 }
 
 
@@ -378,9 +393,10 @@ export class Battle
   {
     return new Promise( async (resolve)=>
       {
-	while (target.stats.hp > finalAmount)
+	let dh = Math.sign(finalAmount - target.stats.hp)
+	while (target.stats.hp != finalAmount)
 	{
-	  --target.stats.hp;
+	  target.stats.hp += dh;
 	  await waitTick();
 	}
 	resolve();

@@ -78,6 +78,7 @@ class Game
     this.Map = assets.Map;
     
     this.ctx = [];
+    this.ctx_refresh = [1,2,3,5];
     this.generateCanvasLayers();
   
     this.turn = new LoopSelector( [ TurnData("Player", "#aaaaff", "btl1",   "fght2"),
@@ -410,8 +411,8 @@ class Game
       },
       arrows:(a)=>
       {
-	scrollSelect_UD(a, this.Panels.get("selectedUnitActionPanel"));
-	this.Panels.redraw("selectedUnitActionPanel");
+	if (scrollSelect_UD(a, this.Panels.get("selectedUnitActionPanel")))
+	  this.Panels.redraw("selectedUnitActionPanel");
       }
 
     }
@@ -586,8 +587,8 @@ class Game
       
       arrows: (a) =>
       {
-	scrollSelect_UD(a, this.Panels.get("mapActionPanel"));
-	this.Panels.redraw("mapActionPanel");
+	if (scrollSelect_UD(a, this.Panels.get("mapActionPanel")))
+	  this.Panels.redraw("mapActionPanel");
       }
     },
     
@@ -1039,9 +1040,9 @@ class Game
     this.setTextColor(ctx, outcolor);
     this.strokeText(ctx, text, x, y);
   }
-  drawText(ctx, text, x, y)
+  drawText(ctx, text, x, y, maxWidth = undefined)
   {
-    this.ctx[ctx].fillText(text, x, y);
+    this.ctx[ctx].fillText(text, x, y, maxWidth);
   }
   strokeText(ctx, text, x, y)
   {
@@ -1055,15 +1056,12 @@ class Game
     // for each layer, then only draw layers that have it set to true.
     //
     //TODO TODO TODO TODO TODO TODO TODO TODO TODO
-    //this.clearCtx(0);
-    this.clearCtx(1);
-    this.clearCtx(2);
-    this.clearCtx(3);
-    this.clearCtx(5);
+    for (let c of this.ctx_refresh)
+      this.clearCtx(c);
 
     this.toDraw.draw(this);
     this.Panels.draw(this);
-    if (this.turncount % 2 == 0)
+    if (this.turncount % 2 == 0 && this.gameStatus != "other")
     {
       this.ctx[3].fillStyle = "#00008D";
       this.ctx[3].globalAlpha = 0.3;

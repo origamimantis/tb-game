@@ -48,13 +48,16 @@ export class UnitBattleSprite extends BattleSprite
 
     this.curAnim().draw(g, 3, this.x, this.y, 1, false);
     
-    let rad = -this.ws.a*Math.PI/180;
-    c.translate(this.ws.x, this.ws.y);
-    c.rotate(rad);
-    c.drawImage(wimg, this.ws.curAnim*this.ws.w, 0, this.ws.w, this.ws.h,
-		      -this.ws.hx, -this.ws.hy, this.ws.w, this.ws.h );
-    c.rotate(-rad);
-    c.translate(-this.ws.x, -this.ws.y);
+    if (wimg !== null)
+    {
+      let rad = -this.ws.a*Math.PI/180;
+      c.translate(this.ws.x, this.ws.y);
+      c.rotate(rad);
+      c.drawImage(wimg, this.ws.curAnim*this.ws.w, 0, this.ws.w, this.ws.h,
+			-this.ws.hx, -this.ws.hy, this.ws.w, this.ws.h );
+      c.rotate(-rad);
+      c.translate(-this.ws.x, -this.ws.y);
+    }
 
     if (this.id == "def")
     {

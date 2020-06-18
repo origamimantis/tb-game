@@ -7,5 +7,7 @@ export const TILES = { ROAD : "0",
                 ENEMY : "E"
 	      }
 
-export const UNIT_MAX_WEAP = 5;
-export const UNIT_MAX_ITEM = 5;
+export const UNIT_MAX_WEAP = 8;
+export const UNIT_MAX_ITEM = 8;
+
+export const STATS = [ "maxhp","atk","spd","skl","def","con","mov" ];

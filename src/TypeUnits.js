@@ -2,11 +2,11 @@
 
 import {Unit} from "./Unit.js";
 import {Animation} from "./Animation.js";
-import * as Walk from "./BattleAnimations.js";
+import * as Walk from "./BattleWalkAnimation.js";
 
 export class Leader extends Unit
 {
-    constructor(g, id, x,y, stats, name = "Unit "+id)
+    constructor(id, x,y, stats, name = "Unit "+id)
     {
 	let caps =
 	    { "maxhp":90,
@@ -18,8 +18,8 @@ export class Leader extends Unit
 		"mov":20
 	    };
 	let classname = "Sword Knight";
-	super( g, id, x, y, caps, stats, name, classname, "P_lead");
-	this.addAnim(0, new Animation( g, "S_lead1", [20,10,20,10], true) );
+	super( id, x, y, caps, stats, name, classname, "P_lead");
+	this.addAnim(0, new Animation( "S_lead1", [20,10,20,10], true) );
 	this.turnInit();
 	this.g.addUnit(this);
     }
@@ -40,7 +40,7 @@ export class SwordKnight extends Unit
 		"mov":10
 	    };
 	let classname = "Sword Knight";
-	super( id, x, y, caps, stats, name, classname, "P_kn", Walk.SwordKnight);
+	super( id, x, y, caps, stats, name, classname, "P_kn", Walk.walkMelee);
 	
 	this.addAnim("idle", new Animation( "S_kn1", [20,10,20,10], true) );
 	this.addAnim("wait", new Animation( "S_kn1_wait", [100,100,100,100], false) );
@@ -48,7 +48,7 @@ export class SwordKnight extends Unit
 }
 export class BowKnight extends Unit
 {
-    constructor(g, id, x,y, stats, name = "Unit "+id)
+    constructor(id, x,y, stats, name = "Unit "+id)
     {
 	let caps =
 	    { "maxhp":60,
@@ -60,8 +60,8 @@ export class BowKnight extends Unit
 		"mov":10
 	    };
 	let classname = "Bow Knight";
-	super( g, id, x, y, caps, stats, name, classname, "P_kn");
-	this.addAnim(0, new Animation( g, "S_kn4", [20,10,20,10], true) );
+	super( id, x, y, caps, stats, name, classname, "P_kn");
+	this.addAnim(0, new Animation( "S_kn4", [20,10,20,10], true) );
 	this.turnInit();
 	this.g.addUnit(this);
     }
@@ -69,7 +69,7 @@ export class BowKnight extends Unit
 
 export class LanceKnight extends Unit
 {
-    constructor(g, id, x,y, stats, name = "Unit "+id)
+    constructor(id, x,y, stats, name = "Unit "+id)
     {
 	let caps =
 	    { "maxhp":60,
@@ -81,8 +81,8 @@ export class LanceKnight extends Unit
 		"mov":10
 	    };
 	let classname = "Lance Knight";
-	super( g, id, x, y, caps, stats, name, classname, "P_kn");
-	this.addAnim(0, new Animation( g, "S_kn0", [20,10,20,10], true) );
+	super( id, x, y, caps, stats, name, classname, "P_kn");
+	this.addAnim(0, new Animation( "S_kn0", [20,10,20,10], true) );
 	this.turnInit();
 	this.g.addUnit(this);
     }
@@ -90,7 +90,7 @@ export class LanceKnight extends Unit
 
 export class Janitor extends Unit
 {
-    constructor(g, id, x,y, stats, name = "Unit "+id)
+    constructor(id, x,y, stats, name = "Unit "+id)
     {
 	let caps =
 	    { "maxhp":85,
@@ -102,8 +102,8 @@ export class Janitor extends Unit
 		"mov":12
 	    };
 	let classname = "Janitor";
-	super( g, id, x, y, caps, stats, name, classname, "P_kn");
-	this.addAnim(0, new Animation( g, "S_kn0", [20,10,20,10], true) );
+	super( id, x, y, caps, stats, name, classname, "P_kn");
+	this.addAnim(0, new Animation( "S_kn0", [20,10,20,10], true) );
 	this.turnInit();
 	this.g.addUnit(this);
     }
@@ -113,7 +113,7 @@ export class Janitor extends Unit
 
 export class AxeKnight extends Unit
 {
-    constructor(g, id, x,y, stats, name = "Unit "+id)
+    constructor(id, x,y, stats, name = "Unit "+id)
     {
 	let caps =
 	    { "maxhp":60,
@@ -125,8 +125,8 @@ export class AxeKnight extends Unit
 		"mov":10
 	    };
 	let classname = "Axe Knight";
-	super( g, id, x, y, caps, stats, name, classname, "P_kn");
-	this.addAnim(0, new Animation( g, "S_kn2", [20,10,20,10], true) );
+	super( id, x, y, caps, stats, name, classname, "P_kn");
+	this.addAnim(0, new Animation( "S_kn2", [20,10,20,10], true) );
 	this.turnInit();
 	this.g.addUnit(this);
     }
@@ -134,7 +134,7 @@ export class AxeKnight extends Unit
 
 export class HeavySwordKnight extends Unit
 {
-    constructor(g, id, x,y, stats, name = "Unit "+id)
+    constructor(id, x,y, stats, name = "Unit "+id)
     {
 	let caps =
 	    { "maxhp":80,
@@ -146,8 +146,8 @@ export class HeavySwordKnight extends Unit
 		"mov":8
 	    };
 	let classname = "Sword Knight";
-	super( g, id, x, y, caps, stats, name, classname, "P_kna");
-	this.addAnim(0, new Animation( g, "S_kna0", [20,10,20,10], true) );
+	super( id, x, y, caps, stats, name, classname, "P_kna");
+	this.addAnim(0, new Animation( "S_kna0", [20,10,20,10], true) );
 	this.turnInit();
 	this.g.addUnit(this);
     }
@@ -156,7 +156,7 @@ export class HeavySwordKnight extends Unit
 
 export class Vampire extends Unit
 {
-    constructor(g, id, x,y, stats, name = "Unit "+id)
+    constructor(id, x,y, stats, name = "Unit "+id)
     {
 	let caps =
 	    { "maxhp":80,
@@ -168,10 +168,11 @@ export class Vampire extends Unit
 		"mov":12
 	    };
 	let classname = "Vampire";
-	super( g, id, x, y, caps, stats, name, classname, "P_vmp");
-	this.addAnim(0, new Animation( g, "S_vmp0", [20,10,20,10], true) );
-	this.turnInit();
-	this.g.addUnit(this);
+	super( id, x, y, caps, stats, name, classname, "P_vmp", Walk.walkMelee);
+
+	this.addAnim("idle", new Animation( "S_vmp0", [20,10,20,10], true) );
+	this.addAnim("wait", new Animation( "S_vmp0_wait", [100,100,100,100], false) );
+	//this.addAnim(0, new Animation( "S_vmp0", [20,10,20,10], true) );
     }
 }
 
@@ -179,7 +180,7 @@ export class Vampire extends Unit
 
 export class Horseman extends Unit
 {
-    constructor(g, id, x,y, stats, name = "Unit "+id)
+    constructor(id, x,y, stats, name = "Unit "+id)
     {
 	let caps =
 	    { "maxhp":45,
@@ -191,8 +192,8 @@ export class Horseman extends Unit
 		"mov":20
 	    };
 	let classname = "Horseman";
-	super( g, id, x, y, caps, stats, name, classname, "P_kn");
-	this.addAnim(0, new Animation( g, "S_knh0", [10,10,10,10,10,10], true) );
+	super( id, x, y, caps, stats, name, classname, "P_kn");
+	this.addAnim(0, new Animation( "S_knh0", [10,10,10,10,10,10], true) );
 	this.turnInit();
 	this.g.addUnit(this);
     }
@@ -201,7 +202,7 @@ export class Horseman extends Unit
 
 export class Cavalier extends Unit
 {
-    constructor(g, id, x,y, stats, name = "Unit "+id)
+    constructor(id, x,y, stats, name = "Unit "+id)
     {
 	let caps =
 	    { "maxhp":50,
@@ -213,8 +214,8 @@ export class Cavalier extends Unit
 		"mov":25
 	    };
 	let classname = "Cavalier";
-	super( g, id, x, y, caps, stats, name, classname, "P_kn");
-	this.addAnim(0, new Animation( g, "S_knh0", [10,10,10,10,10,10], true) );
+	super( id, x, y, caps, stats, name, classname, "P_kn");
+	this.addAnim(0, new Animation( "S_knh0", [10,10,10,10,10,10], true) );
 	this.turnInit();
 	this.g.addUnit(this);
     }

@@ -9,6 +9,7 @@ import {AnimFrame} from "./AnimFrame.js";
 import {Interpreter} from "./Interpreter.js";
 import {ImageModifier} from "./ImageModifier.js";
 import {PathFinder} from "./PathFinder.js";
+import {toggleLog} from "./Inputter.js";
 
 let interpreter;
 let game;
@@ -22,9 +23,10 @@ console.execute = console.exe;
 
 console.game = function()
 {
-  console.log(game);
+  return game;
 }
 
+console.inputlog = toggleLog;
 
 window.onload = () =>
 {
@@ -32,16 +34,18 @@ window.onload = () =>
   (
     {
       MapPath : "assets/tilemaps/lvl3.txt",
-      ImgLoad : [ "P_gen", "P_kn", "P_janitor",
+      ImgLoad : [ "P_gen", "P_kn", "P_janitor", "P_vmp",
 		  "T_grass_forest_B", "T_grass_forest_M", "T_grass_forest_T", 
 		  "T_grass",
 		   "T_wall_B", "T_wall_BR",
 		  "T_wall_EL", "T_wall_ER", "T_wall_TL", "T_wall_TR",
 		  "T_field", "T_field_tree",
-		  "S_kn0", "S_kn1", "S_lead1",
+		  "S_kn0", "S_kn1", "S_lead1", "S_vmp0",
 		  "BS_kn_run", "BS_kn_hit", "BS_kn_idle", "BS_kn_hit2",
 		  "B_backdrop",
 		  "W_spook", "W_stick", "W_sword",
+		  "WT_BronzeSlicer", "WT_VampireFang", "WT_BraveSword",
+		  "IT_Bandages",
 		  "C_c0", "C_ptr", "C_move", "C_walk", "C_atk",
 		  "C_menutl",
 		  "C_menuel", "C_menucn"

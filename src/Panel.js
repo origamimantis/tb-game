@@ -134,17 +134,17 @@ export class Panel
 
 const OSCILLATION_AMT = 8;
 
-class SelectionPointer
+export class SelectionPointer
 {
-  constructor(sp)
+  constructor(sp, xoff = 0)
   {
     this.panel = sp;
-    this.x = sp.x + EDGEW;
+    this.x = sp.x + EDGEW + xoff;
     this.y = sp.y + EDGEW;
-    this.xa = sp.xa + EDGEW;
+    this.xa = sp.xa + EDGEW + xoff;
     this.ya = sp.ya + EDGEW;
     
-    this.offy = sp.components[sp.get().name].y;
+    this.offy = 0;
 
     this.offx = 0;
     this.dx = 0.06;
@@ -170,9 +170,9 @@ class SelectionPointer
       this.dx *= -1;
     }
   }
-  draw(g)
+  draw(g, ctx = 5)
   {
-    g.ctx[5].drawImage(g.Album.get("C_ptr"), this.x - EDGEW + OSCILLATION_AMT*(this.offx- 2), this.y + this.offy);
+    g.ctx[ctx].drawImage(g.Album.get("C_ptr"), this.x - EDGEW + OSCILLATION_AMT*(this.offx- 2), this.y + this.offy);
   }
 }
 
@@ -192,6 +192,10 @@ export class SelectionPanel extends Panel
     }
 
     this.ptr = new SelectionPointer(this);
+  }
+  nonempty()
+  {
+    return (this._ls.length > 0);
   }
   update()
   {
@@ -241,9 +245,83 @@ export class SelectionPanel extends Panel
     this._ls.reset();
     this.ptr.updateY(this.components[this.get().name].y);
   }
-
-
 }
+
+export class UnitProfileItemPanel extends Panel
+{
+  constructor( x, y, w, h, loopselector, artPrefix, amtFunction)
+  {
+    super(x, y, w, h);
+    this._ls = loopselector;
+    this.artP = artPrefix;
+    this.amtF = amtFunction;
+    
+    this.ptr = new SelectionPointer(this, 16);
+    this.ptr.updateY(0);
+  }
+  nonempty()
+  {
+    return (this._ls.length > 0);
+  }
+  shift(){}
+  update()
+  {
+    this.ptr.update();
+  }
+  explicitDraw(g, ctx, eqIdx, drawSelection)
+  {
+    this.drawBase(g, ctx);
+    if (drawSelection)
+    {
+      g.ctx[ctx].fillStyle = "#9eefff";
+      g.ctx[ctx].fillRect(this.x + 20, this.y + 14 + 24*this._ls.idx, this.w-40, 16)
+    }
+    g.setTextJustify(ctx, "left");
+    if (eqIdx != -1)
+    {
+      g.drawOutlinedText(ctx, "E", this.x + this.w - 24, 58 + 24 * eqIdx,
+	"11px ABCD Mono Bold", "#4bdfcf","#000000");
+    }
+    g.setTextColor(ctx, "#000000");
+    g.setTextFont(ctx, "16.5px ABCD Mono");
+    let l = this._ls.list;
+    for (let i = 0; i < l.length; ++i)
+    {
+      g.setTextJustify(ctx, "left");
+      g.drawImage(ctx, this.artP + l[i].constructor.name , this.x + 32, this.y + 14 + 24*i, 16, 16);
+      g.drawText(ctx, l[i].name, this.x + 54, this.y + 16 + 24*i);
+      g.setTextJustify(ctx, "right");
+      g.drawText(ctx, this.amtF(l[i]), this.x + this.w - 32 , 56 + 24*i);
+    }
+  }
+  draw(g, ctx)
+  {
+    this.ptr.draw(g, ctx);
+  }
+  
+  // functionality of *Selector here since no multiple inheritance
+  next()
+  {
+    this._ls.next();
+    this.ptr.updateY(24*this._ls.idx);
+  }
+  prev()
+  {
+    this._ls.prev();
+    this.ptr.updateY(24*this._ls.idx);
+  }
+  get()
+  {
+      return this._ls.get();
+  }
+  reset()
+  {
+    this._ls.reset();
+    this.ptr.updateY(0);
+  }
+}
+
+
 
 const UMP_W = 192;
 const UMP_H = 96;
@@ -265,10 +343,10 @@ export class UnitMapPanel extends Panel
   }
   setInfo(unit)
   {
-    this.components.portrait.comp.setData(unit.pArt);
-    this.components.name.comp.setData(unit.name);
-    this.components.health.comp.setData("HP " + formattedHP(unit.stats.hp, unit.stats.maxhp));
-    this.components.healthbar.comp.setData(unit.stats.hp / unit.stats.maxhp);
+    this.setComponentData("portrait", unit.pArt);
+    this.setComponentData("name", unit.name);
+    this.setComponentData("health", "HP " + formattedHP(unit.stats.hp, unit.stats.maxhp));
+    this.setComponentData("healthbar", unit.stats.hp / unit.stats.maxhp);
 
   }
   addComponent(comp, name, x, y, s = 1, w = null, h = null)

@@ -5,7 +5,7 @@ import {Path} from "./Path.js";
 import {Queue} from "./Queue.js";
 import {recolor} from "./UsefulFunctions.js";
 import {Range} from "./Range.js";
-import {TILES, UNIT_MAX_WEAP, UNIT_MAX_ITEM} from "./Constants.js";
+import {TILES, UNIT_MAX_WEAP, UNIT_MAX_ITEM, STATS} from "./Constants.js";
 import {ImageModifier} from "./ImageModifier.js";
 import {triggerEvent, generatePath, inRange, generateMovable, nextFrameDo, waitTick} from "./Utils.js";
 
@@ -36,7 +36,7 @@ export class Unit extends AnimatedObject
     this.lvl = 10;
     this.exp = 99;
 
-    for (let s of [ "maxhp","atk","spd","skl","def","con","mov" ])
+    for (let s of STATS)
     {
       this.caps[s] = (caps[s] == undefined) ? 0 : caps[s];
       this.stats[s] = (stats[s] == undefined) ? 0 : stats[s];
@@ -61,6 +61,7 @@ export class Unit extends AnimatedObject
     this.color = [1, 253, 40];
     
     this.weapons = [];
+    this.eqWeap = 0;
     this.items = [];
     this.walkFunction = walkFunction;
     
@@ -73,9 +74,18 @@ export class Unit extends AnimatedObject
     else
       throw new Error("Unit.addWeapon: max weapon amount exceeded.");
   }
+  addItem(item)
+  {
+    if (this.items.length < UNIT_MAX_ITEM)
+      this.items.push(item);
+    else
+      throw new Error("Unit.addItem: max item amount exceeded.");
+  }
   getWeapon()
   {
-    return this.weapons[0];
+    if (this.weapons.length == 0)
+      return new Weapons.NoWeapon();
+    return this.weapons[this.eqWeap];
   }
   
   instantMove(g, x, y)
@@ -211,12 +221,16 @@ export class Unit extends AnimatedObject
     }
   }
 
+  drawSomewhereElse( g, ctx, x, y)
+  {
+    super.draw(g, ctx, x, y, false);
+  }
   draw( g )
   {
     if (g.camera.visible(this))
     {
       let off = g.camera.offset;
-      super.draw(g, 2, this.vis.x - off.x, this.vis.y - off.y)
+      super.draw(g, 2, this.vis.x - off.x, this.vis.y - off.y);
     }
   }
   

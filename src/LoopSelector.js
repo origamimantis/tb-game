@@ -26,7 +26,6 @@
 
 */
 
-
 export class LoopSelector
 {
   constructor(list, index = 0)
@@ -38,8 +37,9 @@ export class LoopSelector
   }
   _d(delt)
   {
-    //ensure positive modulus
-    this.idx = ( this.length + this.idx + delt ) % this.length;
+    if (this.length > 0)
+      //ensure positive modulus
+      this.idx = ( this.length + this.idx + delt ) % this.length;
   }
   next()
   {
@@ -51,7 +51,9 @@ export class LoopSelector
   }
   get()
   {
-    return this.list[this.idx];
+    if (this.length > 0)
+      return this.list[this.idx];
+    return undefined;
   }
   reset()
   {
@@ -70,42 +72,42 @@ export class LoopSelector
     --this.length;
 
     if (toNext == false)
-    {
       -- this.idx;
-    }
+
+    this.idx %= this.length;
   }
 }
 
 export class QueueSelector
 {
-    constructor(q)
+  constructor(q)
+  {
+    this.queue = q;
+    this.length = q.size;
+    this.cur = q.h;
+  }
+  next()
+  {
+    this.cur = this.cur.n;
+    if (this.cur == null)
     {
-	this.queue = q;
-	this.length = q.size;
-	this.cur = q.h;
+      this.cur = this.queue.h;
     }
-    next()
+  }
+  prev()
+  {
+    this.cur = this.cur.p;
+    if (this.cur == null)
     {
-      this.cur = this.cur.n;
-      if (this.cur == null)
-      {
-	this.cur = this.queue.h;
-      }
+      this.cur = this.queue.t;
     }
-    prev()
-    {
-      this.cur = this.cur.p;
-      if (this.cur == null)
-      {
-	this.cur = this.queue.t;
-      }
-    }
-    get()
-    {
-	return this.cur.v;
-    }
-    reset()
-    {
-	this.cur = this.queue.h;
-    }
+  }
+  get()
+  {
+    return this.cur.v;
+  }
+  reset()
+  {
+    this.cur = this.queue.h;
+  }
 }

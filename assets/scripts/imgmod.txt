@@ -7,3 +7,4 @@ rr C_menuel C_menuet
 fh C_menuel C_menuer
 
 rc S_kn1 S_kn1_wait [1,253,40]->[100,100,100]
+rc S_vmp0 S_vmp0_wait [1,253,40]->[100,100,100]

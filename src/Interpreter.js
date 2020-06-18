@@ -6,6 +6,7 @@ import {Unit} from "./Unit.js";
 import {Animation} from "./Animation.js";
 import {AnimFrame} from "./AnimFrame.js";
 import * as Weapons from "./Weapon.js";
+import * as Items from "./Item.js";
 import * as Units from "./TypeUnits.js";
 
 
@@ -19,23 +20,34 @@ class Interpreter
     this.g = g;
     this.commands = 
     {
-      ADDUNIT: (id, x, y, name = "Unit" + id, alliance = "Player") => {return new Promise( (resolve) =>
+      ADDUNIT: (id, x, y, name = "Unit" + id, clas = "SwordKnight", alliance = "Player") => {return new Promise( (resolve) =>
       {
 	id = parseInt(id); x = parseInt(x); y = parseInt(y);  
 	
 	// TODO make teams an enum or map or something
 	alliance = alliance[0].toUpperCase() + alliance.slice(1)
 	
-	let u = new Units.SwordKnight(id, x, y, {maxhp:30, atk:10,spd:10,skl:5,def:7,con:4,mov: 7}, name);
+	let u = new Units[clas](id, x, y, {maxhp:30, atk:10,spd:10,skl:5,def:7,con:4,mov: 7}, name);
 	u.team = alliance;
 	u.setAnim( "idle" );
-	//u.stats.mov = id + 1;
-	//u.addWeapon(new Weapons.Spook());
-	u.addWeapon(new Weapons.BronzeSlicer());
 	
 	this.g.addUnit(u);
 	resolve();
       });},
+      GIVEWPN: (id, weaponName) => {return new Promise( (resolve) =>
+      {
+	id = parseInt(id);
+	this.g.getUnitById(id).addWeapon(new Weapons[weaponName]());
+	resolve();
+      });},
+
+      GIVEITM: (id, itemName) => {return new Promise( (resolve) =>
+      {
+	id = parseInt(id);
+	this.g.getUnitById(id).addItem(new Items[itemName]());
+	resolve();
+      });},
+
 
       DELUNIT: (id) => {return new Promise( (resolve) =>
       {
@@ -119,7 +131,9 @@ class Interpreter
 	  throw "Bad input";
 	}
 
-	await this.g.getUnitById(id).recolorAnim(this.g, "idle", [r, g, b], "idle_" + r + "_" + g + "_" + b);
+	let unit = this.g.getUnitById(id);
+	let anim = unit.getAnim("idle").image;
+	await unit.recolorAnim(this.g, "idle", [r, g, b], anim + "_" + r + "_" + g + "_" + b);
 	resolve();
       });},
 

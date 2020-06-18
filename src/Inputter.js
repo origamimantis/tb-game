@@ -8,7 +8,7 @@ import {triggerEvent, respondToEvent, getCost, generatePath} from "./Utils.js";
 
 const SELECT = "Period";
 const CANCEL = "Comma";
-const INFORM = "Slash";
+const INFORM = "Semicolon";
 
 export const ARROW =  {
 			UP : "KeyW",
@@ -32,7 +32,13 @@ const KeyState = {
 
 const HOLD_DELAY = 12;
 
-const LOGKEYS = false;
+let LOGKEYS = false;
+
+export function toggleLog()
+{
+  LOGKEYS = !LOGKEYS;
+  return "Log: " + (LOGKEYS?"on":"off");
+}
 
 
 export class Inputter

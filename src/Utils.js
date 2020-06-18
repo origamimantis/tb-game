@@ -277,9 +277,32 @@ function all(conditions, param)
   return true;
 }
 
-
+export function scrollSelect_LR(keys, selector)
+{
+  let ret = false;
+  for (let k of keys.once)
+  {
+    switch (k)
+    {
+    case ARROW.LEFT:
+      triggerEvent("sfx_play_cursormove_effect");
+      selector.prev();
+      ret = true;
+      break;
+    case ARROW.RIGHT:
+      triggerEvent("sfx_play_cursormove_effect");
+      selector.next();
+      ret = true;
+      break;
+    default:
+      triggerEvent("sfx_play_err_effect");
+    }
+  }
+  return ret;
+}
 export function scrollSelect_UD(keys, selector)
 {
+  let ret = false;
   for (let k of keys.once)
   {
     switch (k)
@@ -287,15 +310,18 @@ export function scrollSelect_UD(keys, selector)
     case ARROW.UP:
       triggerEvent("sfx_play_cursormove_effect");
       selector.prev();
+      ret = true;
       break;
     case ARROW.DOWN:
       triggerEvent("sfx_play_cursormove_effect");
       selector.next();
+      ret = true;
       break;
     default:
       triggerEvent("sfx_play_err_effect");
     }
   }
+  return ret;
 }
 export function scrollSelect_4W(keys, selector)
 {
@@ -313,6 +339,7 @@ export function scrollSelect_4W(keys, selector)
       break;
     }
   }
+  return true;
 }
 
 

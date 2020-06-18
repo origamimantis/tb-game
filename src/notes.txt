@@ -1,3 +1,7 @@
+ver0.29 2020-06-18
+More unit profile screen progress. The "info" key
+was changed to semicolon.
+
 ver0.28 2020-06-15
 In-progress work on unit profile screen. To see it,
 press slash when the cursor is over a unit.
