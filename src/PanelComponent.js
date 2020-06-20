@@ -85,6 +85,7 @@ export class PanelComponent
 
   drawText(g, off, xy)
   {
+    g.setTextProperty(4, xy.s, xy.w, xy.h);
     g.drawText(4, this.data, off.x+xy.x, off.y+xy.y + 4);
   }
   drawHB(g, off, xy)
@@ -96,4 +97,5 @@ export class PanelComponent
 
     g.Album.drawHealthBar(g, 4, this.data, off.x + xy.x, off.y + xy.y, xy.w, xy.h);
   }
+
 }

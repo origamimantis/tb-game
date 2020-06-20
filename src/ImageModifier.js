@@ -192,8 +192,8 @@ export class ImageModifier
     ctx.putImageData(imageData,0,0);
     
     let nImg = new Image();
-    nImg.src = can.toDataURL('image/png');
     nImg.onload = onload;
+    nImg.src = can.toDataURL('image/png');
     return nImg;
   }
 
@@ -219,7 +219,6 @@ export class ImageModifier
     can.width = w;
     can.height = h;
 
-    ctx.drawImage(img, 0, 0, w, h);
     ctx.drawImage(img, 0, 0, w, h);
 
     return [can, ctx, ctx.getImageData(0, 0, w, h)];

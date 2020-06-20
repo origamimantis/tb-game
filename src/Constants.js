@@ -11,3 +11,6 @@ export const UNIT_MAX_WEAP = 8;
 export const UNIT_MAX_ITEM = 8;
 
 export const STATS = [ "maxhp","atk","spd","skl","def","con","mov" ];
+
+export const WIDTH = 512;
+export const HEIGHT = 384;

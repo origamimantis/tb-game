@@ -1,10 +1,10 @@
-ADDUNIT 0 0 0 Leploss SwordKnight
+ADDUNIT 0 11 5 Leploss SwordKnight
+GIVEWPN 0 BronzeSlicer
 GIVEWPN 0 BronzeSlicer
 GIVEWPN 0 BronzeSlicer
 GIVEWPN 0 BronzeSlicer
 GIVEWPN 0 BraveSword
 GIVEWPN 0 BraveSword
-GIVEWPN 0 VampireFang
 GIVEWPN 0 BraveSword
 GIVEWPN 0 BronzeSlicer
 GIVEITM 0 Bandages
@@ -24,6 +24,7 @@ GIVEWPN 4 BronzeSlicer
 
 ADDUNIT 5 7 7 Rimun SwordKnight
 GIVEWPN 5 BronzeSlicer
+GIVEWPN 5 BronzeSlicer
 
 ADDUNIT 6 9 9 Paskell SwordKnight
 GIVEWPN 6 BronzeSlicer
@@ -33,6 +34,14 @@ GIVEWPN 7 BronzeSlicer
 
 ADDUNIT 8 8 8 Forayor SwordKnight
 GIVEWPN 8 BronzeSlicer
+GIVEITM 8 Bandages
+GIVEITM 8 Bandages
+GIVEITM 8 Bandages
+GIVEITM 8 Bandages
+GIVEITM 8 Bandages
+GIVEITM 8 Bandages
+GIVEITM 8 Bandages
+GIVEITM 8 Bandages
 
 ADDUNIT 9 9 7 Birnoole Vampire
 GIVEWPN 9 VampireFang

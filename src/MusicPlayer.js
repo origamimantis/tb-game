@@ -30,30 +30,25 @@ class MusicPlayer
     respondToEvent("sfx_play_cursormove_effect", () => {this.play("cbeep2");});
     respondToEvent("sfx_play_err_effect", () => {this.play("errbeep");});
   }
-  loadMusic()
+  async loadMusic()
   {
-    return new Promise( async (resolve, reject) =>
-      {
-	// load(name, hasIntro = true, loops = false)
-	await this.load("btl1", false);
-	await this.load("btl_en", false);
-	await this.load("fght",false);
-	await this.load("fght2",false);
-	//await this.load("rfgh");
-	await this.load("oss");
-	await this.loadFX("bad");
-	await this.loadFX("errbeep");
-	await this.loadFX("beep");
-	await this.loadFX("cbeep2");
-	await this.loadFX("bad2");
-	await this.loadFX("whack");
-	await this.loadFX("FX_slash");
-	await this.loadFX("FX_miss");
-	await this.loadFX("FX_crit");
-	await this.loadFX("FX_unitdeath");
-	resolve();
-      }
-    );
+    // load(name, hasIntro = true, loops = false)
+    await this.load("btl1", false);
+    await this.load("btl_en", false);
+    await this.load("fght",false);
+    await this.load("fght2",false);
+    //await this.load("rfgh");
+    //await this.load("oss");
+    //await this.loadFX("bad");
+    await this.loadFX("errbeep");
+    await this.loadFX("beep");
+    await this.loadFX("cbeep2");
+    //await this.loadFX("bad2");
+    await this.loadFX("whack");
+    await this.loadFX("FX_slash");
+    await this.loadFX("FX_miss");
+    await this.loadFX("FX_crit");
+    await this.loadFX("FX_unitdeath");
   }
   
   async load( name, intro = true, loops = true)

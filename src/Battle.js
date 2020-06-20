@@ -250,21 +250,33 @@ export class Battle
 	this.g.windowx-PANELS.STATS.WIDTH, this.g.windowy-PANELS.HEALTH.HEIGHT-PANELS.STATS.HEIGHT,
 	PANELS.STATS.WIDTH, PANELS.STATS.HEIGHT, 2, 3);
 
-    a_statp.addComponent( new PanelComponent(PanelType.TEXT, "DMG"), "dmg", 0, 0);
-    a_statp.addComponent( new PanelComponent(PanelType.TEXT, "HIT"), "hit", 0, 1);
-    a_statp.addComponent( new PanelComponent(PanelType.TEXT, "CRT"), "crt", 0, 2);
+    a_statp.addComponent( new PanelComponent(PanelType.TEXT, "DMG"), "dmg", 0, 0,
+	    "#000000", "11px ABCD Mono",  "left");
+    a_statp.addComponent( new PanelComponent(PanelType.TEXT, "HIT"), "hit", 0, 1,
+	    "#000000", "11px ABCD Mono",  "left");
+    a_statp.addComponent( new PanelComponent(PanelType.TEXT, "CRT"), "crt", 0, 2,
+	    "#000000", "11px ABCD Mono",  "left");
 
-    d_statp.addComponent( new PanelComponent(PanelType.TEXT, "DMG"), "dmg", 0, 0);
-    d_statp.addComponent( new PanelComponent(PanelType.TEXT, "HIT"), "hit", 0, 1);
-    d_statp.addComponent( new PanelComponent(PanelType.TEXT, "CRT"), "crt", 0, 2);
+    d_statp.addComponent( new PanelComponent(PanelType.TEXT, "DMG"), "dmg", 0, 0,
+	    "#000000", "11px ABCD Mono",  "left");
+    d_statp.addComponent( new PanelComponent(PanelType.TEXT, "HIT"), "hit", 0, 1,
+	    "#000000", "11px ABCD Mono",  "left");
+    d_statp.addComponent( new PanelComponent(PanelType.TEXT, "CRT"), "crt", 0, 2,
+	    "#000000", "11px ABCD Mono",  "left");
 
-    a_statp.addComponent( new PanelComponent(PanelType.TEXT, "---"), "dmgv", 1, 0);
-    a_statp.addComponent( new PanelComponent(PanelType.TEXT, "---"), "hitv", 1, 1);
-    a_statp.addComponent( new PanelComponent(PanelType.TEXT, "---"), "crtv", 1, 2);
+    a_statp.addComponent( new PanelComponent(PanelType.TEXT, "---"), "dmgv", 1, 0,
+	    "#000000", "11px ABCD Mono",  "left");
+    a_statp.addComponent( new PanelComponent(PanelType.TEXT, "---"), "hitv", 1, 1,
+	    "#000000", "11px ABCD Mono",  "left");
+    a_statp.addComponent( new PanelComponent(PanelType.TEXT, "---"), "crtv", 1, 2,
+	    "#000000", "11px ABCD Mono",  "left");
     
-    d_statp.addComponent( new PanelComponent(PanelType.TEXT, "---"), "dmgv", 1, 0);
-    d_statp.addComponent( new PanelComponent(PanelType.TEXT, "---"), "hitv", 1, 1);
-    d_statp.addComponent( new PanelComponent(PanelType.TEXT, "---"), "crtv", 1, 2);
+    d_statp.addComponent( new PanelComponent(PanelType.TEXT, "---"), "dmgv", 1, 0,
+	    "#000000", "11px ABCD Mono",  "left");
+    d_statp.addComponent( new PanelComponent(PanelType.TEXT, "---"), "hitv", 1, 1,
+	    "#000000", "11px ABCD Mono",  "left");
+    d_statp.addComponent( new PanelComponent(PanelType.TEXT, "---"), "crtv", 1, 2,
+	    "#000000", "11px ABCD Mono",  "left");
 
     return new BattlePair(a_statp, d_statp);
 

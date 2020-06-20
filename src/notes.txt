@@ -1,3 +1,6 @@
+ver0.30 2020-06-19
+Different weapons are now equippable when entering combat.
+
 ver0.29 2020-06-18
 More unit profile screen progress. The "info" key
 was changed to semicolon.

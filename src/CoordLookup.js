@@ -99,7 +99,8 @@ export class MapCoordBlob extends CoordLookup
     let img = g.Album.get(this.drawArt);
 
     let off = g.camera.offset;
-    let alph = Math.abs(FRAMES_TO_MAX - g.counter%(2*FRAMES_TO_MAX)) / FRAMES_TO_MAX;
+    let alph = ALPHA_MAX*Math.abs(FRAMES_TO_MAX - g.counter%(2*FRAMES_TO_MAX)) / FRAMES_TO_MAX;
+    g.ctx[1].fillStyle = "#ffffff";
     for (let c of this)
     {
       if (g.camera.visible(c))
@@ -109,7 +110,7 @@ export class MapCoordBlob extends CoordLookup
 
         g.ctx[1].drawImage( img, x, y, g.gx, g.gy);
 
-        g.ctx[1].globalAlpha = alph*ALPHA_MAX;
+        g.ctx[1].globalAlpha = alph;
         g.ctx[1].fillRect(x, y, g.gx - 1, g.gy - 1);
         g.ctx[1].globalAlpha = 1;
       }

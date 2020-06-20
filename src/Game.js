@@ -22,13 +22,13 @@ import {Queue} from "./Queue.js";
 import {MusicPlayer} from "./MusicPlayer.js";
 import {DrawContainer, UnitContainer, PanelContainer} from "./DrawContainer.js";
 import {Inputter, ARROWS, ARROW} from "./Inputter.js";
-import {Panel, SelectionPanel, UnitMapPanel} from "./Panel.js";
+import {Panel, SelectionPanel, UnitMapPanel, ItemPanel} from "./Panel.js";
 import {PanelComponent} from "./PanelComponent.js";
 import {Battle} from "./Battle.js";
 import {LoopSelector, QueueSelector} from "./LoopSelector.js";
 import {Action} from "./ActionGenerator.js";
 import {scrollSelect_UD, scrollSelect_4W, triggerEvent, respondToEvent,
-  getCost, generatePath, nextFrameDo, cursorStop, waitTime} from "./Utils.js";
+  getCost, generatePath, nextFrameDo, cursorStop, waitTime, formattedHP} from "./Utils.js";
 import {EnemyController} from "./EnemyController.js";
 import {TurnBanner} from "./TurnBanner.js";
 import {TurnData} from "./TurnData.js";
@@ -105,12 +105,14 @@ class Game
     this.toDraw.hide("cursor");
     this.toDraw.set("map", this.Map);
     this.toDraw.set("Units", this.Units);
-    this.toDraw.set("fps", new Panel(420,0, 92, 36, 1, 1000, 0));
 
+    /*
+    this.toDraw.set("fps", new Panel(420,0, 92, 36, 1, 1000, 0));
     this.fpsUpdate = [0,0,0,0,0];
     this.fpspanel = new PanelComponent(0, "fps:");
     this.toDraw.get("fps").addComponent(this.fpspanel, "fps", 0, 0);
     this.toDraw.toggleVisible("fps");
+    */
 
     this.Panels.set("UMP", new UnitMapPanel());
     this.Panels.hide("UMP");
@@ -222,7 +224,17 @@ class Game
       // attack
       p.push( new Action( "attack", () =>
 	{
-	  this.setStatus("unitAttackTargetSelect", attackable);
+	  let len = unit.weapons.length;
+	  let uWeap = new LoopSelector( unit.weapons, unit.eqWeap );
+	  //let wp = new SelectionPanel(50,50, 70+64,16*len+20, 1, len, 398, 50, uWeap);
+	  let wp = new ItemPanel(50,50,  256, 16*len+20,  1, len, uWeap,
+	        "WT_", (c)=>{return formattedHP(c.uses, c.maxUses);});
+
+
+	  this.Panels.set("selectedUnitWeaponPanel", wp);
+
+	  this.temp["selectedUnitAttackableEnemies"] = attackable;
+	  this.setStatus("unitAttackWeaponSelect");
 	}));
     }
     
@@ -270,7 +282,7 @@ class Game
     {
       onBegin: async ( allies )=>
       {
-	  this.temp["selectedUnitAllySelector"] = new QueueSelector( attackable );
+	  this.temp["selectedUnitAllySelector"] = new QueueSelector( allies );
 	  this.toDraw.show("cursor");
 	  this.Panels.hide("selectedUnitActionPanel");
 
@@ -307,14 +319,15 @@ class Game
     /*************************************/
     this.stateAction.unitAttackTargetSelect =
     {
-      onBegin: async ( attackable )=>
+      onBegin: async ()=>
       {
-	  this.temp["selectedUnitAttackCoords"] = new QueueSelector( attackable );
+	  this.temp["selectedUnitAttackCoords"] = new QueueSelector( this.temp.selectedUnitAttackableEnemies );
 	  this.toDraw.show("cursor");
-	  this.Panels.hide("selectedUnitActionPanel");
+	  this.Panels.hide("selectedUnitWeaponPanel");
 
-	  await this.camera.waitShiftTo(attackable.front());
-	  this.cursor.moveInstant(attackable.front());
+	  let first = this.temp.selectedUnitAttackableEnemies.front();
+	  await this.camera.waitShiftTo(first);
+	  this.cursor.moveInstant(first);
       },
 
       select: async()=>
@@ -340,11 +353,13 @@ class Game
 	// restore the gamestate
 	this.toDraw = this.temp["mapstate"];
 
-	// deete stuff from selecting a unit
+	// delete stuff from selecting a unit
 	this.toDraw.del("selectedUnitAttackableTiles");
 	this.toDraw.del("selectedUnitMovable");
 	this.toDraw.del("selectedUnitPath");
+	this.Panels.del("selectedUnitWeaponPanel");
 	this.Panels.del("selectedUnitActionPanel");
+	delete this.temp["selectedUnitAttackableEnemies"];
 
 	// end turn TODO change for canto/other stuff
 	//
@@ -362,8 +377,8 @@ class Game
       },
       cancel:async ()=>
       {
-	await this.setStatus("unitActionSelect");
-	this.Panels.show("selectedUnitActionPanel");
+	await this.setStatus("unitAttackWeaponSelect");
+	this.Panels.show("selectedUnitWeaponPanel");
       },
       arrows:async (a)=>
       {
@@ -376,6 +391,43 @@ class Game
 	this.unblockInput();
       }
     }
+    
+    /*************************************/
+    /* ACTION UNIT ATTACK WEAPON SELECT  */
+    /*************************************/
+    this.stateAction.unitAttackWeaponSelect =
+    {
+      onBegin: async ()=>
+      {
+	// unit guaranteed to have a weapon
+	this.Panels.hide("selectedUnitActionPanel");
+	this.Panels.show("selectedUnitWeaponPanel");
+
+	this.toDraw.hide("cursor");
+      },
+      select: async()=>
+      {
+        triggerEvent("sfx_play_beep_effect");
+	this.temp.selectedUnit.eqWeap = this.Panels.get("selectedUnitWeaponPanel").idx();
+
+	await this.setStatus("unitAttackTargetSelect");
+      },
+
+
+
+      cancel:async ()=>
+      {
+        await this.setStatus("unitActionSelect");
+        this.Panels.del("selectedUnitWeaponPanel");
+        this.Panels.show("selectedUnitActionPanel");
+      },
+      arrows:async (a)=>
+      {
+	if (scrollSelect_UD(a, this.Panels.get("selectedUnitWeaponPanel")))
+	  this.Panels.redraw("selectedUnitWeaponPanel");
+      }
+    }
+
 
     
     this.stateAction.unitActionSelect =
@@ -1032,13 +1084,13 @@ class Game
       this.ctx[ctx].drawImage(this.Album.get(image), x, y, w, h);
   }
 
-  drawOutlinedText(ctx, text, x, y, font, incolor, outcolor)
+  drawOutlinedText(ctx, text, x, y, font, incolor, outcolor, maxwidth = undefined)
   {
     this.setTextFont(ctx, font);
     this.setTextColor(ctx, incolor);
-    this.drawText(ctx, text, x, y);
+    this.drawText(ctx, text, x, y, maxwidth);
     this.setTextColor(ctx, outcolor);
-    this.strokeText(ctx, text, x, y);
+    this.strokeText(ctx, text, x, y, maxwidth);
   }
   drawText(ctx, text, x, y, maxWidth = undefined)
   {
@@ -1088,6 +1140,7 @@ class Game
 
     this.update();
     this.draw();
+
     ++ this.counter;
     // 10! is hghly divisible, so modulos won't run amok
     if (this.counter >= 3628800)
@@ -1095,6 +1148,7 @@ class Game
       this.counter = 0;
     }
 
+    /*
     let pt = this.now;
     this.now = Date.now();
     this.fpsUpdate.shift();
@@ -1102,6 +1156,7 @@ class Game
     let sum = 0;
     this.fpsUpdate.forEach(s => {sum += s});
     this.fpspanel.setData("FPS " + (5*1000/(sum)).toFixed(2));
+    */
   }
 
 }

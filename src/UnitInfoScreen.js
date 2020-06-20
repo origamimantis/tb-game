@@ -5,6 +5,7 @@ import {AnimatedObject} from "./AnimatedObject.js";
 import {scrollSelect_LR, scrollSelect_UD, triggerEvent} from "./Utils.js";
 import {LoopSelector} from "./LoopSelector.js";
 import {STATS} from "./Constants.js";
+import {TiledEffect} from "./TiledEffect.js";
 
 
 // Layer 0: background
@@ -39,11 +40,13 @@ export class UnitInfoScreen
       "WT_", (c)=>{return formattedHP(c.uses, c.maxUses);});
     this.Items = new UnitProfileItemPanel(this.p_x, this.p_y, this.p_w, this.p_h, new LoopSelector(unit.items),
       "IT_", (c)=>{return c.uses;});
+    this.Skills = new UnitProfileItemPanel(this.p_x, this.p_y, this.p_w, this.p_h, new LoopSelector([]),
+      "IT_", (c)=>{return c.uses;});
     
     // TODO new panel type for stats, skills
 
     // TODO stats, skills, other
-    this.pages = new LoopSelector(["Weapons", "Items"]);
+    this.pages = new LoopSelector(["Weapons", "Items", "Skills"]);
     this.cur = this.pages.get();
 
     this.state = OBSERVE;
@@ -60,11 +63,12 @@ export class UnitInfoScreen
   update(g)
   {
     this.uc.tickAnim();
+    this.bg.update();
     if (this.state == TOOLTIP)
       this[this.cur].update();
     else if (this.t_active)
     {
-      this.t_pos += 1/12;
+      this.t_pos += 1/8;
       this[this.t_out].x = this.t_pos * this.t_dir * (32 + this.p_w) + this.p_x;
       this[this.t_in].x = (this.t_pos - 1) * this.t_dir * (32 + this.p_w) + this.p_x;
 
@@ -90,6 +94,7 @@ export class UnitInfoScreen
   }
   draw(g)
   {
+    this.bg.draw(g, 0);
     this.uc.draw(g, 3, 48, 200, 1, false);
     if (this.state == TOOLTIP)
       this[this.cur].draw(g, 3);
@@ -100,14 +105,25 @@ export class UnitInfoScreen
   drawTitle(g, ctx, text = this.cur, maxwidth = undefined)
   {
     //g.ctx[ctx].fillStyle = "brown";
-    g.ctx[ctx].clearRect( this.p_x, this.p_y - 33, this.p_w, 26);
-    g.setTextProperty(ctx, "#000000", "22px ABCD Mono", "center");
-    g.drawText(ctx, text, this.p_x + this.p_w/2, this.p_y - 32, maxwidth);
+    g.ctx[ctx].clearRect( this.p_x, this.p_y - 36, this.p_w, 30);
+
+    let c_x = this.p_x + this.p_w / 2;
+
+    g.ctx[ctx].fillStyle = "black";
+    g.ctx[ctx].globalAlpha = 0.5;
+    let w = this.p_w;
+    if (maxwidth !== undefined)
+      w = maxwidth;
+    g.ctx[ctx].fillRect( c_x - w/2 , this.p_y - 35, w, 26);
+    g.ctx[ctx].globalAlpha = 1;
+
+    g.setTextProperty(ctx, "#dedbef", "22px ABCD Mono", "center");
+    g.drawText(ctx, text, c_x, this.p_y - 32, maxwidth);
   }
   drawWeapons(g, ctx, panel = this.cur)
   {
     let eq = -1;
-    if (this.pages.idx == 0)
+    if (panel == "Weapons")
       eq = this.unit.eqWeap;
     this[panel].explicitDraw(g, ctx, eq, (this.state == TOOLTIP));
   }
@@ -150,8 +166,11 @@ export class UnitInfoScreen
     this.drawTitle(g, 1);
     this.drawWeapons(g, 1);
   }
-  begin(onDone)
+  async begin(onDone)
   {
+    this.bg = new TiledEffect(0.5,0.25);
+    await this.bg.load("BG_unitprofile");
+
     this.old_ctx_refresh = this.g.ctx_refresh;
     this.g.ctx_refresh = [0, 3];
 
@@ -173,8 +192,8 @@ export class UnitInfoScreen
       return;
     return new Promise( (resolve)=>
     {
-      let dx = Math.sign(b-a);
-      if (a*b == 0)
+      let dx = Math.sign(a - b);
+      if (a - b != dx)
 	dx *= -1;
       
       this.t_dir = dx;
@@ -190,7 +209,6 @@ export class UnitInfoScreen
   {
     if (this.state == OBSERVE)
     {
-
       let prev = this.pages.idx;
       if (scrollSelect_LR(a, this.pages))
       {
