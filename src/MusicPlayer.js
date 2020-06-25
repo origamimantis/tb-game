@@ -32,163 +32,136 @@ class MusicPlayer
   }
   async loadMusic()
   {
-    // load(name, hasIntro = true, loops = false)
-    await this.load("btl1", false);
-    await this.load("btl_en", false);
-    await this.load("fght",false);
-    await this.load("fght2",false);
-    //await this.load("rfgh");
+    // load(name, length, introLength
+    // round length up
+    await this.load("btl1", 33334);
+    await this.load("btl_en", 15000);
+    await this.load("fght", 6112)
+    await this.load("fght2", 18667)
+    await this.load("rfgh", 45715, 3809.5);
     //await this.load("oss");
     //await this.loadFX("bad");
-    await this.loadFX("errbeep");
-    await this.loadFX("beep");
-    await this.loadFX("cbeep2");
+    await this.loadFX("errbeep", 1000);
+    await this.loadFX("beep", 1000);
+    await this.loadFX("cbeep2", 1000);
     //await this.loadFX("bad2");
-    await this.loadFX("whack");
-    await this.loadFX("FX_slash");
-    await this.loadFX("FX_miss");
-    await this.loadFX("FX_crit");
-    await this.loadFX("FX_unitdeath");
+    await this.loadFX("whack", 1000);
+    await this.loadFX("FX_slash", 1000);
+    await this.loadFX("FX_miss", 1000);
+    await this.loadFX("FX_crit", 1000);
+    await this.loadFX("FX_unitdeath", 1000);
   }
   
-  async load( name, intro = true, loops = true)
+  async load( name, length, intro = 0)
   {
-    this.album[name] = {l:[], fade:null, playing:false};
-
-    let loop = await new Promise ( (resolve, reject) => 
+    let s = await new Promise ( (resolve) => 
       {
-	let fullname = "assets/music/" + name + (loops ? "_L" : "") + EXT;
-	let s = new WaudSound(fullname,
+	let fullname = "assets/music/" + name + EXT;
+	let sprite = {};
+	if (intro > 0)
+	{
+	  sprite.start = [0, intro];
+	  sprite.loop = [intro, length, true];
+	}
+	else
+	{
+	  sprite.start = [0, length, true];
+	}
+	let s = new Howl(
 	  {
-	    loop: loops,
+	    src: [fullname],
 	    volume: 0.5,
+	    sprite: sprite,
 	    onload : () => {resolve(s);}
 	  });
       });
-
-    if (intro)
-    {
-      let intro = await new Promise( (resolve) =>
-	{
-	  let i = new WaudSound("assets/music/" + name + "_I" + EXT,
-	    {
-	      loop: false,
-	      volume: 0.5,
-	      onload : () => {resolve(i);}
-	    })
-	});
-      intro.onEnd( ()=> {if (this.album[name].playing) this.album[name].l[1].play() } );
-      
-      this.album[name].l.push(intro);
-    }
-    this.album[name].l.push(loop);
+    s.playing = false;
+    s.intro = (intro > 0);
+    this.album[name] = s;
     console.log(name + " loaded");
   }
-  async loadFX( name )
+  async loadFX( name, length)
   {
-    this.album[name] = {l:[], fade:null};
-    let loaded_sound = await new Promise ( (resolve, reject) => {
+    this.album[name] = await new Promise ( (resolve) => {
 	let fullname = "assets/music/" + name + EXT;
-	let s = new WaudSound(fullname,
+	let s = new Howl(
 	  {
-	    loop: false,
+	    src: [fullname],
 	    volume: 0.5,
+	    sprite: {start: [0, length]},
 	    onload : () => {resolve(s);}
-	  });
+	  }
+	);
       });
-    this.album[name].l.push(loaded_sound);
     console.log(name + " loaded");
   }
   play( name )
   {
-    this.album[name].playing = true;
-    this.album[name].l[0].play();
-    this.unmute(name);
+    let s = this.album[name];
+    s.playing = true;
+    s.volume(0.5);
+    let id = s.play("start");
+    if (s.intro)
+    {
+      s.once("end", ()=>{s.off("stop");if (s.playing) s.play("loop");});
+      s.once("stop", ()=>{s.off("end");});
+    }
   }
   unmute( name )
   {
-    this.setVol(name,0.5);
+    this.album[name].mute(false);
   }
   mute( name )
   {
-    this.setVol(name,0);
+    this.album[name].mute(true);
   }
   setVol(name, vol)
   {
-    for (let a of this.album[name].l)
-    {
-      a.setVolume(vol);
-    }
+    this.album[name].volume(vol);
   }
   fadeout( name , time = 500)
   {
-    return new Promise( async (resolve)=>
+    return new Promise( (resolve)=>
       {
-	let cvol = this.album[name].l[0]._options.volume;
-	if (this.album[name].fade == null && cvol > 0)
+	let s = this.album[name];
+	if (s.playing)
 	{
-	  this.album[name].fade = "out";
-	  let num = time/100;
-	  for (let i = 0; i < num; i++)
-	  {
-	    this.setVol(name,cvol*(1-i/num));
-	    await waitTime(100);;
-	  }
-	  this.setVol(name,0);
-	  this.album[name].fade = null;
+	  s.fade(0.5, 0, time);
+	  s.once("fade", resolve);
 	}
-	resolve();
+	else
+	  resolve();
       });
   }
-  fadestop( name, time = 500)
+  async fadestop( name, time = 500)
   {
-    return new Promise( async (resolve)=>
-      {
-	await this.fadeout(name, time);
-	this.stop(name);
-	resolve();
-      }
-    );
+    await this.fadeout(name, time);
+    this.stop(name);
   }
-  playin( name, time = 500)
+  async playin( name, time = 500)
   {
-    return new Promise( async (resolve)=>
-      {
-	this.play(name);
-	this.mute(name);
-	await this.fadein(name, time);
-	resolve();
-      }
-    );
+    this.play(name);
+    await this.fadein(name, time);
   }
   fadein( name, time = 500)
   {
-    return new Promise( async (resolve)=>
+      return new Promise( (resolve)=>
       {
-	let cvol = this.album[name].l[0]._options.volume;
-	if (this.album[name].fade == null && cvol < 0.5)
+	let s = this.album[name];
+	if (s.playing)
 	{
-	  this.album[name].fade = "in";
-	  let num = time/100;
-	  for (let i = 0; i < num; i++)
-	  {
-	    this.setVol(name, (0.5-cvol)*i/num );
-	    await waitTime(100);;
-	  }
-	  this.setVol(name,0.5);
-	  this.album[name].fade = null;
+	  s.fade(0, 0.5, time);
+	  s.once("fade", resolve);
 	}
-	resolve();
+	else
+	  resolve();
       });
-
   }
   stop( name )
   {
-    this.album[name].playing = false;
-    for (let a of this.album[name].l)
-    {
-      a.stop();
-    }
+    let s = this.album[name];
+    s.stop();
+    s.playing = false;
   }
   stopAll()
   {

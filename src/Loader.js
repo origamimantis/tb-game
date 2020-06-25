@@ -48,9 +48,7 @@ function load(thingsToLoad)
 	await BattleAnimationAlbum.addAnim("anim2", "assets/scripts/anim2.txt");
 	await BattleAnimationAlbum.addAnim("anim3", "assets/scripts/anim3.txt");
 
-	// load sound library
-	Waud.init();
-	Waud.autoMute();
+	// load sounds
 	await thingy.Music.loadMusic();
 
 	let script = await requestFile(thingsToLoad.MapScript);
