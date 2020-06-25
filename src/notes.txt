@@ -1,3 +1,6 @@
+ver0.31 2020-06-25
+switched to a different sound library.
+
 ver0.30 2020-06-19
 Different weapons are now equippable when entering combat.
 
