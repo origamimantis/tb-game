@@ -7,6 +7,16 @@ import {Queue} from "./Queue.js";
 import {CoordLookup, MapCoordBlob} from "./CoordLookup.js";
 import {ARROW} from "./Inputter.js";
 
+export function weaponAmtFn(c)
+{
+  return formattedHP(c.uses, c.maxUses);
+}
+export function itemAmtFn(c)
+{
+  return c.uses;
+}
+
+
 export function formattedEXP(exp)
 {
   let s = "EXP ";
@@ -277,7 +287,7 @@ function all(conditions, param)
   return true;
 }
 
-export function scrollSelect_LR(keys, selector)
+export function scrollSelect_LR(keys, selector, beepOnErr = true)
 {
   let ret = false;
   for (let k of keys.once)
@@ -295,12 +305,13 @@ export function scrollSelect_LR(keys, selector)
       ret = true;
       break;
     default:
-      triggerEvent("sfx_play_err_effect");
+      if (beepOnErr)
+	triggerEvent("sfx_play_err_effect");
     }
   }
   return ret;
 }
-export function scrollSelect_UD(keys, selector)
+export function scrollSelect_UD(keys, selector, beepOnErr = true)
 {
   let ret = false;
   for (let k of keys.once)
@@ -318,7 +329,8 @@ export function scrollSelect_UD(keys, selector)
       ret = true;
       break;
     default:
-      triggerEvent("sfx_play_err_effect");
+      if (beepOnErr)
+	triggerEvent("sfx_play_err_effect");
     }
   }
   return ret;

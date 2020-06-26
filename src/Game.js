@@ -34,6 +34,7 @@ import {TurnBanner} from "./TurnBanner.js";
 import {TurnData} from "./TurnData.js";
 import {EventHandler} from "./EventHandler.js";
 import {UnitInfoScreen} from "./UnitInfoScreen.js";
+import {UnitTradeScreen} from "./UnitTradeScreen.js";
 
 export const C_WIDTH = 1024;
 export const C_HEIGHT = 768;
@@ -242,9 +243,21 @@ class Game
     if (adjacent.nonempty())
     {
       // trade TODO
-      p.push( new Action( "trade", () =>
+      p.push( new Action( "trade", async () =>
       {
-	console.log("TODO!");
+	this.temp["allyInteract"] = async (target)=>
+	{
+	  this.temp["mapState"] = this.toDraw;
+	  this.temp["prevStatus"] = "unitActionSelect";
+	  this.toDraw = new UnitTradeScreen(this, unit, target);
+	  await this.setStatus("other", () =>
+	    {
+	      this.clearCtx(4);
+	      this.clearCtx(5);
+	      this.toDraw.show("cursor");
+	    });
+	}
+	await this.setStatus("unitAllySelect", adjacent);
       }));
     }
 
@@ -293,13 +306,12 @@ class Game
       {
 	triggerEvent("sfx_play_beep_effect");
         let target = this.Map.getTile(this.temp.selectedUnitAllySelector.get()).unit;
-	await this.temp.allyInteract();
+	await this.temp.allyInteract(target);
       },
 
       cancel:async ()=>
       {
 	await this.setStatus("unitActionSelect");
-	this.Panels.show("selectedUnitActionPanel");
       },
       arrows:async (a)=>
       {
@@ -419,7 +431,6 @@ class Game
       {
         await this.setStatus("unitActionSelect");
         this.Panels.del("selectedUnitWeaponPanel");
-        this.Panels.show("selectedUnitActionPanel");
       },
       arrows:async (a)=>
       {
@@ -442,6 +453,7 @@ class Game
 	await this.camera.waitShiftTo(this.temp.selectedUnit);
 	this.cursor.moveInstant(this.temp.selectedUnit);
 	this.toDraw.hide("cursor");
+        this.Panels.show("selectedUnitActionPanel");
       },
 
       select:()=>
@@ -754,7 +766,7 @@ class Game
     
     this.stateAction.other = 
     {
-      onBegin: async ()=>
+      onBegin: async (onDone)=>
       {
 	await this.toDraw.begin( () =>
 	{
@@ -762,6 +774,7 @@ class Game
 	  this.setStatus(this.temp.prevStatus);
 	  delete this.temp.mapState;
 	  delete this.temp.prevStatus;
+	  if (onDone) onDone();
 	});
       },
       select: async () => { await this.toDraw.select(); },
