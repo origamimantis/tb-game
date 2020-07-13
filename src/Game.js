@@ -248,10 +248,19 @@ class Game
 	this.temp["allyInteract"] = async (target)=>
 	{
 	  this.temp["mapState"] = this.toDraw;
-	  this.temp["prevStatus"] = "unitActionSelect";
-	  this.toDraw = new UnitTradeScreen(this, unit, target);
-	  await this.setStatus("other", () =>
+	  await this.setExtStatus(new UnitTradeScreen(this, unit, target),
+	    (traded) =>
 	    {
+	      if (traded) return "unitForcedActionSelect";
+	      else	  return "unitActionSelect";
+	    },
+	    async (traded) =>
+	    {
+	      if (traded)
+	      {
+		// don't onBegin() again
+		this.gameStatus = "unitForcedActionSelect";
+	      }
 	      this.clearCtx(4);
 	      this.clearCtx(5);
 	      this.toDraw.show("cursor");
@@ -279,6 +288,12 @@ class Game
 
     return new LoopSelector(p);
 
+  }
+  async setExtStatus(extState, nextStatus, onDone)
+  {
+    this.toDraw = extState;
+    this.gameStatus = "other";
+    await this.stateAction.other.onBegin(nextStatus, onDone);
   }
   async setStatus(state, ...args)
   {
@@ -425,8 +440,6 @@ class Game
 	await this.setStatus("unitAttackTargetSelect");
       },
 
-
-
       cancel:async ()=>
       {
         await this.setStatus("unitActionSelect");
@@ -438,7 +451,6 @@ class Game
 	  this.Panels.redraw("selectedUnitWeaponPanel");
       }
     }
-
 
     
     this.stateAction.unitActionSelect =
@@ -480,6 +492,18 @@ class Game
       }
 
     }
+
+    this.stateAction.unitForcedActionSelect =
+    {
+    /*************************************/
+    /* ACTION UNIT FORCED ACTION SELECT  */
+    /*************************************/
+      onBegin: this.stateAction.unitActionSelect.onBegin,
+      select: this.stateAction.unitActionSelect.select,
+      cancel: () => {},
+      arrows: this.stateAction.unitActionSelect.arrows
+    }
+
 
     this.stateAction.unitMoveLocation =
     {
@@ -735,9 +759,12 @@ class Game
         if (unit != null)
         {
           this.temp["mapState"] = this.toDraw;
-          this.temp["prevStatus"] = this.gameStatus;
-	  this.toDraw = new UnitInfoScreen(this, unit);
-	  await this.setStatus("other");
+          let prev = this.gameStatus;
+	  await this.setExtStatus(new UnitInfoScreen(this, unit),
+	    (res) => {return prev;},
+	    (res) => {}
+	  );
+
 	}
 
       },
@@ -766,15 +793,15 @@ class Game
     
     this.stateAction.other = 
     {
-      onBegin: async (onDone)=>
+      onBegin: async (nextStatus, onDone)=>
       {
-	await this.toDraw.begin( () =>
+	await this.toDraw.begin( (retVal) =>
 	{
 	  this.toDraw = this.temp.mapState;
-	  this.setStatus(this.temp.prevStatus);
+	  this.setStatus(nextStatus(retVal));
 	  delete this.temp.mapState;
-	  delete this.temp.prevStatus;
-	  if (onDone) onDone();
+	  //delete this.temp.prevStatus;
+	  if (onDone) onDone(retVal);
 	});
       },
       select: async () => { await this.toDraw.select(); },
@@ -1128,10 +1155,10 @@ class Game
     this.Panels.draw(this);
     if (this.turncount % 2 == 0 && this.gameStatus != "other")
     {
-      this.ctx[3].fillStyle = "#00008D";
-      this.ctx[3].globalAlpha = 0.3;
-      this.ctx[3].fillRect(0,0,C_WIDTH, C_HEIGHT);
-      this.ctx[3].globalAlpha = 1;
+      this.ctx[2].fillStyle = "#00008D";
+      this.ctx[2].globalAlpha = 0.3;
+      this.ctx[2].fillRect(0,0,C_WIDTH, C_HEIGHT);
+      this.ctx[2].globalAlpha = 1;
     }
   }
   update()

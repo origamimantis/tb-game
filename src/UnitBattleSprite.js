@@ -15,7 +15,7 @@ export class UnitBattleSprite extends BattleSprite
 {
   constructor(unit, id, g, x, y)
   {
-    super(g, unit.weapons[0].sprite(), x, y);
+    super(g, unit.getWeapon().sprite(), x, y);
     this.id = id;
 
     this.addAnimation("idle","anim0");

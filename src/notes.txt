@@ -1,3 +1,8 @@
+ver0.32 2020-07-12
+Trade menu is fully functional!!
+Use select (".") to select things to trade, and
+use info (";") to toggle between trading weapons and items.
+
 ver0.31 2020-06-25
 switched to a different sound library. Trade menu is up,
 but doesn't do anything.

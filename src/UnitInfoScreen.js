@@ -73,8 +73,8 @@ export class UnitInfoScreen
       this[this.t_in].x = (this.t_pos - 1) * this.t_dir * (32 + this.p_w) + this.p_x;
 
       g.clearCtx(1);
-      this.drawWeapons(g, 1, this.t_in);
-      this.drawWeapons(g, 1, this.t_out);
+      this.drawPanel(g, 1, this.t_in);
+      this.drawPanel(g, 1, this.t_out);
       g.ctx[1].clearRect(0, this.p_y, 20, this.p_h);
 
       let title = (this.t_pos < 0.5) ? this.t_out : this.t_in;
@@ -99,9 +99,6 @@ export class UnitInfoScreen
     if (this.state == TOOLTIP)
       this[this.cur].draw(g, 3);
   }
-  drawMainPanel(g, ctx)
-  {
-  }
   drawTitle(g, ctx, text = this.cur, maxwidth = undefined)
   {
     //g.ctx[ctx].fillStyle = "brown";
@@ -120,7 +117,7 @@ export class UnitInfoScreen
     g.setTextProperty(ctx, "#dedbef", "22px ABCD Mono", "center");
     g.drawText(ctx, text, c_x, this.p_y - 32, maxwidth);
   }
-  drawWeapons(g, ctx, panel = this.cur)
+  drawPanel(g, ctx, panel = this.cur)
   {
     let eq = -1;
     if (panel == "Weapons")
@@ -164,7 +161,7 @@ export class UnitInfoScreen
   {
     this.drawUnitOverview(g, 2);
     this.drawTitle(g, 1);
-    this.drawWeapons(g, 1);
+    this.drawPanel(g, 1);
   }
   async begin(onDone)
   {
@@ -216,7 +213,7 @@ export class UnitInfoScreen
 	this.cur = this.pages.get();
 	await this.transition(prev, this.pages.idx);
 	this.drawTitle(this.g, 1);
-	this.drawWeapons(this.g, 1);
+	this.drawPanel(this.g, 1);
 	this.g.unblockInput();
       }
     }
@@ -225,7 +222,7 @@ export class UnitInfoScreen
       if (scrollSelect_UD(a, this[this.cur]))
       {
 	this.drawTitle(this.g, 1);
-	this.drawWeapons(this.g, 1);
+	this.drawPanel(this.g, 1);
       }
     }
   }
@@ -240,7 +237,7 @@ export class UnitInfoScreen
       if (this[this.cur].nonempty())
       {
 	this.state = TOOLTIP;
-	this.drawWeapons(this.g, 1);
+	this.drawPanel(this.g, 1);
       }
       else
       {
@@ -255,7 +252,7 @@ export class UnitInfoScreen
     else
     {
       this.state = OBSERVE;
-      this.drawWeapons(this.g, 1);
+      this.drawPanel(this.g, 1);
     }
   }
   end()

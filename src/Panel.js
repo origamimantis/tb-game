@@ -37,6 +37,7 @@ export class Panel
 
     this.components = {};
   }
+
   createComponent(type, data, name, x, y, s = 1, sx = 1, sy = 1)
   {
     this.addComponent(new PanelComponent(type, data), name, x, y, s, sx, sy);
@@ -138,6 +139,10 @@ export class SelectionPointer
 {
   constructor(sp, xoff = 0)
   {
+    this.setTarget(sp, xoff);
+  }
+  setTarget(sp, xoff = 0)
+  {
     this.panel = sp;
     this.x = sp.x + EDGEW + xoff;
     this.y = sp.y + EDGEW;
@@ -186,7 +191,8 @@ export class SelectionPanel extends Panel
     
     for (let i = 0; i < loopselector.length; ++i)
     {
-      let action = loopselector.list[i].name;
+      let thing = loopselector.list[i];
+      let action = (thing !== null) ? thing.name : "";
       this.addComponent( new PanelComponent( PanelType.TEXT, action ), i, 0, i,
 			 "#000000",  "11px ABCD Mono", "left");
     }
@@ -194,6 +200,20 @@ export class SelectionPanel extends Panel
     this.ptr = new SelectionPointer(this);
     this.updateY();
   }
+  resetLoopSelector(loopselector)
+  {
+    this._ls = loopselector;
+    this.components = {};
+    
+    for (let i = 0; i < loopselector.length; ++i)
+    {
+      let thing = loopselector.list[i];
+      let action = (thing !== null) ? thing.name : "";
+      this.addComponent( new PanelComponent( PanelType.TEXT, action ), i, 0, i,
+			 "#000000",  "11px ABCD Mono", "left");
+    }
+  }
+
   nonempty()
   {
     return (this._ls.length > 0);
@@ -202,30 +222,46 @@ export class SelectionPanel extends Panel
   {
     this.ptr.update();
   }
-  updateY()
+  updateX(ptr = this.ptr)
+  {
+    ptr.x = this.x + EDGEW;
+  }
+  updateY(ptr = this.ptr)
   {
     let cmp = this.components[this.idx()];
     if (cmp !== undefined)
-      this.ptr.updateY(cmp.y);
+      ptr.updateY(cmp.y);
     else
-      this.ptr.updateY(0);
+      ptr.updateY(0);
   }
   drawComp(g)
   {
     super.drawComp(g);
   }
-  explicitDraw(g, ctx = 4, fill = true)
+  explicitDraw(g, ctx = 4, fill = true, selected = null)
   {
     this.drawBase(g, ctx);
     if (fill)
     {
-      let y = this.components[this.idx()];
-      if (y !== undefined)
-	y = y.y;
-      else
-	y = 0;
       g.ctx[4].fillStyle = "#9eefff";
-      g.ctx[4].fillRect(this.body.x, this.body.y + y + 3, this.w-2*EDGEW, 12)
+      if (selected == null)
+      {
+	let y = this.components[this.idx()];
+	if (y !== undefined)
+	  y = y.y;
+	else
+	  y = 0;
+	g.ctx[4].fillRect(this.body.x, this.body.y + y + 3, this.w-2*EDGEW, 12)
+      }
+      else
+      {
+	for (let i of selected)
+	{
+	  let y = this.components[i];
+	  if (y)
+	    g.ctx[4].fillRect(this.body.x, this.body.y + y.y + 3, this.w-2*EDGEW, 12)
+	}
+      }
     }
     this.drawComp(g);
     this.draw(g);
@@ -281,16 +317,39 @@ export class ItemPanel extends SelectionPanel
       let item = this._ls.list[i];
       this.components[i].x += 24;
 
-      this.addComponent( new PanelComponent( PanelType.ART, artPrefix + item.constructor.name ),
-			 "a" + i, 0, i, 1, 16, 16);
+      if (item !== null)
+      {
+	this.addComponent( new PanelComponent( PanelType.ART, artPrefix + item.constructor.name ),
+			   "a" + i, 0, i, 1, 16, 16);
 
-      this.addComponent( new PanelComponent( PanelType.TEXT, amtFunction(item) ),
-			 "t" + i, 0, i, "#000000", "11px ABCD Mono", "right")
-      this.components["t" + i].x = w - 2*EDGEW;
+	this.addComponent( new PanelComponent( PanelType.TEXT, amtFunction(item) ),
+			   "t" + i, 0, i, "#000000", "11px ABCD Mono", "right")
+	this.components["t" + i].x = w - 2*EDGEW;
+      }
     }
 
     this.artP = artPrefix;
     this.amtF = amtFunction;
+  }
+  resetLoopSelector(loopselector)
+  {
+    super.resetLoopSelector(loopselector);
+
+    for (let i = 0; i < this._ls.length; ++i)
+    {
+      let item = this._ls.list[i];
+      this.components[i].x += 24;
+
+      if (item !== null)
+      {
+	this.addComponent( new PanelComponent( PanelType.ART, this.artP + item.constructor.name ),
+			   "a" + i, 0, i, 1, 16, 16);
+
+	this.addComponent( new PanelComponent( PanelType.TEXT, this.amtF(item) ),
+			   "t" + i, 0, i, "#000000", "11px ABCD Mono", "right")
+	this.components["t" + i].x = this.w - 2*EDGEW;
+      }
+    }
   }
 }
 

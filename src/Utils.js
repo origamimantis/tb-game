@@ -9,13 +9,17 @@ import {ARROW} from "./Inputter.js";
 
 export function weaponAmtFn(c)
 {
-  return formattedHP(c.uses, c.maxUses);
+  return (c !== null) ? formattedHP(c.uses, c.maxUses) : "";
 }
 export function itemAmtFn(c)
 {
-  return c.uses;
+  return (c !== null) ? c.uses : "";
 }
 
+export function toTitle(s)
+{
+  return s[0].toUpperCase() + s.slice(1);
+}
 
 export function formattedEXP(exp)
 {
