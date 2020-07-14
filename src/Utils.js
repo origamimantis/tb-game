@@ -291,7 +291,7 @@ function all(conditions, param)
   return true;
 }
 
-export function scrollSelect_LR(keys, selector, beepOnErr = true)
+export function scrollSelect_LR(keys, selector, beepOnErr = true, loop = true)
 {
   let ret = false;
   for (let k of keys.once)
@@ -300,12 +300,14 @@ export function scrollSelect_LR(keys, selector, beepOnErr = true)
     {
     case ARROW.LEFT:
       triggerEvent("sfx_play_cursormove_effect");
-      selector.prev();
+      if (loop == true || selector.idx > 0)
+	selector.prev();
       ret = true;
       break;
     case ARROW.RIGHT:
       triggerEvent("sfx_play_cursormove_effect");
-      selector.next();
+      if (loop == true || selector.idx < selector.length - 1)
+	selector.next();
       ret = true;
       break;
     default:
@@ -315,7 +317,7 @@ export function scrollSelect_LR(keys, selector, beepOnErr = true)
   }
   return ret;
 }
-export function scrollSelect_UD(keys, selector, beepOnErr = true)
+export function scrollSelect_UD(keys, selector, beepOnErr = true, loop = true)
 {
   let ret = false;
   for (let k of keys.once)
@@ -324,12 +326,14 @@ export function scrollSelect_UD(keys, selector, beepOnErr = true)
     {
     case ARROW.UP:
       triggerEvent("sfx_play_cursormove_effect");
-      selector.prev();
+      if (loop == true || selector.idx > 0)
+	selector.prev();
       ret = true;
       break;
     case ARROW.DOWN:
       triggerEvent("sfx_play_cursormove_effect");
-      selector.next();
+      if (loop == true || selector.idx < selector.length - 1)
+	selector.next();
       ret = true;
       break;
     default:
@@ -339,7 +343,7 @@ export function scrollSelect_UD(keys, selector, beepOnErr = true)
   }
   return ret;
 }
-export function scrollSelect_4W(keys, selector)
+export function scrollSelect_4W(keys, selector, loop = true)
 {
   for (let k of keys.once)
   {
@@ -347,11 +351,13 @@ export function scrollSelect_4W(keys, selector)
     {
     case ARROW.UP:
     case ARROW.LEFT:
-      selector.prev();
+      if (loop == true || selector.idx > 0)
+	selector.prev();
       break;
     case ARROW.DOWN:
     case ARROW.RIGHT:
-      selector.next();
+      if (loop == true || selector.idx < selector.length - 1)
+	selector.next();
       break;
     }
   }

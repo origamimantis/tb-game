@@ -195,7 +195,7 @@ export class UnitTradeScreen
   async arrows(a)
   {
     let old = this.unitSelect.get().panel[this.tradeMode];
-    let lr = scrollSelect_LR(a, this.unitSelect, false);
+    let lr = scrollSelect_LR(a, this.unitSelect, false, false);
     if (lr)
     {
       let sel = this.unitSelect.get().panel[this.tradeMode];
