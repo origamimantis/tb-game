@@ -28,17 +28,21 @@ import {Battle} from "./Battle.js";
 import {LoopSelector, QueueSelector} from "./LoopSelector.js";
 import {Action} from "./ActionGenerator.js";
 import {scrollSelect_UD, scrollSelect_4W, triggerEvent, respondToEvent,
-  getCost, generatePath, nextFrameDo, cursorStop, waitTime, formattedHP} from "./Utils.js";
+  getCost, generatePath, nextFrameDo, cursorStop, waitTick, waitTime, formattedHP,
+  weaponAmtFn, itemAmtFn} from "./Utils.js";
 import {EnemyController} from "./EnemyController.js";
 import {TurnBanner} from "./TurnBanner.js";
 import {TurnData} from "./TurnData.js";
 import {EventHandler} from "./EventHandler.js";
 import {UnitInfoScreen} from "./UnitInfoScreen.js";
 import {UnitTradeScreen} from "./UnitTradeScreen.js";
+import {MapHealthBar} from "./MapHealthBar.js";
 
 export const C_WIDTH = 1024;
 export const C_HEIGHT = 768;
 
+//TODO modify all sprite to double resolution and change this to SCALE = 1.
+//     this will require tweaks to scene objects.
 const SCALE = 2;
 
 const WINDOWGRID_X = 16;
@@ -270,6 +274,21 @@ class Game
       }));
     }
 
+    if (unit.hasUsableItem())
+    {
+      // item TODO
+      p.push( new Action( "item", async () =>
+      {
+	let len = unit.items.length;
+	let uItem = new LoopSelector( unit.items);
+	let wp = new ItemPanel(50,50,  256, 16*len+20,  1, len, uItem,
+	      "IT_", itemAmtFn);
+
+
+	this.Panels.set("selectedUnitWeaponPanel", wp);
+	await this.setStatus("unitItemSelect");
+      }));
+    }
 
 
     // wait
@@ -380,14 +399,6 @@ class Game
 	// restore the gamestate
 	this.toDraw = this.temp["mapstate"];
 
-	// delete stuff from selecting a unit
-	this.toDraw.del("selectedUnitAttackableTiles");
-	this.toDraw.del("selectedUnitMovable");
-	this.toDraw.del("selectedUnitPath");
-	this.Panels.del("selectedUnitWeaponPanel");
-	this.Panels.del("selectedUnitActionPanel");
-	delete this.temp["selectedUnitAttackableEnemies"];
-
 	// end turn TODO change for canto/other stuff
 	//
 	// if canto
@@ -418,6 +429,48 @@ class Game
 	this.unblockInput();
       }
     }
+
+    /*************************************/
+    /* ACTION UNIT ITEM SELECT           */
+    /*************************************/
+    this.stateAction.unitItemSelect =
+    {
+      onBegin: async ()=>
+      {
+	// unit guaranteed to have a usable item
+	this.Panels.hide("selectedUnitActionPanel");
+	this.Panels.show("selectedUnitWeaponPanel");
+
+	this.toDraw.hide("cursor");
+      },
+      select: async()=>
+      {
+        triggerEvent("sfx_play_beep_effect");
+	let item = this.temp.selectedUnit.items[this.Panels.get("selectedUnitWeaponPanel").idx()];
+	this.Panels.del("selectedUnitWeaponPanel");
+
+	await item.use(this, this.temp.selectedUnit);
+
+	this.temp.selectedUnit.endTurn(this);
+	this.cursor.moveInstant(this.temp.selectedUnit);
+
+	// update gamestate
+	this.setStatus("map");
+      },
+
+      cancel:async ()=>
+      {
+        await this.setStatus("unitActionSelect");
+        this.Panels.del("selectedUnitWeaponPanel");
+      },
+      arrows:async (a)=>
+      {
+	if (scrollSelect_UD(a, this.Panels.get("selectedUnitWeaponPanel")))
+	  this.Panels.redraw("selectedUnitWeaponPanel");
+      }
+    }
+
+
     
     /*************************************/
     /* ACTION UNIT ATTACK WEAPON SELECT  */
@@ -689,6 +742,14 @@ class Game
     {
       onBegin: ()=>
       {
+	// delete stuff from selecting a unit
+        this.toDraw.delc("selectedUnitAttackableTiles");
+        this.toDraw.delc("selectedUnitMovable");
+        this.toDraw.delc("selectedUnitPath");
+        this.Panels.delc("selectedUnitWeaponPanel");
+        this.Panels.delc("selectedUnitActionPanel");
+        delete this.temp["selectedUnitAttackableEnemies"];
+
 	this.toDraw.show("cursor");
         this.temp = {};
 	this.handlePortrait();
@@ -1016,9 +1077,23 @@ class Game
 
 
 
-
-
-
+  async healUnit(unit, amount)
+  {
+    await this.camera.waitShiftTo(unit);
+    let hb = new MapHealthBar(this, unit);
+    let realAmount = Math.min(amount, unit.stats.maxhp - unit.stats.hp);
+    this.toDraw.set("hb", hb);
+    await waitTime(500);
+    for (let i = 0; i < realAmount; ++i)
+    {
+      ++ unit.stats.hp;
+      this.Music.play("FX_healblip");
+      await waitTick();
+      await waitTick();
+    }
+    await waitTime(500);
+    this.toDraw.del("hb");
+  }
 
   generateCanvasLayers()
   {

@@ -47,8 +47,8 @@ window.onload = () =>
 		  "WT_BronzeSlicer", "WT_VampireFang", "WT_BraveSword",
 		  "IT_Bandages",
 		  "C_c0", "C_ptr", "C_move", "C_walk", "C_atk",
-		  "C_menutl",
-		  "C_menuel", "C_menucn"
+		  "C_menutl", "C_menuel", "C_menucn",
+		  "FX_heal"
 		],
       ImgMod : "assets/scripts/imgmod.txt",
       MapScript : "assets/scripts/test.txt"

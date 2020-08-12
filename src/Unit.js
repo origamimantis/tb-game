@@ -87,6 +87,17 @@ export class Unit extends AnimatedObject
       return new Weapons.NoWeapon();
     return this.weapons[this.eqWeap];
   }
+  hasUsableItem()
+  {
+    for (let item of this.items)
+    {
+      if (item.usable(this))
+      {
+	return true;
+      }
+    }
+    return false;
+  }
   
   instantMove(g, x, y)
   {

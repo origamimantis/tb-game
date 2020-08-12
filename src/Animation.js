@@ -5,20 +5,21 @@ import {Album} from "./Images.js";
 
 class Animation
 {
-  constructor( artName, weights = [], loops = true, onDone = null)
+  //obj( image, weights = [], loops = true, onDone = null)
+  constructor( obj )
   {
-    this.numFrame = weights.length;
+    this.numFrame = obj.weights.length;
 
-    this.baseweights = weights.slice();
+    this.baseweights = obj.weights.slice();
     this.weights = this.baseweights;
-    this.baseimage = artName;
-    this.image = artName;
+    this.baseimage = obj.image;
+    this.image = obj.image;
     this.age = 0;
     this.curFrame = 0;
-    this.numFrame = weights.length;
-    this.loops = loops;
+    this.numFrame = obj.weights.length;
+    this.loops = obj.loops;
     this.direction = 1;
-    this.onDone = onDone;
+    this.onDone = obj.onDone;
   }
   pushFrame( frame )
   {
@@ -46,7 +47,7 @@ class Animation
 	{
 	  this.curFrame = this.numFrame - 1;
 	}
-	if (this.onDone != null)
+	if (this.onDone !== undefined)
 	{
 	  this.onDone();
 	}
@@ -82,7 +83,13 @@ class Animation
 
   copy()
   {
-    let newA = new Animation(this.image, this.baseweights.slice(), this.loops);
+    let newA = new Animation(
+      { image: this.image,
+	weights: this.baseweights.slice(),
+	loops: this.loops,
+	onDone: this.onDone
+      });
+
     return newA;
   }
 

@@ -42,8 +42,8 @@ export class SwordKnight extends Unit
 	let classname = "Sword Knight";
 	super( id, x, y, caps, stats, name, classname, "P_kn", Walk.walkMelee);
 	
-	this.addAnim("idle", new Animation( "S_kn1", [20,10,20,10], true) );
-	this.addAnim("wait", new Animation( "S_kn1_wait", [100,100,100,100], false) );
+	this.addAnim("idle", new Animation( {image: "S_kn1", weights: [20,10,20,10], loops: true}) );
+	this.addAnim("wait", new Animation( {image: "S_kn1_wait", weights: [100,100,100,100], loops: false}) );
     }
 }
 export class BowKnight extends Unit
@@ -170,8 +170,8 @@ export class Vampire extends Unit
 	let classname = "Vampire";
 	super( id, x, y, caps, stats, name, classname, "P_vmp", Walk.walkMelee);
 
-	this.addAnim("idle", new Animation( "S_vmp0", [20,10,20,10], true) );
-	this.addAnim("wait", new Animation( "S_vmp0_wait", [100,100,100,100], false) );
+	this.addAnim("idle", new Animation( {image: "S_vmp0", weights: [20,10,20,10], loops:true} ) );
+	this.addAnim("wait", new Animation( {image: "S_vmp0_wait", weights: [100,100,100,100], loops:false} ) );
 	//this.addAnim(0, new Animation( "S_vmp0", [20,10,20,10], true) );
     }
 }

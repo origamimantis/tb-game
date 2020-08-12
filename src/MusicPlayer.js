@@ -29,6 +29,7 @@ class MusicPlayer
     respondToEvent("sfx_play_beep_effect", () => {this.play("beep");});
     respondToEvent("sfx_play_cursormove_effect", () => {this.play("cbeep2");});
     respondToEvent("sfx_play_err_effect", () => {this.play("errbeep");});
+    respondToEvent("sfx_play", (name) => {this.play("name");});
   }
   async loadMusic()
   {
@@ -50,6 +51,7 @@ class MusicPlayer
     await this.loadFX("FX_miss", 1000);
     await this.loadFX("FX_crit", 1000);
     await this.loadFX("FX_unitdeath", 1000);
+    await this.loadFX("FX_healblip", 1000);
   }
   
   async load( name, length, intro = 0)

@@ -168,8 +168,8 @@ export class TileMap
 	g.ctx[0].drawImage(
 	  g.Album.get(
 	    this.getTile(x,y).art), 
-	  (x - off.x)*g.gx, (y - off.y)*g.gy,
-	  g.gx, g.gy);
+	  (x - off.x)*g.gx, (y - off.y)*g.gy);//,
+	  //g.gx, g.gy);
       }
     }
   }

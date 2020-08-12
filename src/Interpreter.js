@@ -90,6 +90,7 @@ class Interpreter
 	resolve();
       });},
 
+      // SETSTAT ID STAT:VALUE STAT:VALUE
       SETSTAT: (id, ...args) => {return new Promise( (resolve) =>
       {
 	id = parseInt(id);

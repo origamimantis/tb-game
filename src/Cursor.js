@@ -15,7 +15,7 @@ class Cursor extends AnimatedObject
     super(g,x,y);
 
     //visuals
-    this.addAnim( 0, new Animation( "C_c0", [48,4,4,4], true ));
+    this.addAnim( 0, new Animation( {image: "C_c0", weights: [48,4,4,4], loops: true} ));
 
     this.max = {x: g.Map.dimension.x - 1,
 		y: g.Map.dimension.y - 1};
