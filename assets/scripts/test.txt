@@ -13,28 +13,29 @@ GIVEWPN 2 BronzeSlicer
 ADDUNIT 3 2 4 Kouchi SwordKnight
 GIVEWPN 3 BraveSword
 GIVEWPN 3 BronzeSlicer
+GIVEITM 3 Bandages
 
 ADDUNIT 4 19 3 Gowse SwordKnight
 GIVEWPN 4 BronzeSlicer
+GIVEITM 4 Bandages
 
 ADDUNIT 5 7 7 Rimun SwordKnight
+SETSTAT 5 HP:28
 GIVEWPN 5 BronzeSlicer
 GIVEWPN 5 BronzeSlicer
+GIVEITM 5 Bandages
 
 ADDUNIT 6 9 9 Paskell SwordKnight
-GIVEWPN 3 BraveSword
+GIVEWPN 6 BraveSword
 GIVEWPN 6 BronzeSlicer
 
 ADDUNIT 7 3 18 Kantoor SwordKnight
-GIVEITM 7 Bandages
-GIVEITM 7 Bandages
+GIVEWPN 7 BronzeSlicer
 GIVEITM 7 Bandages
 
 ADDUNIT 8 8 6 Forayor SwordKnight
-GIVEWPN 1 BronzeSlicer
-GIVEITM 3 Bandages
-GIVEITM 4 Bandages
-GIVEITM 5 Bandages
+SETSTAT 8 HP:14
+GIVEWPN 8 BronzeSlicer
 GIVEITM 8 Bandages
 GIVEITM 8 Bandages
 
@@ -46,7 +47,7 @@ ADDUNIT 10 17 18 Russel SwordKnight enemy
 GIVEWPN 10 BronzeSlicer
 ADDUNIT 11 16 22 Galloy SwordKnight enemy
 GIVEWPN 11 BraveSword
-ADDUNIT 12 13 6 Emmla SwordKnight enemy
+ADDUNIT 12 5 6 Emmla SwordKnight enemy
 GIVEWPN 12 BraveSword
 ADDUNIT 13 14 4 Oroclary SwordKnight enemy
 GIVEWPN 13 BronzeSlicer

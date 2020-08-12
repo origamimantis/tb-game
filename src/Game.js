@@ -451,6 +451,7 @@ class Game
 
 	await item.use(this, this.temp.selectedUnit);
 
+	this.temp.selectedUnit.confirmMove(this);
 	this.temp.selectedUnit.endTurn(this);
 	this.cursor.moveInstant(this.temp.selectedUnit);
 
@@ -460,8 +461,8 @@ class Game
 
       cancel:async ()=>
       {
-        await this.setStatus("unitActionSelect");
         this.Panels.del("selectedUnitWeaponPanel");
+        await this.setStatus("unitActionSelect");
       },
       arrows:async (a)=>
       {
@@ -495,8 +496,8 @@ class Game
 
       cancel:async ()=>
       {
-        await this.setStatus("unitActionSelect");
         this.Panels.del("selectedUnitWeaponPanel");
+        await this.setStatus("unitActionSelect");
       },
       arrows:async (a)=>
       {

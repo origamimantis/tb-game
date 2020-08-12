@@ -1,6 +1,6 @@
 ver0.33 2020-08-11
 Bandages are now useable! they restore up to 10 health when
-used. As of now, enemies don't use them.
+used. They also have infinite uses (for now).
 
 ver0.32 2020-07-12
 Trade menu is fully functional!!

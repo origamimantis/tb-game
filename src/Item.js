@@ -22,7 +22,7 @@ export class Bandages extends Item
 {
   constructor()
   {
-    super("Bandages", 20);
+    super("Bandages", 5);
   }
   usable(user)
   {
