@@ -7,13 +7,9 @@ import {Queue} from "./Queue.js";
 import {CoordLookup, MapCoordBlob} from "./CoordLookup.js";
 import {ARROW} from "./Inputter.js";
 
-export function weaponAmtFn(c)
+export function fracAmtFn(c)
 {
   return (c !== null) ? formattedHP(c.uses, c.maxUses) : "";
-}
-export function itemAmtFn(c)
-{
-  return (c !== null) ? c.uses : "";
 }
 
 export function toTitle(s)

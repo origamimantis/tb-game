@@ -29,7 +29,7 @@ import {LoopSelector, QueueSelector} from "./LoopSelector.js";
 import {Action} from "./ActionGenerator.js";
 import {scrollSelect_UD, scrollSelect_4W, triggerEvent, respondToEvent,
   getCost, generatePath, nextFrameDo, cursorStop, waitTick, waitTime, formattedHP,
-  weaponAmtFn, itemAmtFn} from "./Utils.js";
+  fracAmtFn} from "./Utils.js";
 import {EnemyController} from "./EnemyController.js";
 import {TurnBanner} from "./TurnBanner.js";
 import {TurnData} from "./TurnData.js";
@@ -282,7 +282,7 @@ class Game
 	let len = unit.items.length;
 	let uItem = new LoopSelector( unit.items);
 	let wp = new ItemPanel(50,50,  256, 16*len+20,  1, len, uItem,
-	      "IT_", itemAmtFn);
+	      "IT_", fracAmtFn);
 
 
 	this.Panels.set("selectedUnitWeaponPanel", wp);

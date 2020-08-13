@@ -1,6 +1,6 @@
 import {LoopSelector} from "./LoopSelector.js"
 import {ItemPanel, SelectionPointer} from "./Panel.js"
-import {waitTick, toTitle, itemAmtFn, weaponAmtFn, scrollSelect_LR, scrollSelect_UD} from "./Utils.js"
+import {waitTick, toTitle, fracAmtFn, scrollSelect_LR, scrollSelect_UD} from "./Utils.js"
 import {UNIT_MAX_WEAP, UNIT_MAX_ITEM} from "./Constants.js";
 
 
@@ -43,10 +43,10 @@ export class UnitTradeScreen
     this.unitSelect = new LoopSelector([this.left,this.right]);
     this.unitSelect2 = new LoopSelector([this.left,this.right]);
 
-    this.left.panel.items = new ItemPanel( TLOFF,Y,WIDTH,HEIGHT, 1, 8, this.left.items, "IT_", itemAmtFn);
-    this.left.panel.weapons = new ItemPanel( TLOFF,Y,WIDTH,HEIGHT,1, 8, this.left.weapons, "WT_", weaponAmtFn);
-    this.right.panel.items = new ItemPanel( 256+TLOFF,Y,WIDTH,HEIGHT,1, 8, this.right.items, "IT_", itemAmtFn);
-    this.right.panel.weapons = new ItemPanel(256+TLOFF,Y,WIDTH,HEIGHT,1, 8, this.right.weapons, "WT_", weaponAmtFn);
+    this.left.panel.items = new ItemPanel( TLOFF,Y,WIDTH,HEIGHT, 1, 8, this.left.items, "IT_", fracAmtFn);
+    this.left.panel.weapons = new ItemPanel( TLOFF,Y,WIDTH,HEIGHT,1, 8, this.left.weapons, "WT_", fracAmtFn);
+    this.right.panel.items = new ItemPanel( 256+TLOFF,Y,WIDTH,HEIGHT,1, 8, this.right.items, "IT_", fracAmtFn);
+    this.right.panel.weapons = new ItemPanel(256+TLOFF,Y,WIDTH,HEIGHT,1, 8, this.right.weapons, "WT_", fracAmtFn);
 
     this._ptr1 = new SelectionPointer(this.left.panel.items);
     this._ptr2 = new SelectionPointer(this.left.panel.items);

@@ -2,7 +2,7 @@ import {Panel, SelectionPanel, UnitProfileItemPanel, SelectionPointer} from "./P
 import {PanelType} from "./PanelComponent.js";
 import {formattedHP, leftPad} from "./Utils.js";
 import {AnimatedObject} from "./AnimatedObject.js";
-import {scrollSelect_LR, scrollSelect_UD, triggerEvent} from "./Utils.js";
+import {scrollSelect_LR, scrollSelect_UD, fracAmtFn, triggerEvent} from "./Utils.js";
 import {LoopSelector} from "./LoopSelector.js";
 import {STATS} from "./Constants.js";
 import {TiledEffect} from "./TiledEffect.js";
@@ -37,11 +37,11 @@ export class UnitInfoScreen
     this.p_w = 352;
     this.p_h = 216;
     this.Weapons = new UnitProfileItemPanel(this.p_x, this.p_y, this.p_w, this.p_h, new LoopSelector(unit.weapons),
-      "WT_", (c)=>{return formattedHP(c.uses, c.maxUses);});
+      "WT_", fracAmtFn);
     this.Items = new UnitProfileItemPanel(this.p_x, this.p_y, this.p_w, this.p_h, new LoopSelector(unit.items),
-      "IT_", (c)=>{return c.uses;});
+      "IT_", fracAmtFn);
     this.Skills = new UnitProfileItemPanel(this.p_x, this.p_y, this.p_w, this.p_h, new LoopSelector([]),
-      "IT_", (c)=>{return c.uses;});
+      "IT_", fracAmtFn);
     
     // TODO new panel type for stats, skills
 
