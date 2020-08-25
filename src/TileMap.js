@@ -93,6 +93,7 @@ export class TileMap
     }
   }
 
+
   setDimension( s )
   {
     let t = s.split(" ");

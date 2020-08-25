@@ -48,11 +48,12 @@ export class Panel
   {
     if (this.components[name] != undefined)
     {
-      throw "component on panel already has this name!";
+      throw "component on panel already has this name! " + name;
     }
 
     if (x >= this.gx || y >= this.gy)
     {
+      console.log(x, y, this.gx, this.gy);
       throw "index out of bounds";
     }
     this.components[name] = 

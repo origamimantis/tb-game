@@ -9,11 +9,21 @@ import {AnimFrame} from "./AnimFrame.js";
 import {Interpreter} from "./Interpreter.js";
 import {ImageModifier} from "./ImageModifier.js";
 import {PathFinder} from "./PathFinder.js";
+import {Settings} from "./Settings.js";
 import {toggleLog} from "./Inputter.js";
 
 let interpreter;
 let game;
 
+console.settings = function(s)
+{
+  let i = {}
+  for (let k of Object.keys(Settings.values))
+  {
+    i[k] = Settings.get(k);
+  }
+  return i;
+}
 console.exe = function(s)
 {
   interpreter.execute(s);
@@ -58,6 +68,7 @@ window.onload = () =>
   (
     (loaded) => 
     {
+      Settings.init();
       game = new Game(loaded.assets);
       ImageModifier.init(game.Album);
       PathFinder.init(game);

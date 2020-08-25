@@ -103,9 +103,9 @@ export class Inputter
       case INFORM:
 	triggerEvent("input_inform");
 	break;
-      case "KeyX":
-	this.g.toDraw.toggleVisible("fps");
-	triggerEvent("game_test");
+      //case "KeyX":
+	//this.g.toDraw.toggleVisible("fps");
+	//triggerEvent("game_test");
       }
     }
     else

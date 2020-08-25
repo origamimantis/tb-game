@@ -49,11 +49,20 @@ export class LoopSelector
   {
     this._d(-1);
   }
+  getIdx(i)
+  {
+    return this.list[i];
+  }
+
   get()
   {
     if (this.length > 0)
       return this.list[this.idx];
     return undefined;
+  }
+  includes(v)
+  {
+    return this.list.includes(v);
   }
   reset()
   {

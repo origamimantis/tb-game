@@ -1,3 +1,7 @@
+ver0.34 2020-08-24
+Options menu is up. There's only one setting right now that
+shows the tile movement costs for units when enabled.
+
 ver0.33 2020-08-11
 Bandages are now useable! they restore up to 10 health when
 used. They also have infinite uses (for now).

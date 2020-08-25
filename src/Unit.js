@@ -1,8 +1,10 @@
 'use strict';
 
+import {Settings} from "./Settings.js";
 import {AnimatedObject} from "./AnimatedObject.js";
-import {Path} from "./Path.js";
+import {Coord} from "./Path.js";
 import {Queue} from "./Queue.js";
+import {MapCoordBlob} from "./CoordLookup.js";
 import {recolor} from "./UsefulFunctions.js";
 import {Range} from "./Range.js";
 import {TILES, UNIT_MAX_WEAP, UNIT_MAX_ITEM, STATS} from "./Constants.js";
@@ -256,11 +258,13 @@ export class Unit extends AnimatedObject
     let p = generateMovable(g.Map, this.x, this.y, this.getMov(), this.movcost);
 
     let a = new Queue();
+    let costs = new MapCoordBlob();
     let adraw = new Queue();
     if (includeAttackable == true)
     {
       for (let c of p)
       {
+	costs.add(c, this.movcost[g.Map.pather[c.y][c.x]])
 	let n = inRange(c, this.getRange(), "tiles", g.Map);
 	for (let cc of n)
 	{
@@ -277,6 +281,10 @@ export class Unit extends AnimatedObject
     }
 
     let r = [p, a];
+
+    if (Settings.get("visible_movement_costs"))
+      r.push(costs)
+
     if (draw == true)
     {
       p.setArt("C_move");
@@ -286,7 +294,24 @@ export class Unit extends AnimatedObject
       {
 	p.draw(g);
 	adraw.draw(g);
+        
+	if (Settings.get("visible_movement_costs"))
+	{
+	  let off = g.camera.offset;
+
+	  g.setTextJustify(2, "center");
+
+	  for (let c of p)
+	  {
+	    let tc = costs.get(c);
+	    if (tc > 1000)
+	      tc = "";
+	    g.drawOutlinedText(2, tc, (c.x - off.x + 0.5)*g.gx, (c.y - off.y + 0.5)*g.gy,
+	      "16.5px ABCD Mono", "#fcbe03", "#333333");
+	  }
+	}
       }
+
     }
 
     return r;

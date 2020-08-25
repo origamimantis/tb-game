@@ -10,6 +10,7 @@
 //	    somethingElse();
 //	  }
 
+import {Settings} from "./Settings.js";
 import {Unit} from "./Unit.js";
 import {Coord} from "./Path.js";
 //import {PathFinder} from "./PathFinder.js";
@@ -35,6 +36,7 @@ import {TurnBanner} from "./TurnBanner.js";
 import {TurnData} from "./TurnData.js";
 import {EventHandler} from "./EventHandler.js";
 import {UnitInfoScreen} from "./UnitInfoScreen.js";
+import {OptionScreen} from "./OptionScreen.js";
 import {UnitTradeScreen} from "./UnitTradeScreen.js";
 import {MapHealthBar} from "./MapHealthBar.js";
 
@@ -123,6 +125,7 @@ class Game
     this.Panels.hide("UMP");
     this.toDraw.set("banner", new TurnBanner(this));
     this.temp = {};
+    this.skipOnBegin = false;
     
     this.counter = 0;
     this.turncount = 1;
@@ -260,11 +263,6 @@ class Game
 	    },
 	    async (traded) =>
 	    {
-	      if (traded)
-	      {
-		// don't onBegin() again
-		this.gameStatus = "unitForcedActionSelect";
-	      }
 	      this.clearCtx(4);
 	      this.clearCtx(5);
 	      this.toDraw.show("cursor");
@@ -567,6 +565,7 @@ class Game
       onBegin: async ()=>
       {
 	await this.camera.waitShiftTo(this.temp.selectedUnit);
+
 	this.toDraw.show("selectedUnitMovable");
 	this.toDraw.show("selectedUnitPath");
 	this.cursor.moveInstant(this.toDraw.get("selectedUnitPath").last());
@@ -693,6 +692,18 @@ class Game
 	// TODO map options might be the same no matter what. See if I can make this constant.
 	this.temp["mapActions"] = new LoopSelector(
 	  [new Action("????????", ()=>{console.log("You clicked the test button!");}),
+	  new Action("Options", async ()=>
+	    {
+	      this.Panels.hide("mapActionPanel");
+	      this.temp["mapState"] = this.toDraw;
+	      this.skipOnBegin = true;
+	      await this.setExtStatus(new OptionScreen(this),
+		()=>{return "mapOptionSelect"},
+		()=>{ this.clearAllCtx(); this.Panels.show("mapActionPanel") });
+
+	      
+	      
+	    }),
 	   new Action("End Turn", async ()=>
 	    {
 	      // TODO when i decide to remove this for danger area
@@ -703,7 +714,7 @@ class Game
 
 	      await this.enemyPhase();
 	    })
-	  ]);
+	]);
 
 	let numActions = this.temp.mapActions.length;
 	this.Panels.set("mapActionPanel",
@@ -860,7 +871,15 @@ class Game
 	await this.toDraw.begin( (retVal) =>
 	{
 	  this.toDraw = this.temp.mapState;
-	  this.setStatus(nextStatus(retVal));
+	  let next = nextStatus(retVal);
+	  if (this.skipOnBegin === false)
+	    this.setStatus(nextStatus(retVal));
+	  else
+	  {
+	    this.gameStatus = next;
+	    this.skipOnBegin = false;
+	  }
+
 	  delete this.temp.mapState;
 	  //delete this.temp.prevStatus;
 	  if (onDone) onDone(retVal);
@@ -1170,6 +1189,11 @@ class Game
   {
     this.ctx[n].clearRect(0,0,C_WIDTH, C_HEIGHT);
   }
+  clearAllCtx()
+  {
+    for (let i = 0; i <= 5; ++i)
+      this.clearCtx(i);
+  }
   setTextColor(ctx, color)
   {
     this.ctx[ctx].fillStyle = color;
@@ -1264,15 +1288,6 @@ class Game
       this.counter = 0;
     }
 
-    /*
-    let pt = this.now;
-    this.now = Date.now();
-    this.fpsUpdate.shift();
-    this.fpsUpdate.push(this.now - pt);
-    let sum = 0;
-    this.fpsUpdate.forEach(s => {sum += s});
-    this.fpspanel.setData("FPS " + (5*1000/(sum)).toFixed(2));
-    */
   }
 
 }
