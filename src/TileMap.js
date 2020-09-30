@@ -21,6 +21,7 @@ export class TileMap
   {
     this.map = [];
     this.dimension = {"y":undefined, "x":undefined};
+    this.bounds = {max:{}, min:{}};
     this.artMap = {};
     this.typeMap = {};
     
@@ -68,6 +69,9 @@ export class TileMap
 	  this.typeMap[tile] = lastApply;
 	}
       }
+
+      this.setMinBound(0,0);
+      this.setMaxBound(this.dimension.x, this.dimension.y);
     }
 
     for ( let i = 0; i < this.dimension.y; ++i )
@@ -111,7 +115,33 @@ export class TileMap
       throw "Invalid map size in tilemap.";
     }
   }
+  max(dim)
+  {
+    return this.bounds.max[dim];
+  }
+  min(dim)
+  {
+    return this.bounds.min[dim];
+  }
 
+  // top left of the bounds rectangle
+  // null to leave unchanged
+  setMinBound( x, y )
+  {
+    if (x !== null)
+      this.bounds.min.x = Math.max(0, x);
+    if (y !== null)
+      this.bounds.min.y = Math.max(0, y);
+  }
+  // bot right of the bounds rectangle
+  // noninclusive bound
+  setMaxBound( x, y )
+  {
+    if (x !== null)
+      this.bounds.max.x = Math.min(this.dimension.x, x)-1;
+    if (y !== null)
+      this.bounds.max.y = Math.min(this.dimension.y, y)-1;
+  }
   setArtMapping( s )
   {
       let t = s.split(" ");
@@ -123,6 +153,7 @@ export class TileMap
   }
   getTile( x, y = null )
   {
+    let r = x
     if (y == null)
     {
       y = x.y;
@@ -130,10 +161,11 @@ export class TileMap
     }
     try
     {
-	return this.map[y][x];
+      return this.map[y][x];
     }
     catch (TypeError)
     {
+    console.log(x, y, r);
 	return null;
     }
   }

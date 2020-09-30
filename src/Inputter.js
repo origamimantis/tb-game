@@ -4,7 +4,7 @@ import {getTile, inRange} from "./UsefulFunctions.js";
 import {LoopSelector} from "./LoopSelector.js";
 import {Path, Coord} from "./Path.js";
 import {Queue} from "./Queue.js";
-import {triggerEvent, respondToEvent, getCost, generatePath} from "./Utils.js";
+import {triggerEvent, getCost, generatePath} from "./Utils.js";
 
 const SELECT = "Period";
 const CANCEL = "Comma";
@@ -43,27 +43,24 @@ export function toggleLog()
 
 export class Inputter
 {
-  constructor(g)
+  static init(g)
+  {
+    this.inputted = false;
+    this.accepting = true;
+    this.pressed = {};
+  }
+  static setGame(g)
   {
     this.g = g;
-    this.inputted = false;
-
-    this.accepting = true;
-
-    this.pressed = {}
-    this.wait = 0;
-
-    document.addEventListener( "keydown", ( e ) => {this.onKeyDown( e.code )} );
-    document.addEventListener( "keyup", ( e ) => {this.onKeyUp( e.code )} );
   }
 
-  update()
+  static update()
   {
     this.updateHeld();
     this.updateArrowAccept();
   }
  
-  arrowStall(start)
+  static arrowStall(start)
   {
     this.accepting = false;
     if (start == true)
@@ -76,7 +73,7 @@ export class Inputter
     }
   }
 
-  stateOf( key)
+  static stateOf( key)
   {
     if (this.pressed[key] == undefined)
     {
@@ -85,7 +82,7 @@ export class Inputter
     return this.pressed[key];
   }
 
-  onKeyDown( key )
+  static onKeyDown( key )
   {
     LOGKEYS && console.log("dn: ", key);
 
@@ -113,14 +110,14 @@ export class Inputter
       this.pressed[key] = KeyState.HELD;
     }
   }
-  onKeyUp( key )
+  static onKeyUp( key )
   {
-      LOGKEYS && console.log("up: ", key);
-      delete this.pressed[key];
-      triggerEvent("input_arrowStall", {start : false});
+    LOGKEYS && console.log("up: ", key);
+    delete this.pressed[key];
+    triggerEvent("input_arrowStall", {start : false});
   }
 
-  arrowStates()
+  static arrowStates()
   {
     let once = [];
     let held = [];
@@ -143,7 +140,7 @@ export class Inputter
   
 
 
-  updateHeld()
+  static updateHeld()
   {
     for (let dir of Object.keys(this.pressed))
     {
@@ -153,7 +150,7 @@ export class Inputter
       }
     }
   }
-  updateArrowAccept()
+  static updateArrowAccept()
   {
     if (--this.wait <= 0)
     {

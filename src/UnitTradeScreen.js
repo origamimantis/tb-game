@@ -44,9 +44,11 @@ export class UnitTradeScreen
     this.unitSelect2 = new LoopSelector([this.left,this.right]);
 
     this.left.panel.items = new ItemPanel( TLOFF,Y,WIDTH,HEIGHT, 1, 8, this.left.items, "IT_", fracAmtFn);
-    this.left.panel.weapons = new ItemPanel( TLOFF,Y,WIDTH,HEIGHT,1, 8, this.left.weapons, "WT_", fracAmtFn);
+    this.left.panel.weapons = new ItemPanel( TLOFF,Y,WIDTH,HEIGHT,1, 8, this.left.weapons, "WT_", fracAmtFn, 
+      (w)=>{return !left.canUseWeapon(w)});
     this.right.panel.items = new ItemPanel( 256+TLOFF,Y,WIDTH,HEIGHT,1, 8, this.right.items, "IT_", fracAmtFn);
-    this.right.panel.weapons = new ItemPanel(256+TLOFF,Y,WIDTH,HEIGHT,1, 8, this.right.weapons, "WT_", fracAmtFn);
+    this.right.panel.weapons = new ItemPanel(256+TLOFF,Y,WIDTH,HEIGHT,1, 8, this.right.weapons, "WT_", fracAmtFn,
+      (w)=>{return !right.canUseWeapon(w)});
 
     this._ptr1 = new SelectionPointer(this.left.panel.items);
     this._ptr2 = new SelectionPointer(this.left.panel.items);
@@ -343,6 +345,11 @@ export class UnitTradeScreen
     this.explicitDraw(this.g);
 
     this.g.ctx_refresh = this.old_ctx_refresh;
+    this.g.temp.traded = this.g.temp.traded || this.traded;
+
+    this.g.clearCtx(4);
+    this.g.clearCtx(5);
+
     this.Return(this.traded);
   }
 }

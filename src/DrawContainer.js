@@ -303,10 +303,10 @@ export class UnitContainer extends DrawContainer
   {
     this.del(unit.id);
     this.teams[unit.team].delete(unit);
-    if (this.teams[unit.team].size == 0)
-    {
-      delete this.teams[unit.team];
-    }
+  }
+  getTeam(name)
+  {
+    return this.teams[name];
   }
   //	   [str]
   getTeams(teams)
@@ -393,4 +393,31 @@ export class PanelContainer extends DrawContainer
     this.get(id).explicitDraw(this.g);
     
   }
+}
+
+
+export class ScriptDrawer
+{
+  constructor(script)
+  {
+    this.s = script;
+  }
+  draw(g)
+  {
+    for (let [c, v] of Object.entries(this.s.interactions))
+    {
+      if (v.drawSprite())
+      {
+        c = c.split(",");
+        let coord = {x: parseInt(c[0]), y: parseInt(c[1])};
+        if (g.camera.visible(coord))
+        {
+          let off = g.camera.offset;
+          g.drawImage(1, v.mapSprite, g.gx*(coord.x - off.x), g.gy*(coord.y - off.y));
+        }
+      }
+    }
+  }
+  update()
+  {}
 }

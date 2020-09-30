@@ -16,7 +16,7 @@
 <body>
     <div id="canvases"  width ="1024px" height="768px"></div>
     <object id="notes" type="text/html" data="src/notes.txt" width="500px" height="100px"></object>
-    <div id="controls" type="text/html" width="500px" height="100px">WASD to move.<br>Period (".") to select.<br>Comma (",") to cancel.<br>Semicolon (";") for unit information.</div>
+    <div id="controls" type="text/html" style="font-size:20px" width="500px" height="100px">WASD to move.<br>Period (".") to select.<br>Comma (",") to cancel.<br>Semicolon (";") for unit information.</div>
     <script>
 	    document.getElementById("notes").style["margin-top"]= "790px"
     	    document.getElementById("controls").style["margin-top"]= "-90px"
@@ -26,6 +26,7 @@
     <script src="lib/waud.js"></script>
     <script src="lib/howler.js"></script>
     <script src="lib/easystar.js"></script>
+    <script src="lib/rfdc.js"></script>
     <script type="module" src="src/main.js"></script>
 
 </body>

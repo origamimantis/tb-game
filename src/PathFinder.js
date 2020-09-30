@@ -15,7 +15,7 @@ class PathFinder
     this.As.setGrid(tiles);
   }
 
-  static async findPath(x0, y0, xf, yf, mcost)
+  static findPath(x0, y0, xf, yf, mcost)
   {
     return new Promise
     (

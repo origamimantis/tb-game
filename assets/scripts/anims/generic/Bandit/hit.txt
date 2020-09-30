@@ -1,0 +1,14 @@
+name hit
+type melee
+frames 3
+usrc BattleSprites/generic/Bandit/hit
+
+begin
+#	        x  y  angle
+0 uframe 0 hand 32 3 100
+30 wframe 1
+30 uframe 1 hand 50 20 65
+32 hit
+34 uframe 2 hand 51 48 -10
+40 wframe 0
+50 end

@@ -3,6 +3,7 @@
 import {BattleSprite, BattleAnimation} from "./BattleAnimation.js";
 import {waitTick} from "./Utils.js";
 import {Coord} from "./Path.js";
+import {Characters} from "./Characters.js";
 
 
 // weapon will determine which animation set the battlesprite uses.
@@ -17,23 +18,44 @@ export class UnitBattleSprite extends BattleSprite
   {
     super(g, unit.getWeapon().sprite(), x, y);
     this.id = id;
-
-    this.addAnimation("idle","anim0");
-    this.addAnimation("run","anim1");
-    this.addAnimation("hit","anim2");
-    this.addAnimation("crt","anim3");
-    //"hit2", [new BAFrame(10, 0,0,0),new BAFrame(30, 0,0,0),new BAFrame(5, 0,0,0),new BAFrame(35, 0,0,0)]
-
+    this.unit = unit;
     this.walkFunction = unit.walkFunction;
+    this.loaded = false;
+    this.deathQuote = null;
+  }
+  //  call this before doing anything with the battlesprite
+  //  this function is async but constructors can't be async
+  async load()
+  {
+    let c = Characters[this.unit.name];
+    if (c === undefined)
+      c = Characters.generic;
+    else if (c.deathQuote !== undefined)
+      this.deathQuote = c.deathQuote;
+
+    // TODO use generic if character not generic but has no custom animation for their class
+    c = c.battleAnimation;
+    if (c === undefined)
+      c = Characters.generic.battleAnimation;
+    c = c[this.unit.classname].scripts;
+
+    for (let [name, file] of Object.entries(c))
+    {
+      await this.addAnimation(name, file);
+    }
+    //"hit2", [new BAFrame(10, 0,0,0),new BAFrame(30, 0,0,0),new BAFrame(5, 0,0,0),new BAFrame(35, 0,0,0)]
 
     // TODO make this a property of Unit and pull from that
     this.anims = {
       melee :{run:"run",hit:"hit",crt:"crt",idle:"idle"},
-      ranged :{run:"run",hit:"hit2",crt:"crt2",idle:"idle"}
     };
+    this.update = this.updateLoaded;
+    this.draw = this.drawLoaded;
   }
 
   draw(g)
+  {}
+  drawLoaded(g)
   {
     //super.draw(g, 3, this.x, this.y, 1, false);
     //this.ws.draw(g);
@@ -67,6 +89,8 @@ export class UnitBattleSprite extends BattleSprite
   }
 
   update()
+  {}
+  updateLoaded()
   {
     super.tickAnim();
   }
@@ -75,9 +99,9 @@ export class UnitBattleSprite extends BattleSprite
     return this.curAnim().onHit(f);
   }
 
-  addAnimation( name, lookup )
+  async addAnimation( name, lookup )
   {
-    super.addAnim(name, lookup);
+    await super.addAnim(name, lookup);
   }
 
 

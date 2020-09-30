@@ -1,6 +1,6 @@
 'use strict';
 
-import {respondToEvent, waitTime} from "./Utils.js";
+import {waitTime} from "./Utils.js";
 
 const EXT = ".wav";
 
@@ -20,19 +20,11 @@ stopAll()
 
 
 
-class MusicPlayer
+export class MusicPlayer
 {
-    
-  constructor()
+  static async loadMusic()
   {
     this.album = {};
-    respondToEvent("sfx_play_beep_effect", () => {this.play("beep");});
-    respondToEvent("sfx_play_cursormove_effect", () => {this.play("cbeep2");});
-    respondToEvent("sfx_play_err_effect", () => {this.play("errbeep");});
-    respondToEvent("sfx_play", (name) => {this.play("name");});
-  }
-  async loadMusic()
-  {
     // load(name, length, introLength
     // round length up
     await this.load("btl1", 33334);
@@ -40,6 +32,8 @@ class MusicPlayer
     await this.load("fght", 6112)
     await this.load("fght2", 18667)
     await this.load("rfgh", 45715, 3809.5);
+    await this.load("village", 20000);
+    await this.load("recruit", 20000, 455);
     //await this.load("oss");
     //await this.loadFX("bad");
     await this.loadFX("errbeep", 1000);
@@ -52,9 +46,11 @@ class MusicPlayer
     await this.loadFX("FX_crit", 1000);
     await this.loadFX("FX_unitdeath", 1000);
     await this.loadFX("FX_healblip", 1000);
+    await this.loadFX("FX_bonk", 1000);
+    await this.loadFX("FX_clink", 1000);
   }
   
-  async load( name, length, intro = 0)
+  static async load( name, length, intro = 0)
   {
     let s = await new Promise ( (resolve) => 
       {
@@ -82,7 +78,7 @@ class MusicPlayer
     this.album[name] = s;
     console.log(name + " loaded");
   }
-  async loadFX( name, length)
+  static async loadFX( name, length)
   {
     this.album[name] = await new Promise ( (resolve) => {
 	let fullname = "assets/music/" + name + EXT;
@@ -97,7 +93,7 @@ class MusicPlayer
       });
     console.log(name + " loaded");
   }
-  play( name )
+  static play( name )
   {
     let s = this.album[name];
     s.playing = true;
@@ -109,19 +105,19 @@ class MusicPlayer
       s.once("stop", ()=>{s.off("end");});
     }
   }
-  unmute( name )
+  static unmute( name )
   {
     this.album[name].mute(false);
   }
-  mute( name )
+  static mute( name )
   {
     this.album[name].mute(true);
   }
-  setVol(name, vol)
+  static setVol(name, vol)
   {
     this.album[name].volume(vol);
   }
-  fadeout( name , time = 500)
+  static fadeout( name , time = 500)
   {
     return new Promise( (resolve)=>
       {
@@ -135,17 +131,17 @@ class MusicPlayer
 	  resolve();
       });
   }
-  async fadestop( name, time = 500)
+  static async fadestop( name, time = 500)
   {
     await this.fadeout(name, time);
     this.stop(name);
   }
-  async playin( name, time = 500)
+  static async playin( name, time = 500)
   {
     this.play(name);
     await this.fadein(name, time);
   }
-  fadein( name, time = 500)
+  static fadein( name, time = 500)
   {
       return new Promise( (resolve)=>
       {
@@ -159,16 +155,14 @@ class MusicPlayer
 	  resolve();
       });
   }
-  stop( name )
+  static stop( name )
   {
     let s = this.album[name];
     s.stop();
     s.playing = false;
   }
-  stopAll()
+  static stopAll()
   {
-    Waud.stop();
+    Howler.stop();
   }
 }
-
-export {MusicPlayer};

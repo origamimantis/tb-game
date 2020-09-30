@@ -1,0 +1,26 @@
+name crt
+type melee
+frames 3
+usrc BattleSprites/Alfred/Farmer/hit
+
+begin
+#               x  y  angle
+0 uframe 0 hand 21 36 0
+20 wframe 1
+20 uframe 1 hand 27 36 6
+25 uframe 2 hand 37 38 21
+
+29 wframe 0
+29 uframe 1 hand 27 36 6
+33 wframe 1
+33 uframe 2 hand 37 38 21
+
+37 wframe 0
+37 uframe 1 hand 27 36 6
+41 wframe 1
+41 uframe 2 hand 37 38 21
+
+45 wframe 0
+45 hit
+80 uframe 1 hand 27 36 6
+82 end

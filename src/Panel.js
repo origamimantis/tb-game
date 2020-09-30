@@ -53,7 +53,6 @@ export class Panel
 
     if (x >= this.gx || y >= this.gy)
     {
-      console.log(x, y, this.gx, this.gy);
       throw "index out of bounds";
     }
     this.components[name] = 
@@ -185,34 +184,33 @@ export class SelectionPointer
 
 export class SelectionPanel extends Panel
 {
-  constructor( x, y, w, h, gridx, gridy, xalt, yalt, loopselector)
+  constructor( x, y, w, h, gridx, gridy, xalt, yalt, loopselector, grayFunction =(i)=>{return false})
   {
     super(x, y, w, h, gridx, gridy, xalt, yalt);
     this._ls = loopselector;
+    this.grayF = grayFunction;
     
-    for (let i = 0; i < loopselector.length; ++i)
-    {
-      let thing = loopselector.list[i];
-      let action = (thing !== null) ? thing.name : "";
-      this.addComponent( new PanelComponent( PanelType.TEXT, action ), i, 0, i,
-			 "#000000",  "11px ABCD Mono", "left");
-    }
+    this._loadStuff();
 
     this.ptr = new SelectionPointer(this);
     this.updateY();
+  }
+  _loadStuff()
+  {
+    for (let i = 0; i < this._ls.length; ++i)
+    {
+      let thing = this._ls.list[i];
+      let action = (thing !== null) ? thing.name : "";
+      this.addComponent( new PanelComponent( PanelType.TEXT, action ), i, 0, i,
+			 (this.grayF(thing))?"#880000":"#000000", "11px ABCD Mono", "left")
+    }
   }
   resetLoopSelector(loopselector)
   {
     this._ls = loopselector;
     this.components = {};
     
-    for (let i = 0; i < loopselector.length; ++i)
-    {
-      let thing = loopselector.list[i];
-      let action = (thing !== null) ? thing.name : "";
-      this.addComponent( new PanelComponent( PanelType.TEXT, action ), i, 0, i,
-			 "#000000",  "11px ABCD Mono", "left");
-    }
+    this._loadStuff();
   }
 
   nonempty()
@@ -309,33 +307,18 @@ export class SelectionPanel extends Panel
 
 export class ItemPanel extends SelectionPanel
 {
-  constructor( x, y, w, h, gridx, gridy, loopselector, artPrefix, amtFunction)
+  constructor( x, y, w, h, gridx, gridy, loopselector, artPrefix, amtFunction, grayFunction = (i)=>{return false})
   {
     super(x, y, w, h, gridx, gridy, null, null, loopselector);
 
-    for (let i = 0; i < this._ls.length; ++i)
-    {
-      let item = this._ls.list[i];
-      this.components[i].x += 24;
-
-      if (item !== null)
-      {
-	this.addComponent( new PanelComponent( PanelType.ART, artPrefix + item.constructor.name ),
-			   "a" + i, 0, i, 1, 16, 16);
-
-	this.addComponent( new PanelComponent( PanelType.TEXT, amtFunction(item) ),
-			   "t" + i, 0, i, "#000000", "11px ABCD Mono", "right")
-	this.components["t" + i].x = w - 2*EDGEW;
-      }
-    }
-
     this.artP = artPrefix;
     this.amtF = amtFunction;
-  }
-  resetLoopSelector(loopselector)
-  {
-    super.resetLoopSelector(loopselector);
+    this.grayF = grayFunction;
 
+    this._loadItems();
+  }
+  _loadItems()
+  {
     for (let i = 0; i < this._ls.length; ++i)
     {
       let item = this._ls.list[i];
@@ -347,21 +330,28 @@ export class ItemPanel extends SelectionPanel
 			   "a" + i, 0, i, 1, 16, 16);
 
 	this.addComponent( new PanelComponent( PanelType.TEXT, this.amtF(item) ),
-			   "t" + i, 0, i, "#000000", "11px ABCD Mono", "right")
+			   "t" + i, 0, i, (this.grayF(item))?"#880000":"#000000", "11px ABCD Mono", "right")
 	this.components["t" + i].x = this.w - 2*EDGEW;
       }
     }
+  }
+  resetLoopSelector(loopselector)
+  {
+    super.resetLoopSelector(loopselector);
+    this._loadItems();
+
   }
 }
 
 export class UnitProfileItemPanel extends Panel
 {
-  constructor( x, y, w, h, loopselector, artPrefix, amtFunction)
+  constructor( x, y, w, h, loopselector, artPrefix, amtFunction, grayFunction = (i)=>{return false})
   {
     super(x, y, w, h);
     this._ls = loopselector;
     this.artP = artPrefix;
     this.amtF = amtFunction;
+    this.grayF = grayFunction;
     
     this.ptr = new SelectionPointer(this, 16);
     this.ptr.updateY(0);
@@ -389,17 +379,18 @@ export class UnitProfileItemPanel extends Panel
       g.drawOutlinedText(ctx, "E", this.x + this.w - 24, 58 + 24 * eqIdx,
 	"11px ABCD Mono Bold", "#4bdfcf","#000000");
     }
-    g.setTextColor(ctx, "#000000");
     g.setTextFont(ctx, "16.5px ABCD Mono");
     let l = this._ls.list;
     for (let i = 0; i < l.length; ++i)
     {
+      g.setTextColor(ctx, this.grayF(l[i])?"#880000":"#000000");
       g.setTextJustify(ctx, "left");
       g.drawImage(ctx, this.artP + l[i].constructor.name , this.x + 32, this.y + 14 + 24*i, 16, 16);
       g.drawText(ctx, l[i].name, this.x + 54, this.y + 16 + 24*i);
       g.setTextJustify(ctx, "right");
       g.drawText(ctx, this.amtF(l[i]), this.x + this.w - 32 , 56 + 24*i);
     }
+    g.setTextColor(ctx, "#000000");
   }
   draw(g, ctx)
   {

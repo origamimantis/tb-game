@@ -6,11 +6,17 @@ import {waitTick, waitTime, requestFile} from "./Utils.js";
 import {Panel} from "./Panel.js";
 import {PanelComponent, PanelType} from "./PanelComponent.js";
 import {TILES} from "./Constants.js";
+import {MusicPlayer} from "./MusicPlayer.js";
+import {Conversation} from "./Conversation.js";
 
 // TODO make Battle, attack return something to tell its caller
 //	what happened (ie unit died, amount of hp lost, etc)
 // TODO bug: when unit moves to attack someone and dies, there is an error
 //	on removal since unit updated coord but not tilemap
+
+
+const FIGHT = 0;
+const SPEECH = 1;
 
 function rand()
 {
@@ -81,6 +87,7 @@ function attack(a, d, turnqueue)
 
 function dealDamage(dmg, hp, maxhp)
 {
+  dmg = Math.floor(dmg);
   let new_hp = Math.max(0, Math.min( maxhp, hp - dmg ) );
   dmg = hp - new_hp;
   return [new_hp, dmg];
@@ -122,6 +129,7 @@ class BattleInfo
 
     // WEAPON
     let weap = u.getWeapon();
+    this.weapon = weap;
     this.stats.atk += weap.pow;
     this.stats.hit += weap.hit;
     this.stats.crt += weap.crt;
@@ -205,10 +213,18 @@ const HEALTHTEXT_Y = 382 - PANELS.HEALTH.HEIGHT/2 + 1;
 
 export class Battle
 {
-  constructor(g, initiator, defender)
+  constructor(g, initiator, defender, music)
   {
     this.g = g;
-    this.sfx = g.Music;
+    this.music = music;
+    this.state = FIGHT;
+
+    this.speech = []
+    this.speechIdx = 0;
+    this.speechName = null;
+    this.speechArt = null;
+    this.speechEnd = null;
+
     this.units = {atk: initiator,
 		  def: defender};
 
@@ -217,9 +233,6 @@ export class Battle
 
     this.sprDef = new UnitBattleSprite(defender, "def", g, 100,100);
     
-    this.sprIni.setAnimation("idle");
-    this.sprDef.setAnimation("idle");
-
     this.healthPanels = new BattlePair(
 			  new Panel(0, g.windowy - PANELS.HEALTH.HEIGHT,
 				    g.windowx/2, PANELS.HEALTH.HEIGHT),
@@ -230,15 +243,32 @@ export class Battle
 
     this.commentPanel = new Panel(PANELS.STATS.WIDTH, g.windowy - PANELS.HEALTH.HEIGHT-PANELS.STATS.HEIGHT,
 				  g.windowx - 2*PANELS.STATS.WIDTH, PANELS.STATS.HEIGHT),
-
+    this.speechPanel = new Panel(PANELS.STATS.WIDTH + 45, g.windowy - PANELS.HEALTH.HEIGHT-PANELS.STATS.HEIGHT + 25,
+				  g.windowx - 2*PANELS.STATS.WIDTH + 15, PANELS.STATS.HEIGHT + 15),
+    this.speechPanel.createComponent(PanelType.TEXT, "", "text", 0, 0, "black", "13.25px ABCD Mono");
+    let t = this.speechPanel.components.text;
+    t.x += 8;
+    t.y += 4;
 
     this.info = { atk: new BattleInfo(initiator, this.sprIni, g),
 		  def: new BattleInfo(defender, this.sprDef, g),
 		  rounds: 0
 		};
     this.turns = new BattleQueue();
+    this.dead = null;
+    this.deadSpr = null;
 
     this.initTurns();
+
+    this.loaded = new Promise( async (res) => {
+
+      await this.sprIni.load();
+      await this.sprDef.load();
+      this.sprIni.setAnimation("idle");
+      this.sprDef.setAnimation("idle");
+      res();
+    });
+
   }
   initStatPanels()
   {
@@ -290,10 +320,14 @@ export class Battle
     {
       this.addTurn(this.sprIni);
     }
-    this.addTurn(this.sprDef);
-    if (this.info.def.hasSkill("brave"))
+
+    if (this.info.def.weapon.name != "No Weapon")
     {
       this.addTurn(this.sprDef);
+      if (this.info.def.hasSkill("brave"))
+      {
+	this.addTurn(this.sprDef);
+      }
     }
   }
   addTurn(who)
@@ -307,32 +341,7 @@ export class Battle
       this.turns.enqueue(new BattlePair(this.info.def, this.info.atk));
     }
   }
-  begin(music)
-  {
-    this.g.Music.play(music);
-    this.drawStatics(this.g);
-    
-    return new Promise( async (resolve) =>
-    {
-      while(this.turns.nonempty())
-      {
-	this.setStatPanels();
-	await this.executeAction();
-      }
-
-      for (let id of ["atk", "def"])
-      {
-	this.units[id].stats.hp = this.info[id].stats.hp;
-      }
-
-      await waitTime(AFTER_BATTLE_DELAY);
-      await this.g.Music.fadestop(music);
-      
-      this.g.clearCtx(4);
-
-      resolve();
-    });
-  }
+  
   async executeAction()
   {
     let btl = this.turns.dequeue();
@@ -346,14 +355,14 @@ export class Battle
     let a_hp = res.a_hp;
     let d_hp = res.d_hp;
     
-    if (res.crit)
-      atkr.sprite.setAnimation("crt");
-    else
-      atkr.sprite.setAnimation("hit");
+    let a_animDone = new Promise( resolve =>
+    {
+      if (res.crit)
+	atkr.sprite.setAnimation("crt", resolve);
+      else
+	atkr.sprite.setAnimation("hit", resolve);
+    });
     
-    
-    // TODO make different per animation
-    // maybe return a promise when the anim reaches the "slash frame"
     await atkr.sprite.onHit(async (done) =>
       {
 
@@ -361,21 +370,21 @@ export class Battle
 	let a_drain = this.lifeDrain(atkr, a_hp);
 	let d_drain = this.lifeDrain(defr, d_hp);
 	if (res.miss)
-	  this.sfx.play("FX_miss");
+	  MusicPlayer.play("FX_miss");
 	else
 	{
 	  knock = this.knockBack(defr);
 	  if (res.d_dmg)
 	  {
-	    this.sfx.play("FX_slash");
+	    MusicPlayer.play(atkr.sprite.ws.sfx);
 	    if (res.crit)
-	      this.sfx.play("FX_crit");
+	      MusicPlayer.play("FX_crit");
 	  }
-	  else//TODO clink
-	    this.sfx.play("FX_slash");
+	  else// 0 damage dealt
+	    MusicPlayer.play("FX_clink");
 	}
 
-	await Promise.all([knock, a_drain, d_drain]);
+	await Promise.all([knock, a_drain, d_drain, a_animDone]);
 	done();
       }
     );
@@ -388,8 +397,9 @@ export class Battle
       {
 	// only play this once
 	if (battleOver == false)
-	  this.sfx.play("FX_unitdeath");
-	this.g.removeUnit(this.units[id]);
+	  MusicPlayer.play("FX_unitdeath");
+	this.dead = this.units[id];
+	this.deadSpr = this.info[id];
 	battleOver = true;
       }
     }
@@ -405,12 +415,23 @@ export class Battle
   {
     return new Promise( async (resolve)=>
       {
-	let dh = Math.sign(finalAmount - target.stats.hp)
-	while (target.stats.hp != finalAmount)
+	if (finalAmount < target.stats.hp)
 	{
-	  target.stats.hp += dh;
-	  await waitTick();
+	  while (target.stats.hp > finalAmount)
+	  {
+	    --target.stats.hp;
+	    await waitTick();
+	  }
 	}
+	else if (finalAmount > target.stats.hp)
+	{
+	  while (target.stats.hp < finalAmount)
+	  {
+	    ++target.stats.hp;
+	    await waitTick();
+	  }
+	}
+	target.stats.hp = finalAmount;
 	resolve();
       }
     );
@@ -484,10 +505,103 @@ export class Battle
   }
   draw(g)
   {
-    this.sprIni.draw(g);
     this.sprDef.draw(g);
+    this.sprIni.draw(g);
 
-    this.drawHealthBars(g);
+    if (this.state == FIGHT)
+    {
+      this.drawHealthBars(g);
+    }
+  }
+  select()
+  {
+    if (this.state == SPEECH)
+    {
+      ++ this.speechIdx;
+      if (this.speechIdx >= this.speech.length)
+	this.speechEnd();
+      else
+      {
+	this.drawSpeech();
+      }
+    }
+
+  }
+  arrows(a)
+  {
+  }
+  cancel()
+  {
+  }
+  inform()
+  {
+  }
+  drawSpeech()
+  {
+    this.g.ctx[4].fillStyle = "black";
+    this.g.ctx[4].fillRect(0, this.g.windowy-PANELS.HEALTH.HEIGHT-PANELS.STATS.HEIGHT,
+			512, PANELS.HEALTH.HEIGHT + PANELS.STATS.HEIGHT);
+
+
+    this.speechPanel.setComponentData("text", this.speech[this.speechIdx]);
+
+    this.speechPanel.explicitDraw(this.g);
+    let w = 64*1.5;
+
+    this.g.drawImage(4, this.speechArt, 20 , 250, w, w);
+
+
+
+  }
+  async beginSpeech(speechEnd)
+  {
+    this.speechEnd = speechEnd;
+    this.drawSpeech();
+  }
+  async begin(Return)
+  {
+    this.Return = Return;
+
+    await this.loaded;
+
+    MusicPlayer.play(this.music);
+    this.drawStatics(this.g);
+    
+    // fight each other
+    while(this.turns.nonempty())
+    {
+      this.setStatPanels();
+      await this.executeAction();
+    }
+
+    // update unit hp
+    for (let id of ["atk", "def"])
+    {
+      this.units[id].stats.hp = this.info[id].stats.hp;
+    }
+    
+    if (this.dead && this.deadSpr.sprite.deathQuote !== null)
+    {
+      this.speech = this.deadSpr.sprite.deathQuote;
+      this.speechIdx = 0;
+      this.speechName = this.dead.name;
+      this.speechArt = this.dead.pArt;
+      this.state = SPEECH;
+      await new Promise( (resolve) => {this.beginSpeech(resolve)});
+    }
+    else
+    {
+      await waitTime(AFTER_BATTLE_DELAY);
+    }
+    this.end();
+  }
+  async end()
+  {
+    await MusicPlayer.fadestop(this.music);
+  
+    this.g.clearCtx(4);
+    //return this.dead;
+    this.Return();
   }
 
 }

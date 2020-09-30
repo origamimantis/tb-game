@@ -6,7 +6,22 @@ import {Album, ImageLoader} from "./Images.js";
 import {MusicPlayer} from "./MusicPlayer.js";
 import {ImageModifier} from "./ImageModifier.js";
 import {BattleAnimationAlbum} from "./BattleAnimationAlbum.js";
+import {Characters} from "./Characters.js";
 
+function bindInteractions(script)
+{
+  for (let [coord, ia] of Object.entries(script.interactions))
+  {
+    let c = coord.split(",");
+    ia.position = {x: parseInt(c[0]), y: parseInt(c[1])};
+    for (let key of Object.keys(ia))
+    {
+      if (typeof ia[key] == "function")
+	ia[key].bind(ia);
+    }
+    // TODO bind for objects as well, not just interactions
+  }
+}
 
 // thingsToLoad = {
 //		    MapPath : string,	ie "assets/tilemaps/lvl1.txt"
@@ -17,54 +32,48 @@ import {BattleAnimationAlbum} from "./BattleAnimationAlbum.js";
 //
 //		  }
 
-function load(thingsToLoad)
-  {
-    let thingy = {
-		  Map : new TileMap(),
-		  Music : new MusicPlayer(),
-		};
+// this loads everything that must be reloaded
+// when a level is restarted
+async function loadScript(script)
+{
+  let level = await import(script);
+  level = rfdc({ proto: false, circles: false })(level.script)
+  bindInteractions(level);
+  return level;
+}
+async function loadMap(mapFile)
+{
+  let map = new TileMap();
+  // load map
+  mapFile = await requestFile(mapFile);
+  map.generate(mapFile.responseText);
+  return map;
+}
+async function loadImgs(imgList, imgMod)
+{
 
-    return new Promise( async (resolve, reject) => 
-      {
-	// load map
-	let mapFile = await requestFile(thingsToLoad.MapPath);
-	thingy.Map.generate(mapFile.responseText);
-	
-	// load images
-	Album.init();
-	let i = new ImageLoader();
-	await i.loadImgs( thingsToLoad.ImgLoad );
+  // load images
+  Album.init();
+  let i = new ImageLoader();
+  await i.loadImgs( imgList );
 
-	let imscript = await requestFile(thingsToLoad.ImgMod);
-	imscript = imscript.responseText;
+  let imscript = await requestFile(imgMod);
+  imscript = imscript.responseText;
 
-	ImageModifier.init(Album);
-	ImageModifier.execute(imscript)
+  ImageModifier.init(Album);
+  ImageModifier.execute(imscript)
+}
+async function loadMusic()
+{
+  await MusicPlayer.loadMusic();
+}
 
-	// TODO make this an argument from main
-	BattleAnimationAlbum.init();
-	await BattleAnimationAlbum.addAnim("anim0", "assets/scripts/anim0.txt");
-	await BattleAnimationAlbum.addAnim("anim1", "assets/scripts/anim1.txt");
-	await BattleAnimationAlbum.addAnim("anim2", "assets/scripts/anim2.txt");
-	await BattleAnimationAlbum.addAnim("anim3", "assets/scripts/anim3.txt");
-
-	// load sounds
-	await thingy.Music.loadMusic();
-
-	let script = await requestFile(thingsToLoad.MapScript);
-	script = script.responseText;
-
-	document.fonts.load("11px ABCD Mono");
-	document.fonts.load("11px ABCD Mono Bold");
-	document.fonts.load("16.5px ABCD Mono");
-	document.fonts.load("16.5px ABCD Mono Bold");
-	document.fonts.load("22px ABCD Mono");
-	document.fonts.load("22px ABCD Mono Bold");
-	
-	// "return"
-	resolve({assets: thingy, script: script});
-      });
-  }
-
-
-export {load};
+async function loadFonts()
+{
+  document.fonts.load("11px ABCD Mono");
+  document.fonts.load("11px ABCD Mono Bold");
+  document.fonts.load("16.5px ABCD Mono");
+  document.fonts.load("16.5px ABCD Mono Bold");
+  document.fonts.load("22px ABCD Mono");
+  document.fonts.load("22px ABCD Mono Bold");
+}

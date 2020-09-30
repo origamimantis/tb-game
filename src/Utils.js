@@ -58,7 +58,7 @@ export function cursorStop(cur)
     {
       while (cur.moving != false)
       {
-	await new Promise( (resolve) => {setTimeout(() => {resolve();}, 5)});
+	await new Promise( (resolve) => {setTimeout(resolve, 5)});
       }
       resolve();
     });
@@ -100,8 +100,8 @@ export function getCost(map, x, y, cost)
 
 export function generateMovable(map, x, y, mov, cost)
 {
-  let min = new Coord(0,0);
-  let max = new Coord(map.dimension.x - 1, map.dimension.y - 1);
+  let min = new Coord(map.min("x"), map.min("y"));
+  let max = new Coord(map.max("x"), map.max("y"));
 
   let toVisit = new Queue();
   let previouslyVisited = new MapCoordBlob();
@@ -155,8 +155,10 @@ export function generateMovable(map, x, y, mov, cost)
 export function generateMovable_(g, x, y, mov, cost)
 {
   let mem = new Queue();
-  let min = new Coord(0,0);
-  let max = new Coord(g.Map.dimension.x - 1, g.Map.dimension.y - 1);
+  let min = new Coord(g.Map.min("x"), g.Map.min("y"));
+  let max = new Coord(g.Map.max("x"), g.Map.max("y"));
+  console.log( new Coord(g.Map.max("x"), g.Map.max("y")));
+  console.log( new Coord(g.Map.dimension.x, g.Map.dimension.y));
 
   let tmp = getCost(g, x, y, cost);
 
@@ -218,6 +220,10 @@ export function randRange(lb, ub)
 export function randInt(lb, ub)
 {
   return Math.floor(randRange(lb, ub));
+}
+export function randChoice(array)
+{
+  return array[randInt(0, array.length)];
 }
 
 // range is array of range numbers ie [1,2] or [1]

@@ -5,8 +5,8 @@ import {Album} from "./Images.js";
 
 export class Weapon
 {
-    //          str   int    int  int   [int]  int   [str]    {str:int} [str][str]  [str]  str        {str: int}
-    constructor(name, might, hit, crit, range, uses, effects, statbon,  eff, strong, weak)
+    //          str   int    int  int   [int]  int   [str]    {str:int} str [str][str]  [str]  str        {str: int}
+    constructor(name, might, hit, crit, range, uses, effects, statbon, pref, eff, strong, weak)
     {
 	this.name = name;
 	this.pow = might;
@@ -20,6 +20,7 @@ export class Weapon
 	this.advantage = strong;
 	this.disadvantage = weak
 	this.effective = eff;
+	this.pref = pref;
     }
     hasEffect( e )
     {
@@ -47,7 +48,7 @@ export class Weapon
 
 export class WeaponSprite
 {
-  constructor(img, animations, moveRange, handx, handy, numAnim, updateFunc)
+  constructor(img, animations, moveRange, handx, handy, numAnim, hitSFX, updateFunc)
   {
     if (img !== null)
     {
@@ -68,6 +69,7 @@ export class WeaponSprite
     this.animType = animations;
     this.moveRange = moveRange;
     this.update = updateFunc;
+    this.sfx = hitSFX
     this.hx = handx;
     this.hy = handy;
     this.x = 0;
@@ -82,7 +84,7 @@ class NoWeapon_Sprite extends WeaponSprite
 {
   constructor()
   {
-    super(null, "melee", {min: 15, max:40}, 3, 3, 1, (unit, state) =>{});
+    super(null, "melee", {min: 15, max:40}, 3, 3, 1, "FX_clink", (unit, state) =>{});
   }
 }
 
@@ -91,7 +93,7 @@ export class NoWeapon extends Weapon
 {
   constructor()
   {
-      super("No Weapon", 0, 100, 0, [1], 10000, [], {}, [],[],[])
+      super("No Weapon", 0, 100, 0, [0], 10000, [], {}, null, [],[],[])
   }
   sprite()
   {
@@ -117,7 +119,7 @@ export class Spook extends Weapon
 {
   constructor()
   {
-      super("Spook", 0, 100, 0, [2], 10000, [], {}, [],[],[],
+      super("Spook", 0, 100, 0, [2], 10000, [], {}, null, [],[],[],
       )
   }
   sprite()
@@ -130,27 +132,20 @@ export class VampireFang extends Weapon
 {
   constructor()
   {
-    super("Vampire Fang", 18, 85, 20, [1], 80, ["vampiric"], {}, [],[],[]);
+    super("Vampire Fang", 18, 85, 20, [1], 80, ["vampiric"], {}, null, [],[],[]);
   }
   sprite()
   {
     return new NoWeapon_Sprite();
   }
 }
-export class Bow extends Weapon
-{
-    constructor(name, might, hit, crit, range, uses, effects, statbon, eff, strong = null, weak=null)
-    {
-	if (strong == null) {strong = []} if (weak   == null) {weak   = []}
-	super(name, might, hit, crit, range, uses, effects, statbon, eff, strong, weak)
-    }
-}
 
-class Sword_Sprite extends WeaponSprite
+
+class Melee_Sprite extends WeaponSprite
 {
-  constructor()
+  constructor(art = "W_sword", handx,handy, numFrame, sfx, rangeMin=15, rangeMax=32)
   {
-    super("W_sword", "melee", {min: 15, max:32}, 3, 15, 2,
+    super(art, "melee", {min: rangeMin, max:rangeMax}, handx, handy, numFrame, sfx, 
       (unit, state) =>
       {
         this.x = unit.x + unit.hx;
@@ -163,150 +158,87 @@ class Sword_Sprite extends WeaponSprite
 
 
 
+
 export class Sword extends Weapon
 {
-  constructor(name, might, hit, crit, range, uses, effects, statbon, eff, strong = null, weak=null)
+  constructor(name, might, hit, crit, range, uses, effects, statbon, pref, eff, strong = null, weak=null)
   {
-    if (strong == null) {strong = [Axe  ]} if (weak   == null) {weak   = [Lance]}
-    super(name, might, hit, crit, range, uses, effects, statbon, eff, strong, weak)
+    //if (strong == null) {strong = [Axe  ]} if (weak   == null) {weak   = [Lance]}
+    super(name, might, hit, crit, range, uses, effects, statbon, pref, eff, strong, weak)
   }
   sprite()
   {
-    return new Sword_Sprite();
+    return new Melee_Sprite("W_sword", 3,15,2, "FX_slash");
   }
 }
-
-export class Lance extends Weapon
+export class Pitchfork extends Weapon
 {
-    constructor(name, might, hit, crit, range, uses, effects, statbon, eff, strong = null, weak=null)
-    {
-	if (strong == null) {strong = [Sword]} if (weak   == null) {weak   = [Axe  ]}
-	super(name, might, hit, crit, range, uses, effects, statbon, eff, strong, weak)
-    }
+  constructor()
+  {
+      super("Pitchfork", 7, 80, 0, [1], 50, [], {}, "Alfred");
+  }
+  sprite()
+  {
+    return new Melee_Sprite("W_Pitchfork", 13, 15,2, "FX_slash",   30);
+  }
 }
-
-export class Axe extends Weapon
+export class FryingPan extends Weapon
 {
-    constructor(name, might, hit, crit, range, uses, effects, statbon, eff, strong = null, weak=null)
-    {
-	if (strong == null) {strong = [Lance]} if (weak   == null) {weak   = [Sword]}
-	super(name, might, hit, crit, range, uses, effects, statbon, eff, strong, weak)
-    }
+  constructor()
+  {
+    //TODO 1-2 range
+      super("Frying Pan", 3, 90, 1000, [1], 50, [], {}, "Chloe");
+  }
+  sprite()
+  {
+    return new Melee_Sprite("W_FryingPan",6,15,3, "FX_bonk", 45, 65);
+  }
 }
-export class LongSword extends Sword
+export class Shovel extends Weapon
 {
-    constructor()
-    {
-	super("Brave Sword", 12, 100, 0, [5], 48, [], {});
-    }
+  constructor()
+  {
+      super("Shovel", 5, 70, 25, [1], 50, [], {}, "Billy");
+  }
+  sprite()
+  {
+    return new Melee_Sprite("W_Shovel",9,15,2, "FX_bonk", 42, 60);
+  }
+}
+export class LumberAxe extends Weapon
+{
+  constructor()
+  {
+      super("LumberAxe", 6, 65, -30, [1], 50, [], {}, null);
+  }
+  sprite()
+  {
+    return new Melee_Sprite("W_LumberAxe",7,15,2, "FX_slash", 42, 60);
+  }
 }
 export class BraveSword extends Sword
 {
     constructor()
     {
-	super("Brave Sword", 12, 100, 0, [1], 48, ["brave"], {});
+	super("Brave Sword", 12, 100, 0, [1], 48, ["brave"], {}, null);
     }
 }
 
-export class WoodBow extends Bow
-{
-    constructor()
-    {
-	super("Wood Bow", 9, 70, 0, [2], 48, [], {});
-    }
-}
-export class SilverBow extends Bow
-{
-    constructor()
-    {
-	super("Silver Bow", 15, 95, 0, [2], 24, [], {});
-    }
-}
 export class BronzeSlicer extends Sword
 {
-    constructor(){ super("Bronze Slicer", 8, 80, 10, [1], 48, [], {}); }
-}
-
-export class Sweeper extends Sword
-{
-    constructor()
-    {
-	super("Sweeper", 8, 65, 0, [1], 48, ["sweep"], {"spd":10,"skl":5,"def": 5});
-    }
-}
-
-export class MegaSweeper extends Sword
-{
-    constructor()
-    {
-	super("Mega Sweeper", 10, 65, 0, [1], 48, ["sweep", "brave"], {"spd":10,"skl":5,"def": 5});
-    }
-}
-
-export class MightyAxe extends Axe
-{
-    constructor()
-    {
-	super("Mighty Axe", 18, 100, 20, [1], 24, [], {});
-    }
-}
-export class BloodAxe extends Axe
-{
-    constructor()
-    {
-	super("Blood Axe", 18, 65, 20, [1], 24, ["vampiric"], {});
-    }
-}
-
-
-
-export class EnragedAxe extends Axe
-{
-    constructor()
-    {
-	super("Enraged Axe", 18, 80, 0, [1], 24, ["fury"], {});
-    }
-}
-export class Skofnung extends Sword
-{
-    constructor()
-    {
-	super("Skofnung", 12, 100, 10, [1], 48, [], {});
-    }
-    activate() { this.pow = 20; this.bonus = {"atk":5, "spd":5, "skl":10,"def":10}; this.effects.push("crescent");}
-}
-export class StarSword extends Sword
-{
-    constructor()
-    {
-	super("StarSword", 9, 100, -50, [1], 24, ["brave", "starnova","crescent"], {"skl":10});
-    }
-}
-export class MusicExtender extends Sword
-{
-    constructor()
-    {
-	super("MusicExtender", -50, 200, -100, [1], 99999999, ["brave", "starnova"], {"skl":100});
-    }
+    constructor(){ super("Bronze Slicer", 8, 80, 10, [1], 48, [], {}, null); }
 }
 
 
 
 let Weapons =
 {
+    "Pitchfork":Pitchfork,
+    "Shovel":Shovel,
+    "FryingPan":FryingPan,
     "VampireFang":VampireFang,
-    "WoodBow":WoodBow,
-    "SilverBow":SilverBow,
     "BraveSword":BraveSword,
     "BronzeSlicer":BronzeSlicer,
-    "Sweeper":Sweeper,
-    "MegaSweeper":MegaSweeper,
-    "MightyAxe":MightyAxe,
-    "BloodAxe":BloodAxe,
-    "EnragedAxe":EnragedAxe,
-    "Skofnung":Skofnung,
-    "StarSword":StarSword,
-    "MusicExtender":MusicExtender,
 
 
 

@@ -1,0 +1,8 @@
+name idle
+type melee
+frames 1
+usrc BattleSprites/generic/Bandit/idle
+
+begin
+0 uframe 0 hand 12 39 -16
+1 end

@@ -2,7 +2,6 @@ name hit
 type melee
 frames 4
 usrc BS_kn_hit
-wsrc W_sword
 
 begin
 #	        x  y  angle

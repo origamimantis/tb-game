@@ -10,11 +10,12 @@ import {Range} from "./Range.js";
 import {TILES, UNIT_MAX_WEAP, UNIT_MAX_ITEM, STATS} from "./Constants.js";
 import {ImageModifier} from "./ImageModifier.js";
 import {triggerEvent, generatePath, inRange, generateMovable, nextFrameDo, waitTick} from "./Utils.js";
+import {NoWeapon} from "./Weapon.js";
 
 
 export class Unit extends AnimatedObject
 {
-  constructor(id, x, y, caps, stats, name = ("Unit "+id), classname = "Unit", pArt = "gen", walkFunction = null)
+  constructor(id, x, y, caps, stats, name = ("Unit "+id), classname = "Unit", pArt = "gen", skills = [], walkFunction = null)
   {
     super( x, y );
     this.x = x;
@@ -46,6 +47,7 @@ export class Unit extends AnimatedObject
     this.stats.hp = this.stats.maxhp;
 
     this.mapSpeed = 4;
+    this.baseMapSpeed = 4;
 
     this.vis = {
 		dx : 0,
@@ -67,6 +69,9 @@ export class Unit extends AnimatedObject
     this.items = [];
     this.walkFunction = walkFunction;
     
+    this.skills = skills;
+    this.ai = "doNothing";
+    this.dead = false;
   }
   
   addWeapon(weap)
@@ -83,11 +88,50 @@ export class Unit extends AnimatedObject
     else
       throw new Error("Unit.addItem: max item amount exceeded.");
   }
+  // TODO weapon ranks and stuff
+  canUseWeapon(w)
+  {
+    let r = true;
+    if (this.hasSkill("noncombatant"))
+      r = false;
+    else if (w !== null && w.pref !== null && this.name != w.pref)
+      r = false;
+    return r;
+  }
+  cannotUseWeapon(w)
+  { return !this.canUseWeapon(w);}
+
+  // idx is [int]
+  getUsableWeapons(idx)
+  {
+    let a = [];
+    let i = 0;
+    for (let w of this.weapons)
+    {
+      if (this.canUseWeapon(w))
+      {
+	a.push(w);
+	if (i == this.eqWeap)
+	  idx[0] = a.length - 1;
+      }
+      ++i;
+    }
+    return a;
+  }
   getWeapon()
   {
     if (this.weapons.length == 0)
-      return new Weapons.NoWeapon();
+      return new NoWeapon();
     return this.weapons[this.eqWeap];
+  }
+  hasSkill(s)
+  {
+    for (let ss of this.skills)
+    {
+      if (ss == s)
+	return true;
+    }
+    return false;
   }
   hasUsableItem()
   {
@@ -117,11 +161,11 @@ export class Unit extends AnimatedObject
     }
   }
   
-  async tentativeMove(g, path)
+  async tentativeMove(g, path, speed = this.baseMapSpeed)
   {
-    return new Promise( resolve => { this._tentativeMove(g, path, resolve) } );
+    return new Promise( resolve => { this._tentativeMove(g, path, resolve, speed) } );
   }
-  _tentativeMove(g, path, onDone)
+  _tentativeMove(g, path, onDone, speed)
   {
     // since move is tentative, save old location for potential revert
     this.old.x = this.x;
@@ -131,7 +175,8 @@ export class Unit extends AnimatedObject
     {
       this.path_iter = path.iter();
       this.path_iter.onDone = onDone;
-      this.path_iter.counter = this.mapSpeed;
+      this.path_iter.counter = speed;
+      this.mapSpeed = speed;
       // Don't spend extra frames drawing unit at current location
       this.path_iter.next();
 
@@ -178,21 +223,34 @@ export class Unit extends AnimatedObject
     return ["attack", "wait"];
   }
 
-  async moveTo(g, x, y, onDone)
+  teleport(g, x, y)
   {
-    let p = await generatePath(g, this.x, this.y, x, y, this.movcost);
-    if (p == null)
-    {
-      throw "Could not find path to (x, y) = (" + this.x + ", " + this.y + ") to (" + x + ", " + y + ").";
-    }
-    this.path_iter = p.iter();
-    this.path_iter.onDone = onDone;
-    this.path_iter.counter = this.mapSpeed;
-    this.path_iter.next();
-    this.moving = true;
     g.Map.removeUnit(this);
     g.Map.getTile(x, y).unit = this;
-
+    this.x = x;
+    this.y = y;
+    this.vis.x = x;
+    this.vis.y = y;
+  }
+  // usually used in cutscenes
+  // speed: number of frames per tile
+  moveTo(g, x, y, speed = this.baseMapSpeed*2)
+  {
+    return new Promise( async (resolve) => {
+      let p = await generatePath(g, this.x, this.y, x, y, this.movcost);
+      if (p == null)
+      {
+	throw "Could not find path to (x, y) = (" + this.x + ", " + this.y + ") to (" + x + ", " + y + ").";
+      }
+      this.path_iter = p.iter();
+      this.path_iter.onDone = resolve;
+      this.path_iter.counter = speed;
+      this.mapSpeed = speed;
+      this.path_iter.next();
+      this.moving = true;
+      g.Map.removeUnit(this);
+      g.Map.getTile(x, y).unit = this;
+    });
   }
   
   update(g)
@@ -253,7 +311,7 @@ export class Unit extends AnimatedObject
     return inRange(this, [1], "units", map, null, 
       [(x)=>{return (x !== this && teams.includes(x.team));}]);
   }
-  movable(g, includeAttackable, draw = true)
+  movable(g, includeAttackable, draw = true, wlist = this.weapons)
   {
     let p = generateMovable(g.Map, this.x, this.y, this.getMov(), this.movcost);
 
@@ -265,7 +323,7 @@ export class Unit extends AnimatedObject
       for (let c of p)
       {
 	costs.add(c, this.movcost[g.Map.pather[c.y][c.x]])
-	let n = inRange(c, this.getRange(), "tiles", g.Map);
+	let n = inRange(c, this.getRange(null), "tiles", g.Map);
 	for (let cc of n)
 	{
 	  if (a.doesNotContain(cc))
@@ -317,15 +375,17 @@ export class Unit extends AnimatedObject
     return r;
   }
 
-  attackableTiles(map)
+  // attackable from a certain coordinate ie does not factor in movement
+  attackableTiles(map, wlist = this.weapons)
   {
-    let p = inRange(this, this.getRange(), "tiles", map);
+    let p = inRange(this, this.getRange(wlist), "tiles", map);
     p.setArt("C_atk");
     return p;
   }
-  attackableUnits(map)
+  // attackable from a certain coordinate ie does not factor in movement
+  attackableUnits(map, wlist = null)
   {
-    return inRange(this, this.getRange(), "units", map, null, [(unit)=>{return (unit.team != this.team);}]);
+    return inRange(this, this.getRange(wlist), "units", map, null, [(unit)=>{return (unit.team != this.team);}]);
   }
   // will be used later if move is affected by anything.
   // if not, then this will just be a getter
@@ -333,14 +393,37 @@ export class Unit extends AnimatedObject
   {
     return this.stats.mov;
   }
-  
-  getRange()
+  isDead()
   {
-    if (this.weapons.length == 0)
+    return this.dead;
+  }
+  isAlive()
+  {
+    return !this.dead;
+  }
+  
+  getRange(wlist = null)
+  {
+    if (wlist === null)
+    {
+      return this.getWeapon().range;
+    }
+    if (wlist.length == 0)
     {
       return new Range(0,0);
     }
-    return this.weapons[0].range;
+    return wlist[0].range;
+  }
+  async fadeOut(g, onDone)
+  {
+    for (let i = 30; i > 0; --i)
+    {
+      g.ctx[2].globalAlpha = (i-1)/30;
+      this.draw(g);
+      g.ctx[2].globalAlpha = 1;
+      await waitTick();
+    }
+    onDone();
   }
 
   async recolorAnim(g, a, d, name)

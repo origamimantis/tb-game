@@ -1,6 +1,6 @@
 'use strict';
 
-import {respondToEvent, waitTick} from "./Utils.js";
+import {waitTick} from "./Utils.js";
 import {Coord} from "./Path.js";
 import {Queue} from "./Queue.js";
 
@@ -11,12 +11,12 @@ const MOVE_BORDER = {x: 3,
 //  Follow cursor by responding to listeners by doing something/nothing
 class Camera
 {
-  constructor( g, wx, wy, mx, my )
+  constructor( g, wx, wy)
   {
     this.g = g;
     
     this.wsize = {x: wx, y: wy};
-    this.max = {x: mx - wx, y: my - wy};
+    this.map = g.Map;
     
     // offset is camera's top left coordinate
     this.offset = {x: 0, y: 0};
@@ -27,10 +27,11 @@ class Camera
 			  b: this.wsize.y - MOVE_BORDER.y - 1}
 
     this.toMove = {x: false, y: false};
-    this.target = g.cursor.vis;
+    this.target = null;
 
     this.path = new Queue();
     this.shift = false;
+    this.baseShiftSpeed = 3;
     this.shiftSpeed = 3;
   }
 
@@ -46,24 +47,30 @@ class Camera
 			  t: y,
 			  b: this.wsize.y - y - 1}
   }
-  waitShiftTo(c)
+  waitShiftTo(c, speed = this.baseShiftSpeed)
   {
-    return new Promise( resolve => {this.shiftTo(c, resolve);} );
+    return new Promise( resolve => {this.shiftTo(c, speed, resolve);} );
   }
-  waitShiftAbsolute(c)
+  waitShiftAbsolute(c, speed = this.baseShiftSpeed)
   {
-    return new Promise( resolve => {this.shiftAbsolute(c, resolve);} );
+    return new Promise( resolve => {this.shiftAbsolute(c, speed, resolve);} );
   }
 
-  shiftTo(c, onDone)
+  setPos(x, y)
+  {
+    this.offset.x = x;
+    this.offset.y = y;
+  }
+  // shifts until c is visible.
+  shiftTo(c, speed = this.baseShiftSpeed, onDone = ()=>{})
   {
     if (this.path.nonempty())
     {
       throw "Cannot shift camera while moving.";
     }
     let off = new Coord( this.offset.x, this.offset.y );
-    let dest = new Coord( inBound(c.x, this.moveTriggers.l, this.max.x + this.moveTriggers.r),
-			  inBound(c.y, this.moveTriggers.t, this.max.y + this.moveTriggers.b) );
+    let dest = new Coord(inBound(c.x, this._min("x") + this.moveTriggers.l, this._max("x") + this.moveTriggers.r),
+			 inBound(c.y, this._min("y") + this.moveTriggers.t, this._max("y") + this.moveTriggers.b) );
 
     while (dest.x - off.x > this.moveTriggers.r || dest.x - off.x < this.moveTriggers.l)
     {
@@ -99,7 +106,8 @@ class Camera
     if (this.path.nonempty())
     {
       this.path.onDone = onDone;
-      this.path.counter = this.shiftSpeed;
+      this.path.counter = speed
+      this.shiftSpeed = speed
       this.shift = true;
     }
     else
@@ -109,23 +117,31 @@ class Camera
 
   }
 
-  shiftAbsolute(c, onDone)
+  shiftImmediate(x, y)
+  {
+    this.offset.x = x;
+    this.offset.y = y
+  }
+  // shifts top left camera position to c
+  shiftAbsolute(c, speed = this.baseShiftSpeed, onDone = ()=>{})
   {
     if (this.path.nonempty())
     {
       throw "Cannot shift camera while moving.";
     }
     let off = new Coord( this.offset.x, this.offset.y );
+    let dest = new Coord(inBound(c.x, this._min("x"), this._max("x")),
+			inBound(c.y, this._min("y"), this._max("y")) );
 
-    while (c.x != off.x)
+    let dx = Math.sign(dest.x - off.x);
+    let dy = Math.sign(dest.y - off.y);
+    while (dest.x != off.x)
     {
-      let dx = Math.sign(c.x - off.x);
       off.x += dx;
       this.path.enqueue(new Coord(dx, 0));
     }
-    while (c.y != off.y)
+    while (dest.y != off.y)
     {
-      let dy = Math.sign(c.y - off.y);
       off.y += dy;
       this.path.enqueue(new Coord(0, dy));
     }
@@ -133,7 +149,8 @@ class Camera
     if (this.path.nonempty())
     {
       this.path.onDone = onDone;
-      this.path.counter = this.shiftSpeed;
+      this.path.counter = speed;
+      this.shiftSpeed = speed;
       this.shift = true;
     }
     else
@@ -145,7 +162,7 @@ class Camera
 
   setTarget(t)
   {
-    this.target = t;
+    this.target = t.vis;
   }
   clearTarget()
   {
@@ -164,8 +181,8 @@ class Camera
       {
 	let v = this.path.front();
 	-- this.path.counter;
-	this.offset.x = inBound( this.offset.x + v.x/this.shiftSpeed, 0, this.max.x);
-	this.offset.y = inBound( this.offset.y + v.y/this.shiftSpeed, 0, this.max.y);
+	this.offset.x = inBound( this.offset.x + v.x/this.shiftSpeed, this._min("x"), this._max("x"));
+	this.offset.y = inBound( this.offset.y + v.y/this.shiftSpeed, this._min("y"), this._max("y"));
       }
       else
       {
@@ -185,7 +202,7 @@ class Camera
       }
 
     }
-    else
+    else if (this.target !== null)
     {
       let adj = this.adjustedPos(this.target);
 
@@ -209,8 +226,8 @@ class Camera
       {
 	vely = adj.y - this.moveTriggers.t;
       }
-      this.offset.x = inBound( this.offset.x + velx, 0, this.max.x);
-      this.offset.y = inBound( this.offset.y + vely, 0, this.max.y);
+      this.offset.x = inBound( this.offset.x + velx, this._min("x"), this._max("x"));
+      this.offset.y = inBound( this.offset.y + vely, this._min("y"), this._max("y"));
     }
   }
   onLeft(c)
@@ -238,7 +255,16 @@ class Camera
   {
     let a = this.adjustedPos(c);
 
-    return inBound( a.x, 0, this.max.x) && inBound( a.y, 0, this.max.y);
+    return inBound( a.x, this._min("x"), this._max("x"))
+	&& inBound( a.y, this._min("y"), this._max("y"));
+  }
+  _min(dim)
+  {
+    return this.map.min(dim);
+  }
+  _max(dim)
+  {
+    return this.map.max(dim) - this.wsize[dim] + 1;
   }
 }
 

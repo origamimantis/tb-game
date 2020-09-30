@@ -7,6 +7,24 @@ const ANIMDATA =
     heal: { image: "FX_heal", weights: [5,5,5,5,5,5], time: 60, fade: true, fadeDelay: 20 ,loops: true}
   };
 
+export class NightTimeEffect
+{
+  constructor()
+  {}
+  draw(g)
+  {
+    if (g.isNightTime())
+    {
+      g.ctx[2].fillStyle = "#00008D";
+      g.ctx[2].globalAlpha = 0.3;
+      g.ctx[2].fillRect(0,0,512, 384);
+      g.ctx[2].globalAlpha = 1;
+    }
+  }
+  update()
+  {}
+}
+
 export class SpriteEffect extends Animation
 {
   constructor( g, name, layer, x, y, fxonDone = ()=>{})

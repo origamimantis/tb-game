@@ -21,14 +21,14 @@ import {FPS, TICK_RATE} from "./Constants.js";
 import {Camera} from "./Camera.js";
 import {Queue} from "./Queue.js";
 import {MusicPlayer} from "./MusicPlayer.js";
-import {DrawContainer, UnitContainer, PanelContainer} from "./DrawContainer.js";
+import {DrawContainer, UnitContainer, PanelContainer, ScriptDrawer} from "./DrawContainer.js";
 import {Inputter, ARROWS, ARROW} from "./Inputter.js";
 import {Panel, SelectionPanel, UnitMapPanel, ItemPanel} from "./Panel.js";
 import {PanelComponent} from "./PanelComponent.js";
 import {Battle} from "./Battle.js";
 import {LoopSelector, QueueSelector} from "./LoopSelector.js";
 import {Action} from "./ActionGenerator.js";
-import {scrollSelect_UD, scrollSelect_4W, triggerEvent, respondToEvent,
+import {scrollSelect_UD, scrollSelect_4W, triggerEvent,
   getCost, generatePath, nextFrameDo, cursorStop, waitTick, waitTime, formattedHP,
   fracAmtFn} from "./Utils.js";
 import {EnemyController} from "./EnemyController.js";
@@ -39,6 +39,7 @@ import {UnitInfoScreen} from "./UnitInfoScreen.js";
 import {OptionScreen} from "./OptionScreen.js";
 import {UnitTradeScreen} from "./UnitTradeScreen.js";
 import {MapHealthBar} from "./MapHealthBar.js";
+import {NightTimeEffect} from "./Effects.js";
 
 export const C_WIDTH = 1024;
 export const C_HEIGHT = 768;
@@ -81,30 +82,21 @@ class Game
       ()=>{console.log("HAHAHA")});
     */
     this.Album = Album;
-    this.Music = assets.Music;
     this.Map = assets.Map;
     
     this.ctx = [];
     this.ctx_refresh = [1,2,3,5];
     this.generateCanvasLayers();
   
-    this.turn = new LoopSelector( [ TurnData("Player", "#aaaaff", "btl1",   "fght2"),
-				    TurnData("Enemy",  "#bd4900", "btl_en", "fght" ) ] );
+    this.turn = null;
     this.Units = new UnitContainer();
-    for (let td of this.turn)
-    {
-      this.Units.addTeam(td.turn);
-    }
     
     this.toDraw = new DrawContainer();
     this.Panels = new PanelContainer(this);
     
     this.cursor = new Cursor(this, 0, 0, CURSOR_SPEED);
 
-    this.camera = new Camera(this, WINDOWGRID_X, WINDOWGRID_Y, this.Map.dimension.x, this.Map.dimension.y);
-
-    this.Inputter = new Inputter(this);
-    this.loadKeyTracker();
+    this.camera = new Camera(this, WINDOWGRID_X, WINDOWGRID_Y);
 
     this.mapTheme = "btl1";
     
@@ -124,69 +116,28 @@ class Game
     this.Panels.set("UMP", new UnitMapPanel());
     this.Panels.hide("UMP");
     this.toDraw.set("banner", new TurnBanner(this));
+    this.nightEffect = new NightTimeEffect();
+    this.toDraw.set("nightEffect", this.nightEffect);
     this.temp = {};
     this.skipOnBegin = false;
     
     this.counter = 0;
     this.turncount = 1;
-    this.gameStatus = "";
+    this.gameStatus = "blockInput";
     this.inputting = false;
     
     
     this.cursorOutsideMovable = false;
 
-
-    respondToEvent("input_arrowStall", (e) =>{ this.Inputter.arrowStall(e.start); });
-    respondToEvent("cursor_finishMoveTo", (e) =>{ this.handleArrows = this.arrow_map; });
-    
-    respondToEvent("game_win", (e) =>{ console.log("you won"); } );
-    respondToEvent("game_lose", (e) =>{ console.log("you lost"); } );
-
-    respondToEvent("input_select",  async () => 
-    {
-      if (this.inputting)
-      {
-	this.blockInput();
-	await this.stateAction[this.gameStatus].select();
-	this.unblockInput();
-      }
-    });
-    respondToEvent("input_cancel",  async () => 
-    {
-      if (this.inputting)
-      {
-	this.blockInput();
-	await this.stateAction[this.gameStatus].cancel();
-	this.unblockInput();
-      }
-    });
-    respondToEvent("input_inform",  async () => 
-    {
-      if (this.inputting)
-      {
-	let i = this.stateAction[this.gameStatus].inform;
-	if (i !== undefined)
-	{
-	  this.blockInput();
-	  await i();
-	  this.unblockInput();
-	}
-      }
-    });
-
-    
-    //respondToEvent("game_test",  () => {this.Music.stop("rfgh")});
     this.stateAction = {};
     this.initStateAction();
-    this.beginGame();
-
-    respondToEvent("cursor_move", (c) =>
-    {
-      this.handlePortrait();
-    });
+    this.dayLength = 1;
+    
+    this._extStatusComplete = false;
   }
   handlePortrait()
   {
+    this.Panels.hide("UMP");
     let u = this.Map.getTile(this.cursor).unit;
     if (u != null)
     {
@@ -196,11 +147,7 @@ class Game
 	this.Panels.get("UMP").shiftOriginal();
       
       this.Panels.get("UMP").setInfo(u);
-      this.Panels.redraw("UMP");
-    }
-    else
-    {
-      this.Panels.hide("UMP");
+      this.Panels.show("UMP");
     }
   }
   getHostile(team)
@@ -208,32 +155,75 @@ class Game
     let a = [];
     for (let td of this.turn)
     {
-      if (td.turn != team)
+      if (td.name != team)
       {
-	a.push(td.turn);
+	a.push(td.name);
       }
     }
     return a;
   }
-  async beginGame()
+  async beginGame(chscript)
   {
-    await this.beginTurn(this.turn.get());
-    this.cursor.curAnim().reset();
-    this.setStatus("map");
+    this.chapterScript = chscript;
+
+    this.turn = new LoopSelector( chscript.teams );
+    this.dayLength = chscript.dayLength;
+    for (let td of this.turn)
+      this.Units.addTeam(td.name);
+				    
+    this.toDraw.set("scriptItems", new ScriptDrawer(chscript));
+    this.camera.setPos(chscript.cameraInit.x, chscript.cameraInit.y);
     this.unblockInput();
+    chscript.onBegin(this, ()=>{this.startTurns();});
+  }
+  wait(unit)
+  {
+    unit.confirmMove(this);
+    unit.endTurn(this);
+
+    this.Panels.del("selectedUnitActionPanel");
+    this.toDraw.del("selectedUnitMovable");
+    this.toDraw.del("selectedUnitPath");
+    this.toDraw.del("selectedUnitAttackableTiles");
+
+    this.setStatus("map");
   }
 
   generateUnitActions(g, unit)
   {
     let p = [];
-    let attackable = unit.attackableUnits(this.Map);
+    let coord = unit.x + "," + unit.y;
+    let interaction = this.chapterScript.interactions[coord];
+    if (interaction !== undefined)
+    {
+      p.push( new Action( interaction.tooltip, async () => {
+
+	this.gameStatus = "blockInput";
+	
+	this.Panels.del("selectedUnitActionPanel");
+	this.toDraw.del("selectedUnitMovable");
+	this.toDraw.del("selectedUnitPath");
+	this.toDraw.del("selectedUnitAttackableTiles");
+
+	await interaction.action(this, unit, ()=>{
+	  unit.confirmMove(this);
+	  unit.endTurn(this);
+	});
+
+	
+      } ) );
+
+    }
+
+    let attackable = unit.attackableUnits(this.Map, this.temp.unitUsableWeapons);
     if (attackable.nonempty())
     {
       // attack
-      p.push( new Action( "attack", () =>
+      p.push( new Action( "Attack", () =>
 	{
-	  let len = unit.weapons.length;
-	  let uWeap = new LoopSelector( unit.weapons, unit.eqWeap );
+	  let usableWpn = this.temp.unitUsableWeapons;
+	  let len = usableWpn.length;
+	  let uWeap = new LoopSelector( usableWpn, this.temp.unitUsableIdx);
 	  //let wp = new SelectionPanel(50,50, 70+64,16*len+20, 1, len, 398, 50, uWeap);
 	  let wp = new ItemPanel(50,50,  256, 16*len+20,  1, len, uWeap,
 	        "WT_", (c)=>{return formattedHP(c.uses, c.maxUses);});
@@ -250,23 +240,19 @@ class Game
     if (adjacent.nonempty())
     {
       // trade TODO
-      p.push( new Action( "trade", async () =>
+      p.push( new Action( "Trade", async () =>
       {
 	this.temp["allyInteract"] = async (target)=>
 	{
-	  this.temp["mapState"] = this.toDraw;
 	  await this.setExtStatus(new UnitTradeScreen(this, unit, target),
-	    (traded) =>
+	    () =>
 	    {
-	      if (traded) return "unitForcedActionSelect";
-	      else	  return "unitActionSelect";
-	    },
-	    async (traded) =>
-	    {
-	      this.clearCtx(4);
-	      this.clearCtx(5);
-	      this.toDraw.show("cursor");
+	      if (this.temp.traded) return "unitForcedActionSelect";
+	      else		    return "unitActionSelect";
 	    });
+	    //this.clearCtx(4);
+	    //this.clearCtx(5);
+	    this.toDraw.show("cursor");
 	}
 	await this.setStatus("unitAllySelect", adjacent);
       }));
@@ -275,7 +261,7 @@ class Game
     if (unit.hasUsableItem())
     {
       // item TODO
-      p.push( new Action( "item", async () =>
+      p.push( new Action( "Item", async () =>
       {
 	let len = unit.items.length;
 	let uItem = new LoopSelector( unit.items);
@@ -290,27 +276,19 @@ class Game
 
 
     // wait
-    p.push( new Action( "wait", () =>
-      {
-	unit.confirmMove(this);
-	unit.endTurn(this);
-
-	this.Panels.del("selectedUnitActionPanel");
-	this.toDraw.del("selectedUnitMovable");
-        this.toDraw.del("selectedUnitPath");
-	this.toDraw.del("selectedUnitAttackableTiles");
-
-        this.setStatus("map");
-      }));
+    p.push( new Action( "Wait", ()=>{this.wait(unit)}));
 
     return new LoopSelector(p);
 
   }
-  async setExtStatus(extState, nextStatus, onDone)
+  async setExtStatus(extState, nextStatus = null)
   {
+    this.temp["prevGameStatus"] = this.gameStatus;
+    this.temp["mapState"] = this.toDraw;
     this.toDraw = extState;
     this.gameStatus = "other";
-    await this.stateAction.other.onBegin(nextStatus, onDone);
+    this.unblockInput();
+    await new Promise( res=>{this.stateAction.other.onBegin(nextStatus, res)});
   }
   async setStatus(state, ...args)
   {
@@ -378,24 +356,19 @@ class Game
       {
 	triggerEvent("sfx_play_beep_effect");
         let enemy = this.Map.getTile(this.temp.selectedUnitAttackCoords.get()).unit;
-	// hide everything
-	this.temp["mapstate"] = this.toDraw;
 
 	// confirm move
 	this.temp.selectedUnit.confirmMove(this);
 
-	let battle = new Battle(this, this.temp.selectedUnit, enemy);
+	let battle = new Battle(this, this.temp.selectedUnit, enemy, this.turn.get().btltheme);
 
-	await this.Music.fadeout(this.mapTheme);
+	await MusicPlayer.fadeout(this.mapTheme);
 	
-	this.toDraw = battle;
+	let casualty = null;
+	await this.setExtStatus(battle, null);
+	casualty = battle.dead;
 
-	await battle.begin(this.turn.get().btltheme);
-
-	this.Music.fadein(this.mapTheme);
-
-	// restore the gamestate
-	this.toDraw = this.temp["mapstate"];
+	MusicPlayer.fadein(this.mapTheme);
 
 	// end turn TODO change for canto/other stuff
 	//
@@ -410,6 +383,19 @@ class Game
 
 	// update gamestate
 	this.setStatus("map");
+	await this.killUnit(casualty);
+	
+	try
+	{
+	  await this.handleAfterBattleEvents();
+	}
+	catch(e)
+	{
+	  if (e == 4141)
+	    this.startTurns();
+	  else
+	    throw e;
+	}
       },
       cancel:async ()=>
       {
@@ -513,11 +499,11 @@ class Game
     /*************************************/
       onBegin: async ()=>
       {
-	//await this.camera.waitShiftAbsolute(this.temp.cameraPrev);
 	await this.camera.waitShiftTo(this.temp.selectedUnit);
 	this.cursor.moveInstant(this.temp.selectedUnit);
 	this.toDraw.hide("cursor");
         this.Panels.show("selectedUnitActionPanel");
+	this.temp.traded = false;
       },
 
       select:()=>
@@ -550,7 +536,14 @@ class Game
     /*************************************/
     /* ACTION UNIT FORCED ACTION SELECT  */
     /*************************************/
-      onBegin: this.stateAction.unitActionSelect.onBegin,
+      onBegin: async () =>
+      {
+	await this.camera.waitShiftTo(this.temp.selectedUnit);
+        this.cursor.moveInstant(this.temp.selectedUnit);
+        this.toDraw.hide("cursor");
+        this.Panels.show("selectedUnitActionPanel");
+      },
+
       select: this.stateAction.unitActionSelect.select,
       cancel: () => {},
       arrows: this.stateAction.unitActionSelect.arrows
@@ -589,11 +582,11 @@ class Game
 	  triggerEvent("sfx_play_beep_effect");
 
 	  await this.camera.waitShiftTo(this.temp.selectedUnit);
-	  this.camera.setTarget(this.temp.selectedUnit.vis);
+	  this.camera.setTarget(this.temp.selectedUnit);
 
 	  await this.temp.selectedUnit.tentativeMove(this, this.toDraw.get("selectedUnitPath") )
 	  
-	  this.camera.setTarget(this.cursor.vis);
+	  this.camera.setTarget(this.cursor);
 	  this.camera.resetBorders();
 
 	  this.toDraw.hide("selectedUnitMovable");
@@ -643,6 +636,8 @@ class Game
 
       arrows: async (a) =>
       {
+	if (this.cursor.moving)
+	  return;
 	let delta = new Coord(0,0);
 	
 	if (a.once.length > 0)
@@ -655,11 +650,12 @@ class Game
 	  this.cursorOutsideMovable = (this.toDraw.get("selectedUnitMovable")[0]
 				      .doesNotContain(this.cursor.resultOf(delta)));
 
-	  await this.cursor.move(delta);
-	  await this._arrow_editPath(delta);
+	  let ep = this._arrow_editPath(delta);
+	  let cm = this.cursor.move(delta);
+	  await Promise.all([cm, ep]);
 	}
 	// if nothing was pressed this tick
-	else if (this.Inputter.accepting == true)
+	else if (Inputter.accepting == true)
 	{
 	  a.held.forEach( (d) => { delta.add( ARROWS[d] );} );
 	  
@@ -667,8 +663,9 @@ class Game
 
 	  if (this.cursorOutsideMovable == true || inside)
 	  {
-	    await this.cursor.move(delta);
-	    await this._arrow_editPath(delta);
+	    let ep = this._arrow_editPath(delta);
+	    let cm = this.cursor.move(delta);
+	    await Promise.all([cm, ep]);
 	    
 	    if (inside == true)
 	    {
@@ -695,11 +692,11 @@ class Game
 	  new Action("Options", async ()=>
 	    {
 	      this.Panels.hide("mapActionPanel");
-	      this.temp["mapState"] = this.toDraw;
 	      this.skipOnBegin = true;
 	      await this.setExtStatus(new OptionScreen(this),
-		()=>{return "mapOptionSelect"},
-		()=>{ this.clearAllCtx(); this.Panels.show("mapActionPanel") });
+		()=>{return "mapOptionSelect"})
+	      this.clearAllCtx();
+	      this.Panels.show("mapActionPanel");
 
 	      
 	      
@@ -712,7 +709,17 @@ class Game
 	      // TODO make camera go to original location instead of seeking to cursor's original location
 	      this.Panels.del("mapActionPanel");
 
-	      await this.enemyPhase();
+	      try
+	      {
+		await this.enemyPhase();
+	      }
+	      catch(e)
+	      {
+		if (e == 4141)
+		  this.startTurns();
+		else
+		  throw e;
+	      }
 	    })
 	]);
 
@@ -760,7 +767,6 @@ class Game
         this.toDraw.delc("selectedUnitPath");
         this.Panels.delc("selectedUnitWeaponPanel");
         this.Panels.delc("selectedUnitActionPanel");
-        delete this.temp["selectedUnitAttackableEnemies"];
 
 	this.toDraw.show("cursor");
         this.temp = {};
@@ -782,7 +788,11 @@ class Game
 	    // TODO when i decide to remove this for danger area
 	    this.toDraw.delc("enemyAtackable");
 
-	    this.toDraw.set("selectedUnitMovable", unit.movable(this, true) );
+	    let usableIdx = [-1];
+	    let usableWpns = unit.getUsableWeapons(usableIdx);
+	    this.toDraw.set("selectedUnitMovable", unit.movable(this, true, true, usableWpns) );
+	    this.temp.unitUsableWeapons = usableWpns;
+	    this.temp.unitUsableIdx = usableIdx[0];
 	    let p = new Queue();
 	    p.setArt("C_walk");
 	    
@@ -817,7 +827,7 @@ class Game
 	  triggerEvent("input_arrowStall", {start : a.held.length == 0});
 	}
 	// if nothing was pressed this tick
-	else if (this.Inputter.accepting == true)
+	else if (Inputter.accepting == true)
 	{
 	  a.held.forEach( (d) => { delta.add( ARROWS[d] );} );
 	}
@@ -831,12 +841,9 @@ class Game
         let unit = this.Map.getTile(this.cursor.x, this.cursor.y).unit;
         if (unit != null)
         {
-          this.temp["mapState"] = this.toDraw;
           let prev = this.gameStatus;
 	  await this.setExtStatus(new UnitInfoScreen(this, unit),
-	    (res) => {return prev;},
-	    (res) => {}
-	  );
+	    (res) => {return prev;});
 
 	}
 
@@ -854,12 +861,14 @@ class Game
     /*************************************/
     this.stateAction.blockInput = 
     {
+      onBegin:()=>{},
       select:()=>{},
-      cancel:()=>{},
-      arrows:(a)=>{}
-
+      arrows:(a)=>{},
+      inform:()=>{},
+      cancel:()=>{}
     }
 
+    // ONDONE AFTER STATECHANGE
     /*************************************/
     /* ACTION OTHER                      */
     /*************************************/
@@ -868,21 +877,30 @@ class Game
     {
       onBegin: async (nextStatus, onDone)=>
       {
-	await this.toDraw.begin( (retVal) =>
+	await this.toDraw.begin( async (retVal) =>
 	{
 	  this.toDraw = this.temp.mapState;
-	  let next = nextStatus(retVal);
-	  if (this.skipOnBegin === false)
-	    this.setStatus(nextStatus(retVal));
+	  delete this.temp.mapState;
+
+	  if (nextStatus !== null)
+	  {
+	    let next = nextStatus(retVal);
+
+	    if (this.skipOnBegin === false)
+	      this.setStatus(nextStatus(retVal));
+	    else
+	    {
+	      this.gameStatus = next;
+	      this.skipOnBegin = false;
+	    }
+	  }
 	  else
 	  {
-	    this.gameStatus = next;
-	    this.skipOnBegin = false;
+	    this.gameStatus = this.temp.prevGameStatus;
 	  }
-
-	  delete this.temp.mapState;
-	  //delete this.temp.prevStatus;
-	  if (onDone) onDone(retVal);
+	  
+	  if (onDone) await onDone(retVal);
+	  this._extStatusComplete = true;
 	});
       },
       select: async () => { await this.toDraw.select(); },
@@ -891,35 +909,94 @@ class Game
       cancel: async ()=> { await this.toDraw.cancel(); }
     }
   }
+  async fadeIn()
+  {
+    this.blockInput();
+    for (let i = 0; i < 32; ++i)
+    {
+      this.ctx[5].fillStyle = "black";
+      this.ctx[5].globalAlpha = (31 - i)/32;
+      this.ctx[5].fillRect(0,0,512,384);
+      await waitTick();
+    }
+    this.ctx[5].globalAlpha = 1;
+    this.unblockInput();
+  }
+  async fadeOut()
+  {
+    this.blockInput();
+    for (let i = 0; i < 32; ++i)
+    {
+      this.ctx[5].fillStyle = "black";
+      this.ctx[5].globalAlpha = (i+1)/32;
+      this.ctx[5].fillRect(0,0,512,384);
+      await waitTick();
+    }
+    this.ctx[5].globalAlpha = 1;
+    this.unblockInput();
+  }
+  async onGameOver()
+  {
+    this.blockInput();
+    MusicPlayer.stopAll();
+    this.draw = ()=>{};
+    this.update = ()=>{};
+    this.mainloop = ()=>{};
+    this.ctx[5].fillStyle = "black";
+    for (let i = 0; i < 30; ++i)
+    {
+      this.ctx[5].globalAlpha = 0.1;
+      this.ctx[5].fillRect(0,0,512,384);
+      await waitTick();
+    }
+    this.ctx[5].globalAlpha = 1;
+    this.ctx[5].fillRect(0,0,512,384);
+  
+    this.setTextColor(5, "red")
+    this.setTextFont(5, "22px ABCD Mono")
+    this.setTextJustify(5, "center")
+    this.drawText(5, "GAME OVER", 256, 130);
+    this.setTextFont(5, "11px ABCD Mono")
+    this.drawText(5, "The restart button has not yet been implemented", 256, 200);
+    this.drawText(5, "For now, just refresh the page to play again", 256, 222);
+  }
   async beginTurn(turnData)
   {
-    await this.Music.fadestop(this.mapTheme);
+    await MusicPlayer.fadestop(this.mapTheme);
 
     this.Events.execute();
 
     for (let u of this.Units){ u.turnInit();}
 
-    await this.toDraw.get("banner").flyBanner(turnData.turn + " Phase", turnData.bannercolor);
+    await this.toDraw.get("banner").flyBanner(turnData.name + " Phase", turnData.bannercolor);
 
     this.mapTheme = turnData.maptheme;
-    this.Music.play(this.mapTheme);
+    MusicPlayer.play(this.mapTheme);
   }
 
+  async startTurns()
+  {
+    this.temp.cursorPrev = undefined;
+    this.turn.reset();
+    this.camera.setTarget(this.cursor);
+    await this.beginTurn(this.turn.get());
+    this.toDraw.show("cursor");
+    this.cursor.curAnim().reset();
+    this.setStatus("map");
+  }
   async enemyPhase()
   {
     this.turn.next();
     let turno = this.turn.get();
-    while (turno.turn != "Player")
+    while (turno.name != "Player")
     {
-      if (this.Units.teams[turno.turn] === undefined)
-      {
-	this.turn.deleteCurrent();
-      }
-      else
+      let t_u = this.Units.getTeam(turno.name);
+      if (t_u !== undefined && t_u.size > 0)
       {
 	await this.beginTurn(turno);
 
 	await this.nonPlayerTurn(turno);
+
       }
       this.turn.next();
       turno = this.turn.get();
@@ -929,10 +1006,11 @@ class Game
 
     await this.beginTurn(turno);
 
-    this.cursor.moveInstant(this.temp.cursorPrev);
+    if (this.temp.cursorPrev !== undefined)
+      this.cursor.moveInstant(this.temp.cursorPrev);
 
     await this.camera.waitShiftTo(this.cursor.vis);
-    this.camera.setTarget(this.cursor.vis);
+    this.camera.setTarget(this.cursor);
 
     this.cursor.curAnim().reset();
     
@@ -945,7 +1023,7 @@ class Game
   /*************************************/
   async nonPlayerTurn(turndata)
   {
-    let team = turndata.turn;
+    let team = turndata.name;
     let t = new EnemyController(this);
 
     let hostile = this.Units.getTeams(this.getHostile(team));
@@ -953,10 +1031,15 @@ class Game
 
     for (let unit of this.Units.teams[team])
     {
-      await this.camera.waitShiftTo(unit);
-      this.camera.setTarget(unit.vis);
-
+      await waitTime(250);
       let info = await t.offense(unit);
+
+      if (info.action == false)
+	continue;
+      
+      await this.camera.waitShiftTo(unit);
+      this.camera.setTarget(unit);
+
 
       this.cursor.moveInstant(unit);
       this.toDraw.show("cursor");
@@ -965,12 +1048,12 @@ class Game
       this.toDraw.hide("cursor");
 
       await unit.tentativeMove(this, info.path);
-      
       unit.confirmMove(this);
+
 
       if (info.attacks == true)
       {
-	let battle = new Battle(this, unit, info.target);
+	let battle = new Battle(this, unit, info.target, turndata.btltheme);
 
 	this.cursor.moveInstant(info.target);
 
@@ -979,23 +1062,17 @@ class Game
 	await waitTime(500);
 	this.toDraw.hide("cursor");
 
-	await this.Music.fadeout(this.mapTheme);
+	await MusicPlayer.fadeout(this.mapTheme);
 
-	this.temp["mapstate"] = this.toDraw;
+	await this.setExtStatus(battle, null);
+	let casualty = battle.dead;
+	MusicPlayer.fadein(this.mapTheme);
 
-	this.toDraw = battle;
-
-	await battle.begin(turndata.btltheme);
-
-	this.Music.fadein(this.mapTheme);
-
-	// restore the gamestate
-	this.toDraw = this.temp["mapstate"];
-
+	await this.killUnit(casualty);
+	await this.handleAfterBattleEvents();
       }
       unit.endTurn(this);
-      await waitTime(500);
-
+      await waitTime(250);
     }
   }
 
@@ -1003,78 +1080,84 @@ class Game
   /*************************************/
   /* OTHER STUFF                       */
   /*************************************/
-  async _arrow_editPath(delta, hostile)
+  _arrow_editPath(delta, hostile)
   {
-    let c = new Coord(this.cursor.x, this.cursor.y);
-    let prevcursor = new Coord(this.cursor.x - delta.x, this.cursor.y - delta.y);
-    if (this.toDraw.get("selectedUnitMovable")[0].contains(c))
-    {
-      //unit.movcost[this.getTile(this.cursor.x, this.cursor.y)];
-      let p = this.toDraw.get("selectedUnitPath");
-      let unit = this.temp.selectedUnit;
-      let cost = unit.movcost;
-      
-      if (p.doesNotContain(c))
+    // NEVER TOUCH THIS AGAIN HOLY MOLY
+    return new Promise(async (boogey)=>
       {
-	let ccost = getCost(this.Map, c.x, c.y, cost);
+	let c = new Coord(this.cursor.x + delta.x, this.cursor.y + delta.y);
+	let prevcursor = new Coord(this.cursor.x, this.cursor.y);
 
-	let prev = p.last();
-	// if the term-wise product is not zero, then neither x nor y is 0 => diagonal
-	if (Math.abs(c.x - prev.x) + Math.abs(c.y - prev.y) >= 2)
+	if (this.toDraw.get("selectedUnitMovable")[0].contains(c))
 	{
-	  let np = await generatePath(this, prev.x, prev.y, c.x, c.y, cost);
-	  np.dequeue();
-
-	  let addcost = 0;
-	  np.forEach((tile) => {addcost += getCost(this.Map, tile.x, tile.y, cost);} );
-
-	  // if this is a legit move
-	  if (this.temp.selectedUnitMov >= addcost && p.intersect(np) == false)
+	  //unit.movcost[this.getTile(this.cursor.x, this.cursor.y)];
+	  let p = this.toDraw.get("selectedUnitPath");
+	  let unit = this.temp.selectedUnit;
+	  let cost = unit.movcost;
+	  
+	  if (p.doesNotContain(c))
 	  {
-	    this.temp.selectedUnitMov -= addcost;
-	    while (np.nonempty())
+	    let ccost = getCost(this.Map, c.x, c.y, cost);
+
+	    let prev = p.last();
+	    // if the term-wise product is not zero, then neither x nor y is 0 => diagonal
+	    if (Math.abs(c.x - prev.x) + Math.abs(c.y - prev.y) >= 2)
 	    {
-	      p.push(np.dequeue())
+	      let np = await generatePath(this, prev.x, prev.y, c.x, c.y, cost);
+	      np.dequeue();
+
+	      let addcost = 0;
+	      np.forEach((tile) => {addcost += getCost(this.Map, tile.x, tile.y, cost);} );
+
+	      // if this is a legit move
+	      if (this.temp.selectedUnitMov >= addcost && p.intersect(np) == false)
+	      {
+		this.temp.selectedUnitMov -= addcost;
+		while (np.nonempty())
+		{
+		  p.push(np.dequeue())
+		}
+		return;
+	      }
+	      else
+	      {
+		np = await generatePath(this, unit.x, unit.y, c.x, c.y, cost);
+
+		let first = np.front();
+		let newcost = - getCost(this.Map, first.x, first.y, cost);
+		np.forEach((tile) => {newcost += getCost(this.Map, tile.x, tile.y, cost);} );
+		this.temp.selectedUnitMov = unit.getMov() - newcost;
+		p.consume(np);
+
+	      }
 	    }
-	    return;
+	    else if (this.temp.selectedUnitMov >= ccost)
+	    {
+	      p.push(c);
+	      this.temp.selectedUnitMov -= ccost;
+	    }
+	    else
+	    {
+	      let np = await generatePath(this, unit.x, unit.y, c.x, c.y, cost);
+
+	      let first = np.front();
+	      let newcost = - getCost(this.Map, first.x, first.y, cost);
+	      np.forEach((tile) => {newcost += getCost(this.Map, tile.x, tile.y, cost);} );
+	      this.temp.selectedUnitMov = unit.getMov() - newcost;
+	      p.consume(np);
+	    }
 	  }
 	  else
 	  {
-	    np = await generatePath(this, unit.x, unit.y, c.x, c.y, cost);
-
-	    let first = np.front();
-	    let newcost = - getCost(this.Map, first.x, first.y, cost);
-	    np.forEach((tile) => {newcost += getCost(this.Map, tile.x, tile.y, cost);} );
-	    this.temp.selectedUnitMov = unit.getMov() - newcost;
-	    p.consume(np);
-
+	    while (p.last().equals(c) == false)
+	    {
+	      let t = p.pop();
+	      this.temp.selectedUnitMov += getCost(this.Map, t.x, t.y, cost);
+	    }
 	  }
 	}
-	else if (this.temp.selectedUnitMov >= ccost)
-	{
-	  p.push(c);
-	  this.temp.selectedUnitMov -= ccost;
-	}
-	else
-	{
-	  let np = await generatePath(this, unit.x, unit.y, c.x, c.y, cost);
-
-	  let first = np.front();
-	  let newcost = - getCost(this.Map, first.x, first.y, cost);
-	  np.forEach((tile) => {newcost += getCost(this.Map, tile.x, tile.y, cost);} );
-	  this.temp.selectedUnitMov = unit.getMov() - newcost;
-	  p.consume(np);
-	}
-      }
-      else
-      {
-	while (p.last().equals(c) == false)
-	{
-	  let t = p.pop();
-	  this.temp.selectedUnitMov += getCost(this.Map, t.x, t.y, cost);
-	}
-      }
-    }
+	boogey();
+      });
   }
 
 
@@ -1095,8 +1178,35 @@ class Game
 
 
 
+  async cursorFlash(x, y)
+  {
+    await waitTime(250);
+    await this.smallCursorFlash(x, y);
+  }
+  async smallCursorFlash(x, y = null)
+  {
+    if (y === null)
+      this.cursor.moveInstant(x);
+    else
+      this.cursor.moveInstant(new Coord(x, y));
 
+    this.toDraw.show("cursor");
+    this.cursor.curAnim().reset();
+    await waitTime(1000);
+    this.toDraw.hide("cursor");
+  }
 
+  isDayTime()
+  {
+    if (this.dayLength > 0)
+      return (Math.floor((this.turncount - 1) / this.dayLength) % 2 == 0);
+    else
+      return (this.dayLength == 0);
+  }
+  isNightTime()
+  {
+    return !this.isDayTime();
+  }
   async healUnit(unit, amount)
   {
     await this.camera.waitShiftTo(unit);
@@ -1107,7 +1217,7 @@ class Game
     for (let i = 0; i < realAmount; ++i)
     {
       ++ unit.stats.hp;
-      this.Music.play("FX_healblip");
+      MusicPlayer.play("FX_healblip");
       await waitTick();
       await waitTick();
     }
@@ -1151,24 +1261,85 @@ class Game
     return this.Units.get(id);
   }
 
-  loadKeyTracker()
-  {
-      document.addEventListener( "click", ( e ) => 
-	  {
-	    //console.log(getTile(this, e.clientX, e.clientY, GRIDSIZE_X, GRIDSIZE_Y).unit);
-	  });
-  }
-  addUnit( unit )
+  // if from !== null, unit enters from the "from" coordinate.
+  async addUnit( unit, from = null)
   {
     let curTile = this.Map.getTile(unit.x, unit.y);
     if ( curTile != null && curTile.unit == null )
     {
       curTile.unit = unit;
       this.Units.addUnit(unit);
+      if (from !== null)
+      {
+	this.blockInput();
+	let dx = unit.x - from.x;
+	let dy = unit.y - from.y;
+	for (let i = 0; i < 6; ++i)
+	{
+	  unit.vis.x = from.x + i*dx/6;
+	  unit.vis.y = from.y + i*dy/6;
+	  await waitTick();
+	}
+	unit.vis.x = unit.x;
+	unit.vis.y = unit.y;
+	this.unblockInput();
+      }
     }
     else
     {
       console.error( "ERROR - attempted to add unit in position (", unit.x, ", ",unit.y,")!");
+    }
+  }
+  async handleAfterBattleEvents()
+  {
+    let events = this.chapterScript.events.afterBattle;
+    // track triggered events in backward order to easily remove
+    let triggered = [];
+    let dropEverything = false;
+    for (let i = 0; i < events.length; ++i)
+    {
+      let obj = events[i];
+      if (obj.condition(this))
+      {
+	console.log("Event {" + obj.tag + "} was triggered!");
+	await obj.action(this);
+	if (obj.repeating == false)
+	  triggered.unshift(i)
+	if (obj.restartTurns)
+	  dropEverything = true;
+      }
+    }
+    for (let i of triggered)
+    {
+      events.splice(i, 1);
+    }
+    if (dropEverything)
+      throw 4141;
+  }
+  async killUnit( unit )
+  {
+    if (unit !== null)
+    {
+      this.blockInput();
+      let cursorActive = this.toDraw.isVisible("cursor");
+      let portraitActive = this.Panels.isVisible("UMP");
+      
+      if (cursorActive) this.toDraw.hide("cursor");
+      if (portraitActive) this.Panels.hide("UMP");
+
+      this.removeUnit(unit);
+      await new Promise(res=>{unit.fadeOut(this, res);});
+
+
+      let onDeathEvent = this.chapterScript.events.onDeath[unit.name]
+      if (onDeathEvent !== undefined)
+	await onDeathEvent(this);
+
+      unit.dead = true;
+
+      if (cursorActive) this.toDraw.show("cursor");
+      if (portraitActive) this.handlePortrait();
+      this.unblockInput();
     }
   }
   removeUnit( unit )
@@ -1178,6 +1349,7 @@ class Game
     {
       curTile.unit = null;
       this.Units.delUnit(unit);
+
       // handle removing turnbanner somewhere else
     }
     else
@@ -1185,6 +1357,13 @@ class Game
       console.error( "ERROR - attempted to remove unit in position (", unit.x, ", ",unit.y,")!");
     }
   }
+
+  cameraShift(x, y)
+  {
+    return this.camera.waitShiftAbsolute(new Coord(x, y), 6)
+  }
+
+
   clearCtx(n)
   {
     this.ctx[n].clearRect(0,0,C_WIDTH, C_HEIGHT);
@@ -1218,10 +1397,17 @@ class Game
   }
   drawImage(ctx, image, x, y, w, h)
   {
+    try
+    {
     if ( w == null || h == null )
       this.ctx[ctx].drawImage(this.Album.get(image), x, y);
     else
       this.ctx[ctx].drawImage(this.Album.get(image), x, y, w, h);
+    }
+    catch
+    {
+      console.error(image)
+    }
   }
 
   drawOutlinedText(ctx, text, x, y, font, incolor, outcolor, maxwidth = undefined)
@@ -1253,23 +1439,24 @@ class Game
 
     this.toDraw.draw(this);
     this.Panels.draw(this);
-    if (this.turncount % 2 == 0 && this.gameStatus != "other")
-    {
-      this.ctx[2].fillStyle = "#00008D";
-      this.ctx[2].globalAlpha = 0.3;
-      this.ctx[2].fillRect(0,0,C_WIDTH, C_HEIGHT);
-      this.ctx[2].globalAlpha = 1;
-    }
+
   }
   update()
   {
-    // if (this.toDraw.isActive("cursor") && this.Inputter.arrowStates().input == true)
-    if (this.Inputter.arrowStates().input == true && this.inputting)
+    if (this._extStatusComplete == true)
     {
-	this.stateAction[this.gameStatus].arrows(this.Inputter.arrowStates());
+
+
+
+      this._extStatusComplete = false;
+    }
+    // if (this.toDraw.isActive("cursor") && Inputter.arrowStates().input == true)
+    if (Inputter.arrowStates().input == true && this.inputting)
+    {
+	this.stateAction[this.gameStatus].arrows(Inputter.arrowStates());
     }
 
-    this.Inputter.update();
+    Inputter.update();
     this.toDraw.update(this);
     this.Panels.update(this);
     this.camera.update(this);

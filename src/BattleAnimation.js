@@ -40,9 +40,10 @@ export class BattleSprite
   { 
     this.curAnim().draw(g, ctx, x, y, s);
   }
-  addAnim( name, anim )
+  async addAnim( name, anim )
   { 
-    this.animations[name] = new BattleAnimation(this, BAChest.get(anim));
+    let loaded = await BAChest.load(name, anim);
+    this.animations[name] = new BattleAnimation(this, loaded);
   }
   tickAnim()
   { 
@@ -82,7 +83,7 @@ export class BattleAnimation
     this.onDone = onDone;
 
     this.img = Album.get(info.options.usrc);
-    this.wimg = Album.get(info.options.wsrc);
+    //this.wimg = Album.get(info.options.wsrc);
     this.w = this.img.width/this.numFrame;
     this.h = this.img.height;
   }

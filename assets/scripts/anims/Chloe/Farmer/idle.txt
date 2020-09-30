@@ -1,0 +1,8 @@
+name idle
+type melee
+frames 1
+usrc BattleSprites/Chloe/Farmer/idle
+
+begin
+0 uframe 0 hand 23 37 -30
+1 end

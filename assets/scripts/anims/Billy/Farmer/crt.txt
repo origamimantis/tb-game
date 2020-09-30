@@ -1,0 +1,32 @@
+name hit
+type melee
+frames 4
+usrc BattleSprites/Billy/Farmer/hit
+
+begin
+#               x  y  angle
+0 wframe 1
+0 uframe 0 hand 23 37 -45
+10 uframe 1 hand 19 20 -120
+#toss
+13 uframe 1 hand 19 4 180
+16 uframe 1 hand 20 -5 120
+19 uframe 1 hand 21 -9 60
+22 uframe 1 hand 22 -13 0
+25 uframe 1 hand 23 -14 -60
+28 uframe 1 hand 24 -13 -120
+
+31 uframe 1 hand 25 -9 180
+34 uframe 1 hand 26 -5 120
+37 uframe 1 hand 27 4 60
+40 uframe 2 hand 28 6 0
+43 uframe 2 hand 28 6 -60
+46 uframe 2 hand 28 6 -120
+
+
+55 uframe 2 hand 28 6 -165
+59 wframe 0
+63 wframe 0
+78 uframe 3 hand 55 34 10
+75 hit
+95 end

@@ -6,6 +6,7 @@ import {scrollSelect_LR, scrollSelect_UD, fracAmtFn, triggerEvent} from "./Utils
 import {LoopSelector} from "./LoopSelector.js";
 import {STATS} from "./Constants.js";
 import {TiledEffect} from "./TiledEffect.js";
+import {MusicPlayer} from "./MusicPlayer.js";
 
 
 // Layer 0: background
@@ -37,7 +38,7 @@ export class UnitInfoScreen
     this.p_w = 352;
     this.p_h = 216;
     this.Weapons = new UnitProfileItemPanel(this.p_x, this.p_y, this.p_w, this.p_h, new LoopSelector(unit.weapons),
-      "WT_", fracAmtFn);
+      "WT_", fracAmtFn, (w)=>{return !unit.canUseWeapon(w)});
     this.Items = new UnitProfileItemPanel(this.p_x, this.p_y, this.p_w, this.p_h, new LoopSelector(unit.items),
       "IT_", fracAmtFn);
     this.Skills = new UnitProfileItemPanel(this.p_x, this.p_y, this.p_w, this.p_h, new LoopSelector([]),
@@ -171,7 +172,7 @@ export class UnitInfoScreen
     this.old_ctx_refresh = this.g.ctx_refresh;
     this.g.ctx_refresh = [0, 3];
 
-    this.g.Music.setVol(this.g.mapTheme, 0.15);
+    MusicPlayer.setVol(this.g.mapTheme, 0.15);
     this.onDone = onDone;
 
     this.g.clearCtx(0);
@@ -257,7 +258,7 @@ export class UnitInfoScreen
   }
   end()
   {
-    this.g.Music.setVol(this.g.mapTheme, 0.5);
+    MusicPlayer.setVol(this.g.mapTheme, 0.5);
     this.g.ctx_refresh = this.old_ctx_refresh;
     this.onDone();
   }

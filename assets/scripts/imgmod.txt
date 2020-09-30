@@ -8,3 +8,8 @@ fh C_menuel C_menuer
 
 rc S_kn1 S_kn1_wait [1,253,40]->[100,100,100]
 rc S_vmp0 S_vmp0_wait [1,253,40]->[100,100,100]
+rc S_farmerAlfred S_farmerAlfred_wait [227,173,0]->[100,100,100] [252,252,152]->[150,150,150]
+rc S_farmerBilly S_farmerBilly_wait [227,173,0]->[100,100,100] [252,252,152]->[150,150,150]
+rc S_farmerChloe S_farmerChloe_wait [227,173,0]->[100,100,100] [252,252,152]->[150,150,150]
+rc S_child S_child_wait [227,173,0]->[100,100,100]
+rc S_bandit S_bandit_wait [255,0,0]->[100,100,100]

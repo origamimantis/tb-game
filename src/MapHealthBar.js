@@ -9,7 +9,7 @@ export class MapHealthBar
     this.hp = unit.stats.hp;
 
     this.off = 0.8;
-    if (unit.y == g.Map.dimension.y - 1)
+    if (unit.y == g.Map.max("y") - 1)
     {
       this.off = -0.5;
     }

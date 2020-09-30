@@ -1,0 +1,8 @@
+name idle
+type melee
+frames 1
+usrc BattleSprites/Alfred/Farmer/idle
+
+begin
+0 uframe 0 hand 27 38 2
+1 end

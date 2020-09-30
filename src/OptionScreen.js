@@ -7,6 +7,7 @@ import {LoopSelector} from "./LoopSelector.js";
 import {STATS} from "./Constants.js";
 import {TiledEffect} from "./TiledEffect.js";
 import {Settings} from "./Settings.js";
+import {MusicPlayer} from "./MusicPlayer.js";
 
 
 
@@ -131,7 +132,7 @@ export class OptionScreen
     this.old_ctx_refresh = this.g.ctx_refresh;
     this.g.ctx_refresh = [0];
 
-    this.g.Music.setVol(this.g.mapTheme, 0.15);
+    MusicPlayer.setVol(this.g.mapTheme, 0.15);
     this.onDone = onDone;
 
     this.g.clearCtx(0);
@@ -166,7 +167,7 @@ export class OptionScreen
   }
   end()
   {
-    this.g.Music.setVol(this.g.mapTheme, 0.5);
+    MusicPlayer.setVol(this.g.mapTheme, 0.5);
     this.g.ctx_refresh = this.old_ctx_refresh;
     this.onDone();
   }

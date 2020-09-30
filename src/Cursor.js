@@ -17,12 +17,7 @@ class Cursor extends AnimatedObject
     //visuals
     this.addAnim( 0, new Animation( {image: "C_c0", weights: [48,4,4,4], loops: true} ));
 
-    this.max = {x: g.Map.dimension.x - 1,
-		y: g.Map.dimension.y - 1};
-
-    this.min = {x: 0,
-		y: 0};
-
+    this.map = g.Map;
     this.buf = {x: 0,
 		y: 0};
 
@@ -139,12 +134,11 @@ class Cursor extends AnimatedObject
     }
     //triggerEvent("game_cursorChange", c);
 
-      this.x = c.x;
-      this.vis.x = c.x;
-      this.y = c.y;
-      this.vis.y = c.y;
+    this.x = c.x;
+    this.vis.x = c.x;
+    this.y = c.y;
+    this.vis.y = c.y;
   }
- 
   
   resultOf( c )
   {
@@ -220,16 +214,16 @@ class Cursor extends AnimatedObject
   }
   xInBounds(x)
   {
-      return ( x <= this.max.x && x >= this.min.x);
+      return ( x <= this.map.max("x") && x >= this.map.min("x"));
   }
   yInBounds(y)
   {
-      return ( y <= this.max.y && y >= this.min.y);
+      return ( y <= this.map.max("y") && y >= this.map.min("y"));
   }
   inBounds(c)
   {
-      return ( this[c] + this.buf[c] <= this.max[c]
-	    && this[c] + this.buf[c] >= this.min[c]);
+      return ( this[c] + this.buf[c] <= this.map.max(c)
+	    && this[c] + this.buf[c] >= this.map.min(c));
   }
   clearMoveBuffer()
   {
