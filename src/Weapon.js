@@ -187,7 +187,7 @@ export class FryingPan extends Weapon
   constructor()
   {
     //TODO 1-2 range
-      super("Frying Pan", 3, 90, 1000, [1], 50, [], {}, "Chloe");
+      super("Frying Pan", 3, 90, 0, [1], 50, [], {}, "Chloe");
   }
   sprite()
   {
