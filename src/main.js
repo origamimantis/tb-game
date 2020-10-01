@@ -207,7 +207,7 @@ console.restart = restartGame;
 let thingsToLoad = {
       Script : "./ch1.js",
       ImgLoad : [ "P_gen", "P_lead", "P_janitor", "P_vmp", "P_Alfred", "P_child",
-		  "P_bandit", "P_Billy", "P_Chloe",
+		  "P_bandit", "P_Billy", "P_Chloe", "P_Choddson",
 		  "T_grass_forest_B", "T_grass_forest_M", "T_grass_forest_T", 
 		  "T_grass",
 		  "T_wall_B", "T_wall_BR",
@@ -254,7 +254,8 @@ let thingsToLoad = {
 		  "C_c0", "C_ptr", "C_move", "C_walk", "C_atk",
 		  "C_menutl", "C_menuel", "C_menucn",
 		  "C_talk_indicator",
-		  "FX_heal"
+		  "FX_heal",
+		  "boss_indic"
 		],
       ImgMod : "assets/scripts/imgmod.txt",
     }

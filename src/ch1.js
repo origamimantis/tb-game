@@ -72,9 +72,11 @@ function initVars()
 
   choddson = new Units.Bandit(7, 21,11, {maxhp:33, atk:9,spd:6,skl:6,def:6,con:19,mov: 5}, "Choddson");
   choddson.team = "Bandit";
+  choddson.pArt = "P_Choddson";
   choddson.addWeapon(new Weapons.LumberAxe());
   choddson.setAnim("idle");
   choddson.ai = "targetWeakest";
+  choddson.isBoss = true;
 
 }
 
@@ -94,7 +96,7 @@ export let script =
     onBegin: async (g, onDone) =>
     {
       // TODO
-      //Settings.set("cut_skip", "On");
+      Settings.set("cut_skip", "On");
       initVars();
       g.Map.setMaxBound(null, 17);
       console.log("loaded ch1");

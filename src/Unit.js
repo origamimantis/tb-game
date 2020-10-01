@@ -72,6 +72,7 @@ export class Unit extends AnimatedObject
     this.skills = skills;
     this.ai = "doNothing";
     this.dead = false;
+    this.isBoss = false;
   }
   
   addWeapon(weap)
@@ -308,6 +309,15 @@ export class Unit extends AnimatedObject
     {
       let off = g.camera.offset;
       super.draw(g, 2, this.vis.x - off.x, this.vis.y - off.y);
+      if (this.isBoss)
+      {
+	let x = this.vis.x - off.x;
+	let y = this.vis.y - off.y;
+	x = (x+1)*g.gx - 20;
+	y = (y+1)*g.gy - 16;
+
+	g.drawImage(2, "boss_indic", x, y);
+      }
     }
   }
   
