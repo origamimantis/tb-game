@@ -1,7 +1,7 @@
 ver0.35 2020-10-01
-Hoooly moly this is a fat update. Chapter 1 is ready to play!
-Added conversations and cutscenes, as well as viewable stats
-and vastly improved art.
+Hooly moly this is a fat update. Chapter 1 is ready to play!
+Added conversations and cutscenes, viewable stats, and
+vastly improved art.
 
 ver0.34 2020-08-24
 Options menu is up. There's only one setting right now that
