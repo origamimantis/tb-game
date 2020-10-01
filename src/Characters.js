@@ -43,6 +43,18 @@ export const Characters =
 	      },
     "Timmy":  { deathQuote: ["Ack!"]
 	      },
+    "Vargas":  {deathQuote: ["No...\nI was bested by bandits?", "I'm so disappointed...\nin myself..."],
+		battleAnimation:
+		{ "Sword Knight":
+		  { scripts:
+		    { idle: "anims/Vargas/SwordKnight/idle",
+		      run:  "anims/Vargas/SwordKnight/run",
+		      hit:  "anims/Vargas/SwordKnight/hit",
+		      crt:  "anims/Vargas/SwordKnight/crt",
+		    }
+		  },
+		},
+	      },
 
 
     "generic":

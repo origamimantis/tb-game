@@ -6,6 +6,7 @@ export class Settings
   {
     this.values = {
       visible_movement_costs : {allowed: ["Off","On"], map: {Off:false,On:true}, display: "Visible Movement Costs"},
+      cut_skip : {allowed: ["Off","On"], map: {Off:false,On:true}, display: "Skip Cutscenes"},
       empty : {allowed: ["yea","nay"], display: "Placeholder Setting"}
     }
 
@@ -20,7 +21,7 @@ export class Settings
     let set = this.values[s];
     if (set === undefined)
       throw "'" + s + "' is not a setting"
-    let i = set.allowed.indexOf(val);
+    let i = set.allowed.list.indexOf(val);
     if (i < 0)
       throw "'" + val + "' is not a value for setting '" + s + "' (" + set.allowed + ")"
     set.allowed.idx = i;

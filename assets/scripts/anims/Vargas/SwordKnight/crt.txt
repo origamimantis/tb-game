@@ -1,0 +1,33 @@
+name crt
+type melee
+frames 6
+usrc BattleSprites/Vargas/SwordKnight/hit
+
+begin
+0 uframe 0 hand 8 26 153
+5 uframe 1 hand 22 9 90
+40 wframe 1
+40 uframe 1 hand 19 4 30
+42 uframe 1 hand 20 -5 -30
+44 uframe 1 hand 21 -9 -90
+46 uframe 1 hand 22 -13 -150
+48 uframe 1 hand 23 -14 150
+50 uframe 1 hand 24 -13 90
+
+53 uframe 2 hand 40 13 95
+56 uframe 3 hand 50 31 40
+59 uframe 4 hand 49 40 7
+
+65 uframe 2 hand 40 13 95
+68 uframe 3 hand 50 31 40
+71 uframe 4 hand 49 40 7
+
+77 uframe 2 hand 40 13 95
+81 uframe 3 hand 50 31 40
+81 hit
+84 uframe 4 hand 49 40 7
+84 wframe 0
+
+90 uframe 5 hand 49 40 7
+100 end
+

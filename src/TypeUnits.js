@@ -93,7 +93,7 @@ export class Leader extends Unit
 
 export class SwordKnight extends Unit
 {
-    constructor(id, x,y, stats, name = "Unit "+id, skills = [])
+    constructor(id, x,y, stats, name = "Unit "+id, anim = "S_kn1", skills = [])
     {
 	let caps =
 	    { "maxhp":60,
@@ -107,8 +107,8 @@ export class SwordKnight extends Unit
 	let classname = "Sword Knight";
 	super( id, x, y, caps, stats, name, classname, "P_kn", skills, Walk.walkMelee);
 	
-	this.addAnim("idle", new Animation( {image: "S_kn1", weights: [20,10,20,10], loops: true}) );
-	this.addAnim("wait", new Animation( {image: "S_kn1_wait", weights: [100,100,100,100], loops: false}) );
+	this.addAnim("idle", new Animation( {image: anim, weights: [20,10,20,10], loops: true}) );
+	this.addAnim("wait", new Animation( {image: anim + "_wait", weights: [100,100,100,100], loops: false}) );
     }
 }
 

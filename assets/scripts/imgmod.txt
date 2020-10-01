@@ -13,3 +13,5 @@ rc S_farmerBilly S_farmerBilly_wait [227,173,0]->[100,100,100] [252,252,152]->[1
 rc S_farmerChloe S_farmerChloe_wait [227,173,0]->[100,100,100] [252,252,152]->[150,150,150]
 rc S_child S_child_wait [227,173,0]->[100,100,100]
 rc S_bandit S_bandit_wait [255,0,0]->[100,100,100]
+
+rc S_lead0 S_lead0_wait [221,174,44]->[100,100,100] [245,238,9]->[150,150,150] [62,170,8]->[100,100,100]

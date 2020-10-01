@@ -55,6 +55,13 @@ class Camera
   {
     return new Promise( resolve => {this.shiftAbsolute(c, speed, resolve);} );
   }
+  waitShiftCenter(c, speed = this.baseShiftSpeed)
+  {
+    let cc = new Coord(c.x, c.y);
+    cc.x -= this.wsize.x/2
+    cc.y -= this.wsize.y/2
+    return new Promise( resolve => {this.shiftAbsolute(cc, speed, resolve);} );
+  }
 
   setPos(x, y)
   {

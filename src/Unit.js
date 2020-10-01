@@ -236,6 +236,12 @@ export class Unit extends AnimatedObject
   // speed: number of frames per tile
   moveTo(g, x, y, speed = this.baseMapSpeed*2)
   {
+    if (Settings.get("cut_skip") == true)
+    {
+      this.teleport(g, x, y);
+      return;
+    }
+
     return new Promise( async (resolve) => {
       let p = await generatePath(g, this.x, this.y, x, y, this.movcost);
       if (p == null)
@@ -383,9 +389,9 @@ export class Unit extends AnimatedObject
     return p;
   }
   // attackable from a certain coordinate ie does not factor in movement
-  attackableUnits(map, wlist = null)
+  attackableUnits(g, wlist = null)
   {
-    return inRange(this, this.getRange(wlist), "units", map, null, [(unit)=>{return (unit.team != this.team);}]);
+    return inRange(this, this.getRange(wlist), "units", g.Map, null, [(unit)=>{return g.Units.hostile(this,unit)}])
   }
   // will be used later if move is affected by anything.
   // if not, then this will just be a getter

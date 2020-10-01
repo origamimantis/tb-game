@@ -1,0 +1,9 @@
+name idle
+type melee
+frames 1
+usrc BattleSprites/Vargas/SwordKnight/idle
+
+begin
+0 uframe 0 hand 17 39 0
+1 end
+

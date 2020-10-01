@@ -2,6 +2,7 @@ import {Conversation} from "./Conversation.js"
 import {waitSpriteEffect} from "./Effects.js";
 import * as Units from "./TypeUnits.js";
 import * as Weapons from "./Weapon.js";
+import * as Items from "./Item.js";
 import {Coord} from "./Path.js";
 import {waitTime} from "./Utils.js";
 import {MusicPlayer} from "./MusicPlayer.js";
@@ -12,49 +13,65 @@ let b1;
 let b2;
 let billy;
 let chloe;
-let knightHouseAvailable;
+let vargas;
+
+let choddson;
 
 function initVars()
 {
-  alfred = new Units.Farmer(0, 3, 9, {maxhp:13, atk:5,spd:5,skl:2,def:2,con:4,mov: 6}, "Alfred");
+  alfred = new Units.Farmer(0, 3, 9, {maxhp:13, atk:2,spd:3,skl:2,def:2,con:4,mov: 6}, "Alfred");
   alfred.team = "Player";
   alfred.pArt = "P_Alfred";
   alfred.addWeapon(new Weapons.Pitchfork());
+  alfred.addItem(new Items.Bandages());
   alfred.setAnim( "idle" );
 
-  child = new Units.Child(1, 5, 8, {maxhp:5, atk:0,spd:0,skl:0,def:0,con:0,mov: 5}, "Timmy");
+  child = new Units.Child(1, 5, 8, {maxhp:5, atk:0,spd:5,skl:0,def:0,con:0,mov: 5}, "Timmy");
   child.team = "Player";
   child.pArt = "P_child";
   child.setAnim( "idle" );
 
-  b1 = new Units.Bandit(2, 14, 7, {maxhp:16, atk:7,spd:3,skl:4,def:3,con:4,mov: 6}, "Bandit");
+  b1 = new Units.Bandit(2, 14, 7, {maxhp:16, atk:3,spd:2,skl:4,def:3,con:4,mov: 6}, "Bandit");
   b1.team = "Bandit";
   b1.setAnim( "idle" );
   b1.setAnim( "idle" );
   b1.addWeapon(new Weapons.LumberAxe());
   b1.ai = "targetWeakest";
 	
-  b2 = new Units.Bandit(3, 13, 8, {maxhp:14, atk:6,spd:3,skl:5,def:2,con:4,mov: 6}, "Bandit");
+  b2 = new Units.Bandit(3, 13, 8, {maxhp:14, atk:2,spd:3,skl:5,def:2,con:4,mov: 6}, "Bandit");
   b2.team = "Bandit";
   b2.setAnim( "idle" );
   b2.addWeapon(new Weapons.LumberAxe());
   b2.ai = "targetWeakest";
 
-  billy = new Units.Farmer(4, 8, 3, {maxhp:16, atk:8,spd:2,skl:3,def:2,con:4,mov: 6}, "Billy");
+  billy = new Units.Farmer(4, 8, 3, {maxhp:16, atk:3,spd:2,skl:3,def:3,con:4,mov: 6}, "Billy");
   billy.team = "Player";
   billy.pArt = "P_Billy";
   billy.addWeapon(new Weapons.Shovel());
   billy.setAnim( "idle" );
   billy.recruited = true;
+  billy.ai = "guard";
 
-  chloe = new Units.Farmer(5, 4, 6, {maxhp:16, atk:8,spd:2,skl:3,def:2,con:4,mov: 6}, "Chloe");
+  chloe = new Units.Farmer(5, 4, 6, {maxhp:16, atk:2,spd:3,skl:3,def:2,con:4,mov: 6}, "Chloe");
   chloe.team = "Player";
   chloe.pArt = "P_Chloe";
   chloe.addWeapon(new Weapons.FryingPan());
   chloe.setAnim( "idle" );
   chloe.recruited = true;
+  chloe.ai = "guard";
 
-  knightHouseAvailable = false;
+  vargas = new Units.SwordKnight(6, 4, 7, {maxhp:28, atk:11,spd:7,skl:12,def:6,con:12,mov: 6}, "Vargas", "S_lead0");
+  vargas.team = "Player";
+  vargas.pArt = "P_lead";
+  vargas.addWeapon(new Weapons.BronzeSlicer());
+  vargas.setAnim("idle");
+  
+  choddson = new Units.Bandit(7, 21,11, {maxhp:33, atk:10,spd:6,skl:5,def:11,con:19,mov: 6}, "Choddson");
+  choddson.team = "Bandit";
+  choddson.addWeapon(new Weapons.LumberAxe());
+  choddson.setAnim("idle");
+  choddson.ai = "targetWeakest";
+
 }
 
 export let script =
@@ -62,8 +79,10 @@ export let script =
     tileMap: "assets/tilemaps/ch1.txt",
     cameraInit: {x: 0, y: 0},
     teams:  [ {name: "Player", bannercolor: "#aaaaff", maptheme: "btl1",  btltheme: "fght2"},
+	      {name: "Village", bannercolor: "#12aa12", maptheme: "village",  btltheme: "fght"},
 	      {name: "Bandit", bannercolor: "#bd4900", maptheme: "btl_en",  btltheme: "fght"}
 	    ],
+    alliances: {"Player": ["Village"], "Village":["Player"]},
     dayLength: 0,   // 0: always days, <0: always night
     
     onBegin: async (g, onDone) =>
@@ -73,14 +92,19 @@ export let script =
 
       g.Map.setMaxBound(null, 17);
       g.addUnit(alfred);
+      alfred.stats.hp = 1;
       
       g.addUnit(child);
-      g.addUnit(chloe, new Coord(3,6));
-      await g.addUnit(billy, new Coord(7,3));
+
+      g.addUnit(vargas);
 
       g.addUnit(b1);
       g.addUnit(b2);
-      g.killUnit(b1);
+      g.addUnit(choddson);
+      choddson.teleport(g, 13,7);
+
+      g.addUnit(chloe, new Coord(3,6));
+      await g.addUnit(billy, new Coord(7,3));
 
       onDone();
 	
@@ -162,14 +186,9 @@ export let script =
 	"Timmy": (g)=>{g.onGameOver()},
       },
       afterBattle: [
-        { tag: "one bandit defeated",
-	  repeating: false,
-          condition: (g)=>{return (b1.dead && !b2.dead || !b1.dead && b2.dead)},
-          action: (g)=>{}
-        },
         { tag: "initial bandits defeated",
 	  repeating: false,
-          condition: (g)=>{return b1.dead && b2.dead},
+          condition: (g)=>{return false;},
           action: async (g)=>
 	  {
 	    g.blockInput();

@@ -343,6 +343,92 @@ export class ItemPanel extends SelectionPanel
   }
 }
 
+export class UnitProfileStatPanel extends Panel
+{
+  constructor( x, y, w, h, text )
+  {
+    super(x, y, w, h);
+    this.text = text;
+  }
+  explicitDraw(g, ctx)
+  {
+    this.drawBase(g, ctx);
+    g.setTextProperty(ctx, "black", "16.5px ABCD Mono", "left");
+    g.drawText(ctx, this.text, this.x + 15, this.y + 15);
+  }
+}
+
+import {BattleInfo} from "./Battle.js";
+export class BattlePreviewPanel extends Panel
+{
+  constructor(g, left, right)
+  {
+    let x = 30;
+    let y = 80;
+    let w = 180
+    super(x, y, w, 170, 1,1, 512 - x - w, y);
+    this.left = new BattleInfo(left, null, g);
+    this.right = new BattleInfo(right, null, g);
+  }
+  explicitDraw(g, ctx)
+  {
+    this.drawBase(g, ctx);
+    g.setTextProperty(ctx, "black", "11px ABCD Mono", "center");
+
+    this.drawCentered(g, ctx, this.left.name, -50, 0);
+    this.drawCentered(g, ctx, this.right.name, 50, 0);
+
+    this.drawCentered(g, ctx, "HP", 0, 20);
+    this.drawCentered(g, ctx, this.left.stats.hp, -50, 20);
+    this.drawCentered(g, ctx, this.right.stats.hp, 50, 20);
+
+    this.drawCentered(g, ctx, "Atk", 0, 40);
+    this.drawCentered(g, ctx, this.left.stats.atk, -50, 40);
+    this.drawCentered(g, ctx, this.right.stats.atk, 50, 40);
+
+    this.drawCentered(g, ctx, "Def", 0, 60);
+    this.drawCentered(g, ctx, this.left.stats.def, -50, 60);
+    this.drawCentered(g, ctx, this.right.stats.def, 50, 60);
+
+    this.drawCentered(g, ctx, "Hit", 0, 80);
+    this.drawCentered(g, ctx, this.left.dispHit(this.right), -50, 80);
+    this.drawCentered(g, ctx, this.right.dispHit(this.left), 50, 80);
+
+    this.drawCentered(g, ctx, "Crt", 0, 100);
+    this.drawCentered(g, ctx, this.left.dispCrt(this.right), -50, 100);
+    this.drawCentered(g, ctx, this.right.dispCrt(this.left), 50, 100);
+
+    this.drawCentered(g, ctx, "Spd", 0, 120);
+    this.drawCentered(g, ctx, this.left.stats.spd, -50, 120);
+    this.drawCentered(g, ctx, this.right.stats.spd, 50, 120);
+
+  }
+  drawCentered(g, ctx, text, x, y)
+  {
+    g.drawText(ctx, text, this.x + this.w/2 + x, this.y + EDGEW + 5 + y);
+  }
+}
+export class TooltipWeaponPanel extends Panel
+{
+  constructor( )
+  {
+    super(94, 270, 402, 100);
+    
+  }
+  explicitDraw(g, ctx, w)
+  {
+    this.drawBase(g, ctx);
+    g.setTextProperty(ctx, "black", "16.5px ABCD Mono", "left");
+    g.drawText(ctx, `Power ${w.pow}   Hit ${w.hit}   Crit ${w.crt}`, this.x + 15, this.y + 15);
+  }
+}
+export class TooltipItemPanel extends Panel
+{
+  constructor( x, y, w, h, loopselector, artPrefix, amtFunction, grayFunction = (i)=>{return false})
+  {
+    super(x, y, w, h);
+  }
+}
 export class UnitProfileItemPanel extends Panel
 {
   constructor( x, y, w, h, loopselector, artPrefix, amtFunction, grayFunction = (i)=>{return false})

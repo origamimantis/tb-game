@@ -86,10 +86,7 @@ export class PanelComponent
   drawText(g, off, xy)
   {
     g.setTextProperty(4, xy.s, xy.w, xy.h);
-    let height = g.ctx[4].font.substring(0,2)*1.5;
-    let lines = this.data.split('\n');
-    for (let i = 0; i<lines.length; ++i)
-      g.drawText(4, lines[i], off.x+xy.x, off.y+xy.y + 4 + i*height);
+    g.drawText(4, this.data, off.x+xy.x, off.y+xy.y + 4);
   }
   drawHB(g, off, xy)
   {

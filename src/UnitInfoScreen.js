@@ -1,4 +1,5 @@
-import {Panel, SelectionPanel, UnitProfileItemPanel, SelectionPointer} from "./Panel.js";
+import {Panel, SelectionPanel, UnitProfileItemPanel,
+	TooltipWeaponPanel, UnitProfileStatPanel, SelectionPointer} from "./Panel.js";
 import {PanelType} from "./PanelComponent.js";
 import {formattedHP, leftPad} from "./Utils.js";
 import {AnimatedObject} from "./AnimatedObject.js";
@@ -44,10 +45,13 @@ export class UnitInfoScreen
     this.Skills = new UnitProfileItemPanel(this.p_x, this.p_y, this.p_w, this.p_h, new LoopSelector([]),
       "IT_", fracAmtFn);
     
+    this.Stats = new UnitProfileStatPanel(this.p_x, this.p_y, this.p_w, this.p_h, this._unitStatFormat());
+
+    
     // TODO new panel type for stats, skills
 
     // TODO stats, skills, other
-    this.pages = new LoopSelector(["Weapons", "Items", "Skills"]);
+    this.pages = new LoopSelector(["Stats", "Weapons", "Items", "Skills"]);
     this.cur = this.pages.get();
 
     this.state = OBSERVE;
@@ -60,6 +64,11 @@ export class UnitInfoScreen
     this.t_out = 0;
     this.t_in = 0;
     this.t_res = null;
+  }
+  _unitStatFormat()
+  {
+    let st = this.unit.stats;
+    return `Strength ${st.atk}\nSpeed ${st.spd}\nSkill ${st.skl}\nDefense ${st.def}\nMove ${st.mov}`;
   }
   update(g)
   {
@@ -124,6 +133,11 @@ export class UnitInfoScreen
     if (panel == "Weapons")
       eq = this.unit.eqWeap;
     this[panel].explicitDraw(g, ctx, eq, (this.state == TOOLTIP));
+  }
+  drawTooltip(g, ctx)
+  {
+    let p = new TooltipWeaponPanel();
+    p.explicitDraw(g, ctx, this[this.cur].get());
   }
   drawUnitOverview(g, ctx)
   {
@@ -190,6 +204,7 @@ export class UnitInfoScreen
       return;
     return new Promise( (resolve)=>
     {
+      //this.g.clearCtx(4);
       let dx = Math.sign(a - b);
       if (a - b != dx)
 	dx *= -1;
@@ -224,6 +239,7 @@ export class UnitInfoScreen
       {
 	this.drawTitle(this.g, 1);
 	this.drawPanel(this.g, 1);
+	this.drawTooltip(this.g, 4);
       }
     }
   }
@@ -235,10 +251,11 @@ export class UnitInfoScreen
   {
     if (this.state == OBSERVE)
     {
-      if (this[this.cur].nonempty())
+      if (this.cur != "Stats" && this[this.cur].nonempty())
       {
 	this.state = TOOLTIP;
 	this.drawPanel(this.g, 1);
+	this.drawTooltip(this.g, 4);
       }
       else
       {
@@ -254,6 +271,7 @@ export class UnitInfoScreen
     {
       this.state = OBSERVE;
       this.drawPanel(this.g, 1);
+      this.g.clearCtx(4);
     }
   }
   end()

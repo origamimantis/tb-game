@@ -289,15 +289,53 @@ export class UnitContainer extends DrawContainer
   {
     super();
     this.teams = {};
+    // name : Set(name)
+    this.alliances = {};
   }
   addTeam(name)
   {
     this.teams[name] = new Set();
+    this.alliances[name] = new Set();
+  }
+  // makes a treat b as friendly (but not the other way around)
+  createAlliance(a, b)
+  {
+    this.alliances[a].add(b);
+  }
+  // makes a treat b as hostile (but not the other way around)
+  destroyAlliance(a, b)
+  {
+    this.alliances[a].delete(b);
+  }
+  // returns whether unit1 treats unit2 as neutral or allied
+  neutral(unit1, unit2)
+  {
+    return this.teamNeutral(unit1.team, unit2.team);
+  }
+  // returns whether unit1 treats unit2 as an enemy
+  hostile(unit1, unit2)
+  {
+    return this.teamHostile(unit1.team, unit2.team);
+  }
+  teamNeutral(a, b)
+  {
+    return a == b || this.alliances[a].has(b);
+  }
+  // returns whether unit1 treats unit2 as an enemy
+  teamHostile(a, b)
+  {
+    return !this.teamNeutral(a, b);
   }
   addUnit(unit)
   {
     this.teams[unit.team].add(unit);
     this.set(unit.id, unit)
+  }
+  switchTeam(unit, team)
+  {
+    this.teams[unit.team].delete(unit);
+    unit.team = team;
+    this.teams[team].add(unit);
   }
   delUnit(unit)
   {

@@ -1,5 +1,6 @@
 "use strict";
 
+import {waitTick} from "./Utils.js";
 import {Animation} from "./Animation.js";
 
 const ANIMDATA =
@@ -45,45 +46,45 @@ export class SpriteEffect extends Animation
     this.a = 1;
     this.da = 1/(this.time - this.fadeDelay);
 
-    g.toDraw.set("effect", this);
   }
-  draw()
+  draw(g)
   {
     if (this.fade)
     {
       if (this.time > this.fadeDelay)
 	this.a -= this.da;
-      this.g.ctx[this.layer].globalAlpha = this.a;
+      g.ctx[this.layer].globalAlpha = this.a;
     }
 
-    super.draw(this.g, this.layer, this.x, this.y, 1, true)
+    super.draw(g, this.layer, this.x, this.y, 1, true)
 
     if (this.fade)
     {
-      this.g.ctx[this.layer].globalAlpha = 1;
+      g.ctx[this.layer].globalAlpha = 1;
     }
   }
   update()
   {
     -- this.time;
     super.tick();
-    if (this.time < 0)
-    {
-      this.draw = () => {};
-      this.update = this.draw;
-
-      this.g.toDraw.del("effect");
-
-      this.fxonDone();
-    }
   }
 }
 
-export function waitSpriteEffect( g, name, layer, x, y)
+export function raitSpriteEffect( g, name, layer, x, y)
 {
   return new Promise( (resolve) => 
     {
       let fx = new SpriteEffect(g, name, layer, x, y, resolve);
     }
   );
+}
+export async function waitSpriteEffect( g, name, layer, x, y)
+{
+  let fx = new SpriteEffect(g, name, layer, x, y);
+  while (fx.time > 0)
+  {
+    fx.draw(g);
+    fx.update();
+    await waitTick();
+  }
 }

@@ -23,7 +23,7 @@ import {Queue} from "./Queue.js";
 import {MusicPlayer} from "./MusicPlayer.js";
 import {DrawContainer, UnitContainer, PanelContainer, ScriptDrawer} from "./DrawContainer.js";
 import {Inputter, ARROWS, ARROW} from "./Inputter.js";
-import {Panel, SelectionPanel, UnitMapPanel, ItemPanel} from "./Panel.js";
+import {Panel, SelectionPanel, UnitMapPanel, ItemPanel, BattlePreviewPanel} from "./Panel.js";
 import {PanelComponent} from "./PanelComponent.js";
 import {Battle} from "./Battle.js";
 import {LoopSelector, QueueSelector} from "./LoopSelector.js";
@@ -39,7 +39,7 @@ import {UnitInfoScreen} from "./UnitInfoScreen.js";
 import {OptionScreen} from "./OptionScreen.js";
 import {UnitTradeScreen} from "./UnitTradeScreen.js";
 import {MapHealthBar} from "./MapHealthBar.js";
-import {NightTimeEffect} from "./Effects.js";
+import {NightTimeEffect, waitSpriteEffect} from "./Effects.js";
 
 export const C_WIDTH = 1024;
 export const C_HEIGHT = 768;
@@ -122,6 +122,7 @@ class Game
     this.skipOnBegin = false;
     
     this.counter = 0;
+    this.specialCount = 0;
     this.turncount = 1;
     this.gameStatus = "blockInput";
     this.inputting = false;
@@ -155,7 +156,7 @@ class Game
     let a = [];
     for (let td of this.turn)
     {
-      if (td.name != team)
+      if (this.Units.teamHostile(team, td.name))
       {
 	a.push(td.name);
       }
@@ -170,11 +171,23 @@ class Game
     this.dayLength = chscript.dayLength;
     for (let td of this.turn)
       this.Units.addTeam(td.name);
+    this.initAlliances()
 				    
     this.toDraw.set("scriptItems", new ScriptDrawer(chscript));
     this.camera.setPos(chscript.cameraInit.x, chscript.cameraInit.y);
     this.unblockInput();
     chscript.onBegin(this, ()=>{this.startTurns();});
+  }
+  initAlliances()
+  {
+    let all = this.chapterScript.alliances;
+    for (let [a, bb] of Object.entries(all))
+    {
+      for (let b of bb)
+      {
+	this.Units.createAlliance(a, b);
+      }
+    }
   }
   wait(unit)
   {
@@ -215,7 +228,7 @@ class Game
 
     }
 
-    let attackable = unit.attackableUnits(this.Map, this.temp.unitUsableWeapons);
+    let attackable = unit.attackableUnits(this, this.temp.unitUsableWeapons);
     if (attackable.nonempty())
     {
       // attack
@@ -350,10 +363,17 @@ class Game
 	  let first = this.temp.selectedUnitAttackableEnemies.front();
 	  await this.camera.waitShiftTo(first);
 	  this.cursor.moveInstant(first);
+
+	  let p = new BattlePreviewPanel(this, this.temp.selectedUnit, this.Map.getTile(first).unit)
+	  if (this.camera.onLeft(first))
+            p.shift();
+	  p.explicitDraw(this, 4);
+
       },
 
       select: async()=>
       {
+	this.clearCtx(4);
 	triggerEvent("sfx_play_beep_effect");
         let enemy = this.Map.getTile(this.temp.selectedUnitAttackCoords.get()).unit;
 
@@ -399,11 +419,13 @@ class Game
       },
       cancel:async ()=>
       {
+	this.clearCtx(4);
 	await this.setStatus("unitAttackWeaponSelect");
 	this.Panels.show("selectedUnitWeaponPanel");
       },
       arrows:async (a)=>
       {
+	this.clearCtx(4);
 	this.blockInput();
 	scrollSelect_4W(a, this.temp.selectedUnitAttackCoords);
 	
@@ -411,6 +433,11 @@ class Game
 	await this.camera.waitShiftTo(target);
 	this.cursor.moveInstant(target);
 	this.unblockInput();
+	
+	let p = new BattlePreviewPanel(this, this.temp.selectedUnit, this.Map.getTile(target).unit);
+	if (this.camera.onLeft(target))
+	  p.shift();
+	p.explicitDraw(this, 4);
       }
     }
 
@@ -709,6 +736,7 @@ class Game
 	      // TODO make camera go to original location instead of seeking to cursor's original location
 	      this.Panels.del("mapActionPanel");
 
+	      this.gameStatus = "blockInput";
 	      try
 	      {
 		await this.enemyPhase();
@@ -909,6 +937,7 @@ class Game
       cancel: async ()=> { await this.toDraw.cancel(); }
     }
   }
+
   async fadeIn()
   {
     this.blockInput();
@@ -935,9 +964,38 @@ class Game
     this.ctx[5].globalAlpha = 1;
     this.unblockInput();
   }
+  async onVictory()
+  {
+    this.blockInput();
+    this.gameStatus = "blockInput";
+    MusicPlayer.stopAll();
+    this.draw = ()=>{};
+    this.update = ()=>{};
+    this.mainloop = ()=>{};
+    this.ctx[5].fillStyle = "black";
+    for (let i = 0; i < 30; ++i)
+    {
+      this.ctx[5].globalAlpha = 0.1;
+      this.ctx[5].fillRect(0,0,512,384);
+      await waitTick();
+    }
+    this.ctx[5].globalAlpha = 1;
+    this.ctx[5].fillRect(0,0,512,384);
+  
+    console.log("monka");
+    this.setTextColor(5, "#0022ec")
+    this.setTextFont(5, "22px ABCD Mono")
+    this.setTextJustify(5, "center")
+    this.drawText(5, "YOU WIN", 256, 130);
+    this.setTextFont(5, "11px ABCD Mono")
+    this.drawText(5, "Thank you for playing my game!", 256, 200);
+    this.drawText(5, "If you can, please give me some feedback.", 256, 222);
+    this.drawText(5, "Stay tuned for updates!", 256, 244);
+  }
   async onGameOver()
   {
     this.blockInput();
+    this.gameStatus = "blockInput";
     MusicPlayer.stopAll();
     this.draw = ()=>{};
     this.update = ()=>{};
@@ -959,13 +1017,10 @@ class Game
     this.setTextFont(5, "11px ABCD Mono")
     this.drawText(5, "The restart button has not yet been implemented", 256, 200);
     this.drawText(5, "For now, just refresh the page to play again", 256, 222);
+    this.drawText(5, "If possible, please give me some feedback.", 256, 244);
   }
   async beginTurn(turnData)
   {
-    await MusicPlayer.fadestop(this.mapTheme);
-
-    this.Events.execute();
-
     for (let u of this.Units){ u.turnInit();}
 
     await this.toDraw.get("banner").flyBanner(turnData.name + " Phase", turnData.bannercolor);
@@ -986,16 +1041,20 @@ class Game
   }
   async enemyPhase()
   {
+    this.blockInput();
+    await MusicPlayer.fadestop(this.mapTheme);
     this.turn.next();
     let turno = this.turn.get();
     while (turno.name != "Player")
     {
+      await this.handleTurnBeginEvents();
       let t_u = this.Units.getTeam(turno.name);
       if (t_u !== undefined && t_u.size > 0)
       {
 	await this.beginTurn(turno);
 
 	await this.nonPlayerTurn(turno);
+	await MusicPlayer.fadestop(this.mapTheme);
 
       }
       this.turn.next();
@@ -1003,7 +1062,9 @@ class Game
     }
 
     ++this.turncount;
+    ++this.specialCount;
 
+    await this.handleTurnBeginEvents();
     await this.beginTurn(turno);
 
     if (this.temp.cursorPrev !== undefined)
@@ -1015,6 +1076,7 @@ class Game
     this.cursor.curAnim().reset();
     
     this.setStatus("map");
+    this.unblockInput();
   }
 
 
@@ -1175,16 +1237,59 @@ class Game
 
 
 
+  async recruitJingle(unit)
+  {
+    MusicPlayer.mute(this.mapTheme);
+    await Promise.all(
+      [
+	MusicPlayer.play("FX_join"),
+	this.alert(unit.name + " joined!")
+      ]);
+    MusicPlayer.unmute(this.mapTheme);
+  }
+  async leaveJingle(unit)
+  {
+    MusicPlayer.mute(this.mapTheme);
+    await Promise.all(
+      [
+	MusicPlayer.play("FX_leave"),
+	this.alert(unit.name + " is no longer controllable.")
+      ]);
+    MusicPlayer.unmute(this.mapTheme);
+  }
+
+  async switchTeam(unit, team)
+  {
+    this.Units.switchTeam(unit, team);
+  }
 
 
-
+  async alert(text, x=256, y=200)
+  {
+    this.blockInput();
+    this.setTextProperty(4, "black", "11px ABCD Mono", "center");
+    let w = Math.ceil(this.ctx[4].measureText(text).width);
+    let h = 20 + 16.5*text.split("\n").length - 5.5;
+    let p = new Panel(x - w/2, y, w + 20, h);
+    p.explicitDraw(this, 4);
+    this.drawText(4, text, x+10, y+10);
+    await waitTime(2000);
+    this.ctx[4].clearRect(x - w/2, y, w + 20, h);
+    this.unblockInput();
+  }
   async cursorFlash(x, y)
   {
+    if (Settings.get("cut_skip") == true)
+      return;
+
     await waitTime(250);
     await this.smallCursorFlash(x, y);
   }
   async smallCursorFlash(x, y = null)
   {
+    if (Settings.get("cut_skip") == true)
+      return;
+
     if (y === null)
       this.cursor.moveInstant(x);
     else
@@ -1207,22 +1312,27 @@ class Game
   {
     return !this.isDayTime();
   }
-  async healUnit(unit, amount)
+  async healUnit(unit, amount = null)
   {
+    if (amount === null)
+      amount = unit.stats.maxhp;
     await this.camera.waitShiftTo(unit);
     let hb = new MapHealthBar(this, unit);
     let realAmount = Math.min(amount, unit.stats.maxhp - unit.stats.hp);
-    this.toDraw.set("hb", hb);
-    await waitTime(500);
-    for (let i = 0; i < realAmount; ++i)
+    if (realAmount > 0)
     {
-      ++ unit.stats.hp;
-      MusicPlayer.play("FX_healblip");
-      await waitTick();
-      await waitTick();
+      this.toDraw.set("hb", hb);
+      await waitTime(500);
+      for (let i = 0; i < realAmount; ++i)
+      {
+	++ unit.stats.hp;
+	MusicPlayer.play("FX_healblip");
+	await waitTick();
+	await waitTick();
+      }
+      await waitTime(500);
+      this.toDraw.del("hb");
     }
-    await waitTime(500);
-    this.toDraw.del("hb");
   }
 
   generateCanvasLayers()
@@ -1289,6 +1399,32 @@ class Game
     {
       console.error( "ERROR - attempted to add unit in position (", unit.x, ", ",unit.y,")!");
     }
+  }
+  async handleTurnBeginEvents()
+  {
+    let events = this.chapterScript.events.turnBegin[this.turn.get().name];
+    if (events === undefined)
+      return;
+    // track triggered events in backward order to easily remove
+    let triggered = [];
+    for (let i = 0; i < events.length; ++i)
+    {
+      let obj = events[i];
+      let turncount;
+
+      if (obj.type == "relative")	turncount = this.specialCount;
+      else if (obj.type == "absolute")	turncount = this.turncount;
+      else				console.error("handlebeginturn invalid turn type");
+
+      if (obj.turn == turncount && obj.condition(this))
+      {
+	console.log("Event {" + obj.tag + "} was triggered!");
+	await obj.action(this);
+	triggered.unshift(i)
+      }
+    }
+    for (let i of triggered)
+      events.splice(i, 1);
   }
   async handleAfterBattleEvents()
   {
@@ -1362,6 +1498,14 @@ class Game
   {
     return this.camera.waitShiftAbsolute(new Coord(x, y), 6)
   }
+  cameraCenter(x, y = null)
+  {
+    if (y !== null)
+    {
+      x = new Coord(x, y);
+    }
+    return this.camera.waitShiftCenter(x, 6)
+  }
 
 
   clearCtx(n)
@@ -1420,7 +1564,18 @@ class Game
   }
   drawText(ctx, text, x, y, maxWidth = undefined)
   {
-    this.ctx[ctx].fillText(text, x, y, maxWidth);
+    if (typeof text == "string")
+    {
+      let height = this.ctx[ctx].font.substring(0,2)*1.5;
+      let lines = text.split('\n');
+      for (let i = 0; i<lines.length; ++i)
+	this.ctx[ctx].fillText(lines[i], x, y + i*height, maxWidth);
+    }
+    else
+    {
+      this.ctx[ctx].fillText(text, x, y, maxWidth);
+    }
+
   }
   strokeText(ctx, text, x, y)
   {

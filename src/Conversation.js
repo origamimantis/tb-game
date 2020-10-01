@@ -3,6 +3,7 @@ import {Panel} from "./Panel.js"
 import {PanelComponent, PanelType} from "./PanelComponent.js";
 import {MusicPlayer} from "./MusicPlayer.js";
 import {Inputter} from "./Inputter.js";
+import {Settings} from "./Settings.js";
 
 
 // layer 3 gray
@@ -23,7 +24,7 @@ export class Conversation
     this.convIdx = 0;
 
     this.textPanel = new Panel(0, 250, 512, 134, 1, 1);
-    this.textPanel.createComponent(PanelType.TEXT, "", "text", 0, 0, "black", "13.25px ABCD Mono");
+    this.textPanel.createComponent(PanelType.TEXT, "", "text", 0, 0, "black", "13.25px ABCD Mono", "left");
     let t = this.textPanel.components.text;
     t.x += 8;
     t.y += 4;
@@ -39,9 +40,9 @@ export class Conversation
   {
     delete this.speakers[name];
   }
-  addSpeaker(name, portrait, x, facing)
+  addSpeaker(name, portrait, x, facing, initiallyVisible=true)
   {
-    this.speakers[name] = [portrait, x, facing];
+    this.speakers[name] = [portrait, x, facing, initiallyVisible];
   }
   speaker(name)
   {
@@ -105,7 +106,8 @@ export class Conversation
   {
     for (let speaker of Object.keys(this.speakers))
     {
-      this.drawPortrait(speaker);
+      if (this.speakers[speaker][3] == true)
+	this.drawPortrait(speaker);
     }
   }
   async updateConvo()
@@ -271,6 +273,12 @@ export class Conversation
   }
   async begin(Return)
   {
+    if (Settings.get("cut_skip") == true)
+    {
+      Return();
+      return;
+    }
+    
     this.mfade = true;
 
     this.Return = Return;

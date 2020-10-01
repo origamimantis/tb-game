@@ -1,0 +1,17 @@
+name hit
+type melee
+frames 6
+usrc BattleSprites/Vargas/SwordKnight/hit
+
+begin
+0 uframe 0 hand 8 26 153
+15 wframe 1
+15 uframe 1 hand 22 9 110
+20 uframe 2 hand 40 13 95
+25 uframe 3 hand 50 31 40
+25 hit
+30 uframe 4 hand 49 40 7
+30 wframe 0
+35 uframe 5 hand 49 40 7
+50 end
+

@@ -168,14 +168,14 @@ export class Sword extends Weapon
   }
   sprite()
   {
-    return new Melee_Sprite("W_sword", 3,15,2, "FX_slash");
+    return new Melee_Sprite("W_sword", 3,15,2, "FX_slash", 30, 60);
   }
 }
 export class Pitchfork extends Weapon
 {
   constructor()
   {
-      super("Pitchfork", 7, 80, 0, [1], 50, [], {}, "Alfred");
+      super("Pitchfork", 4, 80, 0, [1], 50, [], {}, "Alfred");
   }
   sprite()
   {
@@ -209,7 +209,7 @@ export class LumberAxe extends Weapon
 {
   constructor()
   {
-      super("LumberAxe", 6, 65, -30, [1], 50, [], {}, null);
+      super("LumberAxe", 4, 65, -30, [1], 50, [], {}, null);
   }
   sprite()
   {
@@ -226,7 +226,7 @@ export class BraveSword extends Sword
 
 export class BronzeSlicer extends Sword
 {
-    constructor(){ super("Bronze Slicer", 8, 80, 10, [1], 48, [], {}, null); }
+    constructor(){ super("Bronze Slicer", 7, 80, 10, [1], 48, [], {}, "Vargas"); }
 }
 
 

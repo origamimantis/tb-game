@@ -134,7 +134,7 @@ export class EnemyController
     let ret = [];
     for (let targ of this.g.Units)
     {
-      if (attackable.contains(targ) && this.hostile(unit.team, targ.team))
+      if (attackable.contains(targ) && this.g.Units.hostile(unit, targ))
 	ret.push(targ);
     }
     return ret;
@@ -175,7 +175,7 @@ export class EnemyController
     let target = null;
     for (let targ of this.g.Units)
     {
-      if (attackable.contains(targ) && this.hostile(unit.team, targ.team))
+      if (attackable.contains(targ) && this.g.Units.hostile(unit, targ))
       {
 	target = targ;
 	break;
@@ -214,11 +214,6 @@ export class EnemyController
     }
     return {dest:coord, target:target};
 
-  }
-
-  hostile(a, b)
-  {
-    return (a != b);
   }
 }
 

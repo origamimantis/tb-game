@@ -22,15 +22,8 @@ import {toggleLog} from "./Inputter.js";
 let interpreter;
 let game;
 
-console.settings = function(s)
-{
-  let i = {}
-  for (let k of Object.keys(Settings.values))
-  {
-    i[k] = Settings.get(k);
-  }
-  return i;
-}
+console.settings = Settings;
+
 console.exe = function(s)
 {
   interpreter.execute(s);
@@ -213,7 +206,7 @@ console.restart = restartGame;
 
 let thingsToLoad = {
       Script : "./ch1.js",
-      ImgLoad : [ "P_gen", "P_kn", "P_janitor", "P_vmp", "P_Alfred", "P_child",
+      ImgLoad : [ "P_gen", "P_lead", "P_janitor", "P_vmp", "P_Alfred", "P_child",
 		  "P_bandit", "P_Billy", "P_Chloe",
 		  "T_grass_forest_B", "T_grass_forest_M", "T_grass_forest_T", 
 		  "T_grass",
@@ -227,7 +220,7 @@ let thingsToLoad = {
 		  "T_path_tl", "T_path_tr", "T_path_bl", "T_path_br",
 		  "T_path_stl", "T_path_str", "T_path_sbl", "T_path_sbr",
 		  "T_path_3u", "T_path_3r", "T_path_3d", "T_path_3l", "T_path_4",
-		  "S_kn0", "S_kn1", "S_lead1", "S_vmp0", "S_farmerAlfred", "S_child",
+		  "S_lead0", "S_kn1", "S_lead1", "S_vmp0", "S_farmerAlfred", "S_child",
 		  "S_bandit", "S_farmerBilly", "S_farmerChloe",
 		  "BS_kn_run", "BS_kn_hit", "BS_kn_idle", "BS_kn_hit2",
 
@@ -242,6 +235,10 @@ let thingsToLoad = {
 		  "BattleSprites/Chloe/Farmer/idle",
 		  "BattleSprites/Chloe/Farmer/run",
 		  "BattleSprites/Chloe/Farmer/hit",
+
+		  "BattleSprites/Vargas/SwordKnight/idle",
+		  "BattleSprites/Vargas/SwordKnight/run",
+		  "BattleSprites/Vargas/SwordKnight/hit",
 
 		  "BattleSprites/generic/Bandit/idle",
 		  "BattleSprites/generic/Bandit/run",

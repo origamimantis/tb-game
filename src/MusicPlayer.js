@@ -34,6 +34,7 @@ export class MusicPlayer
     await this.load("rfgh", 45715, 3809.5);
     await this.load("village", 20000);
     await this.load("recruit", 20000, 455);
+    await this.load("feels", 40000);
     //await this.load("oss");
     //await this.loadFX("bad");
     await this.loadFX("errbeep", 1000);
@@ -48,6 +49,8 @@ export class MusicPlayer
     await this.loadFX("FX_healblip", 1000);
     await this.loadFX("FX_bonk", 1000);
     await this.loadFX("FX_clink", 1000);
+    await this.loadFX("FX_join", 1667);
+    await this.loadFX("FX_leave", 1667);
   }
   
   static async load( name, length, intro = 0)

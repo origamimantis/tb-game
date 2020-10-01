@@ -1,0 +1,11 @@
+name run
+type melee
+frames 4
+usrc BattleSprites/Vargas/SwordKnight/run
+
+begin
+0 uframe 0 hand 20 28 -145
+12 uframe 1 hand 20 30 -145
+20 uframe 2 hand 20 28 -145
+32 uframe 3 hand 20 30 -145
+40 loop 0

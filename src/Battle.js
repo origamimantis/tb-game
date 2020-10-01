@@ -103,12 +103,13 @@ const PANELS =
   };
 const WINDOW = {X: 512, Y:384 - PANELS.HEALTH.HEIGHT - PANELS.STATS.HEIGHT + 10};
 
-class BattleInfo
+export class BattleInfo
 {
   constructor(u, sprite, g)
   {
     this.canAttack = false;
     this.sprite = sprite;
+    this.name = u.name;
     this.atks = 0;
     this.hits = 0;
     this.crts = 0;
@@ -157,6 +158,7 @@ class BattleInfo
   dispHit(d)
   {
     let e = this.effHit(d);
+    e =  Math.min( Math.max(0, e), 100);
     if (e > 50)
       e = Math.floor(e);
     else
@@ -167,6 +169,7 @@ class BattleInfo
   dispCrt(d)
   {
     let e = this.effCrt(d);
+    e =  Math.min( Math.max(0, e), 100);
     if (e > 50)
       e = Math.floor(e);
     else
@@ -315,20 +318,25 @@ export class Battle
   {
     this.info.atk.canAttack = true;
     this.info.def.canAttack = true;
-    this.addTurn(this.sprIni);
-    if (this.info.atk.hasSkill("brave"))
-    {
-      this.addTurn(this.sprIni);
-    }
+    let aAtks = 1;
+    let dAtks = 1;
+
+    this.addTurn(this.sprIni, this.info.atk);
 
     if (this.info.def.weapon.name != "No Weapon")
     {
-      this.addTurn(this.sprDef);
-      if (this.info.def.hasSkill("brave"))
-      {
-	this.addTurn(this.sprDef);
-      }
+      this.addTurn(this.sprDef, this.info.def);
     }
+    if (this.info.atk.stats.spd > this.info.def.stats.spd)
+      this.addTurn(this.sprIni, this.info.atk);
+    else if (this.info.atk.stats.spd < this.info.def.stats.spd)
+      this.addTurn(this.sprDef, this.info.def);
+  }
+  oneAttack(who, info)
+  {
+    this.addTurn(who);
+    if (info.hasSkill("brave"))
+      this.addTurn(who);
   }
   addTurn(who)
   {
@@ -587,17 +595,19 @@ export class Battle
       this.speechName = this.dead.name;
       this.speechArt = this.dead.pArt;
       this.state = SPEECH;
+      await MusicPlayer.fadestop(this.music);
       await new Promise( (resolve) => {this.beginSpeech(resolve)});
+      this.state = FIGHT;
     }
     else
     {
       await waitTime(AFTER_BATTLE_DELAY);
+      await MusicPlayer.fadestop(this.music);
     }
     this.end();
   }
   async end()
   {
-    await MusicPlayer.fadestop(this.music);
   
     this.g.clearCtx(4);
     //return this.dead;
