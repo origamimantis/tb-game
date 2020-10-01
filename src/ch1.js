@@ -96,7 +96,7 @@ export let script =
     onBegin: async (g, onDone) =>
     {
       // TODO
-      Settings.set("cut_skip", "On");
+      //Settings.set("cut_skip", "On");
       initVars();
       g.Map.setMaxBound(null, 17);
       console.log("loaded ch1");
@@ -597,7 +597,7 @@ export let script =
 	      let dests = [[19, 12],[19,11],[20,12],[21,12],[21,10],[20,11]];
 
 	      //TODO
-	      Settings.set("cut_skip", "Off");
+	      //Settings.set("cut_skip", "Off");
 
 	      await g.cameraShift(6,5);
 	      let movePromise = [];
