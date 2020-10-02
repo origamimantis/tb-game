@@ -321,19 +321,18 @@ export class Battle
     let aAtks = 1;
     let dAtks = 1;
 
-    this.addTurn(this.sprIni, this.info.atk);
+    this.oneAttack(this.sprIni, this.info.atk);
+    this.oneAttack(this.sprDef, this.info.def);
 
-    if (this.info.def.weapon.name != "No Weapon")
-    {
-      this.addTurn(this.sprDef, this.info.def);
-    }
     if (this.info.atk.stats.spd > this.info.def.stats.spd)
-      this.addTurn(this.sprIni, this.info.atk);
+      this.oneAttack(this.sprIni, this.info.atk);
     else if (this.info.atk.stats.spd < this.info.def.stats.spd)
-      this.addTurn(this.sprDef, this.info.def);
+      this.oneAttack(this.sprDef, this.info.def);
   }
   oneAttack(who, info)
   {
+    if (info.weapon.name == "No Weapon")
+      return;
     this.addTurn(who);
     if (info.hasSkill("brave"))
       this.addTurn(who);

@@ -1,3 +1,7 @@
+ver0.36 2020-10-01
+fixed a bug causing the game to softlock when Timmy
+dodges an attack.
+
 ver0.35 2020-10-01
 Hooly moly this is a fat update. Chapter 1 is playable!
 Added conversations and cutscenes, viewable stats, and
