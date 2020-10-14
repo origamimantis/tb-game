@@ -14,3 +14,26 @@ export const STATS = [ "maxhp","atk","spd","skl","def","con","mov" ];
 
 export const WIDTH = 512;
 export const HEIGHT = 384;
+
+export const C_WIDTH = 1024;
+export const C_HEIGHT = 768;
+
+//TODO modify all sprite to double resolution and change this to SCALE = 1.
+//     this will require tweaks to scene objects.
+export const SCALE = 2;
+
+export const WINDOWGRID_X = 16;
+export const WINDOWGRID_Y = 12;
+
+export const GRIDSIZE_X = C_WIDTH/WINDOWGRID_X/SCALE;
+export const GRIDSIZE_Y = C_HEIGHT/WINDOWGRID_Y/SCALE;
+export const gx = GRIDSIZE_X;
+export const gy = GRIDSIZE_Y;
+
+export const CURSOR_SPEED = 4;
+
+export const NUMLAYER = 5;
+
+export const TEST_ENABLED = false;
+
+

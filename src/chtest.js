@@ -34,7 +34,6 @@ function initVars()
   b1 = new Units.Bandit(2, 14, 7, {maxhp:16, atk:3,spd:2,skl:4,def:3,con:4,mov: 6}, "Bandit");
   b1.team = "Bandit";
   b1.setAnim( "idle" );
-  b1.setAnim( "idle" );
   b1.addWeapon(new Weapons.LumberAxe());
   b1.ai = "targetWeakest";
 	
@@ -45,7 +44,7 @@ function initVars()
   b2.ai = "targetWeakest";
 
   billy = new Units.Farmer(4, 8, 3, {maxhp:16, atk:3,spd:2,skl:3,def:3,con:4,mov: 6}, "Billy");
-  billy.team = "Player";
+  billy.team = "Village";
   billy.pArt = "P_Billy";
   billy.addWeapon(new Weapons.Shovel());
   billy.setAnim( "idle" );
@@ -53,14 +52,14 @@ function initVars()
   billy.ai = "guard";
 
   chloe = new Units.Farmer(5, 4, 6, {maxhp:16, atk:2,spd:3,skl:3,def:2,con:4,mov: 6}, "Chloe");
-  chloe.team = "Player";
+  chloe.team = "Village";
   chloe.pArt = "P_Chloe";
   chloe.addWeapon(new Weapons.FryingPan());
   chloe.setAnim( "idle" );
   chloe.recruited = true;
   chloe.ai = "guard";
 
-  vargas = new Units.SwordKnight(6, 4, 7, {maxhp:28, atk:11,spd:7,skl:12,def:6,con:12,mov: 6}, "Vargas", "S_lead0");
+  vargas = new Units.SwordKnight(6, 8, 7, {maxhp:28, atk:11,spd:7,skl:12,def:6,con:12,mov: 6}, "Vargas", "S_lead0");
   vargas.team = "Player";
   vargas.pArt = "P_lead";
   vargas.addWeapon(new Weapons.BronzeSlicer());
@@ -68,6 +67,7 @@ function initVars()
   
   choddson = new Units.Bandit(7, 21,11, {maxhp:33, atk:10,spd:6,skl:5,def:11,con:19,mov: 6}, "Choddson");
   choddson.team = "Bandit";
+  choddson.pArt = "P_Choddson";
   choddson.addWeapon(new Weapons.LumberAxe());
   choddson.setAnim("idle");
   choddson.ai = "targetWeakest";
@@ -92,7 +92,6 @@ export let script =
 
       g.Map.setMaxBound(null, 17);
       g.addUnit(alfred);
-      alfred.stats.hp = 1;
       
       g.addUnit(child);
 
@@ -182,7 +181,7 @@ export let script =
     }, //interactions
     events: {
       onDeath: {
-	"Alfred": (g)=>{g.onGameOver()},
+	//"Alfred": (g)=>{g.onGameOver()},
 	"Timmy": (g)=>{g.onGameOver()},
       },
       afterBattle: [
@@ -314,7 +313,9 @@ export let script =
 	    g.resetTurns();
 	  }
         }
-      ]
-
+      ],
+      turnBegin:
+      {
+      },
     } //events
   } //script

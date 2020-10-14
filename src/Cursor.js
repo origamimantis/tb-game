@@ -264,7 +264,7 @@ class Cursor extends AnimatedObject
   draw(g)
   {
     let off = g.camera.offset;
-    super.draw(g, 3, this.vis.x - off.x, this.vis.y - off.y);
+    super.draw(g, 3, g.xg(this.vis.x - off.x), g.yg(this.vis.y - off.y));
     super.tickAnim();
   }
 

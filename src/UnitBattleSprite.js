@@ -18,6 +18,7 @@ export class UnitBattleSprite extends BattleSprite
   {
     super(g, unit.getWeapon().sprite(), x, y);
     this.id = id;
+    this.affil = g.getAffiliation(unit);
     this.unit = unit;
     this.walkFunction = unit.walkFunction;
     this.loaded = false;
@@ -33,15 +34,25 @@ export class UnitBattleSprite extends BattleSprite
     else if (c.deathQuote !== undefined)
       this.deathQuote = c.deathQuote;
 
-    // TODO use generic if character not generic but has no custom animation for their class
+    // use generic animations if character not generic but has no custom animation for their class
     c = c.battleAnimation;
     if (c === undefined)
       c = Characters.generic.battleAnimation;
-    c = c[this.unit.classname].scripts;
+    c = c[this.unit.classname];
+    let scripts = c.scripts;
 
-    for (let [name, file] of Object.entries(c))
+    let recolor = null;
+    let rr = c.recolor[this.affil];
+    if (rr !== undefined)
     {
-      await this.addAnimation(name, file);
+      recolor = {};
+      for (let [a,b] of rr)
+	recolor[a] = b;
+    }
+
+    for (let [name, file] of Object.entries(scripts))
+    {
+      await this.addAnim(name, file, recolor);
     }
     //"hit2", [new BAFrame(10, 0,0,0),new BAFrame(30, 0,0,0),new BAFrame(5, 0,0,0),new BAFrame(35, 0,0,0)]
 
@@ -97,11 +108,6 @@ export class UnitBattleSprite extends BattleSprite
   onHit(f)
   {
     return this.curAnim().onHit(f);
-  }
-
-  async addAnimation( name, lookup )
-  {
-    await super.addAnim(name, lookup);
   }
 
 

@@ -17,7 +17,6 @@ import {Coord} from "./Path.js";
 import {AnimatedObject} from "./AnimatedObject.js";
 import {Album} from "./Images.js";
 import {Cursor} from "./Cursor.js";
-import {FPS, TICK_RATE} from "./Constants.js";
 import {Camera} from "./Camera.js";
 import {Queue} from "./Queue.js";
 import {MusicPlayer} from "./MusicPlayer.js";
@@ -41,34 +40,25 @@ import {UnitTradeScreen} from "./UnitTradeScreen.js";
 import {MapHealthBar} from "./MapHealthBar.js";
 import {NightTimeEffect, waitSpriteEffect} from "./Effects.js";
 
-export const C_WIDTH = 1024;
-export const C_HEIGHT = 768;
+import {FPS,
+	TICK_RATE,
+	C_WIDTH,
+	C_HEIGHT,
+	SCALE,
+	WINDOWGRID_X,
+	WINDOWGRID_Y,
+	GRIDSIZE_X,
+	GRIDSIZE_Y,
+	CURSOR_SPEED,
+	NUMLAYER,
+	TEST_ENABLED} from "./Constants.js";
 
-//TODO modify all sprite to double resolution and change this to SCALE = 1.
-//     this will require tweaks to scene objects.
-const SCALE = 2;
-
-const WINDOWGRID_X = 16;
-const WINDOWGRID_Y = 12;
-
-const GRIDSIZE_X = C_WIDTH/WINDOWGRID_X/SCALE;
-const GRIDSIZE_Y = C_HEIGHT/WINDOWGRID_Y/SCALE;
 const gx = GRIDSIZE_X;
 const gy = GRIDSIZE_Y;
 
-const CURSOR_SPEED = 4;
-
-const FONTSIZE = "48";
-const FONT = "Times New Roman";
-
-const NUMLAYER = 5;
-
-const TEST_ENABLED = false;
-
-
 class Game
 {
-  constructor( assets )
+  constructor( assets, ctx )
   {
     this.windowx = C_WIDTH/SCALE;
     this.windowy = C_HEIGHT/SCALE;
@@ -86,7 +76,7 @@ class Game
     
     this.ctx = [];
     this.ctx_refresh = [1,2,3,5];
-    this.generateCanvasLayers();
+    this.ctx = ctx;
   
     this.turn = null;
     this.Units = new UnitContainer();
@@ -1234,6 +1224,14 @@ class Game
 
 
 
+  getAffiliation(unit)
+  {
+    if (unit.team == "Player")
+      return "";
+    if (this.Units.teamHostile(unit.team, "Player"))
+      return "_enemy";
+    return "_ally";
+  }
 
 
 
@@ -1335,28 +1333,6 @@ class Game
     }
   }
 
-  generateCanvasLayers()
-  {
-    // 0: bg, 1: walkable/other effects, 2: units, 3: cursor/effects, 4: hud
-    let canv = document.getElementById("canvases");
-    for (let i = 0; i <= NUMLAYER; i++)
-    {
-      let can = canv.appendChild(document.createElement("canvas"));
-      can.id = "canvas-" + i.toString();
-      can.width = C_WIDTH;
-      can.height = C_HEIGHT;
-      can.style.position = "absolute";
-      can.style.background = "transparent";
-      can.style.left = "0";
-      can.style.top = "0";
-      this.ctx.push(can.getContext('2d'));
-      this.ctx[i].imageSmoothingEnabled = false;
-      this.ctx[i].scale(SCALE, SCALE);
-      this.ctx[i].fillStyle = "white";
-      this.ctx[i].textBaseline = "top";
-      //this.ctx[i]["font-smooth"] = "never";
-    }
-  }
   blockInput()
   {
     this.inputting = false;
@@ -1508,6 +1484,14 @@ class Game
   }
 
 
+  xg(x)
+  {
+    return this.gx*x;
+  }
+  yg(y)
+  {
+    return this.gy*y;
+  }
   clearCtx(n)
   {
     this.ctx[n].clearRect(0,0,C_WIDTH, C_HEIGHT);
@@ -1624,6 +1608,7 @@ class Game
     this.draw();
 
     ++ this.counter;
+    console.log(this.id)
     // 10! is hghly divisible, so modulos won't run amok
     if (this.counter >= 3628800)
     {

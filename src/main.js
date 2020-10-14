@@ -19,6 +19,9 @@ import {PathFinder} from "./PathFinder.js";
 import {Settings} from "./Settings.js";
 import {toggleLog} from "./Inputter.js";
 
+import {C_WIDTH, C_HEIGHT, SCALE, NUMLAYER} from "./Constants.js";
+
+
 let interpreter;
 let game;
 
@@ -96,11 +99,36 @@ async function loadFonts()
   document.fonts.load("22px ABCD Mono");
   document.fonts.load("22px ABCD Mono Bold");
 }
+function loadDrawContext()
+{
+  // 0: bg, 1: walkable/other effects, 2: units, 3: cursor/effects, 4: hud
+  let canv = document.getElementById("canvases");
+  let ctx = [];
+  for (let i = 0; i <= NUMLAYER; i++)
+  {
+    let can = canv.appendChild(document.createElement("canvas"));
+    can.id = "canvas-" + i.toString();
+    can.width = C_WIDTH;
+    can.height = C_HEIGHT;
+    can.style.position = "absolute";
+    can.style.background = "transparent";
+    can.style.left = "0";
+    can.style.top = "0";
+    ctx.push(can.getContext('2d'));
+    ctx[i].imageSmoothingEnabled = false;
+    ctx[i].scale(SCALE, SCALE);
+    ctx[i].fillStyle = "white";
+    ctx[i].textBaseline = "top";
+    //ctx[i]["font-smooth"] = "never";
+  }
+  return ctx;
+}
 
 class Main
 {
   static init()
   {
+    this.ctx = loadDrawContext();
     Inputter.init();
     // KEYPRESS 
     document.addEventListener( "keydown", (e)=>{Inputter.onKeyDown(e.code)} );
@@ -171,7 +199,7 @@ class Main
     
     Settings.init();
 
-    this.game = new Game(this.assets);
+    this.game = new Game(this.assets, this.ctx);
 
     PathFinder.init(this.game);
     //interpreter = new Interpreter(game);
@@ -183,7 +211,7 @@ class Main
     this.game.mainloop = ()=>{};
     this.level = await loadScript( this.scriptFile )
     this.assets.Map = await loadMap( this.level.tileMap )
-    this.game = new Game(this.assets);
+    this.game = new Game(this.assets, this.ctx);
   }
   static start()
   {

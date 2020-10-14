@@ -89,6 +89,7 @@ export class EnemyController
     let found = false
     let rangeTest = [0];
     let dests = [];
+    
     while (found == false)
     {
       let tiles = inRange(target, rangeTest, "tiles", this.g.Map)

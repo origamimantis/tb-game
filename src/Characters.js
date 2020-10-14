@@ -11,7 +11,9 @@ export const Characters =
 		      run:  "anims/Alfred/Farmer/run",
 		      hit:  "anims/Alfred/Farmer/hit",
 		      crt:  "anims/Alfred/Farmer/crt",
-		    }
+		    },
+		    recolor:
+		    {},
 		  },
 		}
 	      },
@@ -24,7 +26,9 @@ export const Characters =
 		      run:  "anims/Billy/Farmer/run",
 		      hit:  "anims/Billy/Farmer/hit",
 		      crt:  "anims/Billy/Farmer/crt",
-		    }
+		    },
+		    recolor:
+		    {},
 		  },
 		}
 	      },
@@ -37,7 +41,9 @@ export const Characters =
 		      run:  "anims/Chloe/Farmer/run",
 		      hit:  "anims/Chloe/Farmer/hit",
 		      crt:  "anims/Chloe/Farmer/crt",
-		    }
+		    },
+		    recolor:
+		    {},
 		  },
 		}
 	      },
@@ -51,7 +57,9 @@ export const Characters =
 		      run:  "anims/Vargas/SwordKnight/run",
 		      hit:  "anims/Vargas/SwordKnight/hit",
 		      crt:  "anims/Vargas/SwordKnight/crt",
-		    }
+		    },
+		    recolor:
+		    {},
 		  },
 		},
 	      },
@@ -66,7 +74,9 @@ export const Characters =
 		      run:  "anim1",
 		      hit:  "anim2",
 		      crt:  "anim3",
-		    }
+		    },
+		    recolor:
+		    {},
 		  },
 		  "Bandit":
 		  { scripts:
@@ -74,7 +84,11 @@ export const Characters =
 		      run:  "anims/generic/Bandit/run",
 		      hit:  "anims/generic/Bandit/hit",
 		      crt:  "anims/generic/Bandit/hit"
-		    }
+		    },
+		    recolor:
+		    { "":       [ [[0,0,255],[255,255,255]] ],
+		      "_enemy": [ [[0,0,255],[255,0,0]] ]
+		    },
 		  },
 		  "Child":
 		  { scripts:
@@ -82,7 +96,9 @@ export const Characters =
 		      run:  "anims/generic/Child/idle",
 		      hit:  "anims/generic/Child/idle",
 		      crt:  "anims/generic/Child/idle",
-		    }
+		    },
+		    recolor:
+		    {},
 		  },
 		}
 	      }

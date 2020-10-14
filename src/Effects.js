@@ -56,7 +56,7 @@ export class SpriteEffect extends Animation
       g.ctx[this.layer].globalAlpha = this.a;
     }
 
-    super.draw(g, this.layer, this.x, this.y, 1, true)
+    super.draw(g, this.layer, g.xg(this.x), g.yg(this.y), 1)
 
     if (this.fade)
     {

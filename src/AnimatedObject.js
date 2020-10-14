@@ -35,9 +35,9 @@ class AnimatedObject
   {
     return this.animations[name];
   }
-  draw( g, ctx, x = this.x, y = this.y, s = 1, snapGrid = true)
+  draw( g, ctx, x = this.x, y = this.y, s = 1, append = "")
   {
-    this.curAnim().draw(g, ctx, x, y, s, snapGrid);
+    this.curAnim().draw(g, ctx, x, y, s, append);
   }
   addAnim( name, anim )
   {

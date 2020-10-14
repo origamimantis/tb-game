@@ -59,18 +59,17 @@ class Animation
     this.age = 0;
     this.curFrame = 0;
   }
-  draw(g, layer, x, y, s, snapGrid)
+  draw(g, layer, x, y, s, append = "")
   {
-    let img = Album.get(this.image)
+    let img = Album.get(this.image + append)
     
+    if (img === undefined)
+      throw (this.image + append)
     let w = img.width/this.numFrame;
     let h = img.height;
 
-    if (snapGrid == true)
-    {
-      x = x*g.gx + (g.gx - w*s)/2;
-      y = y*g.gy + (g.gy - h*s)/2;
-    }
+    x += (g.gx - w*s)/2;
+    y += (g.gy - h*s)/2;
 
     g.ctx[layer].drawImage(img, w*this.curFrame, 0, w, h, x, y, w*s, h*s);
   }

@@ -252,12 +252,19 @@ export function inRange(c,range,type, map, t = null, conditions = [(x)=>{return 
 
   for (let r of range)
   {
-    for (let i = 0; i < r; ++i)
+    if (r == 0)
     {
-      adder(x+r-i, y-i  , t,map, conditions);
-      adder(x-r+i, y+i  , t,map, conditions);
-      adder(x+i  , y+r-i, t,map, conditions);
-      adder(x-i  , y-r+i, t,map, conditions);
+      adder(x, y, t,map,conditions);
+    }
+    else
+    {
+      for (let i = 0; i < r; ++i)
+      {
+	adder(x+r-i, y-i  , t,map, conditions);
+	adder(x-r+i, y+i  , t,map, conditions);
+	adder(x+i  , y+r-i, t,map, conditions);
+	adder(x-i  , y-r+i, t,map, conditions);
+      }
     }
   }
   return t;

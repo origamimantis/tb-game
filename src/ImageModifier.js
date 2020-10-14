@@ -18,11 +18,11 @@ export class ImageModifier
 
   // Recolors a given imaging using a given map, then stores it under name.
   //   Errors if the name is already in use and overwriting is not specified.
-  static recolor(img, map, name, overwrite = false)
+  static recolor(img, map)
   {
     return new Promise( (resolve) => 
     {
-      let [can, ctx, imageData] = this.setup(img, name, overwrite);
+      let [can, ctx, imageData] = this.setup(img);
 
       // examine every pixel,
       // change any old rgb to the new-rgb
@@ -39,15 +39,16 @@ export class ImageModifier
 	}
       }
       
-      this.album.images[name] = this.finalize(can, ctx, imageData, resolve);
+      let nImg = this.finalize(can, ctx, imageData);
+      nImg.onload = ()=>{resolve(nImg)};
     });
   }
   
-  static flipVertical(img, name, overwrite = false)
+  static flipVertical(img)
   {
     return new Promise( (resolve) => 
     {
-      let [can, ctx, imageData] = this.setup(img, name, overwrite);
+      let [can, ctx, imageData] = this.setup(img);
       let swap = imageData.data.slice(0, imageData.data.length/2);
       for (let i = 0; i < imageData.height/2; ++i)
       {
@@ -58,15 +59,16 @@ export class ImageModifier
 	}
       }
       
-      this.album.images[name] = this.finalize(can, ctx, imageData, resolve);
+      let nImg = this.finalize(can, ctx, imageData);
+      nImg.onload = ()=>{resolve(nImg)};
     });
   }
  
-  static flipHorizontal(img, name, g, overwrite = false)
+  static flipHorizontal(img, g)
   {
     return new Promise( (resolve) => 
     {
-      let [can, ctx, imageData] = this.setup(img, name, overwrite);
+      let [can, ctx, imageData] = this.setup(img);
       for (let i = 0; i < imageData.height; ++i)
       {
 	for (let j = 0; j < imageData.width/2; ++j)
@@ -92,17 +94,16 @@ export class ImageModifier
       }
       let nImg = new Image();
       nImg.src = can.toDataURL('image/png');
-      this.album.images[name] = nImg;
-      nImg.onload = resolve;
+      nImg.onload = ()=>{resolve(nImg)};
 
     });
   }
   
-  static rotateLeft(img, name, overwrite = false)
+  static rotateLeft(img)
   {
     return new Promise( (resolve) => 
     {
-      let [can, ctx, imageData] = this.setup(img, name, overwrite);
+      let [can, ctx, imageData] = this.setup(img);
 
       let w = imageData.width;
       let h = imageData.height;
@@ -125,17 +126,16 @@ export class ImageModifier
       { ctx.putImageData(imageData,i*can.height, (i+1)*can.height - can.width);}
       let nImg = new Image();
       nImg.src = can.toDataURL('image/png');
-      this.album.images[name] = nImg;
-      nImg.onload = resolve;
 
+      nImg.onload = ()=>{resolve(nImg)};
 
     });
   }
-  static rotateRight(img, name, overwrite = false)
+  static rotateRight(img)
   {
     return new Promise( (resolve) => 
     {
-      let [can, ctx, imageData] = this.setup(img, name, overwrite);
+      let [can, ctx, imageData] = this.setup(img);
 
       let w = imageData.width;
       let h = imageData.height;
@@ -160,19 +160,19 @@ export class ImageModifier
       {	ctx.putImageData(imageData,i*can.height, -i*can.height);}
       let nImg = new Image();
       nImg.src = can.toDataURL('image/png');
-      this.album.images[name] = nImg;
-      nImg.onload = resolve;
+      
+      nImg.onload = ()=>{resolve(nImg)};
 
     });
   }
 
 
 
-  static rotate180(img, name, overwrite = false)
+  static rotate180(img)
   {
     return new Promise( (resolve) => 
     {
-      let [can, ctx, imageData] = this.setup(img, name, overwrite);
+      let [can, ctx, imageData] = this.setup(img);
       let swap = imageData.data.slice(0, imageData.data.length/2);
       for (let i = 0; i < imageData.data.length/2; i += 4)
       {
@@ -184,7 +184,8 @@ export class ImageModifier
 	imageData.data.set(curData, swap);
       }
       
-      this.album.images[name] = this.finalize(can, ctx, imageData, resolve);
+      let nImg = this.finalize(can, ctx, imageData);
+      nImg.onload = ()=>{resolve(nImg)};
     })
   }
   static finalize(can, ctx, imageData, onload)
@@ -192,21 +193,16 @@ export class ImageModifier
     ctx.putImageData(imageData,0,0);
     
     let nImg = new Image();
-    nImg.onload = onload;
     nImg.src = can.toDataURL('image/png');
     return nImg;
   }
 
 
-  static setup(img, name, overwrite)
+  static setup(img)
   {
     if (img.complete == false)
     {
       throw "Image not loaded";
-    }
-    if (this.album.get(name) != undefined && overwrite == false)
-    {
-      throw "Name '" + name + "' in use!";
     }
 
     let can = document.createElement("canvas");
@@ -230,6 +226,11 @@ export class ImageModifier
     {
       let tokens = line.replace(/\s+/g, " ").trim().split(" ");
 
+      if (this.album.get(tokens[2]) != undefined && overwrite == false)
+      {
+	throw "Name '" + name + "' in use!";
+      }
+      let nImg;
       if (tokens.length == 1 &&  tokens[0].length == 0)
       {
 	continue;
@@ -239,16 +240,16 @@ export class ImageModifier
 	switch(tokens[0].toUpperCase())
 	{
 	  case "FV":
-	    await this.flipVertical(this.album.get(tokens[1]), tokens[2]);
+	    nImg = await this.flipVertical(this.album.get(tokens[1]));
 	    break;
 	  case "FH":
-	    await this.flipHorizontal(this.album.get(tokens[1]), tokens[2]);
+	    nImg = await this.flipHorizontal(this.album.get(tokens[1]));
 	    break;
 	  case "RL":
-	    await this.rotateLeft(this.album.get(tokens[1]), tokens[2]);
+	    nImg = await this.rotateLeft(this.album.get(tokens[1]));
 	    break;
 	  case "RR":
-	    await this.rotateRight(this.album.get(tokens[1]), tokens[2]);
+	    nImg = await this.rotateRight(this.album.get(tokens[1]));
 	    break;
 	  default:
 	    throw new Error("ImageModifier_UnknownCommandError");
@@ -267,13 +268,14 @@ export class ImageModifier
 	    map[JSON.parse(a)] = JSON.parse(b);
 	    ++i;
 	  }
-	  await this.recolor(this.album.get(tokens[1]), map, tokens[2]);
+	  nImg = await this.recolor(this.album.get(tokens[1]), map);
 	}
 	else
 	{
 	  throw new Error("ImageModifier_BadCommand");
 	}
       }
+      this.album.images[tokens[2]] = nImg;
     }
 
 

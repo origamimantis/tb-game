@@ -2,6 +2,7 @@
 
 import {Album} from "./Images.js";
 import {BattleAnimationAlbum as BAChest} from "./BattleAnimationAlbum.js";
+import {ImageModifier} from "./ImageModifier.js";
 
 export class BattleSprite
 {
@@ -40,10 +41,11 @@ export class BattleSprite
   { 
     this.curAnim().draw(g, ctx, x, y, s);
   }
-  async addAnim( name, anim )
+  async addAnim( name, anim, recolor )
   { 
     let loaded = await BAChest.load(name, anim);
-    this.animations[name] = new BattleAnimation(this, loaded);
+    this.animations[name] = new BattleAnimation(this, loaded, recolor);
+    await this.animations[name].init();
   }
   tickAnim()
   { 
@@ -68,21 +70,27 @@ export class BattleSprite
 
 export class BattleAnimation
 {
-  constructor( unit, info, loops = true, onDone = null)
+  constructor( unit, info, recolor, onDone = null)
   {
     this.unit = unit;
+    this.opts = info.options;
 
     this.weights = info.program;
     this.age = 0;
     this.curFrame = 0;
+    this.recolor = recolor;
     this.numFrame = parseInt(info.options.frames);
     this.loops = (info.loops == "true");
     this.done = false;
     this._onHit = null;
     this._onHit_resolve = null;
     this.onDone = onDone;
-
-    this.img = Album.get(info.options.usrc);
+  }
+  async init()
+  {
+    this.img = Album.get(this.opts.usrc);
+    if (this.recolor !== null)
+      this.img = await ImageModifier.recolor(this.img, this.recolor);
     //this.wimg = Album.get(info.options.wsrc);
     this.w = this.img.width/this.numFrame;
     this.h = this.img.height;

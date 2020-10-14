@@ -70,7 +70,7 @@ export class Unit extends AnimatedObject
     this.walkFunction = walkFunction;
     
     this.skills = skills;
-    this.ai = "doNothing";
+    this.ai = "targetWeakest";
     this.dead = false;
     this.isBoss = false;
   }
@@ -299,16 +299,16 @@ export class Unit extends AnimatedObject
     }
   }
 
-  drawSomewhereElse( g, ctx, x, y)
-  {
-    super.draw(g, ctx, x, y, false);
-  }
   draw( g )
   {
     if (g.camera.visible(this))
     {
+      let append = ""
+      if (this.curAnimName != "wait")
+	append = g.getAffiliation(this);
+
       let off = g.camera.offset;
-      super.draw(g, 2, this.vis.x - off.x, this.vis.y - off.y);
+      super.draw(g, 2, g.xg(this.vis.x - off.x), g.yg(this.vis.y - off.y), 1, append);
       if (this.isBoss)
       {
 	let x = this.vis.x - off.x;
