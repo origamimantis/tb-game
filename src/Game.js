@@ -1608,7 +1608,6 @@ class Game
     this.draw();
 
     ++ this.counter;
-    console.log(this.id)
     // 10! is hghly divisible, so modulos won't run amok
     if (this.counter >= 3628800)
     {
