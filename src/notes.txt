@@ -1,6 +1,6 @@
 ver0.37 2020-10-14
 changed where canvas layers were loaded to set up
-level switching and restarting.
+level switching and restarting. Also, unit colors!
 
 ver0.36 2020-10-01
 fixed a bug causing the game to softlock when Timmy
