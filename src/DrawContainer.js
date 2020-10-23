@@ -450,7 +450,7 @@ export class ScriptDrawer
         let coord = {x: parseInt(c[0]), y: parseInt(c[1])};
         if (g.camera.visible(coord))
         {
-          let off = g.camera.offset;
+          let off = g.camera.getOffset();
           g.drawImage(1, v.mapSprite, g.gx*(coord.x - off.x), g.gy*(coord.y - off.y));
         }
       }

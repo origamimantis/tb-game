@@ -20,6 +20,7 @@ class Camera
     
     // offset is camera's top left coordinate
     this.offset = {x: 0, y: 0};
+    this.shakeOffset = {x: 0, y: 0};
 
     this.moveTriggers = { l: MOVE_BORDER.x,
 			  r: this.wsize.x - MOVE_BORDER.x - 1,
@@ -180,6 +181,10 @@ class Camera
   {
     return new Coord(a.x - this.offset.x, a.y - this.offset.y);
   }
+  getOffset()
+  {
+    return new Coord(this.offset.x + this.shakeOffset.x, this.offset.y + this.shakeOffset.y);
+  }
   update(g)
   {
     if (this.shift == true)
@@ -272,6 +277,21 @@ class Camera
   _max(dim)
   {
     return this.map.max(dim) - this.wsize[dim] + 1;
+  }
+  async shake(ticks=32, magnitude = 0.2, fade = true)
+  {
+    let intensity = 1;
+    for (let i = 0; i < ticks; ++ i)
+    {
+      this.shakeOffset.x = intensity*magnitude*(2*Math.random()-1);
+      this.shakeOffset.y = intensity*magnitude*(2*Math.random()-1);
+
+      if (fade)
+	intensity -= 1/ticks
+      await waitTick();
+    }
+    this.shakeOffset.x = 0;
+    this.shakeOffset.y = 0;
   }
 }
 

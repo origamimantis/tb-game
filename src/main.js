@@ -1,6 +1,6 @@
 'use strict';
 
-import {requestFile, respondToEvent} from "./Utils.js";
+import {triggerEvent, requestFile, respondToEvent} from "./Utils.js";
 import {TileMap} from "./TileMap.js";
 import {Album, ImageLoader} from "./Images.js";
 import {MusicPlayer} from "./MusicPlayer.js";
@@ -18,9 +18,11 @@ import {Interpreter} from "./Interpreter.js";
 import {PathFinder} from "./PathFinder.js";
 import {Settings} from "./Settings.js";
 import {toggleLog} from "./Inputter.js";
+import {LoadScreen} from "./LoadScreen.js";
 
 import {C_WIDTH, C_HEIGHT, SCALE, NUMLAYER} from "./Constants.js";
 
+const noState = {inputting : false};
 
 let interpreter;
 let game;
@@ -61,6 +63,8 @@ async function loadScript(script)
   let level = await import(script);
   level = rfdc({ proto: false, circles: false })(level.script)
   _bindInteractions(level);
+  triggerEvent("load_progress", "Loaded chapter script");
+
   return level;
 }
 async function loadMap(mapFile)
@@ -75,7 +79,7 @@ async function loadMap(mapFile)
 async function loadImgs(imgList, imgMod)
 {
   // load images
-  Album.init();
+  Album.reset();
   let i = new ImageLoader();
   await i.loadImgs( imgList );
 
@@ -83,7 +87,7 @@ async function loadImgs(imgList, imgMod)
   imscript = imscript.responseText;
 
   ImageModifier.init(Album);
-  ImageModifier.execute(imscript)
+  await ImageModifier.execute(imscript)
 }
 async function loadMusic()
 {
@@ -124,10 +128,24 @@ function loadDrawContext()
   return ctx;
 }
 
+let LOADCOUNTER = 0;
+let LOADMAX = 0;
+
 class Main
 {
   static init()
   {
+    this.loading = true;
+    this.playing = true;
+    this.scene = noState;
+    // LOAD BAR
+    this.loadScreen = new LoadScreen(this);
+    respondToEvent("load_progress", (e) =>
+      {
+	if (this.loading)
+	  this.loadScreen.eventUpdate(e);
+      });
+
     this.ctx = loadDrawContext();
     Inputter.init();
     // KEYPRESS 
@@ -143,111 +161,122 @@ class Main
 
     // GAME INPUT
     respondToEvent("input_arrowStall", (e) =>{ Inputter.arrowStall(e.start); });
-    respondToEvent("cursor_finishMoveTo", (e) =>{ this.game.handleArrows = this.game.arrow_map; });
 
     respondToEvent("game_win", (e) =>{ console.log("you won"); } );
     respondToEvent("game_lose", (e) =>{ console.log("you lost"); } );
 
     respondToEvent("input_select",  async () =>
     {
-      if (this.game.inputting)
+      if (this.scene.inputting)
       {
-        this.game.blockInput();
-        await this.game.stateAction[this.game.gameStatus].select();
-        this.game.unblockInput();
+        this.scene.blockInput();
+        await this.scene.select();
+        this.scene.unblockInput();
       }
     });
     respondToEvent("input_cancel",  async () =>
     {
-      if (this.game.inputting)
+      if (this.scene.inputting)
       {
-        this.game.blockInput();
-        await this.game.stateAction[this.game.gameStatus].cancel();
-        this.game.unblockInput();
+        this.scene.blockInput();
+        await this.scene.cancel();
+        this.scene.unblockInput();
       }
     });
     respondToEvent("input_inform",  async () =>
     {
-      if (this.game.inputting)
+      if (this.scene.inputting)
       {
-        let i = this.game.stateAction[this.game.gameStatus].inform;
-        if (i !== undefined)
-        {
-          this.game.blockInput();
-          await i();
-          this.game.unblockInput();
-        }
+	this.scene.blockInput();
+	await this.scene.inform();
+	this.scene.unblockInput();
       }
     });
     
     respondToEvent("cursor_move", (c) =>
     {
-      this.game.handlePortrait();
+      this.scene.handlePortrait();
     });
 
   }
-  static async load(things)
+  static async initload(things)
   {
-    this.assets = {};
-    this.scriptFile = things.Script;
-
-    this.level = await loadScript( this.scriptFile )
-    this.assets.Map = await loadMap( this.level.tileMap )
-    await loadImgs( things.ImgLoad, things.ImgMod );
+    Album.init(this);
+    Settings.init();
     await loadFonts();
     await loadMusic();
-    
-    Settings.init();
-
-    this.game = new Game(this.assets, this.ctx);
-
-    PathFinder.init(this.game);
-    //interpreter = new Interpreter(game);
-    //interpreter.execute(loaded.script);
   }
-  static async reload()
+  static async unload()
   {
     MusicPlayer.stopAll();
-    this.game.mainloop = ()=>{};
+    this.scene = noState;
+  }
+  static async chload(chapterScript, things)
+  {
+    this.scene = this.loadScreen;
+    this.loadScreen.reset(123);
+
+    this.assets = {};
+    this.scriptFile = chapterScript;
     this.level = await loadScript( this.scriptFile )
     this.assets.Map = await loadMap( this.level.tileMap )
-    this.game = new Game(this.assets, this.ctx);
+    let a = this.imgsToLoad(things.ImgLoad);
+    
+    await loadImgs( a, things.ImgMod );
+
+    this.scene = new Game(this.assets, this.ctx);
+    console.log("total loaded: " + this.loadScreen.loaded);
+
+    PathFinder.init(this.scene);
+  }
+  static imgsToLoad(getridofthislater)
+  {
+    let a = getridofthislater.slice(0);
+    
+    // load the tileset
+    a.push(...Object.values(this.assets.Map.artMap));
+
+    return a;
   }
   static start()
   {
-    Inputter.setGame(this.game);
-    this.game.beginGame(this.level)
+    Inputter.setGame(this.scene);
+    this.scene.beginGame(this.level)
 
-    this.game.mainloop();
+  }
+  static update()
+  {
+    if (Inputter.arrowStates().input == true && this.scene.inputting)
+        this.scene.arrows(Inputter.arrowStates());
+    Inputter.update();
+
+    this.scene.update();
+  }
+  static draw()
+  {
+    this.scene.draw();
+  }
+  static mainloop()
+  {
+    if (this.playing)
+      requestAnimationFrame(() => {this.mainloop()});
+
+    if (this.scene !== noState)
+    {
+      this.update();
+      this.draw();
+    }
   }
 }
 
 
 
-async function restartGame()
-{
 
-  await Main.reload()
-  Main.start();
-}
-console.restart = restartGame;
-
+console.main = Main;
 let thingsToLoad = {
       Script : "./ch1.js",
       ImgLoad : [ "P_gen", "P_lead", "P_janitor", "P_vmp", "P_Alfred", "P_child",
 		  "P_bandit", "P_Billy", "P_Chloe", "P_Choddson",
-		  "T_grass_forest_B", "T_grass_forest_M", "T_grass_forest_T", 
-		  "T_grass",
-		  "T_wall_B", "T_wall_BR",
-		  "T_wall_EL", "T_wall_ER", "T_wall_TL", "T_wall_TR",
-		  "T_field", "T_field_tree",
-		  "T_house_0", "T_house_1",
-		  "T_house_2", "T_house_3",
-		  "T_house_4", "T_house_5", "T_door_open",
-		  "T_path_v", "T_path_h",
-		  "T_path_tl", "T_path_tr", "T_path_bl", "T_path_br",
-		  "T_path_stl", "T_path_str", "T_path_sbl", "T_path_sbr",
-		  "T_path_3u", "T_path_3r", "T_path_3d", "T_path_3l", "T_path_4",
 		  "S_lead0", "S_kn1", "S_lead1", "S_vmp0", "S_farmerAlfred", "S_child",
 		  "S_bandit", "S_farmerBilly", "S_farmerChloe",
 		  "BS_kn_run", "BS_kn_hit", "BS_kn_idle", "BS_kn_hit2",
@@ -283,13 +312,27 @@ let thingsToLoad = {
 		  "C_menutl", "C_menuel", "C_menucn",
 		  "C_talk_indicator",
 		  "FX_heal",
-		  "boss_indic"
+		  "boss_indic",
+		  "T_door_open"
 		],
       ImgMod : "assets/scripts/imgmod.txt",
     }
+
+console.chload = async function(scriptPath)
+{
+  Main.unload();
+  Album.clearAllCtx();
+  await Main.chload(scriptPath, thingsToLoad);
+  Main.start();
+}
+
 window.onload = async ()=>
 {
   Main.init();
-  await Main.load(thingsToLoad);
+  await Main.initload();
+
+  Main.mainloop();
+
+  await Main.chload("./ch1.js", thingsToLoad);
   Main.start();
 };

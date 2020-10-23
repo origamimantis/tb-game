@@ -411,6 +411,7 @@ export function requestFile(url, method)
 
 	if (request.status >= 200 && request.status < 300)
 	{
+	  triggerEvent("load_progress", `Loaded file ${url}`);
 	  resolve(request);
 	}
 	else

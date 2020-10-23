@@ -1,5 +1,6 @@
 "use strict"
 
+import {triggerEvent} from "./Utils.js";
 
 export class ImageModifier
 {
@@ -276,16 +277,7 @@ export class ImageModifier
 	}
       }
       this.album.images[tokens[2]] = nImg;
+      triggerEvent("load_progress", `Generated image ${tokens[2]}.png`);
     }
-
-
-
-
-
-
-
   }
-
-
-
 }

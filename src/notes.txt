@@ -1,3 +1,9 @@
+ver0.38 2020-10-22
+Loading screen up. I pretty much have level-switching done.
+In the console, you can type 'console.chload("./X.js")'
+where X is ch1 or chtest. Also, the "????????" command
+actually does something now (it's still useless tho).
+
 ver0.37 2020-10-14
 changed where canvas layers were loaded to set up
 level switching and restarting. Also, unit colors!

@@ -73,11 +73,14 @@ class Game
     */
     this.Album = Album;
     this.Map = assets.Map;
-    
+
     this.ctx = [];
     this.ctx_refresh = [1,2,3,5];
     this.ctx = ctx;
-  
+
+  }
+  lmao()
+  {
     this.turn = null;
     this.Units = new UnitContainer();
     
@@ -124,7 +127,6 @@ class Game
     this.initStateAction();
     this.dayLength = 1;
     
-    this._extStatusComplete = false;
   }
   handlePortrait()
   {
@@ -155,6 +157,7 @@ class Game
   }
   async beginGame(chscript)
   {
+    this.lmao();
     this.chapterScript = chscript;
 
     this.turn = new LoopSelector( chscript.teams );
@@ -197,7 +200,7 @@ class Game
     let p = [];
     let coord = unit.x + "," + unit.y;
     let interaction = this.chapterScript.interactions[coord];
-    if (interaction !== undefined)
+    if (interaction !== undefined && interaction.canInteract())
     {
       p.push( new Action( interaction.tooltip, async () => {
 
@@ -322,6 +325,7 @@ class Game
 	await this.temp.allyInteract(target);
       },
 
+      inform: () => {},
       cancel:async ()=>
       {
 	await this.setStatus("unitActionSelect");
@@ -407,6 +411,7 @@ class Game
 	    throw e;
 	}
       },
+      inform: () => {},
       cancel:async ()=>
       {
 	this.clearCtx(4);
@@ -460,6 +465,7 @@ class Game
 	this.setStatus("map");
       },
 
+      inform: () => {},
       cancel:async ()=>
       {
         this.Panels.del("selectedUnitWeaponPanel");
@@ -495,6 +501,7 @@ class Game
 	await this.setStatus("unitAttackTargetSelect");
       },
 
+      inform: () => {},
       cancel:async ()=>
       {
         this.Panels.del("selectedUnitWeaponPanel");
@@ -528,6 +535,7 @@ class Game
 	triggerEvent("sfx_play_beep_effect");
 	this.Panels.get("selectedUnitActionPanel").get().execute();
       },
+      inform: () => {},
       cancel:()=>
       {
 	this.ctx[4].clearRect(0,0,C_WIDTH, C_HEIGHT);
@@ -562,6 +570,7 @@ class Game
       },
 
       select: this.stateAction.unitActionSelect.select,
+      inform: () => {},
       cancel: () => {},
       arrows: this.stateAction.unitActionSelect.arrows
     }
@@ -632,6 +641,7 @@ class Game
 	}
       },
       
+      inform: ()=> {},
       cancel: async ()=>
       {
 	// disable further cursor movement
@@ -705,7 +715,12 @@ class Game
 	this.Panels.hide("UMP");
 	// TODO map options might be the same no matter what. See if I can make this constant.
 	this.temp["mapActions"] = new LoopSelector(
-	  [new Action("????????", ()=>{console.log("You clicked the test button!");}),
+	  [new Action("????????", async ()=>
+	    {
+	      this.blockInput();
+	      await this.camera.shake();
+	      this.unblockInput();
+	    }),
 	  new Action("Options", async ()=>
 	    {
 	      this.Panels.hide("mapActionPanel");
@@ -755,6 +770,7 @@ class Game
 	await this.temp.mapActions.get().execute();
       },
       
+      inform: ()=> {},
       cancel: ()=>
       {
 	this.Panels.del("mapActionPanel")
@@ -918,7 +934,6 @@ class Game
 	  }
 	  
 	  if (onDone) await onDone(retVal);
-	  this._extStatusComplete = true;
 	});
       },
       select: async () => { await this.toDraw.select(); },
@@ -972,7 +987,6 @@ class Game
     this.ctx[5].globalAlpha = 1;
     this.ctx[5].fillRect(0,0,512,384);
   
-    console.log("monka");
     this.setTextColor(5, "#0022ec")
     this.setTextFont(5, "22px ABCD Mono")
     this.setTextJustify(5, "center")
@@ -1494,35 +1508,41 @@ class Game
   }
   clearCtx(n)
   {
-    this.ctx[n].clearRect(0,0,C_WIDTH, C_HEIGHT);
+    Album.clearCtx(n);
   }
   clearAllCtx()
   {
-    for (let i = 0; i <= 5; ++i)
-      this.clearCtx(i);
+    Album.clearAllCtx(n);
   }
   setTextColor(ctx, color)
   {
-    this.ctx[ctx].fillStyle = color;
+    Album.setTextColor(ctx, color);
   }
   setTextFont(ctx, font)
   {
-    this.ctx[ctx].font = font;
+    Album.setTextFont(ctx, font);
   }
   setTextJustify(ctx, justify)
   {
-    this.ctx[ctx].textAlign = justify;
+    Album.setTextJustify(ctx, justify);
   }
   setTextProperty(ctx, color=null, font=null, justify=null)
   {
-    let c = this.ctx[ctx];
-    if (color !== null)
-      c.fillStyle = color;
-    if (font !== null)
-      c.font = font;
-    if (justify !== null)
-      c.textAlign = justify;
+    Album.setTextProperty( ctx, color, font, justify)
   }
+  drawText(ctx, text, x, y, maxWidth = undefined)
+  {
+    Album.drawText(ctx, text, x, y, maxWidth);
+  }
+  drawOutlinedText(ctx, text, x, y, font, incolor, outcolor, maxwidth = undefined)
+  {
+    Album.drawOutlinedText(ctx, text, x, y, font, incolor, outcolor, maxwidth);
+  }
+  strokeText(ctx, text, x, y)
+  {
+    Album.strokeText(ctx, text, x, y);
+  }
+
   drawImage(ctx, image, x, y, w, h)
   {
     try
@@ -1538,33 +1558,6 @@ class Game
     }
   }
 
-  drawOutlinedText(ctx, text, x, y, font, incolor, outcolor, maxwidth = undefined)
-  {
-    this.setTextFont(ctx, font);
-    this.setTextColor(ctx, incolor);
-    this.drawText(ctx, text, x, y, maxwidth);
-    this.setTextColor(ctx, outcolor);
-    this.strokeText(ctx, text, x, y, maxwidth);
-  }
-  drawText(ctx, text, x, y, maxWidth = undefined)
-  {
-    if (typeof text == "string")
-    {
-      let height = this.ctx[ctx].font.substring(0,2)*1.5;
-      let lines = text.split('\n');
-      for (let i = 0; i<lines.length; ++i)
-	this.ctx[ctx].fillText(lines[i], x, y + i*height, maxWidth);
-    }
-    else
-    {
-      this.ctx[ctx].fillText(text, x, y, maxWidth);
-    }
-
-  }
-  strokeText(ctx, text, x, y)
-  {
-    this.ctx[ctx].strokeText(text, x, y);
-  }
   draw()
   {
     //TODO TODO TODO TODO TODO TODO TODO TODO TODO
@@ -1582,30 +1575,11 @@ class Game
   }
   update()
   {
-    if (this._extStatusComplete == true)
-    {
-
-
-
-      this._extStatusComplete = false;
-    }
     // if (this.toDraw.isActive("cursor") && Inputter.arrowStates().input == true)
-    if (Inputter.arrowStates().input == true && this.inputting)
-    {
-	this.stateAction[this.gameStatus].arrows(Inputter.arrowStates());
-    }
-
-    Inputter.update();
+    
     this.toDraw.update(this);
     this.Panels.update(this);
     this.camera.update(this);
-  }
-  mainloop()
-  {
-    requestAnimationFrame(() => {this.mainloop()});
-
-    this.update();
-    this.draw();
 
     ++ this.counter;
     // 10! is hghly divisible, so modulos won't run amok
@@ -1613,9 +1587,23 @@ class Game
     {
       this.counter = 0;
     }
-
   }
-
+  async arrows(a)
+  {
+    await this.stateAction[this.gameStatus].arrows(a);
+  }
+  async select()
+  {
+    await this.stateAction[this.gameStatus].select();
+  }
+  async cancel()
+  {
+    await this.stateAction[this.gameStatus].cancel();
+  }
+  async inform()
+  {
+    await this.stateAction[this.gameStatus].inform();
+  }
 }
 
 export {Game, FPS};

@@ -307,7 +307,7 @@ export class Unit extends AnimatedObject
       if (this.curAnimName != "wait")
 	append = g.getAffiliation(this);
 
-      let off = g.camera.offset;
+      let off = g.camera.getOffset();
       super.draw(g, 2, g.xg(this.vis.x - off.x), g.yg(this.vis.y - off.y), 1, append);
       if (this.isBoss)
       {
@@ -371,7 +371,7 @@ export class Unit extends AnimatedObject
         
 	if (Settings.get("visible_movement_costs"))
 	{
-	  let off = g.camera.offset;
+	  let off = g.camera.getOffset();
 
 	  g.setTextJustify(2, "center");
 

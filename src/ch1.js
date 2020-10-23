@@ -25,7 +25,7 @@ const RETURN = 2;
 function initVars()
 {
   state = DEFEND;
-  alfred = new Units.Farmer(0, 3, 9, {maxhp:15, atk:3,spd:3,skl:2,def:2,con:4,mov: 6}, "Alfred");
+  alfred = new Units.Farmer(0, 3, 9, {maxhp:9, atk:2,spd:3,skl:2,def:3,con:4,mov: 6}, "Alfred");
   alfred.team = "Player";
   alfred.pArt = "P_Alfred";
   alfred.addWeapon(new Weapons.Pitchfork());
@@ -36,27 +36,27 @@ function initVars()
   child.pArt = "P_child";
   child.setAnim( "idle" );
   
-  b1 = new Units.Bandit(2, 18, 12, {maxhp:16, atk:4,spd:2,skl:4,def:3,con:4,mov: 6}, "Bandit");
+  b1 = new Units.Bandit(2, 18, 12, {maxhp:9, atk:2,spd:2,skl:4,def:3,con:4,mov: 6}, "Bandit");
   b1.team = "Bandit";
   b1.setAnim( "idle" );
   b1.setAnim( "idle" );
   b1.addWeapon(new Weapons.LumberAxe());
   b1.ai = "targetWeakest";
 	
-  b2 = new Units.Bandit(3, 17, 13, {maxhp:15, atk:3,spd:3,skl:5,def:2,con:4,mov: 6}, "Bandit");
+  b2 = new Units.Bandit(3, 17, 13, {maxhp:10, atk:2,spd:3,skl:5,def:2,con:4,mov: 6}, "Bandit");
   b2.team = "Bandit";
   b2.setAnim( "idle" );
   b2.addWeapon(new Weapons.LumberAxe());
   b2.ai = "targetWeakest";
 
-  billy = new Units.Farmer(4, 8, 3, {maxhp:17, atk:4,spd:2,skl:2,def:3,con:4,mov: 6}, "Billy");
+  billy = new Units.Farmer(4, 8, 3, {maxhp:11, atk:4,spd:2,skl:2,def:4,con:4,mov: 6}, "Billy");
   billy.team = "Player";
   billy.pArt = "P_Billy";
   billy.addWeapon(new Weapons.Shovel());
   billy.setAnim( "idle" );
   billy.recruited = false;
 
-  chloe = new Units.Farmer(5, 4, 6, {maxhp:13, atk:3,spd:4,skl:3,def:2,con:4,mov: 6}, "Chloe");
+  chloe = new Units.Farmer(5, 4, 6, {maxhp:8, atk:3,spd:4,skl:3,def:2,con:4,mov: 6}, "Chloe");
   chloe.team = "Player";
   chloe.pArt = "P_Chloe";
   chloe.addWeapon(new Weapons.FryingPan());
@@ -99,7 +99,6 @@ export let script =
       //Settings.set("cut_skip", "On");
       initVars();
       g.Map.setMaxBound(null, 17);
-      console.log("loaded ch1");
       g.addUnit(alfred);
       
       g.addUnit(child);
@@ -234,9 +233,9 @@ export let script =
       {
 	tooltip: "Visit",
 	visited: false,
-	canInteract: function() {return this.visited == false},
+	canInteract: function() {return state == DEFEND && this.visited == false},
 	mapSprite: "T_door_open",
-	drawSprite: function() {return this.visited == false},
+	drawSprite: function() {return this.canInteract()},
 	action: async function(g, u, ondone)
 	{
 	  let conv = new Conversation(g);
@@ -272,9 +271,9 @@ export let script =
       {
 	tooltip: "Visit",
 	visited: false,
-	canInteract: function() {return this.visited == false},
+	canInteract: function() {return state == DEFEND && this.visited == false},
 	mapSprite: "T_door_open",
-	drawSprite: function() {return this.visited == false},
+	drawSprite: function() {return this.canInteract()},
 	action: async function(g, u, ondone)
 	{
 	  let conv = new Conversation(g);

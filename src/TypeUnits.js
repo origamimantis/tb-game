@@ -7,6 +7,7 @@ import * as Walk from "./BattleWalkAnimation.js";
 
 export class Bandit extends Unit
 {
+  // TODO name = null, and in Unit if name === null name = classname
     constructor(id, x,y, stats, name = "Unit "+id, skills = [])
     {
 	let caps =

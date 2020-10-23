@@ -491,9 +491,9 @@ export class Battle
   }
   drawHealthBars(g)
   {
-    g.Album.drawHealthBar(g, 5, this.info.atk.stats.hp/this.info.atk.stats.maxhp,
+    g.Album.drawHealthBar(5, this.info.atk.stats.hp/this.info.atk.stats.maxhp,
       48	     , 382 - PANELS.HEALTH.HEIGHT/2);
-    g.Album.drawHealthBar(g, 5, this.info.def.stats.hp/this.info.def.stats.maxhp,
+    g.Album.drawHealthBar(5, this.info.def.stats.hp/this.info.def.stats.maxhp,
       WINDOW.X/2 + 48, 382 - PANELS.HEALTH.HEIGHT/2);
 
     g.setTextProperty(5, "#000000", "11px ABCD Mono",  "right");
@@ -504,7 +504,7 @@ export class Battle
   {
     g.ctx[0].fillStyle = "#000000";
     g.ctx[0].fillRect( 0, WINDOW.Y, WINDOW.X, 384);
-    g.Album.draw(g, 0, "B_backdrop", 0, 0, WINDOW.X, WINDOW.Y);
+    g.Album.draw(0, "B_backdrop", 0, 0, WINDOW.X, WINDOW.Y);
 
     this.healthPanels.explicitDraw(g);
     this.statPanels.explicitDraw(g);

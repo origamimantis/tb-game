@@ -98,7 +98,7 @@ export class MapCoordBlob extends CoordLookup
   {
     let img = g.Album.get(this.drawArt);
 
-    let off = g.camera.offset;
+    let off = g.camera.getOffset();
     let alph = ALPHA_MAX*Math.abs(FRAMES_TO_MAX - g.counter%(2*FRAMES_TO_MAX)) / FRAMES_TO_MAX;
     g.ctx[1].fillStyle = "#ffffff";
     for (let c of this)

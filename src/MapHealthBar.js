@@ -31,7 +31,7 @@ export class MapHealthBar
     g.setTextProperty(3, "#000000", "11px ABCD Mono", "right");
     g.drawText(3, this.hp, this.x + g.gx - 4, this.y + 10);
     
-    g.Album.drawHealthBar(g, 3, this.hp / this.maxhp, this.x + g.gx, this.y + 10, 2.5*g.gx, 10);
+    g.Album.drawHealthBar(3, this.hp / this.maxhp, this.x + g.gx, this.y + 10, 2.5*g.gx, 10);
   }
   update(g)
   {

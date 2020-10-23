@@ -2,6 +2,7 @@
 
 import {TILES} from "./Constants.js";
 import {Coord} from "./Path.js";
+import {triggerEvent} from "./Utils.js";
 
 
 class Tile
@@ -95,6 +96,7 @@ export class TileMap
       this.map.push(row);
       this.pather.push(prow);
     }
+    triggerEvent("load_progress", "Generated tilemap");
   }
 
 
@@ -185,7 +187,7 @@ export class TileMap
 
   draw( g )
   {
-    let off = g.camera.offset;
+    let off = g.camera.getOffset();
     let wsize = g.camera.wsize;
 
     let minx = Math.max(Math.ceil(off.x) - 1, 0)

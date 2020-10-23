@@ -1,6 +1,6 @@
 'use strict';
 
-import {waitTime} from "./Utils.js";
+import {triggerEvent, waitTime} from "./Utils.js";
 
 const EXT = ".wav";
 
@@ -79,7 +79,7 @@ export class MusicPlayer
     s.playing = false;
     s.intro = (intro > 0);
     this.album[name] = s;
-    console.log(name + " loaded");
+    triggerEvent("load_progress", `Loaded music ${name}${EXT}`);
   }
   static async loadFX( name, length)
   {
@@ -94,7 +94,7 @@ export class MusicPlayer
 	  }
 	);
       });
-    console.log(name + " loaded");
+    triggerEvent("load_progress", `Loaded sound effect ${name}${EXT}`);
   }
   static play( name )
   {

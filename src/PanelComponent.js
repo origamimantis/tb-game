@@ -80,7 +80,7 @@ export class PanelComponent
   }
   drawArt(g, off, xy)
   {
-    g.Album.draw(g, 4, this.data, off.x + xy.x, off.y + xy.y, xy.w, xy.h);
+    g.Album.draw(4, this.data, off.x + xy.x, off.y + xy.y, xy.w, xy.h);
   }
 
   drawText(g, off, xy)
@@ -95,7 +95,7 @@ export class PanelComponent
     if (xy.h == null)
       xy.h = 10;
 
-    g.Album.drawHealthBar(g, 4, this.data, off.x + xy.x, off.y + xy.y, xy.w, xy.h);
+    g.Album.drawHealthBar(4, this.data, off.x + xy.x, off.y + xy.y, xy.w, xy.h);
   }
 
 }
