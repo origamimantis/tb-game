@@ -78,9 +78,6 @@ class Game
     this.ctx_refresh = [1,2,3,5];
     this.ctx = ctx;
 
-  }
-  lmao()
-  {
     this.turn = null;
     this.Units = new UnitContainer();
     
@@ -106,8 +103,7 @@ class Game
     this.toDraw.toggleVisible("fps");
     */
 
-    this.Panels.set("UMP", new UnitMapPanel());
-    this.Panels.hide("UMP");
+    this.Panels.set("UMP", new UnitMapPanel(), false);
     this.toDraw.set("banner", new TurnBanner(this));
     this.nightEffect = new NightTimeEffect();
     this.toDraw.set("nightEffect", this.nightEffect);
@@ -157,7 +153,6 @@ class Game
   }
   async beginGame(chscript)
   {
-    this.lmao();
     this.chapterScript = chscript;
 
     this.turn = new LoopSelector( chscript.teams );
@@ -169,7 +164,8 @@ class Game
     this.toDraw.set("scriptItems", new ScriptDrawer(chscript));
     this.camera.setPos(chscript.cameraInit.x, chscript.cameraInit.y);
     this.unblockInput();
-    chscript.onBegin(this, ()=>{this.startTurns();});
+    await chscript.onBegin(this)
+    this.startTurns();;
   }
   initAlliances()
   {
@@ -596,7 +592,6 @@ class Game
       {
 	await cursorStop(this.cursor);
 
-	this.clearCtx(4);
 
 	let target = new Coord( this.cursor.x, this.cursor.y );
 	let unitOnTarget = this.Map.getTile(this.toDraw.get("selectedUnitPath").last()).unit;
@@ -605,6 +600,7 @@ class Game
 	if (this.toDraw.get("selectedUnitMovable")[0].contains(target)
 	  && (unitOnTarget == null || unitOnTarget == this.temp.selectedUnit))
 	{
+	  this.clearCtx(4);
 	  triggerEvent("sfx_play_beep_effect");
 
 	  await this.camera.waitShiftTo(this.temp.selectedUnit);
@@ -1506,57 +1502,7 @@ class Game
   {
     return this.gy*y;
   }
-  clearCtx(n)
-  {
-    Album.clearCtx(n);
-  }
-  clearAllCtx()
-  {
-    Album.clearAllCtx(n);
-  }
-  setTextColor(ctx, color)
-  {
-    Album.setTextColor(ctx, color);
-  }
-  setTextFont(ctx, font)
-  {
-    Album.setTextFont(ctx, font);
-  }
-  setTextJustify(ctx, justify)
-  {
-    Album.setTextJustify(ctx, justify);
-  }
-  setTextProperty(ctx, color=null, font=null, justify=null)
-  {
-    Album.setTextProperty( ctx, color, font, justify)
-  }
-  drawText(ctx, text, x, y, maxWidth = undefined)
-  {
-    Album.drawText(ctx, text, x, y, maxWidth);
-  }
-  drawOutlinedText(ctx, text, x, y, font, incolor, outcolor, maxwidth = undefined)
-  {
-    Album.drawOutlinedText(ctx, text, x, y, font, incolor, outcolor, maxwidth);
-  }
-  strokeText(ctx, text, x, y)
-  {
-    Album.strokeText(ctx, text, x, y);
-  }
-
-  drawImage(ctx, image, x, y, w, h)
-  {
-    try
-    {
-    if ( w == null || h == null )
-      this.ctx[ctx].drawImage(this.Album.get(image), x, y);
-    else
-      this.ctx[ctx].drawImage(this.Album.get(image), x, y, w, h);
-    }
-    catch
-    {
-      console.error(image)
-    }
-  }
+  
 
   draw()
   {

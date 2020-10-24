@@ -77,6 +77,7 @@ function initVars()
 export let script =
   {
     tileMap: "assets/tilemaps/ch1.txt",
+    type: "Game",
     cameraInit: {x: 0, y: 0},
     teams:  [ {name: "Player", bannercolor: "#aaaaff", maptheme: "btl1",  btltheme: "fght2"},
 	      {name: "Village", bannercolor: "#12aa12", maptheme: "village",  btltheme: "fght"},
@@ -85,7 +86,7 @@ export let script =
     alliances: {"Player": ["Village"], "Village":["Player"]},
     dayLength: 0,   // 0: always days, <0: always night
     
-    onBegin: async (g, onDone) =>
+    onBegin: async (g) =>
     {
       console.log("loaded ch1");
       initVars();
@@ -105,8 +106,6 @@ export let script =
       g.addUnit(chloe, new Coord(3,6));
       await g.addUnit(billy, new Coord(7,3));
 
-      onDone();
-	
     }, //onBegin
     interactions: {
       "3,6" :  // HOUSE 1 (chloe)

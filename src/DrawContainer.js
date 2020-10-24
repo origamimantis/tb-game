@@ -1,4 +1,5 @@
 "use strict";
+import {Album} from "./Images.js"
 
 export class DrawContainer
 {
@@ -400,9 +401,10 @@ export class PanelContainer extends DrawContainer
     super();
     this.g = g;
   }
-  set(id, val)
+  set(id, val, draw = true)
   {
-    val.explicitDraw(this.g);
+    if (draw)
+      val.explicitDraw(this.g);
     super.set(id, val);
   }
   del(id)
@@ -429,7 +431,6 @@ export class PanelContainer extends DrawContainer
   {
     this.g.clearCtx(4);
     this.get(id).explicitDraw(this.g);
-    
   }
 }
 
@@ -451,7 +452,7 @@ export class ScriptDrawer
         if (g.camera.visible(coord))
         {
           let off = g.camera.getOffset();
-          g.drawImage(1, v.mapSprite, g.gx*(coord.x - off.x), g.gy*(coord.y - off.y));
+          Album.draw(1, v.mapSprite, g.gx*(coord.x - off.x), g.gy*(coord.y - off.y));
         }
       }
     }

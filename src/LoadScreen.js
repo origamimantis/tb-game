@@ -6,10 +6,12 @@ export class LoadScreen
   constructor(m)
   {
     this.m = m;
-    this.inputting = false;
     this.loaded = 0;
     this.total = 0;
     this.x = 0;
+    // for consistency
+    this.inputting = false;
+    this.cursor = undefined;
   }
   reset(total)
   {

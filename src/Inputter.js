@@ -43,15 +43,12 @@ export function toggleLog()
 
 export class Inputter
 {
-  static init(g)
+  static init(m)
   {
     this.inputted = false;
     this.accepting = true;
     this.pressed = {};
-  }
-  static setGame(g)
-  {
-    this.g = g;
+    this.m = m;
   }
 
   static update()
@@ -62,6 +59,9 @@ export class Inputter
  
   static arrowStall(start)
   {
+    if (this.m.scene.cursor === undefined)
+      return;
+
     this.accepting = false;
     if (start == true)
     {
@@ -69,7 +69,7 @@ export class Inputter
     }
     else
     {
-      this.wait = HOLD_DELAY - this.g.cursor.speed;
+      this.wait = HOLD_DELAY - this.m.scene.cursor.speed;
     }
   }
 

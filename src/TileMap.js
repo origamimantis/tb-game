@@ -3,6 +3,7 @@
 import {TILES} from "./Constants.js";
 import {Coord} from "./Path.js";
 import {triggerEvent} from "./Utils.js";
+import {Album} from "./Images.js";
 
 
 class Tile
@@ -155,7 +156,6 @@ export class TileMap
   }
   getTile( x, y = null )
   {
-    let r = x
     if (y == null)
     {
       y = x.y;
@@ -163,12 +163,14 @@ export class TileMap
     }
     try
     {
-      return this.map[y][x];
+      let a = this.map[y][x];
+      if (a === undefined)
+	return null;
+      return a;
     }
     catch (TypeError)
     {
-    console.log(x, y, r);
-	return null;
+      return null;
     }
   }
   contains(x,y = null)
@@ -200,10 +202,7 @@ export class TileMap
     {
       for (let y = miny; y < maxy; ++y)
       {
-	g.ctx[0].drawImage(
-	  g.Album.get(
-	    this.getTile(x,y).art), 
-	  (x - off.x)*g.gx, (y - off.y)*g.gy);//,
+	Album.draw(0, this.getTile(x,y).art, (x - off.x)*g.gx, (y - off.y)*g.gy);//,
 	  //g.gx, g.gy);
       }
     }

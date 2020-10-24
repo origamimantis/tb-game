@@ -5,11 +5,12 @@ import {TileMap} from "./TileMap.js";
 import {Album, ImageLoader} from "./Images.js";
 import {MusicPlayer} from "./MusicPlayer.js";
 import {ImageModifier} from "./ImageModifier.js";
-import {Inputter} from "./Inputter.js";
+import {Inputter, toggleLog} from "./Inputter.js";
 import {BattleAnimationAlbum} from "./BattleAnimationAlbum.js";
 import {Characters} from "./Characters.js";
 
 import {Game, FPS} from "./Game.js";
+import {WalkScene} from "./WalkScene.js";
 import {Unit} from "./Unit.js";
 import * as Units from "./TypeUnits.js";
 import {Animation} from "./Animation.js";
@@ -17,12 +18,12 @@ import {AnimFrame} from "./AnimFrame.js";
 import {Interpreter} from "./Interpreter.js";
 import {PathFinder} from "./PathFinder.js";
 import {Settings} from "./Settings.js";
-import {toggleLog} from "./Inputter.js";
 import {LoadScreen} from "./LoadScreen.js";
 
 import {C_WIDTH, C_HEIGHT, SCALE, NUMLAYER} from "./Constants.js";
 
-const noState = {inputting : false};
+const noState = {inputting : false, cursor: undefined};
+const SCENETYPE = {Game: Game, WalkScene:WalkScene};
 
 let interpreter;
 let game;
@@ -38,7 +39,7 @@ console.execute = console.exe;
 
 console.game = function()
 {
-  return Main.game;
+  return Main.scene;
 }
 
 console.inputlog = toggleLog;
@@ -128,8 +129,28 @@ function loadDrawContext()
   return ctx;
 }
 
-let LOADCOUNTER = 0;
-let LOADMAX = 0;
+
+function setDrawFunctions(g)
+{
+
+
+  for (let func of [
+      "clearCtx",
+      "clearAllCtx",
+      "setTextColor",
+      "setTextFont",
+      "setTextJustify",
+      "setTextProperty",
+      "drawText",
+      "drawOutlinedText",
+      "strokeText"])
+  {
+    g[func] = (...args) => {Album[func](...args)};
+  }
+  g.drawImage = (...args) => {Album.draw(...args)};
+
+}
+
 
 class Main
 {
@@ -147,7 +168,8 @@ class Main
       });
 
     this.ctx = loadDrawContext();
-    Inputter.init();
+
+    Inputter.init(this);
     // KEYPRESS 
     document.addEventListener( "keydown", (e)=>{Inputter.onKeyDown(e.code)} );
     document.addEventListener( "keyup", (e)=>{Inputter.onKeyUp(e.code)} );
@@ -224,10 +246,11 @@ class Main
     
     await loadImgs( a, things.ImgMod );
 
-    this.scene = new Game(this.assets, this.ctx);
-    console.log("total loaded: " + this.loadScreen.loaded);
+    this.nextUp = new SCENETYPE[this.level.type](this.assets, this.ctx);
+    setDrawFunctions(this.nextUp);
 
-    PathFinder.init(this.scene);
+    PathFinder.init(this.nextUp);
+    console.log("total loaded: " + this.loadScreen.loaded);
   }
   static imgsToLoad(getridofthislater)
   {
@@ -240,7 +263,10 @@ class Main
   }
   static start()
   {
-    Inputter.setGame(this.scene);
+    if (this.nextUp === null)
+      return;
+    this.scene = this.nextUp;
+    this.nextUp = null;
     this.scene.beginGame(this.level)
 
   }
@@ -334,5 +360,6 @@ window.onload = async ()=>
   Main.mainloop();
 
   await Main.chload("./ch1.js", thingsToLoad);
-  Main.start();
+  //setTimeout(()=>{
+  Main.start();//}, 3000);
 };

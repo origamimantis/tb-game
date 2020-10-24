@@ -46,9 +46,8 @@ export class UnitInfoScreen
       "IT_", fracAmtFn);
     
     this.Stats = new UnitProfileStatPanel(this.p_x, this.p_y, this.p_w, this.p_h, this._unitStatFormat());
-
     
-    // TODO new panel type for stats, skills
+    // TODO new panel type for skills
 
     // TODO stats, skills, other
     this.pages = new LoopSelector(["Stats", "Weapons", "Items", "Skills"]);
@@ -68,7 +67,7 @@ export class UnitInfoScreen
   _unitStatFormat()
   {
     let st = this.unit.stats;
-    return `Strength ${st.atk}\nSpeed ${st.spd}\nSkill ${st.skl}\nDefense ${st.def}\nMove ${st.mov}`;
+    return `Str ${st.atk}\nSpd ${st.spd}\nSkl ${st.skl}\nDef ${st.def}\nMov ${st.mov}\n\nAff ${this.unit.team}`;
   }
   update(g)
   {
@@ -105,7 +104,8 @@ export class UnitInfoScreen
   draw(g)
   {
     this.bg.draw(g, 0);
-    this.uc.draw(g, 3, 48, 200, 1, false);
+    let append = g.getAffiliation(this.unit);
+    this.uc.draw(g, 3, 48, 200, 1, append);
     if (this.state == TOOLTIP)
       this[this.cur].draw(g, 3);
   }

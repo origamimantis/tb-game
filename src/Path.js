@@ -30,6 +30,14 @@ class Coord
     this.x += c.x;
     this.y += c.y;
   }
+  plus(c)
+  {
+    return new Coord(this.x + c.x, this.y + c.y);
+  }
+  minus(c)
+  {
+    return new Coord(this.x - c.x, this.y - c.y);
+  }
   set(x, y)
   {
     this.x = x;

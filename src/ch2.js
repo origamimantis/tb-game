@@ -25,7 +25,7 @@ const RETURN = 2;
 function initVars()
 {
   state = DEFEND;
-  alfred = new Units.Farmer(0, 3, 9, {maxhp:9, atk:2,spd:3,skl:2,def:3,con:4,mov: 6}, "Alfred");
+  alfred = new Units.Farmer(0, 3, 10, {maxhp:9, atk:2,spd:3,skl:2,def:3,con:4,mov: 6}, "Alfred");
   alfred.team = "Player";
   alfred.pArt = "P_Alfred";
   alfred.addWeapon(new Weapons.Pitchfork());
@@ -63,7 +63,7 @@ function initVars()
   chloe.setAnim( "idle" );
   chloe.recruited = false;
 
-  vargas = new Units.SwordKnight(6, 1,25, {maxhp:28, atk:7,spd:7,skl:12,def:6,con:12,mov: 6}, "Vargas", "S_lead0");
+  vargas = new Units.SwordKnight(6, 3,10, {maxhp:28, atk:7,spd:7,skl:12,def:6,con:12,mov: 6}, "Vargas", "S_lead0");
   vargas.team = "Player";
   vargas.pArt = "P_lead";
   vargas.addWeapon(new Weapons.BronzeSlicer());
@@ -84,12 +84,11 @@ function initVars()
 
 export let script =
   {
-    tileMap: "assets/tilemaps/ch1.txt",
-    type: "Game",
+    tileMap: "assets/tilemaps/ch2.txt",
+    type: "WalkScene",
     cameraInit: {x: 0, y:4},
     teams:  [ {name: "Player", bannercolor: "#aaaaff", maptheme: "btl1",  btltheme: "fght2"},
-	      {name: "Village", bannercolor: "#12aa12", maptheme: "village",  btltheme: "fght"},
-	      {name: "Bandit", bannercolor: "#bd4900", maptheme: "btl_en",  btltheme: "fght"}
+	      {name: "Village", bannercolor: "#12aa12", maptheme: "village",  btltheme: "fght"}
 	    ],
     alliances: {"Player": ["Village"], "Village":["Player"]},
     dayLength: 0,   // 0: always days, <0: always night
@@ -99,134 +98,8 @@ export let script =
       // TODO
       //Settings.set("cut_skip", "On");
       initVars();
-      g.Map.setMaxBound(null, 17);
-      g.addUnit(alfred);
-      
-      g.addUnit(child);
-
-      g.addUnit(b1);
-      g.addUnit(b2);
-	
-      await g.alert("\n  Chapter 1  \n", 256, 100);
-      await g.cursorFlash(alfred);
-      
-      let conv = new Conversation(g);
-      conv.addSpeaker("Alfred", alfred.pArt, 100, true);
-      conv.addSpeaker("???", null, 480, false);
-      conv.speaker("Alfred");
-      conv.say("What a nice day...");
-      conv.say("...");
-      conv.say("......");
-      conv.say(".........");
-      conv.speaker("???");
-      conv.say("HELP!!!!!!!");
-      conv.music("btl_en", false, false);
-      conv.setMusicContinue(true);
-      conv.speaker("Alfred");
-      conv.turn("Alfred");
-      conv.say("?!!!");
-      conv.say("What in tarnation was that?")
-      await g.setExtStatus(conv);
-      
-      await g.cameraShift(5, 4);
-      await g.cursorFlash(child);
-
-      conv = new Conversation(g);
-      conv.addSpeaker("Bandit", b1.pArt, 100, false);
-      conv.addSpeaker("Child", child.pArt, 256, false);
-      conv.addSpeaker("Bandit2", b2.pArt, 412, true);
-      conv.speaker("Child");
-      conv.say("HELP!!! What do you want from me?!");
-      conv.turn("Child");
-      conv.say("Why are you doing this?");
-      conv.speaker("Bandit2");
-      conv.turn("Child");
-      conv.say("Hahaha! We're bandits!");
-      conv.turn("Child");
-      conv.speaker("Bandit");
-      conv.say("We're here to take all de gold an' food\nyer village has to offer!");
-      conv.turn("Child");
-      conv.speaker("Bandit2");
-      conv.say("Hehehehehe!")
-      conv.speaker("Child");
-      conv.say("*gasp*")
-      conv.clear();
-      conv.leave("Child");
-      conv.turn("Bandit");
-      conv.pause(250);
-      conv.turn("Bandit");
-      conv.speaker("Bandit");
-      conv.pause(250);
-      conv.say("Hm? Where'd the kid go?");
-      conv.speaker("Bandit2");
-      conv.say("Maybe he went to get our food ready!");
-      conv.say("Haw haw haw!");
-
-      await g.setExtStatus(conv);
-
-      await child.moveTo(g, 12, 7);
-      g.cameraShift(0, 4);
-      await child.moveTo(g, 6, 7);
-      await waitTime(250);
-      await child.moveTo(g, 7, 7);
-      await waitTime(250);
-      await child.moveTo(g, 6, 7);
-      await waitTime(250);
-      await child.moveTo(g, 5, 10);
-      await waitTime(250);
-      await child.moveTo(g, 6, 10);
-      await waitTime(250);
-      await child.moveTo(g, 5, 10);
-      await waitTime(250);
-      await child.moveTo(g, 3, 10);
-      
-      await g.cursorFlash(child);
-      
-      conv = new Conversation(g);
-      conv.addSpeaker("Alfred", alfred.pArt, 100, false);
-      conv.addSpeaker("Child", child.pArt, 412, true);
-      
-      conv.speaker("Child");
-      conv.say("Mister, there are bandits outside!")
-      conv.speaker("Alfred");
-      conv.say("What? bandits?!");
-      conv.speaker("Child");
-      conv.say("They want all the gold and food\nthat our village can offer!")
-      conv.speaker("Alfred");
-      conv.say("This is an emergency!\nChild, what is your name?");
-      conv.speaker("Child");
-      conv.say("My name is Timmy.");
-      conv.speaker("Alfred");
-      conv.say("Timmy, I need you to help me gather some people\nto defend the village.");
-      conv.say("Follow me!");
-
-      await g.setExtStatus(conv);
-
-      await alfred.moveTo(g, 4, 10);
-      alfred.moveTo(g, 5, 9);
-      await child.moveTo(g, 5, 10);
-      g.cameraShift(0, 0);
-      alfred.moveTo(g, 5, 7);
-      await child.moveTo(g, 5, 8);
-      
-      await g.cursorFlash(alfred);
-      
-      conv = new Conversation(g);
-      conv.addSpeaker("Alfred", alfred.pArt, 100, false);
-      conv.addSpeaker("Child", child.pArt, 412, true);
-      conv.speaker("Alfred");
-      conv.say("Aha! Two houses have their doors open.\nTimmy, let's split up and visit both of them.");
-      conv.say("Surely the people living here will be\nhelp us defend our village.");
-      conv.speaker("Child");
-      conv.say("I'm on it!");
-      await g.setExtStatus(conv);
-
-      b1.moveTo(g, 14, 7);
-      await waitTime(125);
-      await b2.moveTo(g, 13, 8);
-
-      await MusicPlayer.fadestop("btl_en");
-
+      g.addUnit(vargas);
+      g.control(vargas);
     }, //onBegin
     interactions: {
       "3,6" :  // HOUSE 1 (chloe)
