@@ -1,3 +1,9 @@
+ver0.39 2020-10-23
+Open world mode is up! The most challenging parts were
+making sure everything the main engine meshed with the
+new scene and the heckin collisions. To try it, open the
+console and run 'console.chload("./ch2.js")'
+
 ver0.38 2020-10-22
 Loading screen up. I pretty much have level-switching done.
 In the console, you can type 'console.chload("./X.js")'
