@@ -20,7 +20,10 @@ export class Weapon
 	this.advantage = strong;
 	this.disadvantage = weak
 	this.effective = eff;
-	this.pref = pref;
+      if (pref === undefined)
+	pref = null;
+      this.pref = pref;
+	
     }
     hasEffect( e )
     {
@@ -141,7 +144,7 @@ export class VampireFang extends Weapon
 }
 
 
-class Melee_Sprite extends WeaponSprite
+class Sprite_Melee extends WeaponSprite
 {
   constructor(art = "W_sword", handx,handy, numFrame, sfx, rangeMin=15, rangeMax=32)
   {
@@ -158,7 +161,6 @@ class Melee_Sprite extends WeaponSprite
 
 
 
-
 export class Sword extends Weapon
 {
   constructor(name, might, hit, crit, range, uses, effects, statbon, pref, eff, strong = null, weak=null)
@@ -168,7 +170,7 @@ export class Sword extends Weapon
   }
   sprite()
   {
-    return new Melee_Sprite("W_sword", 3,15,2, "FX_slash", 30, 60);
+    return new Sprite_Melee("W_sword", 3,15,2, "FX_slash", 30, 60);
   }
 }
 export class Pitchfork extends Weapon
@@ -179,7 +181,7 @@ export class Pitchfork extends Weapon
   }
   sprite()
   {
-    return new Melee_Sprite("W_Pitchfork", 13, 15,2, "FX_slash",   30);
+    return new Sprite_Melee("W_Pitchfork", 13, 15,2, "FX_slash",   30);
   }
 }
 export class FryingPan extends Weapon
@@ -191,7 +193,7 @@ export class FryingPan extends Weapon
   }
   sprite()
   {
-    return new Melee_Sprite("W_FryingPan",6,15,3, "FX_bonk", 45, 65);
+    return new Sprite_Melee("W_FryingPan",6,15,3, "FX_bonk", 45, 65);
   }
 }
 export class Shovel extends Weapon
@@ -202,7 +204,7 @@ export class Shovel extends Weapon
   }
   sprite()
   {
-    return new Melee_Sprite("W_Shovel",9,15,2, "FX_bonk", 42, 60);
+    return new Sprite_Melee("W_Shovel",9,15,2, "FX_bonk", 42, 60);
   }
 }
 export class LumberAxe extends Weapon
@@ -213,7 +215,7 @@ export class LumberAxe extends Weapon
   }
   sprite()
   {
-    return new Melee_Sprite("W_LumberAxe",7,15,2, "FX_slash", 42, 60);
+    return new Sprite_Melee("W_LumberAxe",7,15,2, "FX_slash", 42, 60);
   }
 }
 export class BraveSword extends Sword
@@ -229,24 +231,32 @@ export class BronzeSlicer extends Sword
     constructor(){ super("Bronze Slicer", 7, 80, 10, [1], 48, [], {}, "Vargas"); }
 }
 
-
-
-let Weapons =
+class Sprite_Range extends WeaponSprite
 {
-    "Pitchfork":Pitchfork,
-    "Shovel":Shovel,
-    "FryingPan":FryingPan,
-    "VampireFang":VampireFang,
-    "BraveSword":BraveSword,
-    "BronzeSlicer":BronzeSlicer,
-
-
-
-
-
-
-
-
-    "NoWeapon":NoWeapon
+  constructor(art = "W_sword", handx,handy, numFrame, sfx, rangeMin=200, rangeMax=300)
+  {
+    super(art, "range", {min: rangeMin, max:rangeMax}, handx, handy, numFrame, sfx, 
+      (unit, state) =>
+      {
+        this.x = unit.x + unit.hx;
+        this.y = unit.y + unit.hy;
+        this.a = unit.ha;
+      }
+    );
+  }
 }
+export class TestBow extends Weapon
+{
+  constructor()
+  {
+      //super(name, might, hit, crit, range, uses, effects, statbon, pref, eff, strong, weak)
+      super("Bow", 15, 10, 25, [2], 50, [], {}); 
+  }
+  sprite()
+  {
+    return new Sprite_Range("W_Shovel",9,15,2, "FX_bonk", 200, 300);
+  }
+}
+
+
 

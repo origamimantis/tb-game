@@ -100,6 +100,18 @@ export const Characters =
 		    recolor:
 		    {},
 		  },
+		  "Bow Knight":
+		  { scripts:
+		    { idle: "anims/generic/ranged/idle",
+		      run:  "anims/generic/ranged/run",
+		      hitr:  "anims/generic/ranged/hit",
+		      crtr:  "anims/generic/ranged/hit"
+		    },
+		    recolor:
+		    { "":       [ [[0,0,255],[255,255,255]] ],
+		      "_enemy": [ [[0,0,255],[255,0,0]] ]
+		    },
+		  }
 		}
 	      }
 

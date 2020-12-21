@@ -18,7 +18,7 @@ export async function walkMelee(atkr, defr, max, min)
   }
 }
 
-function distBetween(atkr, defr)
+export function distBetween(atkr, defr)
 {
   // TODO may have to change defr.curAnim().w to atkr.curAnim.w
   return 512 - atkr.x - defr.x - defr.curAnim().w;

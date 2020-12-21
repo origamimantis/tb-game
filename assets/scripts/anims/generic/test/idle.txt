@@ -1,0 +1,8 @@
+name idle
+type melee
+frames 1
+usrc BS_kn_idle
+
+begin
+0 uframe 0 hand 21 34 -10
+1 end

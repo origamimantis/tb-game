@@ -35,6 +35,7 @@ export class MusicPlayer
     await this.load("village", 20000);
     await this.load("recruit", 20000, 455);
     await this.load("feels", 40000);
+    await this.load("just_browsing", 40000);
     //await this.load("oss");
     //await this.loadFX("bad");
     await this.loadFX("errbeep", 1000);

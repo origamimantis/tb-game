@@ -155,6 +155,10 @@ export class BattleAnimation
     case "hit":
       this._onHit(this._onHit_resolve);
       break;
+    case "projectile":
+      this.unit.createProjectile();
+	this.x += this.v;
+      break;
     case "end":
       this.done = true;
 	if (this.onDone != null)
@@ -165,4 +169,45 @@ export class BattleAnimation
   }
 }
 
+export class Projectile
+{
+  constructor(x, y, dist, sprite)
+  {
+    this.spr = sprite;
+    this.x = x;
+    this.y = y;
+    this.v = 15;
+    this.d = dist;
+    this.hitAttempted = false;
+    this.gonnaDie = false;
+    this.framesLeft = -1;
+  }
+  draw(g)
+  {
+    g.drawImage(3, "WT_TestBow", this.x, this.y);
+  }
+  update()
+  {
+    this.x += this.v;
+    this.d-= this.v;
+    if (this.d < 0 && this.hitAttempted == false)
+    {
+      this.hitAttempted = true;
+      this.onCollideResolve();
+    }
+    if (this.gonnaDie)
+    {
+      -- this.framesLeft;
+      if (this.framesLeft <= 0)
+      {
+	this.spr.proj = undefined;
+      }
+    }
+  }
+  selfTimedDelete()
+  {
+    this.framesLeft = 15;
+    this.gonnaDie = true;
+  }
+}
 

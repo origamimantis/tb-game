@@ -97,6 +97,7 @@ export let script =
     {
       // TODO
       //Settings.set("cut_skip", "On");
+      MusicPlayer.play("just_browsing");
       initVars();
       g.addUnit(vargas);
       g.control(vargas);

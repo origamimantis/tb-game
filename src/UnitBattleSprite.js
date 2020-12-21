@@ -1,6 +1,7 @@
 "use strict";
 
-import {BattleSprite, BattleAnimation} from "./BattleAnimation.js";
+import {distBetween} from "./BattleWalkAnimation.js";
+import {BattleSprite, BattleAnimation, Projectile} from "./BattleAnimation.js";
 import {waitTick} from "./Utils.js";
 import {Coord} from "./Path.js";
 import {Characters} from "./Characters.js";
@@ -59,6 +60,7 @@ export class UnitBattleSprite extends BattleSprite
     // TODO make this a property of Unit and pull from that
     this.anims = {
       melee :{run:"run",hit:"hit",crt:"crt",idle:"idle"},
+      range :{run:"run",hit:"hitr",crt:"crtr",idle:"idle"},
     };
     this.update = this.updateLoaded;
     this.draw = this.drawLoaded;
@@ -91,6 +93,10 @@ export class UnitBattleSprite extends BattleSprite
       c.rotate(-rad);
       c.translate(-this.ws.x, -this.ws.y);
     }
+    if (this.proj !== undefined)
+    {
+      this.proj.draw(g)
+    }
 
     if (this.id == "def")
     {
@@ -104,14 +110,49 @@ export class UnitBattleSprite extends BattleSprite
   updateLoaded()
   {
     super.tickAnim();
+    if (this.proj !== undefined)
+    {
+      this.proj.update()
+    }
   }
   onHit(f)
   {
-    return this.curAnim().onHit(f);
+    if (this.ws.animType == "melee")
+      return this.curAnim().onHit(f);
+    else
+      this.rangedPromise = new Promise( res => 
+	{
+	  this._onCollideResolve = ()=>{f(res);};
+	}
+      );
+      return this.rangedPromise;
+  }
+  handleProjectileDeletion(missed)
+  {
+    if (this.proj === undefined)
+      return
+    if (missed)
+    {
+      this.proj.selfTimedDelete();
+    }
+    else
+    {
+      this.proj = undefined;
+    }
+  }
+  createProjectile()
+  {
+    this.proj = new Projectile(this.x, this.y, this.dist, this);
+    this.proj.onCollideResolve = this._onCollideResolve;
   }
 
 
-  setAnimation(name, onDone = ()=>{})
+  beginAttack(name, enemy, onDone = ()=>{})
+  {
+    this.setAnimation(name, onDone)
+    this.dist = distBetween(this, enemy);
+  }
+  setAnimation(name, onDone)
   {
     this.state = name;
     name = this.anims[this.ws.animType][name];

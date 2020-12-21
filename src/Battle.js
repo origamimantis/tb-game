@@ -219,6 +219,7 @@ export class Battle
   constructor(g, initiator, defender, music)
   {
     this.g = g;
+    this.range = Math.abs(initiator.x - defender.x) + Math.abs(initiator.y - defender.y);
     this.music = music;
     this.state = FIGHT;
 
@@ -317,17 +318,23 @@ export class Battle
   initTurns()
   {
     this.info.atk.canAttack = true;
-    this.info.def.canAttack = true;
+    this.info.def.canAttack = this.units.def.getWeapon().range.contains(this.range);
     let aAtks = 1;
     let dAtks = 1;
 
+    // initial attack
     this.oneAttack(this.sprIni, this.info.atk);
-    this.oneAttack(this.sprDef, this.info.def);
 
+    // counterattack if possible
+    if (this.info.def.canAttack)
+      this.oneAttack(this.sprDef, this.info.def);
+
+    // doubling
     if (this.info.atk.stats.spd > this.info.def.stats.spd)
       this.oneAttack(this.sprIni, this.info.atk);
     else if (this.info.atk.stats.spd < this.info.def.stats.spd)
-      this.oneAttack(this.sprDef, this.info.def);
+      if (this.info.def.canAttack)
+	this.oneAttack(this.sprDef, this.info.def);
   }
   oneAttack(who, info)
   {
@@ -364,10 +371,8 @@ export class Battle
     
     let a_animDone = new Promise( resolve =>
     {
-      if (res.crit)
-	atkr.sprite.setAnimation("crt", resolve);
-      else
-	atkr.sprite.setAnimation("hit", resolve);
+      let anim = (res.crit) ? "crt" : "hit";
+      atkr.sprite.beginAttack(anim, defr.sprite, resolve);
     });
     
     await atkr.sprite.onHit(async (done) =>
@@ -376,6 +381,9 @@ export class Battle
 	let knock = false;
 	let a_drain = this.lifeDrain(atkr, a_hp);
 	let d_drain = this.lifeDrain(defr, d_hp);
+
+	atkr.sprite.handleProjectileDeletion(res.miss);
+
 	if (res.miss)
 	  MusicPlayer.play("FX_miss");
 	else

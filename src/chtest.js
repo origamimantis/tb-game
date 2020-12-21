@@ -11,6 +11,7 @@ let alfred;
 let child;
 let b1;
 let b2;
+let bow;
 let billy;
 let chloe;
 let vargas;
@@ -51,6 +52,11 @@ function initVars()
   billy.recruited = true;
   billy.ai = "guard";
 
+  bow = new Units.BowKnight(11, 0, 0, {maxhp:16, atk:2,spd:3,skl:3,def:2,con:4,mov: 6})
+  bow.team = "Player";
+  bow.addWeapon(new Weapons.TestBow());
+  bow.setAnim( "idle" );
+
   chloe = new Units.Farmer(5, 4, 6, {maxhp:16, atk:2,spd:3,skl:3,def:2,con:4,mov: 6}, "Chloe");
   chloe.team = "Village";
   chloe.pArt = "P_Chloe";
@@ -65,7 +71,7 @@ function initVars()
   vargas.addWeapon(new Weapons.BronzeSlicer());
   vargas.setAnim("idle");
   
-  choddson = new Units.Bandit(7, 21,11, {maxhp:33, atk:10,spd:6,skl:5,def:11,con:19,mov: 6}, "Choddson");
+  choddson = new Units.Bandit(7, 0,2, {maxhp:33, atk:10,spd:6,skl:5,def:11,con:19,mov: 6}, "Choddson");
   choddson.team = "Bandit";
   choddson.pArt = "P_Choddson";
   choddson.addWeapon(new Weapons.LumberAxe());
@@ -101,10 +107,10 @@ export let script =
       g.addUnit(b1);
       g.addUnit(b2);
       g.addUnit(choddson);
-      choddson.teleport(g, 13,7);
 
       g.addUnit(chloe, new Coord(3,6));
       await g.addUnit(billy, new Coord(7,3));
+      g.addUnit(bow);
 
     }, //onBegin
     interactions: {
