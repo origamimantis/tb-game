@@ -1,3 +1,9 @@
+ver0.40 2020-12-22
+It's been a while since I updated this because of school
+and stuff. I've added 2 new weapon types, bows and magic.
+I've put one unit of each who use them in this test map.
+To play chapter 1, run 'console.chload("./ch1.js")'
+
 ver0.39 2020-10-23
 Open world mode is up! The most challenging parts were
 making sure everything the main engine meshed with the
