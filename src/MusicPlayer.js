@@ -46,6 +46,7 @@ export class MusicPlayer
     await this.loadFX("FX_slash", 1000);
     await this.loadFX("FX_miss", 1000);
     await this.loadFX("FX_crit", 1000);
+    await this.loadFX("FX_mageboop", 1000);
     await this.loadFX("FX_unitdeath", 1000);
     await this.loadFX("FX_healblip", 1000);
     await this.loadFX("FX_bonk", 1000);

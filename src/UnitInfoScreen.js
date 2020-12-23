@@ -105,7 +105,7 @@ export class UnitInfoScreen
   {
     this.bg.draw(g, 0);
     let append = g.getAffiliation(this.unit);
-    this.uc.draw(g, 3, 48, 200, 1, append);
+    this.uc.draw(g, 3, 64, 216, 1, append);
     if (this.state == TOOLTIP)
       this[this.cur].draw(g, 3);
   }

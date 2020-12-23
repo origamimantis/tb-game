@@ -6,8 +6,9 @@ rl C_menuel C_menueb
 rr C_menuel C_menuet
 fh C_menuel C_menuer
 
-rc S_kn1 S_kn1_wait [1,253,40]->[100,100,100]
-rc S_kn4 S_kn4_wait [1,253,40]->[100,100,100]
+rc S_kn0 S_kn0_wait [0,0,255]->[100,100,100]
+rc S_kn1 S_kn1_wait [0,0,255]->[100,100,100]
+rc S_kn4 S_kn4_wait [0,0,255]->[100,100,100]
 rc S_vmp0 S_vmp0_wait [1,253,40]->[100,100,100]
 
 rc S_farmerAlfred S_farmerAlfred_wait [0,128,128]->[100,100,100]

@@ -308,7 +308,7 @@ export class Unit extends AnimatedObject
 	append = g.getAffiliation(this);
 
       let off = g.camera.getOffset();
-      super.draw(g, 2, g.xg(this.vis.x - off.x), g.yg(this.vis.y - off.y), 1, append);
+      super.draw(g, 2, g.xg(this.vis.x - off.x + 0.5), g.yg(this.vis.y - off.y + 0.5), 1, append);
       if (this.isBoss)
       {
 	let x = this.vis.x - off.x;

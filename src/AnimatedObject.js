@@ -35,9 +35,9 @@ class AnimatedObject
   {
     return this.animations[name];
   }
-  draw( g, ctx, x = this.x, y = this.y, s = 1, append = "")
+  draw( g, ctx, x = this.x, y = this.y, s = 1, append = "", center = "center")
   {
-    this.curAnim().draw(g, ctx, x, y, s, append);
+    this.curAnim().draw(g, ctx, x, y, s, append, center);
   }
   addAnim( name, anim )
   {

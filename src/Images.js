@@ -109,7 +109,20 @@ class Album
   {
     this.m.ctx[ctx].strokeText(text, x, y);
   }
+  static applyAngle(ctx, x, y, degrees, draw)
+  {
+    let c = this.m.ctx[ctx];
+    let rad = -degrees*Math.PI/180;
+    c.translate(x, y);
+    c.rotate(rad);
+    c.translate(-x, -y);
 
+    draw()
+
+    c.translate(x, y);
+    c.rotate(-rad);
+    c.translate(-x, -y);
+  }
 }
 
 class ImageLoader

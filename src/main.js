@@ -143,7 +143,8 @@ function setDrawFunctions(g)
       "setTextProperty",
       "drawText",
       "drawOutlinedText",
-      "strokeText"])
+      "strokeText",
+      "applyAngle"])
   {
     g[func] = (...args) => {Album[func](...args)};
   }
@@ -303,7 +304,7 @@ let thingsToLoad = {
       Script : "./ch1.js",
       ImgLoad : [ "P_gen", "P_lead", "P_janitor", "P_vmp", "P_Alfred", "P_child",
 		  "P_bandit", "P_Billy", "P_Chloe", "P_Choddson", "P_kn",
-		  "S_lead0", "S_kn1", "S_kn4", "S_lead1", "S_vmp0", "S_farmerAlfred", "S_child",
+		  "S_lead0", "S_kn0", "S_kn1", "S_kn4", "S_lead1", "S_vmp0", "S_farmerAlfred", "S_child",
 		  "S_bandit", "S_farmerBilly", "S_farmerChloe",
 		  "BS_kn_run", "BS_kn_hit", "BS_kn_idle", "BS_kn_hit2",
 
@@ -333,12 +334,13 @@ let thingsToLoad = {
 		  "W_Pitchfork", "W_Shovel", "W_FryingPan", "W_LumberAxe",
 		  "WT_BronzeSlicer", "WT_VampireFang", "WT_BraveSword",
 		  "WT_Pitchfork", "WT_Shovel", "WT_FryingPan", "WT_LumberAxe",
-		  "WT_TestBow",
+		  "WT_TestBow", "WT_TestMagic",
+		  "PR_arrow", 
 		  "IT_Bandages",
 		  "C_c0", "C_ptr", "C_move", "C_walk", "C_atk",
 		  "C_menutl", "C_menuel", "C_menucn",
 		  "C_talk_indicator",
-		  "FX_heal",
+		  "FX_heal", "BFX_circle",
 		  "boss_indic",
 		  "T_door_open"
 		],

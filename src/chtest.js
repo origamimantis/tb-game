@@ -12,6 +12,7 @@ let child;
 let b1;
 let b2;
 let bow;
+let mag;
 let billy;
 let chloe;
 let vargas;
@@ -20,8 +21,9 @@ let choddson;
 
 function initVars()
 {
-  alfred = new Units.Farmer(0, 3, 9, {maxhp:13, atk:2,spd:3,skl:2,def:2,con:4,mov: 6}, "Alfred");
+  alfred = new Units.Farmer(0, 9, 9, {maxhp:13, atk:2,spd:3,skl:2,def:2,con:4,mov: 6}, "Alfred");
   alfred.team = "Player";
+  alfred.stats.hp = 5;
   alfred.pArt = "P_Alfred";
   alfred.addWeapon(new Weapons.Pitchfork());
   alfred.addItem(new Items.Bandages());
@@ -32,7 +34,7 @@ function initVars()
   child.pArt = "P_child";
   child.setAnim( "idle" );
 
-  b1 = new Units.Bandit(2, 14, 7, {maxhp:16, atk:3,spd:2,skl:4,def:3,con:4,mov: 6}, "Bandit");
+  b1 = new Units.Bandit(2, 13, 6, {maxhp:16, atk:3,spd:2,skl:4,def:3,con:4,mov: 6}, "Bandit");
   b1.team = "Bandit";
   b1.setAnim( "idle" );
   b1.addWeapon(new Weapons.LumberAxe());
@@ -44,34 +46,40 @@ function initVars()
   b2.addWeapon(new Weapons.LumberAxe());
   b2.ai = "targetWeakest";
 
-  billy = new Units.Farmer(4, 8, 3, {maxhp:16, atk:3,spd:2,skl:3,def:3,con:4,mov: 6}, "Billy");
-  billy.team = "Village";
+  billy = new Units.Farmer(4, 10, 4, {maxhp:16, atk:3,spd:2,skl:3,def:3,con:4,mov: 6}, "Billy");
+  billy.team = "Player";
   billy.pArt = "P_Billy";
   billy.addWeapon(new Weapons.Shovel());
   billy.setAnim( "idle" );
   billy.recruited = true;
   billy.ai = "guard";
 
-  bow = new Units.BowKnight(11, 0, 0, {maxhp:16, atk:2,spd:3,skl:3,def:2,con:4,mov: 6})
+  bow = new Units.BowKnight(11, 9, 6, {maxhp:16, atk:4,spd:3,skl:3,def:2,con:4,mov: 6}, "Archer")
   bow.team = "Player";
   bow.addWeapon(new Weapons.TestBow());
   bow.setAnim( "idle" );
 
-  chloe = new Units.Farmer(5, 4, 6, {maxhp:16, atk:2,spd:3,skl:3,def:2,con:4,mov: 6}, "Chloe");
-  chloe.team = "Village";
+  mag = new Units.SwordKnight(12, 9, 8, {maxhp:18, atk:5,spd:6,skl:4,def:4,con:3,mov: 6}, "Mage", "S_kn0");
+  mag.team = "Player";
+  mag.classname = "Mage Knight";
+  mag.addWeapon(new Weapons.TestMagic());
+  mag.setAnim( "idle" );
+
+  chloe = new Units.Farmer(5, 9, 5, {maxhp:16, atk:2,spd:3,skl:3,def:2,con:4,mov: 6}, "Chloe");
+  chloe.team = "Player";
   chloe.pArt = "P_Chloe";
   chloe.addWeapon(new Weapons.FryingPan());
   chloe.setAnim( "idle" );
   chloe.recruited = true;
   chloe.ai = "guard";
 
-  vargas = new Units.SwordKnight(6, 8, 7, {maxhp:28, atk:11,spd:7,skl:12,def:6,con:12,mov: 6}, "Vargas", "S_lead0");
+  vargas = new Units.SwordKnight(6, 8, 7, {maxhp:28, atk:6,spd:7,skl:12,def:5,con:12,mov: 6}, "Vargas", "S_lead0");
   vargas.team = "Player";
   vargas.pArt = "P_lead";
   vargas.addWeapon(new Weapons.BronzeSlicer());
   vargas.setAnim("idle");
   
-  choddson = new Units.Bandit(7, 0,2, {maxhp:33, atk:10,spd:6,skl:5,def:11,con:19,mov: 6}, "Choddson");
+  choddson = new Units.Bandit(7, 12,7, {maxhp:33, atk:8,spd:3,skl:5,def:7,con:19,mov: 6}, "Choddson");
   choddson.team = "Bandit";
   choddson.pArt = "P_Choddson";
   choddson.addWeapon(new Weapons.LumberAxe());
@@ -111,6 +119,7 @@ export let script =
       g.addUnit(chloe, new Coord(3,6));
       await g.addUnit(billy, new Coord(7,3));
       g.addUnit(bow);
+      g.addUnit(mag);
 
     }, //onBegin
     interactions: {

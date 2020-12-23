@@ -1,7 +1,7 @@
 "use strict";
 
 import {distBetween} from "./BattleWalkAnimation.js";
-import {BattleSprite, BattleAnimation, Projectile} from "./BattleAnimation.js";
+import {BattleSprite, BattleAnimation} from "./BattleAnimation.js";
 import {waitTick} from "./Utils.js";
 import {Coord} from "./Path.js";
 import {Characters} from "./Characters.js";
@@ -137,12 +137,12 @@ export class UnitBattleSprite extends BattleSprite
     }
     else
     {
-      this.proj = undefined;
+      this.proj.selfInstantDelete();
     }
   }
   createProjectile()
   {
-    this.proj = new Projectile(this.x, this.y, this.dist, this);
+    this.proj = this.ws.getProjectile(this);
     this.proj.onCollideResolve = this._onCollideResolve;
   }
 
@@ -157,6 +157,16 @@ export class UnitBattleSprite extends BattleSprite
     this.state = name;
     name = this.anims[this.ws.animType][name];
     this.setAnim(name, onDone);
+  }
+  weaponSpawnFinish()
+  {
+    if (this.proj === undefined)
+      return 0;
+    return new Promise( res =>
+      {
+	this.proj.setOnFinish(res)
+      }
+    );
   }
 
 

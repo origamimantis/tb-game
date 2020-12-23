@@ -59,7 +59,7 @@ class Animation
     this.age = 0;
     this.curFrame = 0;
   }
-  draw(g, layer, x, y, s, append = "")
+  draw(g, layer, x, y, s, append = "", center = "center")
   {
     let img = Album.get(this.image + append)
     
@@ -68,8 +68,11 @@ class Animation
     let w = img.width/this.numFrame;
     let h = img.height;
 
-    x += (g.gx - w*s)/2;
-    y += (g.gy - h*s)/2;
+    if (center == "center")
+    {
+      x -= w*s/2;
+      y -= h*s/2;
+    }
 
     g.ctx[layer].drawImage(img, w*this.curFrame, 0, w, h, x, y, w*s, h*s);
   }

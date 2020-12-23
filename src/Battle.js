@@ -374,13 +374,15 @@ export class Battle
       let anim = (res.crit) ? "crt" : "hit";
       atkr.sprite.beginAttack(anim, defr.sprite, resolve);
     });
-    
+
     await atkr.sprite.onHit(async (done) =>
       {
 
 	let knock = false;
 	let a_drain = this.lifeDrain(atkr, a_hp);
 	let d_drain = this.lifeDrain(defr, d_hp);
+
+	let spawnFinish = atkr.sprite.weaponSpawnFinish();
 
 	atkr.sprite.handleProjectileDeletion(res.miss);
 
@@ -399,7 +401,7 @@ export class Battle
 	    MusicPlayer.play("FX_clink");
 	}
 
-	await Promise.all([knock, a_drain, d_drain, a_animDone]);
+	await Promise.all([knock, a_drain, d_drain, a_animDone, spawnFinish]);
 	done();
       }
     );

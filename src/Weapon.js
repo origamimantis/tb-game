@@ -2,6 +2,7 @@
 
 import {Range} from "./Range.js";
 import {Album} from "./Images.js";
+import {WSProjectile, WSEffect} from "./WeaponSpriteSpawns.js";
 
 export class Weapon
 {
@@ -231,9 +232,12 @@ export class BronzeSlicer extends Sword
     constructor(){ super("Bronze Slicer", 7, 80, 10, [1], 48, [], {}, "Vargas"); }
 }
 
+const PROJ = 0;
+const EFFX = 1;
+
 class Sprite_Range extends WeaponSprite
 {
-  constructor(art = "W_sword", handx,handy, numFrame, sfx, rangeMin=200, rangeMax=300)
+  constructor(art = "W_sword", handx,handy, numFrame, sfx, type, rangeMin=200, rangeMax=300, details = {})
   {
     super(art, "range", {min: rangeMin, max:rangeMax}, handx, handy, numFrame, sfx, 
       (unit, state) =>
@@ -243,20 +247,80 @@ class Sprite_Range extends WeaponSprite
         this.a = unit.ha;
       }
     );
+    
+    this.type = type;
+    this.details = details;
+
+    if (type == PROJ)
+      this.projectile = new WSProjectile(0,0,0,null, this.details);
+    else if (type == EFFX)
+      this.projectile = new WSEffect(0,0,0,null, this.details);
+    else
+      console.log("bad weapon sprite spawn type");
   }
+  getProjectile(sprite)
+  {
+    if (this.type == PROJ)
+      this.projectile.set(sprite.x, sprite.y, sprite.dist, sprite, this.details);
+    else if (this.type == EFFX)
+      this.projectile.set(sprite.x, sprite.y, sprite.dist, sprite, this.details);
+
+    return this.projectile;
+  }
+
 }
 export class TestBow extends Weapon
 {
   constructor()
   {
       //super(name, might, hit, crit, range, uses, effects, statbon, pref, eff, strong, weak)
-      super("Bow", 15, 10, 25, [2], 50, [], {}); 
+    super("Test Bow", 5, 80, 5, [2], 50, [], {}); 
+
   }
   sprite()
   {
-    return new Sprite_Range("W_Shovel",9,15,2, "FX_bonk", 200, 300);
+    let s = new Sprite_Range("W_stick",9,15,2, "FX_slash", PROJ, 200, 300, {img: "PR_arrow"});
+
+    s.projectile._init = function ()
+    {
+      this.y += 20;
+    }
+    s.projectile._update = function ()
+    {
+      this.x += this.v;
+      this.d-= this.v;
+    }
+    return s;
   }
 }
+
+export class TestMagic extends Weapon
+{
+  constructor()
+  {
+      //super(name, might, hit, crit, range, uses, effects, statbon, pref, eff, strong, weak)
+    super("Test Magic", 3, 80, 0, [1, 2], 50, [], {}); 
+
+  }
+  sprite()
+  {
+    let s = new Sprite_Range("W_spook",9,15,2, "FX_mageboop", EFFX, 200, 300, {framesUntilHit: 150, fxname: "cool"});
+
+    s.projectile._init = function ()
+    {
+      this.x += this.d;
+      this.x += 30;
+      this.y += 30;
+    }
+    s.projectile._update = function ()
+    {
+      this.x += this.v;
+      this.d-= this.v;
+    }
+    return s;
+  }
+}
+
 
 
 
