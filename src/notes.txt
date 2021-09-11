@@ -1,3 +1,6 @@
+ver0.41 2020-09-11
+Updated some animations :)
+
 ver0.40 2020-12-22
 It's been a while since I updated this because of school
 and stuff. I've added 2 new weapon types, bows and magic.
