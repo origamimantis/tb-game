@@ -237,7 +237,7 @@ class Main
   static async chload(chapterScript, things)
   {
     this.scene = this.loadScreen;
-    this.loadScreen.reset(123);
+    this.loadScreen.reset(things.ImgLoad.length + 57);
 
     this.assets = {};
     this.scriptFile = chapterScript;
@@ -307,6 +307,7 @@ let thingsToLoad = {
 		  "S_lead0", "S_kn0", "S_kn1", "S_kn4", "S_lead1", "S_vmp0", "S_farmerAlfred", "S_child",
 		  "S_bandit", "S_farmerBilly", "S_farmerChloe",
 		  "BS_kn_run", "BS_kn_hit", "BS_kn_idle", "BS_kn_hit2",
+		  "BattleSprites/BS_kn_hit3",
 
 		  "BattleSprites/Alfred/Farmer/idle",
 		  "BattleSprites/Alfred/Farmer/run",

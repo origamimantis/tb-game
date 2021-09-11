@@ -105,7 +105,7 @@ export const Characters =
 		    { idle: "anims/generic/ranged/idle",
 		      run:  "anims/generic/ranged/run",
 		      hitr:  "anims/generic/ranged/hit",
-		      crtr:  "anims/generic/ranged/hit"
+		      crtr:  "anims/generic/ranged/crt"
 		    },
 		    recolor:
 		    { "":       [ [[0,0,255],[255,255,255]] ],
@@ -114,10 +114,10 @@ export const Characters =
 		  },
 		  "Mage Knight":
 		  { scripts:
-		    { idle: "anims/generic/ranged/idle",
-		      run:  "anims/generic/ranged/run",
-		      hitr:  "anims/generic/ranged/hit",
-		      crtr:  "anims/generic/ranged/hit"
+		    { idle: "anims/generic/test/idle",
+		      run:  "anims/generic/test/run",
+		      hitr:  "anims/generic/test/hit",
+		      crtr:  "anims/generic/test/hit"
 		    },
 		    recolor:
 		    { "":       [ [[0,0,255],[255,255,255]] ],

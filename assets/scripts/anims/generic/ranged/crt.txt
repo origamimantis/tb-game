@@ -1,25 +1,21 @@
 name crt
 type melee
 frames 4
-usrc BS_kn_hit
+usrc BattleSprites/BS_kn_hit3
 
 begin
 #	        x  y  angle
-0 uframe 0 hand 37 26 90
-10 uframe 1 hand 42 7 160
-40 uframe 2 hand 38 24 60
-40 wframe 1
-43 uframe 3 hand 32 30 -30
-43 wframe 0
-46 uframe 2 hand 38 24 60
-46 wframe 1
-49 uframe 1 hand 42 7 160
-#49 uframe 3 hand 32 30 -30
-49 wframe 0
-52 uframe 2 hand 38 24 60
-52 wframe 1
-52 hit
-55 uframe 3 hand 32 30 -30
-55 wframe 0
-# here, wframe 1 is the slash effect
-60 end
+0 uframe 0 hand 41 23 0
+20 uframe 0 hand 41 23 60
+22 uframe 0 hand 41 23 120
+24 uframe 0 hand 41 23 180
+26 uframe 0 hand 41 23 240
+28 uframe 0 hand 41 23 300
+30 uframe 1 hand 43 18 0
+30 wframe 1
+40 uframe 2 hand 45 18 0
+40 wframe 2
+61 projectile
+61 uframe 3 hand 45 18 0
+61 wframe 0
+62 end

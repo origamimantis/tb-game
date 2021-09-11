@@ -442,3 +442,18 @@ export function respondToEvent(name, f)
   document.addEventListener( name, (e) => f(e.detail));
 }
 
+export function layermap(map)
+{
+  map = map.slice().reverse();
+  // map is [  [key, value] , [key, value] , ... ]
+  let f = (key) =>
+  {
+    for (let [k, v] of map)
+    {
+      if (key > k)
+	return v
+    }
+    return 0
+  }
+  return f
+}

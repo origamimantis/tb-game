@@ -1,6 +1,6 @@
 "use strict";
 
-import {waitTick} from "./Utils.js";
+import {waitTick,layermap} from "./Utils.js";
 import {Animation} from "./Animation.js";
 
 const ANIMDATA =
@@ -24,7 +24,7 @@ const ANIMDATA =
 	    fadeDelay: 160,
 	    loops: true,
 	    initialScale: 0,
-	    deltaScale: (t) => { return (t > 120)? 0 : 0.01 },
+	    deltaScale: layermap( [ [0,.01],[120,0],[155,0.15],[160,-0.15],[173, 0] ]),
 	    initialAngle: 0,
 	    deltaAngle: 12,
 	    baseTransparency: 0.7,

@@ -54,7 +54,7 @@ function initVars()
   billy.recruited = true;
   billy.ai = "guard";
 
-  bow = new Units.BowKnight(11, 9, 6, {maxhp:16, atk:4,spd:3,skl:3,def:2,con:4,mov: 6}, "Archer")
+  bow = new Units.BowKnight(11, 9, 6, {maxhp:16, atk:4,spd:3,skl:30,def:2,con:4,mov: 6}, "Archer")
   bow.team = "Player";
   bow.addWeapon(new Weapons.TestBow());
   bow.setAnim( "idle" );
