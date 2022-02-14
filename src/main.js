@@ -363,7 +363,7 @@ window.onload = async ()=>
 
   Main.mainloop();
 
-  await Main.chload("./chtest.js", thingsToLoad);
+  await Main.chload("./ch1.js", thingsToLoad);
   //setTimeout(()=>{
   Main.start();//}, 3000);
 };
