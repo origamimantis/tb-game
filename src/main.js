@@ -234,7 +234,7 @@ class Main
     MusicPlayer.stopAll();
     this.scene = noState;
   }
-  static async chload(chapterScript, things)
+  static async chload(chapterScript, things=thingsToLoad)
   {
     this.scene = this.loadScreen;
     this.loadScreen.reset(things.ImgLoad.length + 57);
@@ -247,7 +247,7 @@ class Main
     
     await loadImgs( a, things.ImgMod );
 
-    this.nextUp = new SCENETYPE[this.level.type](this.assets, this.ctx);
+    this.nextUp = new SCENETYPE[this.level.type](this.assets, this.ctx, this);
     setDrawFunctions(this.nextUp);
 
     PathFinder.init(this.nextUp);
@@ -266,6 +266,7 @@ class Main
   {
     if (this.nextUp === null)
       return;
+    delete this.scene;
     this.scene = this.nextUp;
     this.nextUp = null;
     this.scene.beginGame(this.level)
@@ -303,9 +304,11 @@ console.main = Main;
 let thingsToLoad = {
       Script : "./ch1.js",
       ImgLoad : [ "P_gen", "P_lead", "P_janitor", "P_vmp", "P_Alfred", "P_child",
-		  "P_bandit", "P_Billy", "P_Chloe", "P_Choddson", "P_kn",
+		  "P_Yuliza", "P_Malidale",
+		  "P_bandit", "P_Billy", "P_Chloe", "P_Choddson", "P_kn", "P_Doddson",
 		  "S_lead0", "S_kn0", "S_kn1", "S_kn4", "S_lead1", "S_vmp0", "S_farmerAlfred", "S_child",
 		  "S_bandit", "S_farmerBilly", "S_farmerChloe",
+		  "S_Yuliza_BowKnight", "S_Malidale_BowKnight",
 		  "BS_kn_run", "BS_kn_hit", "BS_kn_idle", "BS_kn_hit2",
 		  "BattleSprites/BS_kn_hit3",
 
@@ -329,6 +332,12 @@ let thingsToLoad = {
 		  "BattleSprites/generic/Bandit/run",
 		  "BattleSprites/generic/Bandit/hit",
 		  "BattleSprites/generic/Child/idle",
+	
+		  "BattleSprites/Yuliza/BowKnight/idle",
+		  "BattleSprites/Yuliza/BowKnight/hit",
+
+		  "BattleSprites/Malidale/BowKnight/idle",
+		  "BattleSprites/Malidale/BowKnight/hit",
 
 		  "B_backdrop", "BG_unitprofile",
 		  "W_spook", "W_stick", "W_sword",
@@ -363,7 +372,7 @@ window.onload = async ()=>
 
   Main.mainloop();
 
+  //await Main.chload("./ch1.js", thingsToLoad);
   await Main.chload("./ch1.js", thingsToLoad);
-  //setTimeout(()=>{
-  Main.start();//}, 3000);
+  Main.start();
 };

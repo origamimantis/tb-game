@@ -125,10 +125,27 @@ class Camera
 
   }
 
-  shiftImmediate(x, y)
+  centerImmediate(x, y=null)
   {
-    this.offset.x = x;
-    this.offset.y = y
+    if (y !== null)
+      x = new Coord(x, y);
+
+    let cc = new Coord(x.x, x.y)
+    cc.x -= this.wsize.x/2
+    cc.y -= this.wsize.y/2
+    return this.shiftImmediate(cc)
+  }
+  shiftImmediate(x, y = null)
+  {
+    if (y === null)
+    {
+      y = x.y
+      x = x.x
+    }
+    let d = new Coord(inBound(x, this._min("x"), this._max("x")),
+		      inBound(y, this._min("y"), this._max("y")) );
+    this.offset.x = d.x;
+    this.offset.y = d.y
   }
   // shifts top left camera position to c
   shiftAbsolute(c, speed = this.baseShiftSpeed, onDone = ()=>{})

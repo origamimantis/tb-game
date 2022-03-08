@@ -28,7 +28,9 @@ export class MusicPlayer
     // load(name, length, introLength
     // round length up
     await this.load("btl1", 33334);
+    await this.load("ch2", 51297);
     await this.load("btl_en", 15000);
+    await this.load("bbghrnj", 20000);
     await this.load("fght", 6112)
     await this.load("fght2", 18667)
     await this.load("rfgh", 45715, 3809.5);

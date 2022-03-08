@@ -25,7 +25,7 @@ const RETURN = 2;
 function initVars()
 {
   state = DEFEND;
-  alfred = new Units.Farmer(0, 3, 9, {maxhp:9, atk:2,spd:3,skl:2,def:3,con:4,mov: 6}, "Alfred");
+  alfred = new Units.Farmer(0, 3, 9, {maxhp:9, atk:3,spd:3,skl:2,def:3,con:4,mov: 6}, "Alfred");
   alfred.team = "Player";
   alfred.pArt = "P_Alfred";
   alfred.addWeapon(new Weapons.Pitchfork());
@@ -38,7 +38,6 @@ function initVars()
   
   b1 = new Units.Bandit(2, 18, 12, {maxhp:9, atk:2,spd:2,skl:4,def:3,con:4,mov: 6}, "Bandit");
   b1.team = "Bandit";
-  b1.setAnim( "idle" );
   b1.setAnim( "idle" );
   b1.addWeapon(new Weapons.LumberAxe());
   b1.ai = "targetWeakest";
@@ -56,21 +55,21 @@ function initVars()
   billy.setAnim( "idle" );
   billy.recruited = false;
 
-  chloe = new Units.Farmer(5, 4, 6, {maxhp:8, atk:3,spd:4,skl:3,def:2,con:4,mov: 6}, "Chloe");
+  chloe = new Units.Farmer(5, 4, 6, {maxhp:9, atk:3,spd:4,skl:3,def:2,con:4,mov: 6}, "Chloe");
   chloe.team = "Player";
   chloe.pArt = "P_Chloe";
   chloe.addWeapon(new Weapons.FryingPan());
   chloe.setAnim( "idle" );
   chloe.recruited = false;
 
-  vargas = new Units.SwordKnight(6, 1,25, {maxhp:28, atk:7,spd:7,skl:12,def:6,con:12,mov: 6}, "Vargas", "S_lead0");
+  vargas = new Units.SwordKnight(6, 1,25, {maxhp:28, atk:5,spd:3,skl:12,def:6,con:12,mov: 6}, "Vargas", "S_lead0");
   vargas.team = "Player";
   vargas.pArt = "P_lead";
   vargas.addWeapon(new Weapons.BronzeSlicer());
   vargas.setAnim("idle");
   vargas.recruited = false;
 
-  choddson = new Units.Bandit(7, 21,11, {maxhp:33, atk:9,spd:6,skl:6,def:6,con:19,mov: 5}, "Choddson");
+  choddson = new Units.Bandit(7, 21,11, {maxhp:33, atk:9,spd:2,skl:6,def:6,con:19,mov: 5}, "Choddson");
   choddson.team = "Bandit";
   choddson.pArt = "P_Choddson";
   choddson.addWeapon(new Weapons.LumberAxe());
@@ -85,6 +84,7 @@ function initVars()
 export let script =
   {
     tileMap: "assets/tilemaps/ch1.txt",
+    nextLvl: "./ch2.js",
     type: "Game",
     cameraInit: {x: 0, y:4},
     teams:  [ {name: "Player", bannercolor: "#aaaaff", maptheme: "btl1",  btltheme: "fght2"},
@@ -228,6 +228,7 @@ export let script =
       await MusicPlayer.fadestop("btl_en");
 
     }, //onBegin
+    conversations: {},
     interactions: {
       "3,6" :  // HOUSE 1 (chloe)
       {

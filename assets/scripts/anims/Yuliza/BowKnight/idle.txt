@@ -1,0 +1,8 @@
+name idle
+type melee
+frames 1
+usrc BattleSprites/Yuliza/BowKnight/idle
+
+begin
+0 uframe 0 hand 38 37 150
+1 end

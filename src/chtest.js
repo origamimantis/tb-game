@@ -11,7 +11,8 @@ let alfred;
 let child;
 let b1;
 let b2;
-let bow;
+let yuli;
+let mali;
 let mag;
 let billy;
 let chloe;
@@ -46,7 +47,7 @@ function initVars()
   b2.addWeapon(new Weapons.LumberAxe());
   b2.ai = "targetWeakest";
 
-  billy = new Units.Farmer(4, 10, 4, {maxhp:16, atk:3,spd:2,skl:3,def:3,con:4,mov: 6}, "Billy");
+  billy = new Units.Farmer(4, 10, 4, {maxhp:16, atk:3,spd:2,skl:300,def:3,con:4,mov: 6}, "Billy");
   billy.team = "Player";
   billy.pArt = "P_Billy";
   billy.addWeapon(new Weapons.Shovel());
@@ -54,10 +55,17 @@ function initVars()
   billy.recruited = true;
   billy.ai = "guard";
 
-  bow = new Units.BowKnight(11, 9, 6, {maxhp:16, atk:4,spd:3,skl:30,def:2,con:4,mov: 6}, "Archer")
-  bow.team = "Player";
-  bow.addWeapon(new Weapons.TestBow());
-  bow.setAnim( "idle" );
+  yuli = new Units.BowKnight(11, 9, 6, {maxhp:16, atk:5,spd:3,skl:40,def:1,con:4,mov: 6}, "Yuliza")
+  yuli.team = "Player";
+  yuli.pArt = "P_Yuliza";
+  yuli.addWeapon(new Weapons.TestBow());
+  yuli.setAnim( "idle" );
+
+  mali = new Units.BowKnight(13, 9, 7, {maxhp:17, atk:4,spd:4,skl:3,def:2,con:4,mov: 6}, "Malidale")
+  mali.team = "Player";
+  mali.pArt = "P_Malidale";
+  mali.addWeapon(new Weapons.TestBow());
+  mali.setAnim( "idle" );
 
   mag = new Units.SwordKnight(12, 9, 8, {maxhp:18, atk:5,spd:6,skl:4,def:4,con:3,mov: 6}, "Mage", "S_kn0");
   mag.team = "Player";
@@ -118,7 +126,8 @@ export let script =
 
       g.addUnit(chloe, new Coord(3,6));
       await g.addUnit(billy, new Coord(7,3));
-      g.addUnit(bow);
+      g.addUnit(yuli);
+      g.addUnit(mali);
       g.addUnit(mag);
 
     }, //onBegin

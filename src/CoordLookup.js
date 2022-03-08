@@ -12,7 +12,7 @@ export class CoordLookup
   constructor()
   {
     this.c_x = {};
-    this.sz = 0;
+    this.length = 0;
   }
   add(c, val = true)
   {
@@ -25,14 +25,14 @@ export class CoordLookup
       this.c_x[c.x] = {};
     }
     this.c_x[c.x][c.y] = val;
-    ++ this.sz;
+    ++ this.length;
   }
   del(c)
   {
     if (this.c_x[c.x] != undefined)
     {
       delete this.c_x[c.x][c.y];
-      -- this.sz;
+      -- this.length;
     }
     else
     {
@@ -62,7 +62,7 @@ export class CoordLookup
   
   size()
   {
-    return this.sz;
+    return this.length;
   }
   *[Symbol.iterator]()
   {

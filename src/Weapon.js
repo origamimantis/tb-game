@@ -279,7 +279,7 @@ export class TestBow extends Weapon
   }
   sprite()
   {
-    let s = new Sprite_Range("W_stick",30,15,3, "FX_slash", PROJ, 200, 300, {img: "PR_arrow"});
+    let s = new Sprite_Range("W_stick",30,18,3, "FX_slash", PROJ, 200, 300, {img: "PR_arrow"});
 
     s.projectile._init = function ()
     {

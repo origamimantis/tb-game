@@ -115,8 +115,15 @@ export class SwordKnight extends Unit
 
 export class BowKnight extends Unit
 {
-    constructor(id, x,y, stats, name = "Unit "+id, anim = "S_kn4", skills = [])
+    constructor(id, x,y, stats, name = "kn", anim = null, skills = [])
     {
+        if (anim == null)
+	{
+	    if (name == "kn")
+		anim = "S_kn4"
+	    else
+	        anim = "S_" + name + "_BowKnight"
+	}
 	let caps =
 	    { "maxhp":60,
 		"atk":30,
@@ -127,7 +134,10 @@ export class BowKnight extends Unit
 		"mov":10
 	    };
 	let classname = "Bow Knight";
-	super( id, x, y, caps, stats, name, classname, "P_kn", skills, Walk.walkMelee);
+	super( id, x, y, caps, stats, name, classname, "P_" + name, skills, Walk.walkMelee);
+
+        if (name == "kn")
+            name = classname
 	
 	this.addAnim("idle", new Animation( {image: anim, weights: [20,10,20,10], loops: true}) );
 	this.addAnim("wait", new Animation( {image: anim + "_wait", weights: [100,100,100,100], loops: false}) );

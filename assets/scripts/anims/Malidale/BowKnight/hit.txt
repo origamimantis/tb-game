@@ -1,0 +1,16 @@
+name hit
+type melee
+frames 4
+usrc BattleSprites/Malidale/BowKnight/hit
+
+begin
+#	        x  y  angle
+0 uframe 0 hand 45 28 -10
+15 uframe 1 hand 47 22 10
+15 wframe 1
+25 uframe 2 hand 48 20 0
+25 wframe 2
+61 projectile
+61 uframe 3 hand 48 20 0
+61 wframe 0
+62 end

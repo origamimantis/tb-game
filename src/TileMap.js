@@ -87,7 +87,7 @@ export class TileMap
 	{
 	  if (this.typeMap[tiles[j]] == undefined)
 	  {
-	    throw "Undefined tiletype on tile (x, y) = (" + j + ", " + i + ").";
+	    throw "Undefined tiletype on tile (x, y) = (" + j + ", " + i + "): " + tiles[j];
 	  }
 	  row.push( new Tile(this, tiles[j] ) );
 	  prow.push( this.typeMap[tiles[j]] );
@@ -140,10 +140,13 @@ export class TileMap
   // noninclusive bound
   setMaxBound( x, y )
   {
-    if (x !== null)
-      this.bounds.max.x = Math.min(this.dimension.x, x)-1;
-    if (y !== null)
-      this.bounds.max.y = Math.min(this.dimension.y, y)-1;
+    if (x === null)
+      x = this.dimension.x
+    if (y === null)
+      y = this.dimension.y
+
+    this.bounds.max.x = Math.min(this.dimension.x, x)-1;
+    this.bounds.max.y = Math.min(this.dimension.y, y)-1;
   }
   setArtMapping( s )
   {

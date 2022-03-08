@@ -1,5 +1,5 @@
 'use strict';
-import {generatePath, inRange, randInt, randChoice} from "./Utils.js";
+import {unitInZone, generatePath, pathCost, inRange, randInt, randChoice} from "./Utils.js";
 import {Battle} from "./Battle.js";
 
 function naiveUnitStrengthEvaluation(unit1, unit2)
@@ -23,13 +23,114 @@ export class EnemyController
   }
   async offense(unit)
   {
-    let decision = await this[unit.ai + "AI"](unit);
-    decision.attacks = (decision.target !== null);
+    let decision;
+    try
+    {
+      decision = await this[unit.ai + "AI"](unit);
+    }
+    catch(e)
+    {
+      console.log("unit.ai = " + unit.ai);
+      throw e;
+    }
     let path = await generatePath(this.g, unit.x, unit.y, decision.dest.x, decision.dest.y, unit.movcost);
     decision.path = path;
-    decision.action = (decision.attacks || decision.dest.x != unit.x || decision.dest.y != unit.y);
     return decision;
   }
+  cantalk(unit, target)
+  {
+    if (unit.x == target.x && Math.abs(unit.y - target.y) == 1)
+      return true
+    if (unit.y == target.y && Math.abs(unit.x - target.x) == 1)
+      return true
+  }
+
+  async fleeToUnitAI(unit)
+  {
+    let ret = {};
+
+    // find a path
+    let path = await generatePath(this.g,
+      unit.x, unit.y,
+      unit.aiparams.target.x, unit.aiparams.target.y,
+      unit.movcost);
+
+    let [movable, attackable] = unit.movable(this.g, true);
+    let targetDest = this.furthestMovableTile(path, movable);
+    let dests = this.closestMovableTile(targetDest, movable, unit);
+    ret.dest = this.chooseAttackLocation(dests);
+    if (this.cantalk(ret.dest, unit.aiparams.target))
+    {
+      ret.target = unit.aiparams.target
+      ret.action = "talk"
+    }
+    else
+    {
+      ret.target = null;
+      ret.action = "move"
+    }
+
+    return ret
+
+  }
+
+  // moves towards the closest unit.
+  async targetClosestAI(unit)
+  {
+    let ret = {};
+    let [movable, attackable] = unit.movable(this.g, true);
+    attackable = this.enemiesAttackable(unit, attackable);
+    attackable.sort(this.unitEvaluation);
+
+    let weakest = this.weakestAttackable(unit, movable, attackable);
+
+    ret.target = weakest.target;
+    if (weakest.target !== null)
+    {
+      ret.dest = this.chooseAttackLocation(weakest.dests);
+      ret.action = "attack"
+    }
+    else
+    {
+
+      let mincost = Infinity;
+      let enemies = [];
+      for (let u of this.allEnemies(unit))
+      {
+	let path = await generatePath(this.g, unit.x, unit.y, u.x, u.y, unit.movcost);
+	let cost = pathCost(this.g, path, unit.movcost);
+	if (cost == mincost)
+	  enemies.push(u);
+	else if (cost < mincost)
+	{
+	  mincost = cost;
+	  enemies = [u]
+	}
+      }
+      if (enemies.length == 0)
+      {
+	ret.dest = unit;
+	ret.action = "none"
+      }
+      else
+      {
+	enemies.sort(this.unitEvaluation);
+	weakest = enemies[0];
+
+	// find a path
+	let path = await generatePath(this.g, unit.x, unit.y, weakest.x, weakest.y, unit.movcost);
+
+	let targetDest = this.furthestMovableTile(path, movable);
+	let dests = this.closestMovableTile(targetDest, movable, unit);
+	ret.dest = this.chooseAttackLocation(dests);
+	ret.action = "move"
+      }
+    }
+
+    return ret;
+
+  }
+
   // moves towards the weakest unit, ggetting distracted along the way.
   async targetWeakestAI(unit)
   {
@@ -42,28 +143,49 @@ export class EnemyController
 
     ret.target = weakest.target;
     if (weakest.target !== null)
+    {
       ret.dest = this.chooseAttackLocation(weakest.dests);
+      ret.action = "attack"
+    }
     else
     {
       let enemies = this.allEnemies(unit);
       if (enemies.length == 0)
       {
 	ret.dest = unit;
+	ret.action = "none"
       }
       else
       {
 	enemies.sort(this.unitEvaluation);
 	weakest = enemies[0];
+
 	// find a path
 	let path = await generatePath(this.g, unit.x, unit.y, weakest.x, weakest.y, unit.movcost);
 
 	let targetDest = this.furthestMovableTile(path, movable);
 	let dests = this.closestMovableTile(targetDest, movable, unit);
 	ret.dest = this.chooseAttackLocation(dests);
+	ret.action = "move"
       }
     }
 
     return ret;
+  }
+  // if someone walked in the box then do targetweakest, otherwise do nothing
+  async attackOnEnterAI(unit)
+  {
+    if (unit.aiparams.triggered == false)
+    {
+      if (unitInZone(this.g, unit.aiparams.rectangle, unit.team))
+	unit.aiparams.triggered = true;
+    }
+
+    if (unit.aiparams.triggered == false)
+      return this.doNothingAI(unit);
+    else
+      return this.targetClosestAI(unit);
+
   }
   allEnemies(unit)
   {
@@ -109,7 +231,7 @@ export class EnemyController
   // AI that does nothing every turn
   doNothingAI(unit)
   {
-    return {dest: unit, target:null};
+    return {dest: unit, target:null, action:"none"};
   }
   // AI will not move unless someone enters its range, then it moves to attack it.
   // does not return afterwards.
@@ -124,9 +246,15 @@ export class EnemyController
     
     ret.target = weakest.target;
     if (weakest.target !== null)
+    {
       ret.dest = this.chooseAttackLocation(weakest.dests);
+      ret.action = "attack"
+    }
     else
+    {
       ret.dest = unit;
+      ret.action = "none"
+    }
 
     return ret;
   }
@@ -194,6 +322,7 @@ export class EnemyController
     if (coord === undefined)
       coord = new Coord(unit);
 
+    let action = "move";
     if (target != null)
     {
       let possible = inRange(target, unit.getRange(), "tiles", this.g.Map)
@@ -205,6 +334,7 @@ export class EnemyController
 	{
 	  coord = c;
 	  canAttack = true;
+	  action = "attack"
 	  break;
 	}
       }
@@ -213,7 +343,7 @@ export class EnemyController
 	target = null;
       }
     }
-    return {dest:coord, target:target};
+    return {dest:coord, target:target, action:action};
 
   }
 }

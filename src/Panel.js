@@ -424,9 +424,16 @@ export class TooltipWeaponPanel extends Panel
 }
 export class TooltipItemPanel extends Panel
 {
-  constructor( x, y, w, h, loopselector, artPrefix, amtFunction, grayFunction = (i)=>{return false})
+  constructor( )
   {
-    super(x, y, w, h);
+    super(94, 270, 402, 100);
+    
+  }
+  explicitDraw(g, ctx, i)
+  {
+    this.drawBase(g, ctx);
+    g.setTextProperty(ctx, "black", "16.5px ABCD Mono", "left");
+    g.drawText(ctx, i.tooltip, this.x + 15, this.y + 15);
   }
 }
 export class UnitProfileItemPanel extends Panel

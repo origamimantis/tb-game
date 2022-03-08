@@ -23,6 +23,7 @@ export class Bandages extends Item
   constructor()
   {
     super("Bandages", 5);
+    this.tooltip = "A common medicinal tool.\nUse to heal for 10 HP.";
   }
   usable(user)
   {
@@ -35,5 +36,9 @@ export class Bandages extends Item
     let e = waitSpriteEffect(g, "heal", 3, c.x, c.y);
     await e;
     await g.healUnit(user, 10);
+
+    if (this.uses <= 0 && user !== null)
+      user.removeItem(this)
+
   }
 }

@@ -1,0 +1,11 @@
+name run
+type melee
+frames 4
+usrc BS_kn_run
+
+begin
+0 uframe 0 hand 17 31 15
+10 uframe 1 hand 5 19 -70
+20 uframe 2 hand 17 31 15
+30 uframe 3 hand 38 19 95
+40 loop 0

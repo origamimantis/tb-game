@@ -4,565 +4,614 @@ import {waitSpriteEffect} from "./Effects.js";
 import * as Units from "./TypeUnits.js";
 import * as Weapons from "./Weapon.js";
 import {Coord} from "./Path.js";
-import {waitTime} from "./Utils.js";
+import {waitTime, inRange} from "./Utils.js";
 import {MusicPlayer} from "./MusicPlayer.js";
 import {Settings} from "./Settings.js";
+import {Range} from "./Range.js";
+import {unitInZone} from "./Utils.js"
+import {Bandages} from "./Item.js"
 
 let alfred;
-let child;
-let b1;
-let b2;
 let billy;
 let chloe;
 let vargas;
+let yuli;
+let mali;
 let state;
 let banditWave = [];
-let choddson;
+let doddson;
+let zone1;
+let scrubBanditLeader;
+
 const DEFEND = 0;
 const FETCH = 1;
 const RETURN = 2;
 
+let uid = 0
+
+
 function initVars()
 {
   state = DEFEND;
-  alfred = new Units.Farmer(0, 3, 10, {maxhp:9, atk:2,spd:3,skl:2,def:3,con:4,mov: 6}, "Alfred");
+
+  vargas = new Units.SwordKnight(uid++,0,11,{maxhp:28, atk:5,spd:3,skl:12,def:6,con:12,mov: 6},"Vargas","S_lead0");
+  vargas.team = "Player";
+  vargas.pArt = "P_lead";
+  vargas.addWeapon(new Weapons.BronzeSlicer());
+  vargas.setAnim("idle");
+  vargas.addItem(new Bandages());
+  vargas.addItem(new Bandages());
+  vargas.addItem(new Bandages());
+  vargas.addItem(new Bandages());
+
+  alfred = new Units.Farmer(uid++, 0, 11, {maxhp:9, atk:3,spd:3,skl:2,def:3,con:4,mov: 6}, "Alfred");
   alfred.team = "Player";
   alfred.pArt = "P_Alfred";
   alfred.addWeapon(new Weapons.Pitchfork());
   alfred.setAnim( "idle" );
 
-  child = new Units.Child(1, 17, 12, {maxhp:5, atk:0,spd:5,skl:0,def:0,con:0,mov: 5}, "Timmy");
-  child.team = "Player";
-  child.pArt = "P_child";
-  child.setAnim( "idle" );
-  
-  b1 = new Units.Bandit(2, 18, 12, {maxhp:9, atk:2,spd:2,skl:4,def:3,con:4,mov: 6}, "Bandit");
-  b1.team = "Bandit";
-  b1.setAnim( "idle" );
-  b1.setAnim( "idle" );
-  b1.addWeapon(new Weapons.LumberAxe());
-  b1.ai = "targetWeakest";
-	
-  b2 = new Units.Bandit(3, 17, 13, {maxhp:10, atk:2,spd:3,skl:5,def:2,con:4,mov: 6}, "Bandit");
-  b2.team = "Bandit";
-  b2.setAnim( "idle" );
-  b2.addWeapon(new Weapons.LumberAxe());
-  b2.ai = "targetWeakest";
-
-  billy = new Units.Farmer(4, 8, 3, {maxhp:11, atk:4,spd:2,skl:2,def:4,con:4,mov: 6}, "Billy");
+  billy = new Units.Farmer(uid++, 0, 11, {maxhp:11, atk:4,spd:2,skl:2,def:4,con:4,mov: 6}, "Billy");
   billy.team = "Player";
   billy.pArt = "P_Billy";
   billy.addWeapon(new Weapons.Shovel());
   billy.setAnim( "idle" );
-  billy.recruited = false;
 
-  chloe = new Units.Farmer(5, 4, 6, {maxhp:8, atk:3,spd:4,skl:3,def:2,con:4,mov: 6}, "Chloe");
+  chloe = new Units.Farmer(uid++, 0, 11, {maxhp:9, atk:3,spd:4,skl:3,def:2,con:4,mov: 6}, "Chloe");
   chloe.team = "Player";
   chloe.pArt = "P_Chloe";
   chloe.addWeapon(new Weapons.FryingPan());
   chloe.setAnim( "idle" );
-  chloe.recruited = false;
 
-  vargas = new Units.SwordKnight(6, 3,10, {maxhp:28, atk:7,spd:7,skl:12,def:6,con:12,mov: 6}, "Vargas", "S_lead0");
-  vargas.team = "Player";
-  vargas.pArt = "P_lead";
-  vargas.addWeapon(new Weapons.BronzeSlicer());
-  vargas.setAnim("idle");
-  vargas.recruited = false;
+  yuli = new Units.BowKnight(uid++, 33, 35, {maxhp:16, atk:5,spd:3,skl:12,def:2,con:4,mov: 6}, "Yuliza")
+  yuli.team = "Scout";
+  yuli.pArt = "P_Yuliza";
+  yuli.addWeapon(new Weapons.TestBow());
+  yuli.setAnim( "idle" );
+  yuli.ai = "fleeToUnit"
+  yuli.aiparams={target:vargas}
+  yuli.stats.hp = 14;
 
-  choddson = new Units.Bandit(7, 21,11, {maxhp:33, atk:9,spd:6,skl:6,def:6,con:19,mov: 5}, "Choddson");
-  choddson.team = "Bandit";
-  choddson.pArt = "P_Choddson";
-  choddson.addWeapon(new Weapons.LumberAxe());
-  choddson.setAnim("idle");
-  choddson.ai = "targetWeakest";
-  choddson.isBoss = true;
+  mali = new Units.BowKnight(uid++, 33, 35, {maxhp:17, atk:4,spd:4,skl:8,def:2,con:4,mov: 6}, "Malidale")
+  mali.team = "Scout";
+  mali.pArt = "P_Malidale";
+  mali.addWeapon(new Weapons.TestBow());
+  mali.setAnim( "idle" );
+  mali.ai = "fleeToUnit"
+  mali.aiparams={target:vargas}
+  mali.addItem(new Bandages());
+  mali.stats.hp = 6;
 
+  doddson = new Units.Bandit(uid++, 33,35, {maxhp:31, atk:7,spd:2,skl:2,def:5,con:9,mov: 5}, "Doddson");
+  doddson.team = "Bandit";
+  doddson.pArt = "P_Doddson";
+  doddson.addWeapon(new Weapons.LumberAxe());
+  doddson.setAnim("idle");
+  doddson.ai = "guard";
+  doddson.isBoss = true;
+
+
+  zone1 = {rectangle:[[14, 3],[23,18]], triggered:false}
 }
+
 
 
 
 export let script =
   {
     tileMap: "assets/tilemaps/ch2.txt",
-    type: "WalkScene",
-    cameraInit: {x: 0, y:4},
-    teams:  [ {name: "Player", bannercolor: "#aaaaff", maptheme: "btl1",  btltheme: "fght2"},
-	      {name: "Village", bannercolor: "#12aa12", maptheme: "village",  btltheme: "fght"}
+    nextLvl: null,
+    type: "Game",
+    cameraInit: {x: 0, y:5},
+    teams:  [ {name: "Player", bannercolor: "#aaaaff", maptheme: "ch2",  btltheme: "fght2"},
+	      {name: "Scout", bannercolor: "#12aa12", maptheme: "village",  btltheme: "fght"},
+	      {name: "Bandit", bannercolor: "#bd4900", maptheme: "bbghrnj",  btltheme: "fght"}
 	    ],
-    alliances: {"Player": ["Village"], "Village":["Player"]},
+    alliances: {"Player": ["Scout"], "Scout":["Player"]},
     dayLength: 0,   // 0: always days, <0: always night
 
     onBegin: async (g) =>
     {
       // TODO
       //Settings.set("cut_skip", "On");
-      MusicPlayer.play("just_browsing");
       initVars();
+      //g.Map.setMaxBound(16, null);
+      
+      await g.alert("\n  Chapter 2  \n", 256, 100);
+
+      let movePromise = []
       g.addUnit(vargas);
-      g.control(vargas);
+      movePromise.push( vargas.moveTo(g, 2, 11) );
+      await waitTime(150);
+
+      g.addUnit(billy);
+      movePromise.push( billy.moveTo(g, 1, 10) );
+      await waitTime(150);
+
+      g.addUnit(chloe);
+      movePromise.push( chloe.moveTo(g, 1, 12) );
+      await waitTime(150);
+
+      g.addUnit(alfred);
+      movePromise.push( alfred.moveTo(g, 1, 11) );
+
+      await Promise.all(movePromise);
+
+      await g.cursorFlash(vargas);
+      let conv = new Conversation(g);
+      conv.addSpeaker("Vargas", vargas.pArt, 424, true);
+      conv.addSpeaker("Billy", billy.pArt, 280, false);
+      conv.addSpeaker("Alfred", alfred.pArt, 180, false);
+      conv.addSpeaker("Chloe", chloe.pArt, 88, false);
+      conv.speaker("Vargas");
+      conv.say("So...");
+      conv.say("I would like to go hunt down all of the bandits\nin this area, so that they no longer\nthreaten this village.");
+      conv.say("Anyone want to join me?\nI'm fully capable of doing this myself,\nbut it could be a fun opportunity\nfor you all to tag along.");
+      conv.clear();
+      conv.pause(250);
+      conv.turn("Alfred");
+      conv.pause(250);
+      conv.turn("Billy");
+      conv.pause(250);
+      conv.turn("Alfred");
+      conv.pause(250);
+      conv.turn("Billy");
+      conv.pause(500);
+      conv.turn("Vargas");
+      conv.say("Wait...")
+      await g.setExtStatus(conv);
+      
+
+      let addbandit=(x,y,mov=3,ai="targetWeakest", aiparams={}) => 
+      {
+	let u = new Units.Bandit(uid++, x,y, {maxhp:11, atk:3,spd:3,skl:2,def:3,con:9,mov:mov}, "Bandit");
+	u.team = "Bandit";u.addWeapon(new Weapons.LumberAxe());u.setAnim("idle");u.ai = ai;u.aiparams=aiparams;
+	g.addUnit(u);
+	return u;
+      }
+
+      // triggering one bandit alters the zone1 object, causing all bandits of zone1 to attack
+      // can also use this to check for dialogue when entering a zone
+      scrubBanditLeader = addbandit(18,9, 5, "attackOnEnter", zone1)
+      addbandit(18,7, 5, "attackOnEnter", zone1)
+      addbandit(17,8, 5, "attackOnEnter", zone1)
+      addbandit(16,7, 5, "attackOnEnter", zone1)
+      addbandit(16,6, 5, "attackOnEnter", zone1)
+      addbandit(20,7, 5, "attackOnEnter", zone1)
+      addbandit(21,8, 5, "attackOnEnter", zone1)
+      addbandit(22,10,5, "attackOnEnter", zone1)
+      addbandit(19,10,5, "attackOnEnter", zone1)
+
+
+      // walk from east
+      let b1 = addbandit(17,15);
+      let b2 = addbandit(17,14);
+      let b3 = addbandit(17,13);
+      addbandit(4,17);
+      addbandit(5,17);
+      addbandit(4,20);
+      addbandit(5,20);
+      addbandit(3,23);
+      addbandit(2,24);
+      addbandit(1,27);
+      addbandit(2,28);
+      addbandit(3,31);
+      addbandit(4,31);
+      addbandit(7,33);
+      addbandit(8,34);
+
+
+
+      await g.cameraShift(0,30);
+      await waitTime(500);
+      await g.cameraShift(0,9);
+
+      movePromise = []
+      movePromise.push( b1.moveTo(g, 9, 15) )
+      await waitTime(150);
+      movePromise.push( b2.moveTo(g, 10, 14) )
+      await waitTime(150);
+      movePromise.push( b3.moveTo(g, 13, 14) )
+      await Promise.all(movePromise);
+
+      conv = new Conversation(g);
+      conv.addSpeaker("Vargas", vargas.pArt, 424, false);
+      conv.addSpeaker("Billy", billy.pArt, 280, false);
+      conv.addSpeaker("Alfred", alfred.pArt, 180, false);
+      conv.addSpeaker("Chloe", chloe.pArt, 80, false);
+      conv.speaker("Vargas");
+      conv.pause(500);
+      conv.turn("Vargas");
+      conv.say("It looks like they're coming to us,\ninstead of us to them!");
+      conv.say("Now you all kind of have to fight though.");
+      conv.say("If it gets too rough, head for the forest.\nYou should find better cover there.");
+      conv.turn("Vargas");
+      conv.say("...");
+      conv.turn("Vargas");
+      conv.say("Also, I have some bandages.\nIf you want some, just come and ask me.");
+      conv.say("Of course, if I see you in danger,\nI can come to you as well.");
+      conv.turn("Vargas");
+      conv.say("We go!")
+      await g.setExtStatus(conv);
+      
+      g.cursor.moveInstant(vargas);
+
+      
     }, //onBegin
     interactions: {
-      "3,6" :  // HOUSE 1 (chloe)
-      {
-	tooltip: "Visit",
-	visited: false,
-	canInteract: function() {return state == DEFEND && this.visited == false},
-	mapSprite: "T_door_open",
-	drawSprite: function() {return this.canInteract()},
-	action: async function(g, u, ondone)
-	{
-	  let conv = new Conversation(g);
-	  conv.addSpeaker(u.name, u.pArt, 100, false);
-	  conv.addSpeaker("Chloe", chloe.pArt, 412, true);
-	  conv.music("village", false, false);
-	  conv.speaker("Chloe");
-	  conv.say("Spinach salad! Bandits? Hold on just one second.");
-	  conv.clear();
-	  conv.leave("Chloe");
-	  conv.music(null, true);
-	  conv.pause(250);
-	  conv.enter("Chloe");
-	  conv.music("recruit", false, false);
-	  conv.say("I got my trusty frying pan.");
-	  conv.say("They don't know what's comin' for 'em!");
-
-	  await MusicPlayer.fadeout(g.mapTheme);
-	  await g.setExtStatus(conv);
-	      
-	  MusicPlayer.fadein(g.mapTheme);
-	  this.visited = true;
-	  chloe.recruited = true;
-	  await g.addUnit(chloe, u);
-	  await g.recruitJingle(chloe);
-
-	  ondone();
-	  await g.setStatus("map");
-	}
-      }, //3,6 house chloe
-
-      "7,3" :  // HOUSE 2 (billy)
-      {
-	tooltip: "Visit",
-	visited: false,
-	canInteract: function() {return state == DEFEND && this.visited == false},
-	mapSprite: "T_door_open",
-	drawSprite: function() {return this.canInteract()},
-	action: async function(g, u, ondone)
-	{
-	  let conv = new Conversation(g);
-	  conv.addSpeaker(u.name, u.pArt, 100, false);
-	  conv.addSpeaker("Billy", billy.pArt, 412, true);
-	  conv.music("village", false, false);
-	  conv.speaker("Billy");
-	  conv.say("Holy turnips! Bandits, ya say?\nOf course we gotta drive 'em out.");
-	  conv.say("Lemme get my shovel real quick.");
-	  conv.clear();
-	  conv.leave("Billy");
-	  conv.music(null, true);
-	  conv.pause(250);
-	  conv.enter("Billy");
-	  conv.music("recruit", false, false);
-	  conv.say("Let's go beat them bandits!");
-
-	  await MusicPlayer.fadeout(g.mapTheme);
-	  await g.setExtStatus(conv);
-	    
-	  MusicPlayer.fadein(g.mapTheme);
-	  this.visited = true;
-	  billy.recruited = true;
-	  await g.addUnit(billy, u);
-	  await g.recruitJingle(billy);
-	  
-	  ondone();
-	  await g.setStatus("map");
-	}
-      }, //7,3 village billy
-      "2,25" :  // HOUSE 3 (vargas)
-      {
-	tooltip: "Visit",
-	visited: false,
-	canInteract: function() {return state == FETCH && this.visited == false},
-	mapSprite: "T_door_open",
-	drawSprite: function() {return this.canInteract()},
-	action: async function(g, u, ondone)
-	{
-	  let conv = new Conversation(g);
-	  conv.addSpeaker(u.name, u.pArt, 382, true);
-	  conv.addSpeaker("???", null, 24, false);
-	  conv.addSpeaker("Vargas", vargas.pArt, 130, false, false);
-	  conv.music("village", false, false);
-	  conv.speaker("Alfred");
-	  conv.say("Ummm...");
-	  conv.say("*knock* *knock* *knock*");
-	  conv.say("Hellooo!")
-	  conv.speaker("???");
-	  // TODO better change this lol
-	  conv.say("No thank you! We don’t want any more visitors,\nwell-wishers or distant relations!");
-	  conv.speaker("Alfred");
-	  conv.say("(Heh. I know how this one goes.)");
-	  conv.say("And what about very old friends?");
-	  conv.pause(500);
-	  conv.music(null, true);
-	  conv.enter("Vargas");
-	  conv.speaker("Vargas");
-	  conv.music("feels", false, false);
-	  conv.say("Alfred?");
-	  conv.say("What brings you to these parts?");
-	  conv.speaker("Alfred");
-	  conv.say("It's been awhile, eh, Vargas?\nHow've you been holding up?")
-	  conv.speaker("Vargas");
-	  conv.say("Hah! Pretty good, if I do say so myself!");
-	  conv.speaker("Alfred");
-	  conv.say("Listen, Vargas.\nThe village was just attacked by bandits.");
-	  conv.say("I'm here to ask you to come with me\nand defend it.");
-	  conv.speaker("Vargas");
-	  conv.music(null, true);
-	  conv.say("...");
-	  conv.music("recruit", false, false);
-	  conv.say("Well of course!\nIt should be a piece of cake for a knight like me!");
-	  conv.say("We leave immediately!")
-	  conv.say("Actually, hold on. Let me get my sword.")
-	  conv.clear();
-	  conv.leave("Vargas");
-	  conv.pause(250);
-	  conv.enter("Vargas");
-	  conv.say("I'm ready! We should head to the village\nas quickly as possible!");
-
-	  await MusicPlayer.fadeout(g.mapTheme);
-	  await g.setExtStatus(conv);
-	    
-	  MusicPlayer.fadein(g.mapTheme);
-	  this.visited = true;
-	  vargas.recruited = true;
-	  await g.addUnit(vargas, u);
-	  await g.recruitJingle(vargas);
-
-	  g.specialCount = 0;
-	  state = RETURN;
-	  
-	  ondone();
-	  await g.setStatus("map");
-	}
-      }, //7,3 village billy
 	
     }, //interactions
     objects: {
     }, //objects
+    conversations: {
+      "Vargas": {
+	"Yuliza": async (g) =>
+	{
+	  let conv = new Conversation(g);
+	  conv.addSpeaker("Vargas", vargas.pArt, 382, true);
+	  conv.addSpeaker("Yuliza", yuli.pArt, 130, false);
+	  conv.music("recruit", false, false);
+	  conv.speaker("Vargas");
+	  conv.say("Our village was attacked by bandits, so I'm hunting them down.")
+	  conv.say("Your bow could come in handy. Can you help me?")
+	  conv.speaker("Yuliza");
+	  conv.say("Village, you say? Alright, but this is gonna cost you.")
+
+
+	  await MusicPlayer.fadeout(g.mapTheme);
+	  await g.setExtStatus(conv);
+
+	  yuli.recruited = true;
+	  g.Units.switchTeam(yuli, "Player");
+	  await g.recruitJingle(yuli);
+	  await MusicPlayer.fadein(g.mapTheme);
+	},
+	"Malidale": async (g) => 
+	{
+	  let conv = new Conversation(g);
+	  conv.addSpeaker("Vargas", vargas.pArt, 382, true);
+	  conv.addSpeaker("Malidale", mali.pArt, 130, false);
+	  conv.music("recruit", false, false);
+	  conv.speaker("Vargas");
+	  conv.say("Our village was attacked.\nI'm hunting the bandits who are responsible.")
+	  conv.speaker("Malidale");
+	  conv.say("Your village? Attacked?")
+	  conv.speaker("Vargas");
+	  conv.say("Yeah. If it's not too much, could you help me?")
+	  conv.speaker("Malidale");
+	  conv.say("I mean, sure...\nBut I want to rest in the village afterwards.")
+	  await MusicPlayer.fadeout(g.mapTheme);
+	  await g.setExtStatus(conv);
+
+	  mali.recruited = true;
+	  g.Units.switchTeam(mali, "Player");
+	  await g.recruitJingle(mali);
+	  await MusicPlayer.fadein(g.mapTheme);
+	}
+      },
+      "Yuliza": {
+	"Vargas": async (g) => 
+	{
+	  let conv = new Conversation(g);
+	  conv.addSpeaker("Yuliza", yuli.pArt, 382, true);
+	  conv.addSpeaker("Vargas", vargas.pArt, 130, false);
+	  conv.music("recruit", false, false);
+	  conv.speaker("Yuliza");
+	  conv.say("Where's the nearest village?")
+	  conv.speaker("Vargas");
+	  conv.say("East of here. Why?")
+	  conv.speaker("Yuliza");
+	  conv.say("I need to get the to evade some bandits.")
+	  conv.speaker("Vargas");
+	  conv.say("That village is under attack from bandits.\nI'm here to strike back.")
+	  conv.say("Why don't you help me?")
+	  conv.speaker("Yuliza");
+	  conv.say("Alright.")
+
+	  await MusicPlayer.fadeout(g.mapTheme);
+	  await g.setExtStatus(conv);
+
+	  yuli.recruited = true;
+	  g.Units.switchTeam(yuli, "Player");
+	  await g.recruitJingle(yuli);
+	  await MusicPlayer.fadein(g.mapTheme);
+	}
+      },
+      "Malidale": {
+	"Vargas": async (g) => 
+	{
+	  let conv = new Conversation(g);
+	  conv.addSpeaker("Malidale", mali.pArt, 382, true);
+	  conv.addSpeaker("Vargas", vargas.pArt, 130, false);
+	  conv.music("recruit", false, false);
+	  conv.speaker("Malidale");
+	  conv.say("Hey, I'm trying to get to a village near here.\nCould you point me to it?")
+	  conv.speaker("Vargas");
+	  conv.say("As a matter of fact, I'm hunting down bandits\nto protect that village.")
+	  conv.say("If possible, could you help me?\nI can show you afterwards.")
+	  conv.speaker("Malidale");
+	  conv.say("I mean, I guess.")
+
+	  await MusicPlayer.fadeout(g.mapTheme);
+	  await g.setExtStatus(conv);
+
+	  mali.recruited = true;
+	  g.Units.switchTeam(mali, "Player");
+	  await g.recruitJingle(mali);
+	  await MusicPlayer.fadein(g.mapTheme);
+	}
+      },
+    }, //conversations
+
     events: {
       onDeath: {
         "Alfred": (g)=>{g.onGameOver()},
-        "Timmy": (g)=>{g.onGameOver()},
         "Vargas": (g)=>{g.onGameOver()},
       },
       afterBattle: [
-	{ tag: "one bandit defeated",
-	  repeating: false,
-	  restartTurns: false,
-	  condition: (g)=>{return (b1.dead && !b2.dead || !b1.dead && b2.dead)},
-	  action: (g)=>{}
-	},
-	{ tag: "initial bandits defeated",
-	  condition: (g)=>{return b1.dead && b2.dead},
-	  repeating: false,
-	  restartTurns: true,
-	  action: async (g) =>
-	  {
-	    g.blockInput();
-	    g.gameStatus = "blockInput";
-	    g.camera.clearTarget();
-	    g.Map.getPathingMap(g.Units.getTeams(g.getHostile("Player")));
-
-	    g.clearCtx(4);
-	    g.toDraw.hide("cursor");
-	    await MusicPlayer.fadestop(g.mapTheme);
-	    await waitTime(1000);
-	    await g.fadeOut();
-	    for (let u of g.Units){ u.turnInit();}
-
-	    let conv = new Conversation(g);
-
-	    alfred.teleport(g, 5, 7)
-	    conv.addSpeaker("Alfred", alfred.pArt, 200, false)
-
-	    child.teleport(g, 4, 7)
-	    conv.addSpeaker("Timmy", child.pArt, 312, true)
-	    
-	    let billyHere = ( billy.isAlive() && billy.recruited );
-	    let chloeHere = ( chloe.isAlive() && chloe.recruited );
-	    if ( billyHere )
-	    {
-	      billy.teleport(g, 5, 6)
-	      conv.addSpeaker("Billy", billy.pArt, 412, true)
-	    }
-	    if ( chloeHere )
-	    {
-	      chloe.teleport(g, 5, 8)
-	      conv.addSpeaker("Chloe", chloe.pArt, 100, false)
-	    }
-	    conv.speaker("Alfred");
-	    conv.say("That's the last of the bandits.");
-	    if ( billyHere )
-	    {
-	      conv.speaker("Billy");
-	      conv.say("We beat 'em good!");
-	    }
-	    if ( chloeHere )
-	    {
-	      conv.speaker("Chloe");
-	      conv.say("Good job, everyone!");
-	    }
-	    conv.speaker("Timmy");
-	    conv.say("But why are the bandits suddenly attacking\nour village?")
-	    conv.say("I don't think I've ever seen them before.")
-	    if ( billyHere )
-	    {
-	      conv.speaker("Billy");
-	      conv.say("That's true. I've been livin' round here\never since I was a wee lad.")
-	      conv.say("I don't think we've ever been attacked.");
-	      conv.speaker("Alfred");
-	      conv.say("The same goes for me.");
-	    }
-	    else
-	    {
-	      conv.speaker("Alfred");
-	      conv.say("That's true. I've been living here since\nI was a kid. We've never been attacked.");
-	    }
-	    conv.say("This could be bad.\nThey'll likely be back.");
-	    conv.say("Hmmm...");
-	    conv.say("I've got it! One of my childhood friends is\na knight. Right now, he lives south of here.");
-	    conv.say("I'll go ask him to come defend the village.");
-	    if ( chloeHere )
-	    {
-	      conv.speaker("Chloe");
-	      conv.say("Sounds good! Kid, you" + ((billyHere)?" and Billy":"")
-		+ " and me are\non lookout while Alfred's off!");
-	      conv.speaker("Timmy");
-	      conv.say("Hey! My name's Timmy!");
-	    }
-	    else
-	    {
-	      if ( billyHere )
-		conv.say("Timmy, you and Billy stay here in case\nthe bandits attack again.");
-	      else
-		conv.say("Timmy, you stay here in the village.\nIt's safer that way.");
-	    }
-
-	    g.camera.shiftImmediate(0, 2);
-	    await g.fadeIn();
-	    await g.cursorFlash(alfred);
-	    await g.setExtStatus(conv);
-	    // TODO instead of this, do "we should rest a bit" and heal everyone
-
-	    let movePromise = [];
-	    movePromise.push(alfred.moveTo(g,12, 7));
-	    if (billyHere)
-	    {
-	      await waitTime(200);
-	      movePromise.push(billy.moveTo(g, 11, 6));
-	    }
-	    if (chloeHere)
-	    {
-	      await waitTime(200);
-	      movePromise.push(chloe.moveTo(g, 11, 8));
-	    }
-	    await waitTime(200);
-	    movePromise.push(child.moveTo(g, 8, 7));
-	    movePromise.push(g.cameraShift(4,2));
-	    await Promise.all(movePromise);
-	    await g.cursorFlash(alfred);
-	    
-	    state = FETCH;
-
-	    conv = new Conversation(g);
-	    conv.addSpeaker("Alfred", alfred.pArt, 412, true)
-	    conv.speaker("Alfred");
-	    conv.say("Now, where was his house?\nIf I recall...");
-	    await g.setExtStatus(conv);
-	    
-	    g.Map.setMaxBound(null, 32);
-
-	    await g.cameraShift(4,20);
-	    await g.cameraShift(0,20);
-	    await g.cursorFlash(2, 25);
-	    conv = new Conversation(g);
-	    conv.addSpeaker("Alfred", alfred.pArt, 412, true)
-	    conv.speaker("Alfred");
-	    conv.say("Ah, I remember! It's in that forest!");
-	    await g.setExtStatus(conv);
-
-	    await g.cameraShift(4,2);
-	    g.cursor.moveInstant(alfred);
-	    
-	    let bh = billyHere && (billy.stats.hp < billy.stats.maxhp);
-	    let ch = chloeHere && (chloe.stats.hp < chloe.stats.maxhp);
-	    let th = child.stats.hp < child.stats.maxhp;
-	    let ah = alfred.stats.hp < alfred.stats.maxhp;
-	    let heal = (bh || ch || th || ah);
-
-	    if (heal)
-	    {
-	      conv = new Conversation(g);
-	      conv.addSpeaker("Alfred", alfred.pArt, 412, true)
-	      conv.speaker("Alfred");
-	      conv.say("But first, let's take a quick breather.");
-	      await g.setExtStatus(conv);
-
-	      await g.healUnit(child);
-	      if (billyHere) await g.healUnit(billy);
-	      if (chloeHere) await g.healUnit(chloe);
-	      await g.healUnit(alfred);
-	    }
-
-	    if (billyHere)
-	    {
-	      g.switchTeam(billy, "Village");
-	      await g.leaveJingle(billy);
-	      await waitTime(200);
-	    }
-	    if (chloeHere)
-	    {
-	      g.switchTeam(chloe, "Village");
-	      await g.leaveJingle(chloe);
-	      await waitTime(200);
-	    }
-	    g.switchTeam(child, "Village");
-	    await g.leaveJingle(child);
-
-	    g.startTurns();
-	  }
-        },
 	{ tag: "victory",
           condition: (g)=>
-	  { return state == RETURN
-		&& choddson.isDead()
-		&& banditWave.every((u)=>{return u.isDead()})
-	  },
+          { return g.Units.getTeam("Bandit").size == 0;},
           repeating: false,
           restartTurns: false,
           action: async (g) =>
           {
-	    g.onVictory();
-	  }
-	}
+            g.onVictory();
+          }
+        }
 
       ],
       turnBegin:
       {
-	"Bandit":
+	"Player":
 	[
 	  { turn: 2,
-	    type: "relative",
-	    tag: "spawn bandits",
-	    condition: ()=>{return state == RETURN;},
+	    type: "absolute",
+	    tag: "find camp",
+	    condition: (g)=>{return true},
 	    action: async (g)=>
 	    {
+	      g.camera.clearTarget()
+	      await g.cameraCenter(vargas)
+	      await g.cursorFlash(vargas)
+
+	      //Settings.set("cut_skip", "Off");
+	      let conv = new Conversation(g);
+	      conv.addSpeaker("Vargas", vargas.pArt, 332, true);
+	      conv.addSpeaker("Alfred", alfred.pArt, 180, false);
+	      conv.speaker("Vargas")
+	      conv.say("Alfred, I think there's a small bandit camp\nto the northeast.")
+	      await g.setExtStatus(conv);
+
+	      g.Map.setMaxBound(null, null);
+	      g.camera.clearTarget()
+	      await g.cameraCenter(18, 8)
+	      await waitTime(1500)
+	      g.camera.clearTarget()
+	      await g.cameraCenter(vargas)
+
+	      conv = new Conversation(g);
+	      conv.addSpeaker("Vargas", vargas.pArt, 332, true);
+	      conv.addSpeaker("Alfred", alfred.pArt, 180, false);
+	      conv.speaker("Alfred")
+	      conv.say("Oh?");
+	      conv.say("That means the ones we are fighting now must be\nanother group, since they came from the south.");
+	      conv.speaker("Vargas")
+	      conv.say("Yes, exactly. But this matters not.\nAfter all, we should clear out both groups.")
+	      conv.speaker("Alfred")
+	      conv.say("Alright buddy, let's calm down.");
+	      conv.say("But yes, we'll have to do that eventually.")
+	      await g.setExtStatus(conv);
+	    }
+	  },
+	  { turn: 6,
+	    type: "absolute",
+	    tag: "switch objective",
+	    condition: (g)=>{return true},
+	    action: async (g)=>
+	    {
+	      g.camera.clearTarget()
+	      await g.cameraCenter(vargas)
+	      await g.cursorFlash(vargas)
+
+	      //Settings.set("cut_skip", "Off");
+	      let conv = new Conversation(g);
+	      conv.addSpeaker("Vargas", vargas.pArt, 256, false);
+	      conv.speaker("Vargas")
+	      conv.say("Ah! The forest in the southwest is the\nbase of operations for a large bandit gang.")
+	      conv.say("I think I should take them out.")
+	      await g.setExtStatus(conv);
+	    }
+	  }
+	],
+	"Scout":
+	[
+	  { turn: 2,
+	    type: "absolute",
+	    tag: "scout spawn",
+	    condition: (g)=>{return true},
+	    action: async (g)=>
+	    {
+
+	      g.camera.clearTarget()
+	      await g.cameraShift(33,34)
+
+	      g.addUnit(yuli);
+	      let a = yuli.moveTo(g, 32, 34)
+	      await waitTime(150);
+	      g.addUnit(mali);
+	      let b = mali.moveTo(g, 32, 35)
+	      await(a)
+	      await(b)
+
+	      await g.cursorFlash(yuli)
+
+
+	      let conv = new Conversation(g);
+	      conv.addSpeaker("Yuliza", yuli.pArt, 180, true);
+	      conv.addSpeaker("Malidale", mali.pArt, 348, true);
+	      conv.speaker("Yuliza");
+	      conv.say("Bruh...")
+	      conv.say("How do we get outta here?")
+	      conv.say("Those bandits are probably close on our trail.")
+	      conv.speaker("Malidale");
+	      conv.say("I think there was a village to the northwest.")
+	      conv.say("We could lay low for a while there.")
+	      conv.speaker("Yuliza");
+	      conv.say("Okay, let's move that way then.")
+	      conv.speaker("Malidale");
+	      conv.enter("Malidale")
+	      conv.say("Ack")
+	      conv.turn("Yuliza");
+	      conv.speaker("Yuliza");
+	      conv.say("Are you hurt?")
+	      conv.speaker("Malidale");
+	      conv.say("Yeah, they slashed me pretty hard when we ran.")
+	      conv.speaker("Yuliza");
+	      conv.say("Do you have bandages?\nWe have time, you should use some.")
+	      conv.speaker("Malidale");
+	      conv.say("Uh... heh, I think I lost mine somewhere.\nLet's just go to the village, we need to hurry.")
+	      conv.speaker("Yuliza");
+	      conv.say("Are you serious right now bruh...")
+	      conv.say("How do you lose bandages? Take mine and rest up.")
+	      conv.turn("Yuliza");
+	      conv.say("After you do that, follow me.")
+	      conv.speaker("Malidale");
+	      conv.say("Oh...")
+	      conv.leave("Yuliza");
+	      conv.say("Thanks.")
+	      await g.setExtStatus(conv);
+
+	      await waitTime(250)
+	      await mali.items[0].use(g, mali);
+
+	    }
+	  }
+	],
+
+
+
+	"Bandit":
+	[
+	  { turn: 0,
+	    type: "everyturn",
+	    tag: "enter zone1",
+	    condition: (g)=>{return unitInZone(g, zone1.rectangle, "Bandit");},
+	    action: async (g)=>
+	    {
+	      zone1.triggered = true
 	      g.camera.clearTarget();
-	      for (let i = 0; i < 6; ++i)
+	      await g.cameraCenter(scrubBanditLeader);
+	      await g.cursorFlash(scrubBanditLeader);
+
+
+	      let conv = new Conversation(g);
+	      conv.addSpeaker("Bandit", scrubBanditLeader.pArt, 256, true);
+	      conv.addSpeaker("Bandit1", scrubBanditLeader.pArt, 150, false);
+	      conv.addSpeaker("Bandit2", scrubBanditLeader.pArt, 50, false);
+	      conv.addSpeaker("Bandit3", scrubBanditLeader.pArt, 350, true);
+	      conv.addSpeaker("Bandit4", scrubBanditLeader.pArt, 460, true);
+	      conv.speaker("Bandit");
+	      conv.say("Yo there's some people over on that road!");
+	      conv.turn("Bandit");
+	      conv.say("Quick boys lets go steal all their food!");
+	      await g.setExtStatus(conv);
+	    }
+	  },
+	  { turn: 5,
+	    type: "absolute",
+	    tag: "bandit chase",
+	    condition: (g)=>{return true},
+	    action: async (g)=>
+	    {
+
+	      g.camera.clearTarget();
+	      await g.cameraCenter(doddson);
+	      
+	      let dests_atk = [[30,34],[31,33],[32,32],  [30,35],[31,34],[32,33],[33,32]]
+	      let dests_guard = [[31,35],[32,34],[32,35],[33,33],[33,34]];
+	      let dests = [dests_atk, dests_guard]
+	      let ais = ["targetWeakest","guard"];
+
+	      for (let i = 0; i < dests_atk.length + dests_guard.length; ++i)
 	      {
-		let u = new Units.Bandit(8+i, 21,11, {maxhp:17, atk:4,spd:2,skl:2,def:4,con:9,mov: 5}, "Bandit");
+		let u = new Units.Bandit(uid++, 33,35, {maxhp:17, atk:5,spd:2,skl:2,def:4,con:9,mov: 5}, "Bandit");
 		u.team = "Bandit";
 		u.addWeapon(new Weapons.LumberAxe());
 		u.setAnim("idle");
-		u.ai = "targetWeakest";
 		banditWave.push(u);
 	      }
-	      let dests = [[19, 12],[19,11],[20,12],[21,12],[21,10],[20,11]];
 
-	      //TODO
+	      let movePromise = [];
+	      let j = 0
+	      for (let x = 0; x < ais.length; ++x)
+	      {
+		let d = dests[x]
+		for (let i = 0; i < d.length; ++i)
+		{
+		  let b = banditWave[j];
+		  b.ai = ais[x];
+
+		  g.addUnit(b);
+
+		  let move = b.moveTo(g, ...d[i])
+		  movePromise.push(move);
+		  await waitTime(150);
+		  j += 1
+		}
+	      }
+	      g.addUnit(doddson);
+	      await Promise.all(movePromise);
+
+	      await g.cursorFlash(doddson);
 	      //Settings.set("cut_skip", "Off");
 
-	      await g.cameraShift(6,5);
-	      let movePromise = [];
-	      for (let i = 0; i < 6; ++i)
-	      {
-		let b = banditWave[i];
-		g.addUnit(b);
-		let move = b.moveTo(g, ...dests[i]);
-		movePromise.push(move);
-		await waitTime(150);
-	      }
-	      g.addUnit(choddson);
-	      await Promise.all(movePromise);
-	      await g.cursorFlash(choddson);
 	      let conv = new Conversation(g);
-	      conv.addSpeaker("Choddson", choddson.pArt, 384, true);
-	      conv.speaker("Choddson");
-	      conv.say("Those two scouts still haven't made it back, eh?");
-	      conv.say("Well, it don't matter none. There's bound to be\nlotsa good stuff in this village.");
-	      conv.say("Let's get 'em, boys!");
+	      conv.addSpeaker("Doddson", doddson.pArt, 440, true);
+	      conv.addSpeaker("Bandit1", scrubBanditLeader.pArt, 300, false);
+	      conv.addSpeaker("Bandit2", scrubBanditLeader.pArt, 200, false);
+	      conv.addSpeaker("Bandit3", scrubBanditLeader.pArt, 100, false);
+
+	      conv.speaker("Doddson")
+	      conv.say("I donno how you gits let this happen!")
+	      conv.say("All ye had ta do was guard two people!")
+	      conv.move("Bandit1", -10)
+	      conv.move("Bandit2", -10)
+	      conv.move("Bandit3", -10)
+	      conv.say("Two!")
+	      conv.move("Bandit1", -10)
+	      conv.move("Bandit2", -10)
+	      conv.move("Bandit3", -10)
+	      conv.say("People!")
+	      conv.move("Bandit1", -10)
+	      conv.move("Bandit2", -10)
+	      conv.move("Bandit3", -10)
+	      conv.say("There's twelve of ya!")
+	      conv.speaker("Bandit3")
+	      conv.say("We'll -- we'll go catch them and bring them back!")
+	      conv.move("Bandit1", -10)
+	      conv.move("Bandit2", -10)
+	      conv.move("Bandit3", -10)
+	      conv.speaker("Doddson")
+	      conv.say("Wotterya saying?!")
+	      conv.move("Bandit1", -10)
+	      conv.move("Bandit2", -10)
+	      conv.move("Bandit3", -10)
+	      conv.say("Jus kill 'em and bring me back their valuables!\nI can't trust any of ye to guard 'em, anyways!");
+	      conv.speaker("Bandit1")
+	      conv.say("Y- y- y- yes!");
+	      conv.clear();
+	      conv.turn("Bandit3")
+	      conv.turn("Bandit2")
+	      conv.turn("Bandit1")
+	      conv.move("Bandit3", -350)
+	      conv.move("Bandit2", -350)
+	      conv.move("Bandit1", -350)
+	      conv.pause(250)
 	      await g.setExtStatus(conv);
 	    }
+
 	  }
 	],
-	"Village":
-	[
-	  { turn: 3,
-	    type: "relative",
-	    tag: "re-recruit villagers",
-	    condition: ()=>{return state == RETURN;},
-	    action: async (g)=>
-	    {
-	      g.gameStatus = "blockInput";
-	      g.camera.clearTarget();
-
-	      await g.cameraShift(4,2);
-
-	      let billyHere = ( billy.isAlive() && billy.recruited );
-	      let chloeHere = ( chloe.isAlive() && chloe.recruited );
-	      if (billyHere)
-	      {
-		let conv = new Conversation(g);
-		conv.addSpeaker("Billy", billy.pArt, 120);
-		conv.speaker("Billy");
-		conv.say("Holy beets! More bandits?");
-		conv.say(((chloeHere)?"We":"I") + " can't let 'em in the village!");
-		await g.cursorFlash(billy);
-		await g.setExtStatus(conv);
-
-		await g.switchTeam(billy, "Player");
-		await g.recruitJingle(billy);
-		await waitTime(500);
-	      }
-	      if (chloeHere)
-	      {
-		let conv = new Conversation(g);
-		conv.addSpeaker("Chloe", chloe.pArt, 120);
-		conv.speaker("Chloe");
-		conv.say("Squash salad! The bandits are back?");
-		conv.say(((billyHere)?"We":"I") + " have to hold them at the entrance!");
-		await g.cursorFlash(chloe);
-		await g.setExtStatus(conv);
-
-		await g.switchTeam(chloe, "Player");
-		await g.recruitJingle(chloe);
-		await waitTime(500);
-	      }
-	      let conv = new Conversation(g);
-	      conv.addSpeaker("Timmy", child.pArt, 120);
-	      conv.speaker("Timmy");
-	      conv.say("There's more of them...");
-	      await g.cursorFlash(child);
-	      await g.setExtStatus(conv);
-
-	      await g.switchTeam(child, "Player");
-	      await g.recruitJingle(child);
-	      
-	      await g.cameraCenter(vargas);
-	      await g.cursorFlash(vargas);
-	      conv = new Conversation(g);
-	      conv.addSpeaker("Vargas", vargas.pArt, 100);
-	      conv.addSpeaker("Alfred", alfred.pArt, 412, true);
-	      conv.speaker("Vargas");
-	      conv.say("Alfred, the leader of those bandits\nlooks to be very dangerous.");
-	      conv.say("You should let me take care of him.");
-	      conv.speaker("Alfred");
-	      conv.say("Okay, got it.");
-	      await g.setExtStatus(conv);
-	    }
-	  }
-	],
-	
       } //turnBegin
     } //events
   } //script

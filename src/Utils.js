@@ -72,6 +72,16 @@ export function nextFrameDo(f)
   //setTimeout( () => {requestAnimationFrame(f)}, TICK_RATE);
 }
 
+export function pathCost(g, path, mcost)
+{
+  let cost = 0;
+  for (let c of path)
+  {
+    let tiletype = g.Map.getTile(c).tile
+    cost += mcost[tiletype]
+  }
+  return cost
+}
 
 export async function generatePath(g, x0, y0, xf, yf, cost, hostile)
 {
@@ -457,3 +467,25 @@ export function layermap(map)
   }
   return f
 }
+
+export function unitInZone(g, zone, zonecontroller)
+{
+  // zone= [ [top left xy], [bot right xy] ]
+  let [tl, br] = zone
+  for (let x = tl[0]; x <= br[0]; ++x)
+  {
+    for (let y = tl[1]; y <= br[1]; ++y)
+    {
+      if (g.Map.getTile(x,y).unit === null)
+	continue
+      let other = g.Map.getTile(x,y).unit.team;
+
+      if (g.Units.teamHostile(zonecontroller, other))
+      {
+	return true;
+      }
+    }
+  }
+  return false
+}
+

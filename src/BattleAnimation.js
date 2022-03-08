@@ -88,12 +88,20 @@ export class BattleAnimation
   }
   async init()
   {
-    this.img = Album.get(this.opts.usrc);
-    if (this.recolor !== null)
-      this.img = await ImageModifier.recolor(this.img, this.recolor);
-    //this.wimg = Album.get(info.options.wsrc);
-    this.w = this.img.width/this.numFrame;
-    this.h = this.img.height;
+    try
+    {
+	this.img = Album.get(this.opts.usrc);
+	if (this.recolor !== null)
+	  this.img = await ImageModifier.recolor(this.img, this.recolor);
+	//this.wimg = Album.get(info.options.wsrc);
+	this.w = this.img.width/this.numFrame;
+	this.h = this.img.height;
+    }
+    catch(e)
+    {
+        console.log("BattleAnimation.js: error loading " + this.opts.usrc)
+        throw e
+    }
   }
   
   tick()

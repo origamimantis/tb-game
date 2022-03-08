@@ -63,6 +63,38 @@ export const Characters =
 		  },
 		},
 	      },
+    "Yuliza":  {deathQuote: ["oh man oh god oh man oh god"],
+		battleAnimation:
+		{ "Bow Knight":
+		  { scripts:
+		    { idle: "anims/Yuliza/BowKnight/idle",
+		      run:  "anims/Yuliza/BowKnight/run",
+		      hitr:  "anims/Yuliza/BowKnight/hit",
+		      crtr:  "anims/Yuliza/BowKnight/crt"
+		    },
+		    recolor:
+		    {},
+		  },
+		},
+	      },
+
+    "Malidale":  {deathQuote: ["i do be deadge"],
+		battleAnimation:
+		{ "Bow Knight":
+		  { scripts:
+		    { idle: "anims/Malidale/BowKnight/idle",
+		      run:  "anims/Malidale/BowKnight/run",
+		      hitr:  "anims/Malidale/BowKnight/hit",
+		      crtr:  "anims/Malidale/BowKnight/crt"
+		    },
+		    recolor:
+		    {},
+		  },
+		},
+	      },
+
+
+
 
 
     "generic":

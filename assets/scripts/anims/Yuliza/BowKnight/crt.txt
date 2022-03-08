@@ -1,0 +1,21 @@
+name crt
+type melee
+frames 4
+usrc BattleSprites/Yuliza/BowKnight/hit
+
+begin
+#	        x  y  angle
+0 uframe 0 hand 45 28 -10
+20 uframe 0 hand 45 28 60
+22 uframe 0 hand 45 28 120
+24 uframe 0 hand 45 28 180
+26 uframe 0 hand 45 28 240
+28 uframe 0 hand 45 28 300
+30 uframe 1 hand 47 22 10
+30 wframe 1
+40 uframe 2 hand 48 20 0
+40 wframe 2
+61 projectile
+61 uframe 3 hand 48 20 0
+61 wframe 0
+62 end

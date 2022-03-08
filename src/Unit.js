@@ -89,6 +89,19 @@ export class Unit extends AnimatedObject
     else
       throw new Error("Unit.addItem: max item amount exceeded.");
   }
+  removeItem(item)
+  {
+    for (let i = 0; i < this.items.length; ++i)
+    {
+      if (this.items[i] === item)
+      {
+	this.items.splice(i, 1);
+	return;
+      }
+    }
+    throw new Error("Unit.removeItem: item not found:");
+    throw new Error(item );
+  }
   // TODO weapon ranks and stuff
   canUseWeapon(w)
   {
@@ -237,6 +250,8 @@ export class Unit extends AnimatedObject
   // speed: number of frames per tile
   moveTo(g, x, y, speed = this.baseMapSpeed*2)
   {
+    if (this.x == x && this.y == y)
+      return
     if (Settings.get("cut_skip") == true)
     {
       this.teleport(g, x, y);
@@ -322,10 +337,16 @@ export class Unit extends AnimatedObject
   }
   
   //          g.Map, ["teamname"]
-  adjacentUnits(map, teams)
+  adjacentUnits(map, teams = null)
   {
-    return inRange(this, [1], "units", map, null, 
-      [(x)=>{return (x !== this && teams.includes(x.team));}]);
+    // all units
+    if (teams === null)
+      return inRange(this, [1], "units", map, null, 
+	[(x)=>{return (x !== this);}]);
+    // specific units
+    else
+      return inRange(this, [1], "units", map, null, 
+	[(x)=>{return (x !== this && teams.includes(x.team));}]);
   }
   movable(g, includeAttackable, draw = true, wlist = this.weapons)
   {

@@ -1,3 +1,8 @@
+ver0.42 2022-03-08
+Chapter 2 is out, just in time to procrastinate for finals.
+To play, ctrl-shift-I and run 'console.chload("./ch2.js")'
+Or, beat chapter 1.
+
 ver0.41 2020-09-11
 Updated some animations :)
 

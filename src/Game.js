@@ -58,8 +58,9 @@ const gy = GRIDSIZE_Y;
 
 class Game
 {
-  constructor( assets, ctx )
+  constructor( assets, ctx , MAIN )
   {
+    this.MAIN = MAIN
     this.windowx = C_WIDTH/SCALE;
     this.windowy = C_HEIGHT/SCALE;
     this.gx = GRIDSIZE_X;
@@ -183,10 +184,10 @@ class Game
     unit.confirmMove(this);
     unit.endTurn(this);
 
-    this.Panels.del("selectedUnitActionPanel");
-    this.toDraw.del("selectedUnitMovable");
-    this.toDraw.del("selectedUnitPath");
-    this.toDraw.del("selectedUnitAttackableTiles");
+    this.Panels.delc("selectedUnitActionPanel");
+    this.toDraw.delc("selectedUnitMovable");
+    this.toDraw.delc("selectedUnitPath");
+    this.toDraw.delc("selectedUnitAttackableTiles");
 
     this.setStatus("map");
   }
@@ -202,10 +203,10 @@ class Game
 
 	this.gameStatus = "blockInput";
 	
-	this.Panels.del("selectedUnitActionPanel");
-	this.toDraw.del("selectedUnitMovable");
-	this.toDraw.del("selectedUnitPath");
-	this.toDraw.del("selectedUnitAttackableTiles");
+	this.Panels.delc("selectedUnitActionPanel");
+	this.toDraw.delc("selectedUnitMovable");
+	this.toDraw.delc("selectedUnitPath");
+	this.toDraw.delc("selectedUnitAttackableTiles");
 
 	await interaction.action(this, unit, ()=>{
 	  unit.confirmMove(this);
@@ -217,11 +218,56 @@ class Game
 
     }
 
+    let adjacent = unit.adjacentUnits(this.Map);
+    let adj_ally = unit.adjacentUnits(this.Map, [this.temp.selectedUnit.team]);
     let attackable = unit.attackableUnits(this, this.temp.unitUsableWeapons);
+    
+    let convos = this.chapterScript.conversations[unit.name];
+    if (convos !== undefined && adjacent.nonempty())
+    {
+      // talks
+      
+      // get all adjacent units that cur unit has convo with
+      let cantalk = new Queue
+      for (let c of adjacent)
+      {
+	let adjunit = this.Map.getTile(c).unit;
+
+	if (convos[adjunit.name] !== undefined)
+	  cantalk.enqueue(adjunit)
+      }
+
+      if (cantalk.length > 0)
+      p.push( new Action( "Talk", async () =>
+      {
+	this.temp["allyInteract"] = async (target)=>
+	{
+	  this.toDraw.delc("selectedUnitAttackableTiles")
+
+	  this.toDraw.hide("cursor");
+
+	  await this.chapterScript.conversations[unit.name][target.name](this);
+	  delete this.chapterScript.conversations[unit.name][target.name];
+	  if (this.chapterScript.conversations[target.name] !== undefined)
+	    delete this.chapterScript.conversations[target.name][unit.name];
+
+	  this.wait(unit);
+	  this.cursor.moveInstant(unit);
+	  this.toDraw.show("cursor");
+
+	}
+	await this.setStatus("unitAllySelect", cantalk);
+
+	//this.wait(unit);
+      }));
+    }
+
+
+
     if (attackable.nonempty())
     {
       // attack
-      p.push( new Action( "Attack", () =>
+      p.push( new Action( "Attack", async () =>
 	{
 	  let usableWpn = this.temp.unitUsableWeapons;
 	  let len = usableWpn.length;
@@ -234,12 +280,11 @@ class Game
 	  this.Panels.set("selectedUnitWeaponPanel", wp);
 
 	  this.temp["selectedUnitAttackableEnemies"] = attackable;
-	  this.setStatus("unitAttackWeaponSelect");
+	  await this.setStatus("unitAttackWeaponSelect");
 	}));
     }
     
-    let adjacent = unit.adjacentUnits(this.Map, [this.temp.selectedUnit.team]);
-    if (adjacent.nonempty())
+    if (adj_ally.nonempty())
     {
       // trade TODO
       p.push( new Action( "Trade", async () =>
@@ -256,7 +301,7 @@ class Game
 	    //this.clearCtx(5);
 	    this.toDraw.show("cursor");
 	}
-	await this.setStatus("unitAllySelect", adjacent);
+	await this.setStatus("unitAllySelect", adj_ally);
       }));
     }
 
@@ -559,6 +604,15 @@ class Game
     /*************************************/
       onBegin: async () =>
       {
+	// regenerate actions (maybe traded a healing item)
+	let uActions = this.generateUnitActions(this, this.temp.selectedUnit);
+	let numActions = uActions.length;
+	let ap = new SelectionPanel(50,50, 20+64,16*numActions+20, 1, numActions, 398, 50, uActions);
+	this.temp.cameraPrev = new Coord(this.camera.offset);
+	if (this.camera.onLeft(this.temp.selectedUnit))
+	  ap.shift();
+	this.Panels.set("selectedUnitActionPanel", ap);
+
 	await this.camera.waitShiftTo(this.temp.selectedUnit);
         this.cursor.moveInstant(this.temp.selectedUnit);
         this.toDraw.hide("cursor");
@@ -713,9 +767,16 @@ class Game
 	this.temp["mapActions"] = new LoopSelector(
 	  [new Action("????????", async ()=>
 	    {
-	      this.blockInput();
-	      await this.camera.shake();
-	      this.unblockInput();
+	      if (Settings.get("lvl_skip") == true)
+	      {
+		await this.onVictory();
+	      }
+	      else
+	      {
+	        this.blockInput();
+	        await this.camera.shake();
+	        this.unblockInput();
+	      }
 	    }),
 	  new Action("Options", async ()=>
 	    {
@@ -897,6 +958,41 @@ class Game
       inform:()=>{},
       cancel:()=>{}
     }
+    this.stateAction.victory = 
+    {
+      onBegin:async ()=>
+      {
+	this.draw = ()=>{};
+	this.update = ()=>{};
+	this.mainloop = ()=>{};
+	this.ctx[5].fillStyle = "black";
+	for (let i = 0; i < 30; ++i)
+	{
+	  this.ctx[5].globalAlpha = 0.1;
+	  this.ctx[5].fillRect(0,0,512,384);
+	  await waitTick();
+	}
+	this.ctx[5].globalAlpha = 1;
+	this.ctx[5].fillRect(0,0,512,384);
+      
+	this.setTextColor(5, "#0022ec")
+	this.setTextFont(5, "22px ABCD Mono")
+	this.setTextJustify(5, "center")
+	this.drawText(5, "CHAPTER CLEAR", 256, 130);
+	this.setTextFont(5, "11px ABCD Mono")
+	this.drawText(5, "Press '.' to start the next level.", 256, 200);
+      
+      },
+      select:async ()=>
+      {
+	this.Album.clearAllCtx();
+	await this.MAIN.chload(this.chapterScript.nextLvl);
+	this.MAIN.start();
+      },
+      arrows:(a)=>{},
+      inform:()=>{},
+      cancel:()=>{}
+    }
 
     // ONDONE AFTER STATECHANGE
     /*************************************/
@@ -967,30 +1063,37 @@ class Game
   }
   async onVictory()
   {
-    this.blockInput();
-    this.gameStatus = "blockInput";
     MusicPlayer.stopAll();
-    this.draw = ()=>{};
-    this.update = ()=>{};
-    this.mainloop = ()=>{};
-    this.ctx[5].fillStyle = "black";
-    for (let i = 0; i < 30; ++i)
+    if (this.chapterScript.nextLvl === null)
     {
-      this.ctx[5].globalAlpha = 0.1;
+      this.blockInput();
+      this.gameStatus = "blockInput";
+      this.draw = ()=>{};
+      this.update = ()=>{};
+      this.mainloop = ()=>{};
+      this.ctx[5].fillStyle = "black";
+      for (let i = 0; i < 30; ++i)
+      {
+	this.ctx[5].globalAlpha = 0.1;
+	this.ctx[5].fillRect(0,0,512,384);
+	await waitTick();
+      }
+      this.ctx[5].globalAlpha = 1;
       this.ctx[5].fillRect(0,0,512,384);
-      await waitTick();
+    
+      this.setTextColor(5, "#0022ec")
+      this.setTextFont(5, "22px ABCD Mono")
+      this.setTextJustify(5, "center")
+      this.drawText(5, "YOU WIN", 256, 130);
+      this.setTextFont(5, "11px ABCD Mono")
+      this.drawText(5, "Thank you for playing my game!", 256, 200);
+      this.drawText(5, "If you can, please give me some feedback.", 256, 222);
+      this.drawText(5, "Stay tuned for updates!", 256, 244);
     }
-    this.ctx[5].globalAlpha = 1;
-    this.ctx[5].fillRect(0,0,512,384);
-  
-    this.setTextColor(5, "#0022ec")
-    this.setTextFont(5, "22px ABCD Mono")
-    this.setTextJustify(5, "center")
-    this.drawText(5, "YOU WIN", 256, 130);
-    this.setTextFont(5, "11px ABCD Mono")
-    this.drawText(5, "Thank you for playing my game!", 256, 200);
-    this.drawText(5, "If you can, please give me some feedback.", 256, 222);
-    this.drawText(5, "Stay tuned for updates!", 256, 244);
+    else
+    {
+      this.setStatus("victory");
+    }
   }
   async onGameOver()
   {
@@ -1091,14 +1194,15 @@ class Game
     let hostile = this.Units.getTeams(this.getHostile(team));
     this.Map.getPathingMap(hostile);
 
+    await waitTime(250);
     for (let unit of this.Units.teams[team])
     {
-      await waitTime(250);
       let info = await t.offense(unit);
 
-      if (info.action == false)
+      if (info.action == "none")
 	continue;
       
+      await waitTime(250);
       await this.camera.waitShiftTo(unit);
       this.camera.setTarget(unit);
 
@@ -1113,7 +1217,7 @@ class Game
       unit.confirmMove(this);
 
 
-      if (info.attacks == true)
+      if (info.action == "attack")
       {
 	let battle = new Battle(this, unit, info.target, turndata.btltheme);
 
@@ -1132,6 +1236,21 @@ class Game
 
 	await this.killUnit(casualty);
 	await this.handleAfterBattleEvents();
+      }
+      else if (info.action == "talk")
+      {
+	this.cursor.moveInstant(info.target);
+
+	this.toDraw.show("cursor");
+	this.cursor.curAnim().reset();
+	await waitTime(500);
+	this.toDraw.hide("cursor");
+
+
+	await this.chapterScript.conversations[unit.name][info.target.name](this);
+	delete this.chapterScript.conversations[unit.name][info.target.name];
+	if (this.chapterScript.conversations[info.target.name] !== undefined)
+	  delete this.chapterScript.conversations[info.target.name][unit.name];
       }
       unit.endTurn(this);
       await waitTime(250);
@@ -1285,7 +1404,7 @@ class Game
     this.ctx[4].clearRect(x - w/2, y, w + 20, h);
     this.unblockInput();
   }
-  async cursorFlash(x, y)
+  async cursorFlash(x, y=null)
   {
     if (Settings.get("cut_skip") == true)
       return;
@@ -1400,6 +1519,7 @@ class Game
 
       if (obj.type == "relative")	turncount = this.specialCount;
       else if (obj.type == "absolute")	turncount = this.turncount;
+      else if (obj.type == "everyturn")	turncount = obj.turn;
       else				console.error("handlebeginturn invalid turn type");
 
       if (obj.turn == turncount && obj.condition(this))
@@ -1480,16 +1600,24 @@ class Game
     }
   }
 
-  cameraShift(x, y)
+  cameraShift(x, y = null)
   {
-    return this.camera.waitShiftAbsolute(new Coord(x, y), 6)
+    if (y !== null)
+      x = new Coord(x, y);
+
+    if (Settings.get("cut_skip") == true)
+      return this.camera.shiftImmediate(x);
+
+    return this.camera.waitShiftAbsolute(x, 6);
   }
   cameraCenter(x, y = null)
   {
     if (y !== null)
-    {
       x = new Coord(x, y);
-    }
+
+    if (Settings.get("cut_skip") == true)
+      return this.camera.centerImmediate(x);
+
     return this.camera.waitShiftCenter(x, 6)
   }
 

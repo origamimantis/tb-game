@@ -1,5 +1,5 @@
-import {Panel, SelectionPanel, UnitProfileItemPanel,
-	TooltipWeaponPanel, UnitProfileStatPanel, SelectionPointer} from "./Panel.js";
+import {Panel, SelectionPanel, UnitProfileItemPanel, UnitProfileStatPanel,
+	TooltipWeaponPanel, TooltipItemPanel, SelectionPointer} from "./Panel.js";
 import {PanelType} from "./PanelComponent.js";
 import {formattedHP, leftPad} from "./Utils.js";
 import {AnimatedObject} from "./AnimatedObject.js";
@@ -136,7 +136,14 @@ export class UnitInfoScreen
   }
   drawTooltip(g, ctx)
   {
-    let p = new TooltipWeaponPanel();
+    let p;
+    if (this.cur == "Weapons")
+      p = new TooltipWeaponPanel();
+    else if (this.cur == "Items")
+      p = new TooltipItemPanel();
+    else
+      p = "BROTHER YOU FORGOT TO IMPLEMENT TOLLTIP FOR STATE = " + this.cur;
+
     p.explicitDraw(g, ctx, this[this.cur].get());
   }
   drawUnitOverview(g, ctx)

@@ -68,6 +68,10 @@ export class Conversation
   {
     this.conversation.push({type:CONV.ENTER, data:name});
   }
+  move(name, amount) // positive = right
+  {
+    this.conversation.push({type:CONV.MOVE, data:name, amount:amount});
+  }
   pause(duration)
   {
     this.conversation.push({type:CONV.PAUSE, data:duration});
@@ -102,6 +106,27 @@ export class Conversation
       }
     }
   }
+  clearPortrait(name)
+  {
+    let [art, x, left] = this.speakers[name];
+    let c = this.g.ctx[4];
+    if (left)
+    {
+      c.scale(-1,1);
+      c.translate(-512,0);
+      x = 512 - x;
+    }
+
+    let w = 64*1.5;
+    this.g.ctx[4].clearRect( x - w/2, Y - w, w, w);
+
+    if (left)
+    {
+      c.translate(512,0);
+      c.scale(-1,1);
+    }
+  }
+
   drawPortraits(g, ctx)
   {
     for (let speaker of Object.keys(this.speakers))
@@ -145,6 +170,9 @@ export class Conversation
 	    break;
 	  case CONV.CTXT:
 	    await this.clearText();
+	    break;
+	  case CONV.MOVE:
+	    await this.movePerson(part);
 	    break;
 	}
 	await this.updateConvo();
@@ -208,6 +236,23 @@ export class Conversation
       await waitTick();
     }
     this.g.ctx[4].globalAlpha = 1;
+  }
+  async movePerson(part)
+  {
+    // TODO specify number of frames
+    let frames = 4;
+    let dx = part.amount/frames
+
+    let og = this.speakers[part.data][1];
+    this.g.ctx[5].clearRect( this.spea, 228, 512, 32);
+    for (let i = 0; i < frames; ++i)
+    {
+      this.clearPortrait(part.data);
+      this.speakers[part.data][1] += dx
+      this.drawPortrait(part.data);
+      await waitTick();
+    }
+    this.speakers[part.data][1] = og + part.amount
   }
   updateSpeaker(name)
   {

@@ -58,7 +58,7 @@ export class UnitTradeScreen
     this.idx2 = 0;
     this.prevObs = 0;
     
-    this.tradeMode = "weapons";
+    this.tradeMode = "items";
     this.state = OBSERVE;
 
     this.traded = false;

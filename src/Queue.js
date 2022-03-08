@@ -8,7 +8,7 @@ export class Queue
     this.h = null;
     this.t = null;
     this.c_x = {};
-    this.sz = 0;
+    this.length = 0;
     this.drawArt = null;
   }
   push(c)
@@ -28,7 +28,7 @@ export class Queue
     }
     ++this.c_x[c.x][c.y];
 
-    if (this.sz > 0)
+    if (this.length > 0)
     {
       this.t.n = {v: c, p: this.t, n: null};
       this.t = this.t.n;
@@ -38,11 +38,11 @@ export class Queue
       this.t = {v: c, p: null, n: null};
       this.h = this.t;
     }
-    ++ this.sz;
+    ++ this.length;
   }
   dequeue()
   {
-    if (this.sz > 0)
+    if (this.length > 0)
     {
 
       let v = this.h.v;
@@ -66,7 +66,7 @@ export class Queue
       {
 	this.t = null;
       }
-      -- this.sz;
+      -- this.length;
       return v;
     }
     else
@@ -76,7 +76,7 @@ export class Queue
   }
   pop()
   {
-    if (this.sz > 0)
+    if (this.length > 0)
     {
       let v = this.t.v;
 
@@ -94,7 +94,7 @@ export class Queue
       {
 	this.t.n = null;
       }
-      -- this.sz;
+      -- this.length;
       return v;
     }
     else
@@ -143,15 +143,15 @@ export class Queue
   }
   nonempty()
   {
-    return this.sz > 0;
+    return this.length > 0;
   }
   empty()
   {
-    return this.sz <= 0;
+    return this.length <= 0;
   }
   size()
   {
-    return this.sz;
+    return this.length;
   }
   forEach( f )
   {
@@ -167,7 +167,7 @@ export class Queue
   {
     let smol = this;
     let other = q;
-    if (q.size() < this.sz)
+    if (q.size() < this.length)
     {
       smol = q;
       other = this;
@@ -187,7 +187,7 @@ export class Queue
     this.h = q.h;
     this.t = q.t;
     this.c_x = q.c_x;
-    this.sz = q.sz;
+    this.length = q.length;
   }
   
   *[Symbol.iterator]()
@@ -198,6 +198,11 @@ export class Queue
       yield cur.v;
       cur = cur.n;
     }
+  }
+  fromArray(a)
+  {
+    for (let i of a)
+      this.enqueue(i);
   }
   toArray()
   {
@@ -269,7 +274,7 @@ class QueueIterator
   constructor(q)
   {
     this._cur = q.h;
-    this._left = q.sz;
+    this._left = q.length;
   }
   val()
   {
@@ -297,7 +302,7 @@ export class BattleQueue
   {
     this.h = null;
     this.t = null;
-    this.sz = 0;
+    this.length = 0;
   }
   push(c)
   {
@@ -305,7 +310,7 @@ export class BattleQueue
   }
   enqueue(c)
   {
-    if (this.sz > 0)
+    if (this.length > 0)
     {
       this.t.n = {v: c, p: this.t, n: null};
       this.t = this.t.n;
@@ -315,11 +320,11 @@ export class BattleQueue
       this.t = {v: c, p: null, n: null};
       this.h = this.t;
     }
-    ++ this.sz;
+    ++ this.length;
   }
   enqueueFront(c)
   {
-    if (this.sz > 0)
+    if (this.length > 0)
     {
       this.h = {v: c, p: null, n: this.h};
     }
@@ -328,12 +333,12 @@ export class BattleQueue
       this.h = {v: c, p: null, n: null};
       this.t = this.h;
     }
-    ++ this.sz;
+    ++ this.length;
   }
 
   dequeue()
   {
-    if (this.sz > 0)
+    if (this.length > 0)
     {
       let v = this.h.v;
 
@@ -346,7 +351,7 @@ export class BattleQueue
       {
 	this.t = null;
       }
-      -- this.sz;
+      -- this.length;
       return v;
     }
     else
@@ -356,11 +361,11 @@ export class BattleQueue
   }
   size()
   {
-    return this.sz;
+    return this.length;
   }
   nonempty()
   {
-    return (this.sz > 0)
+    return (this.length > 0)
   }
   clear()
   {
