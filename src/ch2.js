@@ -416,7 +416,7 @@ export let script =
 	      let conv = new Conversation(g);
 	      conv.addSpeaker("Vargas", vargas.pArt, 256, false);
 	      conv.speaker("Vargas")
-	      conv.say("Ah! The forest in the southwest is the\nbase of operations for a large bandit gang.")
+	      conv.say("Ah! The forest in the southeast is the\nbase of operations for a large bandit gang.")
 	      conv.say("I think I should take them out.")
 	      await g.setExtStatus(conv);
 	    }
