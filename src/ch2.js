@@ -17,7 +17,6 @@ let chloe;
 let vargas;
 let yuli;
 let mali;
-let state;
 let banditWave = [];
 let doddson;
 let zone1;
@@ -32,9 +31,8 @@ let uid = 0
 
 function initVars()
 {
-  state = DEFEND;
 
-  vargas = new Units.SwordKnight(uid++,0+33,11+22,{maxhp:28, atk:5,spd:3,skl:12,def:6,con:12,mov: 6},"Vargas","S_lead0");
+  vargas = new Units.SwordKnight(uid++,0,11,{maxhp:28, atk:5,spd:3,skl:12,def:6,con:12,mov: 6},"Vargas","S_lead0");
   vargas.team = "Player";
   vargas.pArt = "P_lead";
   vargas.addWeapon(new Weapons.BronzeSlicer());
@@ -120,7 +118,7 @@ export let script =
 
       let movePromise = []
       g.addUnit(vargas);
-      //movePromise.push( vargas.moveTo(g, 2, 11) );
+      movePromise.push( vargas.moveTo(g, 2, 11) );
       await waitTime(150);
 
       g.addUnit(billy);
