@@ -131,6 +131,7 @@ export let script =
       g.addUnit(mag);
 
     }, //onBegin
+    conversations: {},
     interactions: {
       "3,6" :  // HOUSE 1 (chloe)
       {

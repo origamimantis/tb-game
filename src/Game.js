@@ -778,6 +778,12 @@ class Game
 	        this.unblockInput();
 	      }
 	    }),
+	  new Action("Reset", async ()=>
+	    {
+	      this.Album.clearAllCtx();
+	      await this.MAIN.chload(this.chapterScript.scriptFile);
+	      this.MAIN.start();
+	    }),
 	  new Action("Options", async ()=>
 	    {
 	      this.Panels.hide("mapActionPanel");

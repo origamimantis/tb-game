@@ -274,7 +274,7 @@ export class TestBow extends Weapon
   constructor()
   {
       //super(name, might, hit, crit, range, uses, effects, statbon, pref, eff, strong, weak)
-    super("Test Bow", 5, 80, 5, [2], 50, [], {}); 
+    super("Wooden Bow", 5, 80, 10, [2,3], 50, [], {}); 
 
   }
   sprite()

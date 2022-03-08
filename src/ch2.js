@@ -60,7 +60,7 @@ function initVars()
   chloe.addWeapon(new Weapons.FryingPan());
   chloe.setAnim( "idle" );
 
-  yuli = new Units.BowKnight(uid++, 33, 35, {maxhp:16, atk:5,spd:3,skl:12,def:2,con:4,mov: 6}, "Yuliza")
+  yuli = new Units.BowKnight(uid++, 33, 35, {maxhp:16, atk:7,spd:3,skl:24,def:2,con:4,mov: 6}, "Yuliza")
   yuli.team = "Scout";
   yuli.pArt = "P_Yuliza";
   yuli.addWeapon(new Weapons.TestBow());

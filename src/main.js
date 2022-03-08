@@ -242,6 +242,7 @@ class Main
     this.assets = {};
     this.scriptFile = chapterScript;
     this.level = await loadScript( this.scriptFile )
+    this.level.scriptFile = this.scriptFile;
     this.assets.Map = await loadMap( this.level.tileMap )
     let a = this.imgsToLoad(things.ImgLoad);
     
