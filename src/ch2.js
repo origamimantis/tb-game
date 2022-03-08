@@ -177,7 +177,7 @@ export let script =
       addbandit(20,7, 5, "attackOnEnter", zone1)
       addbandit(21,8, 5, "attackOnEnter", zone1)
       addbandit(22,10,5, "attackOnEnter", zone1)
-      addbandit(19,10,5, "attackOnEnter", zone1)
+      addbandit(19,9 ,5, "attackOnEnter", zone1)
 
 
       // walk from east
