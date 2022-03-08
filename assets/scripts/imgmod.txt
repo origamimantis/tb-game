@@ -27,7 +27,7 @@ rc S_farmerBilly S_farmerBilly_ally [0,128,128]->[0,180,76]
 
 rc S_lead0 S_lead0_wait [221,174,44]->[100,100,100] [245,238,9]->[150,150,150] [0,0,255]->[100,100,100]
 
-rc S_Yuliza_BowKnight S_Yuliza_BowKnight_wait [0,128,128]->[100,100,100]
-rc S_Malidale_BowKnight S_Malidale_BowKnight_wait [0,128,128]->[100,100,100]
-rc S_Yuliza_BowKnight S_Yuliza_BowKnight_ally [0,128,128]->[0,128,128]
-rc S_Malidale_BowKnight S_Malidale_BowKnight_ally [0,128,128]->[0,128,128]
+rc S_Yuliza_BowKnight S_Yuliza_BowKnight_wait [0,0,255]->[100,100,100]
+rc S_Malidale_BowKnight S_Malidale_BowKnight_wait [0,0,255]->[100,100,100]
+rc S_Yuliza_BowKnight S_Yuliza_BowKnight_ally [0,0,255]->[0,255,0]
+rc S_Malidale_BowKnight S_Malidale_BowKnight_ally [0,0,255]->[0,255,0]

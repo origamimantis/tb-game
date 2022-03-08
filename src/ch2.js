@@ -34,7 +34,7 @@ function initVars()
 {
   state = DEFEND;
 
-  vargas = new Units.SwordKnight(uid++,0,11,{maxhp:28, atk:5,spd:3,skl:12,def:6,con:12,mov: 6},"Vargas","S_lead0");
+  vargas = new Units.SwordKnight(uid++,0+33,11+22,{maxhp:28, atk:5,spd:3,skl:12,def:6,con:12,mov: 6},"Vargas","S_lead0");
   vargas.team = "Player";
   vargas.pArt = "P_lead";
   vargas.addWeapon(new Weapons.BronzeSlicer());
@@ -114,13 +114,13 @@ export let script =
       // TODO
       //Settings.set("cut_skip", "On");
       initVars();
-      //g.Map.setMaxBound(16, null);
+      g.Map.setMaxBound(16, null);
       
       await g.alert("\n  Chapter 2  \n", 256, 100);
 
       let movePromise = []
       g.addUnit(vargas);
-      movePromise.push( vargas.moveTo(g, 2, 11) );
+      //movePromise.push( vargas.moveTo(g, 2, 11) );
       await waitTime(150);
 
       g.addUnit(billy);
@@ -251,18 +251,19 @@ export let script =
 	  conv.addSpeaker("Yuliza", yuli.pArt, 130, false);
 	  conv.music("recruit", false, false);
 	  conv.speaker("Vargas");
-	  conv.say("Our village was attacked by bandits, so I'm hunting them down.")
+	  conv.say("Our village was attacked by bandits,\nso I'm hunting them down.")
 	  conv.say("Your bow could come in handy. Can you help me?")
 	  conv.speaker("Yuliza");
-	  conv.say("Village, you say? Alright, but this is gonna cost you.")
+	  conv.say("Village, you say?")
+	  conv.say("I can help, but this is gonna cost you.")
 
 
 	  await MusicPlayer.fadeout(g.mapTheme);
 	  await g.setExtStatus(conv);
 
 	  yuli.recruited = true;
-	  g.Units.switchTeam(yuli, "Player");
 	  await g.recruitJingle(yuli);
+	  g.Units.switchTeam(yuli, "Player");
 	  await MusicPlayer.fadein(g.mapTheme);
 	},
 	"Malidale": async (g) => 
@@ -283,8 +284,8 @@ export let script =
 	  await g.setExtStatus(conv);
 
 	  mali.recruited = true;
-	  g.Units.switchTeam(mali, "Player");
 	  await g.recruitJingle(mali);
+	  g.Units.switchTeam(mali, "Player");
 	  await MusicPlayer.fadein(g.mapTheme);
 	}
       },
@@ -311,8 +312,8 @@ export let script =
 	  await g.setExtStatus(conv);
 
 	  yuli.recruited = true;
-	  g.Units.switchTeam(yuli, "Player");
 	  await g.recruitJingle(yuli);
+	  g.Units.switchTeam(yuli, "Player");
 	  await MusicPlayer.fadein(g.mapTheme);
 	}
       },
@@ -335,8 +336,8 @@ export let script =
 	  await g.setExtStatus(conv);
 
 	  mali.recruited = true;
-	  g.Units.switchTeam(mali, "Player");
 	  await g.recruitJingle(mali);
+	  g.Units.switchTeam(mali, "Player");
 	  await MusicPlayer.fadein(g.mapTheme);
 	}
       },

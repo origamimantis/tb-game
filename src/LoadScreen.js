@@ -24,7 +24,7 @@ export class LoadScreen
   eventUpdate(text)
   {
     ++ this.loaded;
-    Album.clearCtx(2);
+    Album.clearAllCtx();
     this.m.ctx[2].globalAlpha = 1;
     this.m.ctx[2].fillStyle = "#bb0000";
     this.m.ctx[2].fillRect(156, 170, 200, 20)
