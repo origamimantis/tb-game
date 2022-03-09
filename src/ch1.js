@@ -69,7 +69,7 @@ function initVars()
   vargas.setAnim("idle");
   vargas.recruited = false;
 
-  choddson = new Units.Bandit(7, 21,11, {maxhp:33, atk:9,spd:2,skl:6,def:6,con:19,mov: 5}, "Choddson");
+  choddson = new Units.Bandit(7, 21,11, {maxhp:33, atk:8,spd:2,skl:6,def:6,con:19,mov: 5}, "Choddson");
   choddson.team = "Bandit";
   choddson.pArt = "P_Choddson";
   choddson.addWeapon(new Weapons.LumberAxe());
