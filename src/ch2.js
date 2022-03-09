@@ -84,11 +84,10 @@ function initVars()
   doddson.pArt = "P_Doddson";
   doddson.addWeapon(new Weapons.LumberAxe());
   doddson.setAnim("idle");
-  doddson.ai = "guard";
   doddson.isBoss = true;
 
 
-  zone1 = {rectangle:[[14, 3],[23,18]], triggered:false}
+  zone1 = {rectangle:[[14, 3],[23,24]], triggered:false}
 }
 
 
@@ -402,6 +401,7 @@ export let script =
 	      await g.setExtStatus(conv);
 	    }
 	  },
+	  /*
 	  { turn: 6,
 	    type: "absolute",
 	    tag: "switch objective",
@@ -421,6 +421,7 @@ export let script =
 	      await g.setExtStatus(conv);
 	    }
 	  }
+	  */
 	],
 	"Scout":
 	[
@@ -529,7 +530,7 @@ export let script =
 	      let dests_atk = [[30,34],[31,33],[32,32],  [30,35],[31,34],[32,33],[33,32]]
 	      let dests_guard = [[31,35],[32,34],[32,35],[33,33],[33,34]];
 	      let dests = [dests_atk, dests_guard]
-	      let ais = ["targetWeakest","guard"];
+	      let ais = ["targetWeakest","targetWeakest"];
 
 	      for (let i = 0; i < dests_atk.length + dests_guard.length; ++i)
 	      {
@@ -559,6 +560,7 @@ export let script =
 		}
 	      }
 	      g.addUnit(doddson);
+	      doddson.ai = "targetWeakest";
 	      await Promise.all(movePromise);
 
 	      await g.cursorFlash(doddson);
@@ -595,7 +597,7 @@ export let script =
 	      conv.move("Bandit1", -10)
 	      conv.move("Bandit2", -10)
 	      conv.move("Bandit3", -10)
-	      conv.say("Jus kill 'em and bring me back their valuables!\nI can't trust any of ye to guard 'em, anyways!");
+	      conv.say("We chase 'em down, kill 'em, and take their valuables!\nI can't trust any of ye to guard 'em, anyways!");
 	      conv.speaker("Bandit1")
 	      conv.say("Y- y- y- yes!");
 	      conv.clear();
