@@ -404,7 +404,26 @@ export function waitTick()
 }
 
 
-export function requestFile(url, method)
+
+export function requestFileSync(url)
+{
+  let ret = null;
+  let request = new XMLHttpRequest();
+
+  request.open('GET', url, false);
+  request.send();
+
+  if (request.status >= 200 && request.status < 300)
+  {
+    if (loadbar)
+      triggerEvent("load_progress", `Loaded file ${url}`);
+    ret = request;
+  }
+  return ret
+}
+
+
+export function requestFile(url, loadbar = false)
 {
   // Create the XHR request
   let request = new XMLHttpRequest();
@@ -421,7 +440,8 @@ export function requestFile(url, method)
 
 	if (request.status >= 200 && request.status < 300)
 	{
-	  triggerEvent("load_progress", `Loaded file ${url}`);
+	  if (loadbar)
+	    triggerEvent("load_progress", `Loaded file ${url}`);
 	  resolve(request);
 	}
 	else

@@ -17,6 +17,27 @@ export class ImageModifier
   //   find              replace with
   // { [r, g, b]string : [r, g, b] }
 
+  static recolor_nosave(img, map)
+  {
+    let [can, ctx, imageData] = this.setup(img);
+
+    // examine every pixel,
+    // change any old rgb to the new-rgb
+
+    for (let i = 0; i < imageData.data.length; i += 4)
+    {
+      // is this pixel the old rgb?
+      let pixel = imageData.data.slice(i, i+3);
+      if (map[pixel] != undefined)
+      {
+	imageData.data[i  ] = map[pixel][0];
+	imageData.data[i+1] = map[pixel][1];
+	imageData.data[i+2] = map[pixel][2];
+      }
+    }
+    ctx.putImageData(imageData,0,0);
+    return can
+  }
   // Recolors a given imaging using a given map, then stores it under name.
   //   Errors if the name is already in use and overwriting is not specified.
   static recolor(img, map)

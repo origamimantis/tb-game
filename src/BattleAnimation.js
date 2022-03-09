@@ -45,7 +45,7 @@ export class BattleSprite
   { 
     let loaded = await BAChest.load(name, anim);
     this.animations[name] = new BattleAnimation(this, loaded, recolor);
-    await this.animations[name].init();
+    this.animations[name].init();
   }
   tickAnim()
   { 
@@ -86,13 +86,13 @@ export class BattleAnimation
     this._onHit_resolve = null;
     this.onDone = onDone;
   }
-  async init()
+  init()
   {
     try
     {
 	this.img = Album.get(this.opts.usrc);
 	if (this.recolor !== null)
-	  this.img = await ImageModifier.recolor(this.img, this.recolor);
+	  this.img = ImageModifier.recolor_nosave(this.img, this.recolor);
 	//this.wimg = Album.get(info.options.wsrc);
 	this.w = this.img.width/this.numFrame;
 	this.h = this.img.height;

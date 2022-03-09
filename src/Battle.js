@@ -9,6 +9,8 @@ import {TILES} from "./Constants.js";
 import {MusicPlayer} from "./MusicPlayer.js";
 import {Conversation} from "./Conversation.js";
 
+import {C_WIDTH,C_HEIGHT} from "./Constants.js"
+
 // TODO make Battle, attack return something to tell its caller
 //	what happened (ie unit died, amount of hp lost, etc)
 // TODO bug: when unit moves to attack someone and dies, there is an error
@@ -264,8 +266,8 @@ export class Battle
 
     this.initTurns();
 
+    this.isLoaded = false
     this.loaded = new Promise( async (res) => {
-
       await this.sprIni.load();
       await this.sprDef.load();
       this.sprIni.setAnimation("idle");
@@ -474,6 +476,11 @@ export class Battle
   
   update(g)
   {
+    if (this.isLoaded == false)
+    {
+      return;
+    }
+
     this.sprIni.update();
     this.sprDef.update();
   }
@@ -522,6 +529,11 @@ export class Battle
   }
   draw(g)
   {
+    if (this.isLoaded == false)
+    {
+      return;
+    }
+
     this.sprDef.draw(g);
     this.sprIni.draw(g);
 
@@ -577,12 +589,26 @@ export class Battle
   }
   async begin(Return)
   {
+    let fout = this.g.fadeOut()
+
+    let tmp_ctx_refresh = this.g.ctx_refresh;
+    this.g.ctx_refresh = [];
+
     this.Return = Return;
 
     await this.loaded;
+    await fout;
+
+    this.g.ctx_refresh = tmp_ctx_refresh;
+
+    this.isLoaded = true;
+
 
     MusicPlayer.play(this.music);
     this.drawStatics(this.g);
+    this.setStatPanels();
+
+    await this.g.fadeIn()
     
     // fight each other
     while(this.turns.nonempty())

@@ -72,7 +72,7 @@ async function loadMap(mapFile)
 {
   let map = new TileMap();
   // load map
-  mapFile = await requestFile(mapFile);
+  mapFile = await requestFile(mapFile, true);
   map.generate(mapFile.responseText);
   return map;
 }
@@ -84,7 +84,7 @@ async function loadImgs(imgList, imgMod)
   let i = new ImageLoader();
   await i.loadImgs( imgList );
 
-  let imscript = await requestFile(imgMod);
+  let imscript = await requestFile(imgMod, true);
   imscript = imscript.responseText;
 
   ImageModifier.init(Album);
