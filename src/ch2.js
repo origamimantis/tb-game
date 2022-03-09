@@ -60,16 +60,16 @@ function initVars()
   chloe.addWeapon(new Weapons.FryingPan());
   chloe.setAnim( "idle" );
 
-  yuli = new Units.BowKnight(uid++, 33, 35, {maxhp:16, atk:7,spd:3,skl:24,def:2,con:4,mov: 6}, "Yuliza")
+  yuli = new Units.BowKnight(uid++, 33, 35, {maxhp:18, atk:7,spd:3,skl:24,def:2,con:4,mov: 6}, "Yuliza")
   yuli.team = "Scout";
   yuli.pArt = "P_Yuliza";
   yuli.addWeapon(new Weapons.TestBow());
   yuli.setAnim( "idle" );
   yuli.ai = "fleeToUnit"
   yuli.aiparams={target:vargas}
-  yuli.stats.hp = 14;
+  yuli.stats.hp = 16;
 
-  mali = new Units.BowKnight(uid++, 33, 35, {maxhp:17, atk:4,spd:4,skl:8,def:2,con:4,mov: 6}, "Malidale")
+  mali = new Units.BowKnight(uid++, 33, 35, {maxhp:17, atk:4,spd:4,skl:8,def:4,con:4,mov: 6}, "Malidale")
   mali.team = "Scout";
   mali.pArt = "P_Malidale";
   mali.addWeapon(new Weapons.TestBow());
@@ -195,6 +195,9 @@ export let script =
       addbandit(4,31);
       addbandit(7,33);
       addbandit(8,34);
+
+      // test archers
+      //addbandit(30,34);
 
 
 
@@ -481,8 +484,8 @@ export let script =
 	      conv.say("Thanks.")
 	      await g.setExtStatus(conv);
 
-	      await waitTime(250)
-	      await mali.items[0].use(g, mali);
+	      //await waitTime(250)
+	      //await mali.items[0].use(g, mali);
 
 	    }
 	  }

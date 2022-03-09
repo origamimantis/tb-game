@@ -89,6 +89,18 @@ export class Unit extends AnimatedObject
     else
       throw new Error("Unit.addItem: max item amount exceeded.");
   }
+  hasItem(itemname)
+  {
+    //if has item with this name, return [true, index]
+    // else return [false, -1]
+    for (let i = 0; i < this.items.length; ++i)
+    {
+      if (this.items[i].name == itemname)
+	return [true, i];
+    }
+    return [false, -1]
+
+  }
   removeItem(item)
   {
     for (let i = 0; i < this.items.length; ++i)
@@ -419,10 +431,17 @@ export class Unit extends AnimatedObject
     p.setArt("C_atk");
     return p;
   }
+  attackableUnitsFrom(g, loc = null, wlist = null)
+  {
+    if (loc === null)
+      loc = this
+    return inRange(loc, this.getRange(wlist), "units", g.Map, null, [(unit)=>{return g.Units.hostile(this,unit)}])
+
+  }
   // attackable from a certain coordinate ie does not factor in movement
   attackableUnits(g, wlist = null)
   {
-    return inRange(this, this.getRange(wlist), "units", g.Map, null, [(unit)=>{return g.Units.hostile(this,unit)}])
+    return this.attackableUnitsFrom(g, null, wlist);
   }
   // will be used later if move is affected by anything.
   // if not, then this will just be a getter

@@ -66,8 +66,28 @@ export class EnemyController
     }
     else
     {
-      ret.target = null;
-      ret.action = "move"
+      let [canheal, idx] =  unit.hasItem("Bandages")
+      if (unit.stats.hp + 5 <= unit.stats.maxhp && canheal)
+      {
+	ret.target = null;
+	ret.action = "item"
+	ret.extra = idx;
+      }
+      else
+      {
+	let attackable = unit.attackableUnitsFrom(this.g, ret.dest)
+	if (attackable.nonempty())
+	{
+	  let c = attackable.dequeue();
+	  ret.target = this.g.Map.getTile(c).unit;
+	  ret.action = "attack"
+	}
+	else
+	{
+	  ret.target = null;
+	  ret.action = "move"
+	}
+      }
     }
 
     return ret

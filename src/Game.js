@@ -1272,6 +1272,10 @@ class Game
 	if (this.chapterScript.conversations[info.target.name] !== undefined)
 	  delete this.chapterScript.conversations[info.target.name][unit.name];
       }
+      else if (info.action == "item")
+      {
+	await unit.items[info.extra].use(this, unit);
+      }
       unit.endTurn(this);
       await waitTime(250);
     }
