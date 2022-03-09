@@ -999,6 +999,43 @@ class Game
       inform:()=>{},
       cancel:()=>{}
     }
+    this.stateAction.gameover = 
+    {
+      onBegin:async ()=>
+      {
+	MusicPlayer.stopAll();
+	this.draw = ()=>{};
+	this.update = ()=>{};
+	this.mainloop = ()=>{};
+	this.ctx[5].fillStyle = "black";
+	for (let i = 0; i < 30; ++i)
+	{
+	  this.ctx[5].globalAlpha = 0.1;
+	  this.ctx[5].fillRect(0,0,512,384);
+	  await waitTick();
+	}
+	this.ctx[5].globalAlpha = 1;
+	this.ctx[5].fillRect(0,0,512,384);
+      
+	this.setTextColor(5, "red")
+	this.setTextFont(5, "22px ABCD Mono")
+	this.setTextJustify(5, "center")
+	this.drawText(5, "GAME OVER", 256, 130);
+	this.setTextFont(5, "11px ABCD Mono")
+	this.drawText(5, "Press '.' to reset the level.", 256, 200);
+      
+      },
+      select:async ()=>
+      {
+	this.Album.clearAllCtx();
+	await this.MAIN.chreset()
+	this.MAIN.start();
+      },
+      arrows:(a)=>{},
+      inform:()=>{},
+      cancel:()=>{}
+    }
+
 
     // ONDONE AFTER STATECHANGE
     /*************************************/
@@ -1103,30 +1140,7 @@ class Game
   }
   async onGameOver()
   {
-    this.blockInput();
-    this.gameStatus = "blockInput";
-    MusicPlayer.stopAll();
-    this.draw = ()=>{};
-    this.update = ()=>{};
-    this.mainloop = ()=>{};
-    this.ctx[5].fillStyle = "black";
-    for (let i = 0; i < 30; ++i)
-    {
-      this.ctx[5].globalAlpha = 0.1;
-      this.ctx[5].fillRect(0,0,512,384);
-      await waitTick();
-    }
-    this.ctx[5].globalAlpha = 1;
-    this.ctx[5].fillRect(0,0,512,384);
-  
-    this.setTextColor(5, "red")
-    this.setTextFont(5, "22px ABCD Mono")
-    this.setTextJustify(5, "center")
-    this.drawText(5, "GAME OVER", 256, 130);
-    this.setTextFont(5, "11px ABCD Mono")
-    this.drawText(5, "The restart button has not yet been implemented", 256, 200);
-    this.drawText(5, "For now, just refresh the page to play again", 256, 222);
-    this.drawText(5, "If possible, please give me some feedback.", 256, 244);
+    this.setStatus("gameover");
   }
   async beginTurn(turnData)
   {
