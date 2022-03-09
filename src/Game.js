@@ -781,7 +781,7 @@ class Game
 	  new Action("Reset", async ()=>
 	    {
 	      this.Album.clearAllCtx();
-	      await this.MAIN.chload(this.chapterScript.scriptFile);
+	      await this.MAIN.chreset()
 	      this.MAIN.start();
 	    }),
 	  new Action("Options", async ()=>

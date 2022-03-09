@@ -254,6 +254,18 @@ class Main
     PathFinder.init(this.nextUp);
     console.log("total loaded: " + this.loadScreen.loaded);
   }
+  static async chreset()
+  {
+    await this.unload();
+    this.level = await loadScript( this.scriptFile )
+    this.level.scriptFile = this.scriptFile;
+    this.assets.Map = await loadMap( this.level.tileMap )
+    
+    this.nextUp = new SCENETYPE[this.level.type](this.assets, this.ctx, this);
+    setDrawFunctions(this.nextUp);
+
+    PathFinder.init(this.nextUp);
+  }
   static imgsToLoad(getridofthislater)
   {
     let a = getridofthislater.slice(0);
