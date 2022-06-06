@@ -10,7 +10,7 @@ import {TiledEffect} from "./TiledEffect.js";
 
 class TitlePanel extends Panel
 {
-  constructor(g)
+  constructor(g, idx)
   {
     super(25, 50, 450, 300, 2, 12, 0, 0);//Settings.numSettings, 0, 0);
 
@@ -19,13 +19,7 @@ class TitlePanel extends Panel
     this.top = 0
     this.scrollOff = {x:30, y:0}
 
-
-    this.optionlist = {"Play":"lvlsel",
-                       "Options": "option",
-                       "Music":"music"
-                      }
-
-    this._ls = new LoopSelector(Object.keys(this.optionlist))
+    this._ls = new LoopSelector(Object.keys(g.optionlist), idx)
     this.idx = this._ls.idx;
     this.length = this._ls.length;
 
@@ -98,7 +92,16 @@ export class TitleScreen
     this.playidx = null
     this.playing = null
 
-    this.p = new TitlePanel(this);
+    let idx = 0
+    if (assets.idx !== undefined)
+      idx = assets.idx
+
+    this.optionlist = {"Play":    "lvlsel",
+                       "Options": "option",
+                       "Music":   "music"
+                      }
+
+    this.p = new TitlePanel(this, idx);
   }
 
   async beginGame(chscript)
@@ -136,7 +139,8 @@ export class TitleScreen
   async select()
   {
     let selection = this.p.get()
-    let lvlToLoad = "./ch" + this.p.optionlist[selection] + ".js"
+    let lvlID = this.optionlist[selection]
+    let lvlToLoad = "./ch" + lvlID + ".js"
 
     await this.MAIN.chload(lvlToLoad, null)
     this.MAIN.start();

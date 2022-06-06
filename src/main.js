@@ -255,7 +255,7 @@ class Main
     MusicPlayer.stopAll();
     this.scene = noState;
   }
-  static async chload(chapterScript, things=thingsToLoad)
+  static async chload(chapterScript, things=thingsToLoad, extraAssets = null)
   {
     this.scene = this.loadScreen;
     if (things !== null)
@@ -263,7 +263,11 @@ class Main
       this.loadScreen.reset(things.ImgLoad.length + 57);
     }
 
-    this.assets = {};
+    if (extraAssets !== null)
+      this.assets = extraAssets
+    else
+      this.assets = {};
+
     this.scriptFile = chapterScript;
     this.level = await loadScript( this.scriptFile )
     this.level.scriptFile = this.scriptFile;

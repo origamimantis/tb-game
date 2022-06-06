@@ -7,21 +7,21 @@ import {waitTime, scrollSelect_UD} from "./Utils.js";
 import {TiledEffect} from "./TiledEffect.js";
 
 
+const lvlList = [
+                   "1",
+                   "2"
+                ];
 
 class LevelPanel extends Panel
 {
   constructor(g)
   {
     super(25, 100, 450, 250, 2, 10, 0, 0);
-    console.log(this.gsy)
 
     this.g = g
 
     this.top = 0
     this.scrollOff = {x:30, y:0}
-
-
-    let lvlList = ["1","2"];
 
     this._ls = new LoopSelector(lvlList)
     this.idx = this._ls.idx;

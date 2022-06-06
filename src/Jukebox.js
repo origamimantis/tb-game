@@ -229,7 +229,7 @@ export class Jukebox
     }
     else
     {
-      await this.MAIN.chload("./chtitle.js", null)
+      await this.MAIN.chload("./chtitle.js", null, {idx:2})
       this.MAIN.start();
     }
   }

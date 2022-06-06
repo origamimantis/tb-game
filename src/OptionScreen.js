@@ -182,7 +182,7 @@ export class OptionScreen
     }
     else
     {
-      await this.MAIN.chload("./chtitle.js", null)
+      await this.MAIN.chload("./chtitle.js", null, {idx:1})
       this.MAIN.start();
     }
   }
