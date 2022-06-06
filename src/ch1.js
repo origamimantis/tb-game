@@ -4,7 +4,7 @@ import {waitSpriteEffect} from "./Effects.js";
 import * as Units from "./TypeUnits.js";
 import * as Weapons from "./Weapon.js";
 import {Coord} from "./Path.js";
-import {waitTime} from "./Utils.js";
+import {waitTime, csPause} from "./Utils.js";
 import {MusicPlayer} from "./MusicPlayer.js";
 import {Settings} from "./Settings.js";
 
@@ -167,17 +167,17 @@ export let script =
       await child.moveTo(g, 12, 7);
       g.cameraShift(0, 4);
       await child.moveTo(g, 6, 7);
-      await waitTime(250);
+      await csPause(250);
       await child.moveTo(g, 7, 7);
-      await waitTime(250);
+      await csPause(250);
       await child.moveTo(g, 6, 7);
-      await waitTime(250);
+      await csPause(250);
       await child.moveTo(g, 5, 10);
-      await waitTime(250);
+      await csPause(250);
       await child.moveTo(g, 6, 10);
-      await waitTime(250);
+      await csPause(250);
       await child.moveTo(g, 5, 10);
-      await waitTime(250);
+      await csPause(250);
       await child.moveTo(g, 3, 10);
       
       await g.cursorFlash(child);
@@ -222,7 +222,7 @@ export let script =
       await g.setExtStatus(conv);
 
       b1.moveTo(g, 14, 7);
-      await waitTime(125);
+      await csPause(125);
       await b2.moveTo(g, 13, 8);
 
       await MusicPlayer.fadestop("btl_en");
@@ -403,7 +403,7 @@ export let script =
 	    g.clearCtx(4);
 	    g.toDraw.hide("cursor");
 	    await MusicPlayer.fadestop(g.mapTheme);
-	    await waitTime(1000);
+	    await csPause(1000);
 	    await g.fadeOut();
 	    for (let u of g.Units){ u.turnInit();}
 
@@ -485,15 +485,15 @@ export let script =
 	    movePromise.push(alfred.moveTo(g,12, 7));
 	    if (billyHere)
 	    {
-	      await waitTime(200);
+	      await csPause(200);
 	      movePromise.push(billy.moveTo(g, 11, 6));
 	    }
 	    if (chloeHere)
 	    {
-	      await waitTime(200);
+	      await csPause(200);
 	      movePromise.push(chloe.moveTo(g, 11, 8));
 	    }
-	    await waitTime(200);
+	    await csPause(200);
 	    movePromise.push(child.moveTo(g, 8, 7));
 	    movePromise.push(g.cameraShift(4,2));
 	    await Promise.all(movePromise);
@@ -545,13 +545,13 @@ export let script =
 	    {
 	      g.switchTeam(billy, "Village");
 	      await g.leaveJingle(billy);
-	      await waitTime(200);
+	      await csPause(200);
 	    }
 	    if (chloeHere)
 	    {
 	      g.switchTeam(chloe, "Village");
 	      await g.leaveJingle(chloe);
-	      await waitTime(200);
+	      await csPause(200);
 	    }
 	    g.switchTeam(child, "Village");
 	    await g.leaveJingle(child);
@@ -607,7 +607,7 @@ export let script =
 		g.addUnit(b);
 		let move = b.moveTo(g, ...dests[i]);
 		movePromise.push(move);
-		await waitTime(150);
+		await csPause(150);
 	      }
 	      g.addUnit(choddson);
 	      await Promise.all(movePromise);
@@ -649,7 +649,7 @@ export let script =
 
 		await g.switchTeam(billy, "Player");
 		await g.recruitJingle(billy);
-		await waitTime(500);
+		await csPause(500);
 	      }
 	      if (chloeHere)
 	      {
@@ -663,7 +663,7 @@ export let script =
 
 		await g.switchTeam(chloe, "Player");
 		await g.recruitJingle(chloe);
-		await waitTime(500);
+		await csPause(500);
 	      }
 	      let conv = new Conversation(g);
 	      conv.addSpeaker("Timmy", child.pArt, 120);

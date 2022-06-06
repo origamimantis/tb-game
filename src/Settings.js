@@ -5,9 +5,9 @@ export class Settings
   static init()
   {
     this.values = {
-      visible_movement_costs : {allowed: ["Off","On"], map: {Off:false,On:true}, display: "Visible Movement Costs"},
       cut_skip : {allowed: ["Off","On"], map: {Off:false,On:true}, display: "Skip Cutscenes"},
       lvl_skip : {allowed: ["Off","On"], map: {Off:false,On:true},display: "Enable Level Skip"},
+      visible_movement_costs : {allowed: ["Off","On"], map: {Off:false,On:true}, display: "Visible Movement Costs"},
       empty : {allowed: ["yea","nay"], display: "Placeholder Setting"}
     }
 

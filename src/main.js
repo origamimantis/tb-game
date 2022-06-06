@@ -10,6 +10,10 @@ import {BattleAnimationAlbum} from "./BattleAnimationAlbum.js";
 import {Characters} from "./Characters.js";
 
 import {Game, FPS} from "./Game.js";
+import {Jukebox} from "./Jukebox.js";
+import {TitleScreen} from "./TitleScreen.js";
+import {LevelSelect} from "./LevelSelect.js";
+import {OptionScreen} from "./OptionScreen.js";
 import {WalkScene} from "./WalkScene.js";
 import {Unit} from "./Unit.js";
 import * as Units from "./TypeUnits.js";
@@ -23,7 +27,14 @@ import {LoadScreen} from "./LoadScreen.js";
 import {C_WIDTH, C_HEIGHT, SCALE, NUMLAYER} from "./Constants.js";
 
 const noState = {inputting : false, cursor: undefined};
-const SCENETYPE = {Game: Game, WalkScene:WalkScene};
+const SCENETYPE = {
+                   Game,
+                   WalkScene,
+                   Jukebox,
+                   TitleScreen,
+                   OptionScreen,
+                   LevelSelect
+		  };
 
 let interpreter;
 let game;
@@ -46,6 +57,9 @@ console.inputlog = toggleLog;
 
 function _bindInteractions(script)
 {
+  if (script.interactions === undefined)
+    return
+
   for (let [coord, ia] of Object.entries(script.interactions))
   {
     let c = coord.split(",");
@@ -70,6 +84,8 @@ async function loadScript(script)
 }
 async function loadMap(mapFile)
 {
+  if (mapFile === undefined || mapFile === null)
+    return null;
   let map = new TileMap();
   // load map
   mapFile = await requestFile(mapFile, true);
@@ -77,13 +93,18 @@ async function loadMap(mapFile)
   return map;
 }
 
-async function loadImgs(imgList, imgMod)
+async function loadImgs(imgList, reset = false)
 {
   // load images
-  Album.reset();
+  if (reset == true)
+    Album.reset();
+
   let i = new ImageLoader();
   await i.loadImgs( imgList );
+}
 
+async function modImgs(imgMod)
+{
   let imscript = await requestFile(imgMod, true);
   imscript = imscript.responseText;
 
@@ -192,27 +213,27 @@ class Main
     {
       if (this.scene.inputting)
       {
-        this.scene.blockInput();
+        this.scene.inputting = false;
         await this.scene.select();
-        this.scene.unblockInput();
+        this.scene.inputting = true;
       }
     });
     respondToEvent("input_cancel",  async () =>
     {
       if (this.scene.inputting)
       {
-        this.scene.blockInput();
+        this.scene.inputting = false;
         await this.scene.cancel();
-        this.scene.unblockInput();
+        this.scene.inputting = true;
       }
     });
     respondToEvent("input_inform",  async () =>
     {
       if (this.scene.inputting)
       {
-	this.scene.blockInput();
+        this.scene.inputting = false;
 	await this.scene.inform();
-	this.scene.unblockInput();
+        this.scene.inputting = true;
       }
     });
     
@@ -237,22 +258,32 @@ class Main
   static async chload(chapterScript, things=thingsToLoad)
   {
     this.scene = this.loadScreen;
-    this.loadScreen.reset(things.ImgLoad.length + 57);
+    if (things !== null)
+    {
+      this.loadScreen.reset(things.ImgLoad.length + 57);
+    }
 
     this.assets = {};
     this.scriptFile = chapterScript;
     this.level = await loadScript( this.scriptFile )
     this.level.scriptFile = this.scriptFile;
     this.assets.Map = await loadMap( this.level.tileMap )
-    let a = this.imgsToLoad(things.ImgLoad);
-    
-    await loadImgs( a, things.ImgMod );
+
+    // load the tileset
+    let tileset = this.imgsToLoad([])
+
+    await loadImgs( tileset );
+
+    if (things !== null)
+    {
+      await loadImgs( things.ImgLoad );
+      await modImgs( things.ImgMod );
+    }
 
     this.nextUp = new SCENETYPE[this.level.type](this.assets, this.ctx, this);
     setDrawFunctions(this.nextUp);
 
     PathFinder.init(this.nextUp);
-    console.log("total loaded: " + this.loadScreen.loaded);
   }
   static async chreset()
   {
@@ -271,6 +302,7 @@ class Main
     let a = getridofthislater.slice(0);
     
     // load the tileset
+    if (this.assets.Map !== null)
     a.push(...Object.values(this.assets.Map.artMap));
 
     return a;
@@ -282,6 +314,7 @@ class Main
     delete this.scene;
     this.scene = this.nextUp;
     this.nextUp = null;
+    Album.clearAllCtx()
     this.scene.beginGame(this.level)
 
   }
@@ -291,11 +324,11 @@ class Main
         this.scene.arrows(Inputter.arrowStates());
     Inputter.update();
 
-    this.scene.update();
+    this.scene.update(this.scene);
   }
   static draw()
   {
-    this.scene.draw();
+    this.scene.draw(this.scene);
   }
   static mainloop()
   {
@@ -304,8 +337,8 @@ class Main
 
     if (this.scene !== noState)
     {
-      this.update();
-      this.draw();
+      this.update(this.scene);
+      this.draw(this.scene);
     }
   }
 }
@@ -360,7 +393,10 @@ let thingsToLoad = {
 		  "WT_TestBow", "WT_TestMagic",
 		  "PR_arrow", 
 		  "IT_Bandages",
-		  "C_c0", "C_ptr", "C_move", "C_walk", "C_atk",
+		  "EQ_LeatherTunic",
+		  "EQ_SteelPlating",
+		  "EQ_SwiftBlessing",
+		  "C_c0", "C_ptr", "C_audio", "C_move", "C_walk", "C_atk",
 		  "C_menutl", "C_menuel", "C_menucn",
 		  "C_talk_indicator",
 		  "FX_heal", "BFX_circle",
@@ -385,7 +421,8 @@ window.onload = async ()=>
 
   Main.mainloop();
 
+  await Main.chload("./chtitle.js", thingsToLoad);
   //await Main.chload("./ch1.js", thingsToLoad);
-  await Main.chload("./ch1.js", thingsToLoad);
+  //await Main.chload("./ch1.js", thingsToLoad);
   Main.start();
 };

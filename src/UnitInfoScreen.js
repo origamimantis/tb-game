@@ -42,15 +42,15 @@ export class UnitInfoScreen
       "WT_", fracAmtFn, (w)=>{return !unit.canUseWeapon(w)});
     this.Items = new UnitProfileItemPanel(this.p_x, this.p_y, this.p_w, this.p_h, new LoopSelector(unit.items),
       "IT_", fracAmtFn);
-    this.Skills = new UnitProfileItemPanel(this.p_x, this.p_y, this.p_w, this.p_h, new LoopSelector([]),
-      "IT_", fracAmtFn);
+    this.Equipment = new UnitProfileItemPanel(this.p_x, this.p_y, this.p_w, this.p_h,
+      new LoopSelector(unit.equipment), "EQ_", (c)=>{return ""});
     
     this.Stats = new UnitProfileStatPanel(this.p_x, this.p_y, this.p_w, this.p_h, this._unitStatFormat());
     
     // TODO new panel type for skills
 
     // TODO stats, skills, other
-    this.pages = new LoopSelector(["Stats", "Weapons", "Items", "Skills"]);
+    this.pages = new LoopSelector(["Stats", "Weapons", "Items", "Equipment"]);
     this.cur = this.pages.get();
 
     this.state = OBSERVE;
@@ -67,7 +67,34 @@ export class UnitInfoScreen
   _unitStatFormat()
   {
     let st = this.unit.stats;
-    return `Str ${st.atk}\nSpd ${st.spd}\nSkl ${st.skl}\nDef ${st.def}\nMov ${st.mov}\n\nAff ${this.unit.team}`;
+
+    let bn_unfmt = {}
+    for (let s of ["atk","spd","skl","def","mov" ])
+    {
+      bn_unfmt[s] = 0
+    }
+
+    for (let i of this.unit.equipment)
+    {
+      for (let [stat, amt] of Object.entries(i.stats))
+      {
+        bn_unfmt[stat] += amt
+      }
+    }
+
+    let bn = {}
+    for (let s of ["atk","spd","skl","def","mov" ])
+    {
+      let b = bn_unfmt[s]
+      if (b == 0)
+	bn[s] = ""
+      else if (b > 0)
+	bn[s] = "+ "+b
+      else
+	bn[s] = "- "+ (-b)
+    }
+
+    return `Str ${st.atk} ${bn.atk}\nSpd ${st.spd} ${bn.spd}\nSkl ${st.skl} ${bn.skl}\nDef ${st.def} ${bn.def}\nMov ${st.mov} ${bn.mov}\n\nAff ${this.unit.team}`;
   }
   update(g)
   {
@@ -140,9 +167,17 @@ export class UnitInfoScreen
     if (this.cur == "Weapons")
       p = new TooltipWeaponPanel();
     else if (this.cur == "Items")
+    {
       p = new TooltipItemPanel();
+      p.fontsize = "13.75"
+    }
+    else if (this.cur == "Equipment")
+    {
+      p = new TooltipItemPanel();
+      p.fontsize = "13.75"
+    }
     else
-      p = "BROTHER YOU FORGOT TO IMPLEMENT TOLLTIP FOR STATE = " + this.cur;
+      console.error( "BROTHER YOU FORGOT TO IMPLEMENT TOLLTIP FOR STATE = " + this.cur );
 
     p.explicitDraw(g, ctx, this[this.cur].get());
   }

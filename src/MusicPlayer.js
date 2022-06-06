@@ -25,25 +25,27 @@ export class MusicPlayer
   static async loadMusic()
   {
     this.album = {};
-    // load(name, length, introLength
-    // round length up
+    // load(name, (total) length, introLength
+    // round length up, length in milliseconds
     await this.load("btl1", 33334);
-    await this.load("ch2", 51297);
     await this.load("btl_en", 15000);
+    await this.load("ch2", 51297);
     await this.load("bbghrnj", 20000);
     await this.load("fght", 6112)
     await this.load("fght2", 18667)
-    await this.load("rfgh", 45715, 3809.5);
     await this.load("village", 20000);
+    await this.load("archers", 70820);
     await this.load("recruit", 20000, 455);
     await this.load("feels", 40000);
-    await this.load("just_browsing", 40000);
-    //await this.load("oss");
-    //await this.loadFX("bad");
+    await this.load("drabby", 40000);
+    await this.load("old sounding song", 76000, 12000);
+    await this.load("rfgh", 45715, 3809.5);
+    await this.load("weee3", 63636, 1818);
+    await this.load("newnew", 121905);
+    
     await this.loadFX("errbeep", 1000);
     await this.loadFX("beep", 1000);
     await this.loadFX("cbeep2", 1000);
-    //await this.loadFX("bad2");
     await this.loadFX("whack", 1000);
     await this.loadFX("FX_slash", 1000);
     await this.loadFX("FX_miss", 1000);
@@ -83,6 +85,7 @@ export class MusicPlayer
     s.playing = false;
     s.intro = (intro > 0);
     this.album[name] = s;
+    this.album[name].isFX = false;
     triggerEvent("load_progress", `Loaded music ${name}${EXT}`);
   }
   static async loadFX( name, length)
@@ -98,6 +101,7 @@ export class MusicPlayer
 	  }
 	);
       });
+    this.album[name].isFX = true;
     triggerEvent("load_progress", `Loaded sound effect ${name}${EXT}`);
   }
   static play( name )

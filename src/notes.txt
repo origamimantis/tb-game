@@ -1,3 +1,9 @@
+ver0.43 2022-06-06
+Added an actual title screen with level selection and an
+options menu. Also added a music room because my game
+has better music looping than musescore. Also, decreased
+load times by a lot (except for the initial page load).
+
 ver0.42 2022-03-08
 Chapter 2 is out, just in time to procrastinate for finals.
 To play, ctrl-shift-I and run 'console.chload("./ch2.js")'

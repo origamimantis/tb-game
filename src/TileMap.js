@@ -154,7 +154,7 @@ export class TileMap
       for (let pair of t)
       {
 	  let pArr = pair.split(":");
-	  this.artmap[pArr[0]] = "T_"+pArr[1];
+	  this.artMap[pArr[0]] = "T_"+pArr[1];
       }
   }
   getTile( x, y = null )

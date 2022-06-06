@@ -6,6 +6,7 @@ import {FPS, TICK_RATE} from "./Constants.js";
 import {Queue} from "./Queue.js";
 import {CoordLookup, MapCoordBlob} from "./CoordLookup.js";
 import {ARROW} from "./Inputter.js";
+import {Settings} from "./Settings.js"
 
 export function fracAmtFn(c)
 {
@@ -385,6 +386,14 @@ export function scrollSelect_4W(keys, selector, loop = true)
 
 
 
+export function csPause(time)
+{
+  if (Settings.get("cut_skip") == true)
+    return
+
+  else
+    return waitTime(time)
+}
 export function waitTime(time)
 {
   return new Promise(resolve =>

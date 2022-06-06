@@ -4,7 +4,7 @@ import {waitSpriteEffect} from "./Effects.js";
 import * as Units from "./TypeUnits.js";
 import * as Weapons from "./Weapon.js";
 import {Coord} from "./Path.js";
-import {waitTime, inRange} from "./Utils.js";
+import {waitTime, csPause, inRange} from "./Utils.js";
 import {MusicPlayer} from "./MusicPlayer.js";
 import {Settings} from "./Settings.js";
 import {Range} from "./Range.js";
@@ -100,7 +100,7 @@ export let script =
     type: "Game",
     cameraInit: {x: 0, y:5},
     teams:  [ {name: "Player", bannercolor: "#aaaaff", maptheme: "ch2",  btltheme: "fght2"},
-	      {name: "Scout", bannercolor: "#12aa12", maptheme: "village",  btltheme: "fght"},
+	      {name: "Scout", bannercolor: "#12aa12", maptheme: "archers",  btltheme: "fght"},
 	      {name: "Bandit", bannercolor: "#bd4900", maptheme: "bbghrnj",  btltheme: "fght"}
 	    ],
     alliances: {"Player": ["Scout"], "Scout":["Player"]},
@@ -118,15 +118,15 @@ export let script =
       let movePromise = []
       g.addUnit(vargas);
       movePromise.push( vargas.moveTo(g, 2, 11) );
-      await waitTime(150);
+      await csPause(150);
 
       g.addUnit(billy);
       movePromise.push( billy.moveTo(g, 1, 10) );
-      await waitTime(150);
+      await csPause(150);
 
       g.addUnit(chloe);
       movePromise.push( chloe.moveTo(g, 1, 12) );
-      await waitTime(150);
+      await csPause(150);
 
       g.addUnit(alfred);
       movePromise.push( alfred.moveTo(g, 1, 11) );
@@ -202,14 +202,14 @@ export let script =
 
 
       await g.cameraShift(0,30);
-      await waitTime(500);
+      await csPause(500);
       await g.cameraShift(0,9);
 
       movePromise = []
       movePromise.push( b1.moveTo(g, 9, 15) )
-      await waitTime(150);
+      await csPause(150);
       movePromise.push( b2.moveTo(g, 10, 14) )
-      await waitTime(150);
+      await csPause(150);
       movePromise.push( b3.moveTo(g, 13, 14) )
       await Promise.all(movePromise);
 
@@ -386,7 +386,7 @@ export let script =
 	      g.Map.setMaxBound(null, null);
 	      g.camera.clearTarget()
 	      await g.cameraCenter(18, 8)
-	      await waitTime(1500)
+	      await csPause(1500)
 	      g.camera.clearTarget()
 	      await g.cameraCenter(vargas)
 
@@ -440,7 +440,7 @@ export let script =
 
 	      g.addUnit(yuli);
 	      let a = yuli.moveTo(g, 32, 34)
-	      await waitTime(150);
+	      await csPause(150);
 	      g.addUnit(mali);
 	      let b = mali.moveTo(g, 32, 35)
 	      await(a)
@@ -484,7 +484,7 @@ export let script =
 	      conv.say("Thanks.")
 	      await g.setExtStatus(conv);
 
-	      //await waitTime(250)
+	      //await csPause(250)
 	      //await mali.items[0].use(g, mali);
 
 	    }
@@ -558,7 +558,7 @@ export let script =
 
 		  let move = b.moveTo(g, ...d[i])
 		  movePromise.push(move);
-		  await waitTime(150);
+		  await csPause(150);
 		  j += 1
 		}
 	      }

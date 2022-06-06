@@ -8,6 +8,7 @@ import {STATS} from "./Constants.js";
 import {TiledEffect} from "./TiledEffect.js";
 import {Settings} from "./Settings.js";
 import {MusicPlayer} from "./MusicPlayer.js";
+import {Album} from "./Images.js"
 
 
 
@@ -103,11 +104,22 @@ class OptionPanel extends Panel
 
 export class OptionScreen
 {
-  constructor(g)
+  // if using as a substate, ctx and main are undefined.
+  // if using as a base state, g is "assets"
+  constructor(g, ctx = null, MAIN = null)
   {
-    this.g = g;
-
-    this._resolve = null;
+    if (ctx === null && MAIN === null)
+    {
+      this.g = g;
+      this._resolve = null;
+    }
+    else
+    {
+      this.ctx = ctx
+      this.MAIN = MAIN;
+      this.inputting = true;
+      this.g = this;
+    }
 
     this.contents = new OptionPanel();
   }
@@ -124,6 +136,10 @@ export class OptionScreen
     this.contents.explicitDraw(g);
     this.contents.drawComp(g);
   }
+  async beginGame()
+  {
+    await this.begin()
+  }
   async begin(onDone)
   {
     this.bg = new TiledEffect(-0.25,0.5);
@@ -132,15 +148,12 @@ export class OptionScreen
     this.old_ctx_refresh = this.g.ctx_refresh;
     this.g.ctx_refresh = [0];
 
-    MusicPlayer.setVol(this.g.mapTheme, 0.15);
+    if (this.g.mapTheme !== undefined)
+      MusicPlayer.setVol(this.g.mapTheme, 0.15);
+
     this.onDone = onDone;
 
-    this.g.clearCtx(0);
-    this.g.clearCtx(1);
-    this.g.clearCtx(2);
-    this.g.clearCtx(3);
-    this.g.clearCtx(4);
-    this.g.clearCtx(5);
+    Album.clearAllCtx()
     this.explicitDraw(this.g);
   }
   async arrows(a)
@@ -161,9 +174,17 @@ export class OptionScreen
   {
     // TODO tooltips?
   }
-  cancel()
+  async cancel()
   {
-    this.end();
+    if (this.MAIN === undefined)
+    {
+      this.end();
+    }
+    else
+    {
+      await this.MAIN.chload("./chtitle.js", null)
+      this.MAIN.start();
+    }
   }
   end()
   {

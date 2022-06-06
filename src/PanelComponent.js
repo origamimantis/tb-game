@@ -2,6 +2,7 @@ import {SEP, MAPPER} from "./SpriteFont.js";
 
 export const PanelType = {TEXT : 0, ART : 1, HEALTHBAR : 2};
 
+const noOff = {x:0, y:0};
 
 export class PanelComponent
 {
@@ -78,24 +79,24 @@ export class PanelComponent
 	  str = str.toString();
       }
   }
-  drawArt(g, off, xy)
+  drawArt(g, off, xy, scrollOff = noOff)
   {
-    g.Album.draw(4, this.data, off.x + xy.x, off.y + xy.y, xy.w, xy.h);
+    g.Album.draw(4, this.data, off.x + xy.x + scrollOff.x, off.y + xy.y + scrollOff.y, xy.w, xy.h);
   }
 
-  drawText(g, off, xy)
+  drawText(g, off, xy, scrollOff = noOff)
   {
     g.setTextProperty(4, xy.s, xy.w, xy.h);
-    g.drawText(4, this.data, off.x+xy.x, off.y+xy.y + 4);
+    g.drawText(4, this.data, off.x+xy.x + scrollOff.x, off.y+xy.y + 4 + scrollOff.y);
   }
-  drawHB(g, off, xy)
+  drawHB(g, off, xy, scrollOff = noOff)
   {
     if (xy.w == null)
       xy.w = 184;
     if (xy.h == null)
       xy.h = 10;
 
-    g.Album.drawHealthBar(4, this.data, off.x + xy.x, off.y + xy.y, xy.w, xy.h);
+    g.Album.drawHealthBar(4, this.data, off.x + xy.x + scrollOff.x, off.y + xy.y + scrollOff.y, xy.w, xy.h);
   }
 
 }

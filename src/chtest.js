@@ -3,6 +3,7 @@ import {waitSpriteEffect} from "./Effects.js";
 import * as Units from "./TypeUnits.js";
 import * as Weapons from "./Weapon.js";
 import * as Items from "./Item.js";
+import * as Equipment from "./Equipment.js";
 import {Coord} from "./Path.js";
 import {waitTime} from "./Utils.js";
 import {MusicPlayer} from "./MusicPlayer.js";
@@ -59,12 +60,14 @@ function initVars()
   yuli.team = "Player";
   yuli.pArt = "P_Yuliza";
   yuli.addWeapon(new Weapons.TestBow());
+  yuli.equipment.push(new Equipment.SwiftBlessing());
   yuli.setAnim( "idle" );
 
   mali = new Units.BowKnight(13, 9, 7, {maxhp:17, atk:4,spd:4,skl:3,def:2,con:4,mov: 6}, "Malidale")
   mali.team = "Player";
   mali.pArt = "P_Malidale";
   mali.addWeapon(new Weapons.TestBow());
+  mali.equipment.push(new Equipment.LeatherTunic());
   mali.setAnim( "idle" );
 
   mag = new Units.SwordKnight(12, 9, 8, {maxhp:18, atk:5,spd:6,skl:4,def:4,con:3,mov: 6}, "Mage", "S_kn0");
@@ -85,6 +88,7 @@ function initVars()
   vargas.team = "Player";
   vargas.pArt = "P_lead";
   vargas.addWeapon(new Weapons.BronzeSlicer());
+  vargas.equipment.push(new Equipment.SteelPlating());
   vargas.setAnim("idle");
   
   choddson = new Units.Bandit(7, 12,7, {maxhp:33, atk:8,spd:3,skl:5,def:7,con:19,mov: 6}, "Choddson");

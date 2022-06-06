@@ -119,7 +119,19 @@ export class BattleInfo
 
     for (let s of [ "maxhp","hp","atk","spd","skl","def","con","mov" ])
     {
-      this.stats[s] = u.stats[s]; // + bonuses[s] TODO
+      this.stats[s] = u.stats[s];
+    }
+    for (let i of u.equipment)
+    {
+      for (let [stat, amt] of Object.entries(i.stats))
+      {
+	this.stats[stat] += amt
+      }
+    }
+    for (let s of [ "maxhp","hp","atk","spd","skl","def","con","mov" ])
+    {
+      if (this.stats[s] < 0)
+	this.stats[s] = 0
     }
 
     this.stats["hit"] = this.stats.skl*2;

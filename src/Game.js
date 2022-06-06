@@ -166,7 +166,7 @@ class Game
     this.camera.setPos(chscript.cameraInit.x, chscript.cameraInit.y);
     this.unblockInput();
     await chscript.onBegin(this)
-    this.startTurns();;
+    this.startTurns();
   }
   initAlliances()
   {
@@ -765,7 +765,8 @@ class Game
 	this.Panels.hide("UMP");
 	// TODO map options might be the same no matter what. See if I can make this constant.
 	this.temp["mapActions"] = new LoopSelector(
-	  [new Action("????????", async ()=>
+	  [
+	  new Action("????????", async ()=>
 	    {
 	      if (Settings.get("lvl_skip") == true)
 	      {
@@ -796,7 +797,17 @@ class Game
 	      
 	      
 	    }),
-	   new Action("End Turn", async ()=>
+
+	  // quit
+	  // TODO maybe save the game here
+	  new Action("Quit", async ()=>
+	    {
+	      MusicPlayer.stopAll()
+	      await this.MAIN.chload("./chtitle.js", null)
+	      this.MAIN.start();
+	    }),
+
+	  new Action("End Turn", async ()=>
 	    {
 	      // TODO when i decide to remove this for danger area
 	      this.toDraw.delc("enemyAtackable");
@@ -1417,6 +1428,9 @@ class Game
 
   async alert(text, x=256, y=200)
   {
+    if (Settings.get("cut_skip") == true)
+      return
+
     this.blockInput();
     this.setTextProperty(4, "black", "11px ABCD Mono", "center");
     let w = Math.ceil(this.ctx[4].measureText(text).width);

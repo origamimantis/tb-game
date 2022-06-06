@@ -2,6 +2,8 @@
 
 import {triggerEvent} from "./Utils.js";
 
+const LOG = false;
+
 export class ImageModifier
 {
   constructor()
@@ -248,9 +250,11 @@ export class ImageModifier
     {
       let tokens = line.replace(/\s+/g, " ").trim().split(" ");
 
-      if (this.album.get(tokens[2]) != undefined && overwrite == false)
+      if (this.album.get(tokens[2]) != undefined)
       {
-	throw "Name '" + name + "' in use!";
+	if (LOG)
+	  console.log("imgmod: '" + tokens[2] + "' found, skipping")
+	continue;
       }
       let nImg;
       if (tokens.length == 1 &&  tokens[0].length == 0)

@@ -67,6 +67,7 @@ export class Unit extends AnimatedObject
     this.weapons = [];
     this.eqWeap = 0;
     this.items = [];
+    this.equipment = [];
     this.walkFunction = walkFunction;
     
     this.skills = skills;
@@ -447,7 +448,20 @@ export class Unit extends AnimatedObject
   // if not, then this will just be a getter
   getMov()
   {
-    return this.stats.mov;
+    let bn = 0
+    for (let i of this.equipment)
+    {
+      for (let [stat, amt] of Object.entries(i.stats))
+      {
+        if (stat == "mov")
+	  bn += amt
+      }
+    }
+
+    let ret = this.stats.mov + bn;
+    if (ret < 0)
+      ret = 0
+    return ret
   }
   isDead()
   {

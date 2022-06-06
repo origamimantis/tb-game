@@ -1,4 +1,5 @@
 import {PanelComponent, PanelType} from "./PanelComponent.js";
+import {Album} from "./Images.js";
 
 
 const EDGEW = 10
@@ -35,6 +36,9 @@ export class Panel
     this.w = w;
     this.h = h;
 
+    this.innerw = w-2*EDGEW
+    this.innerh = h-2*EDGEW
+
     this.components = {};
   }
 
@@ -53,7 +57,7 @@ export class Panel
 
     if (x >= this.gx || y >= this.gy)
     {
-      throw "index out of bounds";
+      //throw "index out of bounds";
     }
     this.components[name] = 
       {
@@ -100,17 +104,17 @@ export class Panel
 
   drawBase( g, ctx)
   {
-    g.ctx[ctx].drawImage(g.Album.get("C_menutl"), this.x, this.y, EDGEW, EDGEW);
-    g.ctx[ctx].drawImage(g.Album.get("C_menutr"), this.x+this.w-EDGEW, this.y, EDGEW, EDGEW);
-    g.ctx[ctx].drawImage(g.Album.get("C_menubl"), this.x, this.y+this.h-EDGEW, EDGEW, EDGEW);
-    g.ctx[ctx].drawImage(g.Album.get("C_menubr"), this.x+this.w-EDGEW, this.y+this.h-EDGEW, EDGEW, EDGEW);
+    g.ctx[ctx].drawImage(Album.get("C_menutl"), this.x, this.y, EDGEW, EDGEW);
+    g.ctx[ctx].drawImage(Album.get("C_menutr"), this.x+this.w-EDGEW, this.y, EDGEW, EDGEW);
+    g.ctx[ctx].drawImage(Album.get("C_menubl"), this.x, this.y+this.h-EDGEW, EDGEW, EDGEW);
+    g.ctx[ctx].drawImage(Album.get("C_menubr"), this.x+this.w-EDGEW, this.y+this.h-EDGEW, EDGEW, EDGEW);
 
-    g.ctx[ctx].drawImage(g.Album.get("C_menuel"), this.x, this.y+EDGEW, EDGEW, this.h-2*EDGEW);
-    g.ctx[ctx].drawImage(g.Album.get("C_menuer"), this.x+this.w-EDGEW, this.y+EDGEW, EDGEW, this.h-2*EDGEW);
-    g.ctx[ctx].drawImage(g.Album.get("C_menuet"), this.x+EDGEW, this.y, this.w-2*EDGEW, EDGEW);
-    g.ctx[ctx].drawImage(g.Album.get("C_menueb"), this.x+EDGEW, this.y+this.h-EDGEW, this.w-2*EDGEW, EDGEW);
+    g.ctx[ctx].drawImage(Album.get("C_menuel"), this.x, this.y+EDGEW, EDGEW, this.h-2*EDGEW);
+    g.ctx[ctx].drawImage(Album.get("C_menuer"), this.x+this.w-EDGEW, this.y+EDGEW, EDGEW, this.h-2*EDGEW);
+    g.ctx[ctx].drawImage(Album.get("C_menuet"), this.x+EDGEW, this.y, this.w-2*EDGEW, EDGEW);
+    g.ctx[ctx].drawImage(Album.get("C_menueb"), this.x+EDGEW, this.y+this.h-EDGEW, this.w-2*EDGEW, EDGEW);
 
-    g.ctx[ctx].drawImage(g.Album.get("C_menucn"), this.x+EDGEW, this.y+EDGEW, this.w-2*EDGEW, this.h-2*EDGEW);
+    g.ctx[ctx].drawImage(Album.get("C_menucn"), this.x+EDGEW, this.y+EDGEW, this.w-2*EDGEW, this.h-2*EDGEW);
   }
 
   drawComp( g )
@@ -177,7 +181,7 @@ export class SelectionPointer
   }
   draw(g, ctx = 5)
   {
-    g.ctx[ctx].drawImage(g.Album.get("C_ptr"), this.x - EDGEW + OSCILLATION_AMT*(this.offx- 2), this.y + this.offy);
+    g.ctx[ctx].drawImage(Album.get("C_ptr"), this.x - EDGEW + OSCILLATION_AMT*(this.offx- 2), this.y + this.offy);
   }
 }
 
@@ -427,12 +431,13 @@ export class TooltipItemPanel extends Panel
   constructor( )
   {
     super(94, 270, 402, 100);
-    
+    this.fontsize = "16.5"
   }
   explicitDraw(g, ctx, i)
   {
+    let font = this.fontsize + "px ABCD Mono"
     this.drawBase(g, ctx);
-    g.setTextProperty(ctx, "black", "16.5px ABCD Mono", "left");
+    g.setTextProperty(ctx, "black", font, "left");
     g.drawText(ctx, i.tooltip, this.x + 15, this.y + 15);
   }
 }
@@ -557,7 +562,7 @@ export class UnitMapPanel extends Panel
     g.setTextProperty(4, "#000000",  "11px ABCD Mono", "left");
     for (let o of Object.values(this.components))
     {
-      o.comp.draw(g, this.body, o, false);
+      o.comp.draw(g, this.body, o);
     }
   }
 }
