@@ -8,8 +8,9 @@ import {TiledEffect} from "./TiledEffect.js";
 
 
 const lvlList = [
-                   "1",
-                   "2"
+                  "1",
+                  "2",
+		  "test",
                 ];
 
 class LevelPanel extends Panel
