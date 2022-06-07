@@ -504,17 +504,17 @@ export class Battle
     if (ai.canAttack)
     {
       let p = this.statPanels.a;
-      p.setComponentData("dmgv", ai.stats.atk - di.stats.def);
-      p.setComponentData("hitv", ai.dispHit(di));
-      p.setComponentData("crtv", ai.dispCrt(di));
+      p.setComponentData("dmgv", Math.max(0, ai.stats.atk - di.stats.def));
+      p.setComponentData("hitv", Math.max(0, ai.dispHit(di)));
+      p.setComponentData("crtv", Math.max(0, ai.dispCrt(di)));
       p.explicitDraw(this.g);
     }
     if (di.canAttack)
     {
       let p = this.statPanels.d;
-      p.setComponentData("dmgv", di.stats.atk - ai.stats.def);
-      p.setComponentData("hitv", di.dispHit(ai));
-      p.setComponentData("crtv", di.dispCrt(ai));
+      p.setComponentData("dmgv", Math.max(0, di.stats.atk - ai.stats.def));
+      p.setComponentData("hitv", Math.max(0, di.dispHit(ai)));
+      p.setComponentData("crtv", Math.max(0, di.dispCrt(ai)));
       p.explicitDraw(this.g);
     }
   }
