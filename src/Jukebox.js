@@ -156,7 +156,7 @@ export class Jukebox
   {
     Album.clearAllCtx()
     this.explicitDraw()
-    this.bg = new TiledEffect(-0.3,0.4);
+    this.bg = new TiledEffect(-0.3,-0.4);
     await this.bg.load("BG_unitprofile");
   }
 
