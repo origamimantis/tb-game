@@ -4,6 +4,7 @@ import {triggerEvent, requestFile, respondToEvent} from "./Utils.js";
 import {TileMap} from "./TileMap.js";
 import {Album, ImageLoader} from "./Images.js";
 import {MusicPlayer} from "./MusicPlayer.js";
+import {MusicLoader} from "./MusicLoader.js";
 import {ImageModifier} from "./ImageModifier.js";
 import {Inputter, toggleLog} from "./Inputter.js";
 import {BattleAnimationAlbum} from "./BattleAnimationAlbum.js";
@@ -113,7 +114,7 @@ async function modImgs(imgMod)
 }
 async function loadMusic()
 {
-  await MusicPlayer.loadMusic();
+  await MusicLoader.load();
 }
 
 async function loadFonts()
@@ -246,6 +247,7 @@ class Main
   static async initload(things)
   {
     Album.init(this);
+    MusicPlayer.init()
     Settings.init();
     await loadFonts();
     await loadMusic();
