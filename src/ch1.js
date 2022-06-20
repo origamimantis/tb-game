@@ -120,7 +120,7 @@ export let script =
       conv.say(".........");
       conv.speaker("???");
       conv.say("HELP!!!!!!!");
-      conv.music("btl_en", false, false);
+      conv.music(script.teams[2].maptheme, false, false);
       conv.setMusicContinue(true);
       conv.speaker("Alfred");
       conv.turn("Alfred");
@@ -225,7 +225,7 @@ export let script =
       await csPause(125);
       await b2.moveTo(g, 13, 8);
 
-      await MusicPlayer.fadestop("btl_en");
+      await MusicPlayer.fadestop(script.teams[2].maptheme)
 
     }, //onBegin
     conversations: {},
