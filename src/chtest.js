@@ -105,9 +105,9 @@ export let script =
     tileMap: "assets/tilemaps/ch1.txt",
     type: "Game",
     cameraInit: {x: 0, y: 0},
-    teams:  [ {name: "Player", bannercolor: "#aaaaff", maptheme: "btl1",  btltheme: "fght2"},
-	      {name: "Village", bannercolor: "#12aa12", maptheme: "village",  btltheme: "fght"},
-	      {name: "Bandit", bannercolor: "#bd4900", maptheme: "btl_en",  btltheme: "fght"}
+    teams:  [ {name: "Player", bannercolor: "#aaaaff", maptheme: "ch1 map",  btltheme: "player battle"},
+	      {name: "Village", bannercolor: "#12aa12", maptheme: "village",  btltheme: "player battle"},
+	      {name: "Bandit", bannercolor: "#bd4900", maptheme: "ch1 enemy",  btltheme: "enemy battle"}
 	    ],
     alliances: {"Player": ["Village"], "Village":["Player"]},
     dayLength: 0,   // 0: always days, <0: always night

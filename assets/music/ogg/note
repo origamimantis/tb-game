@@ -1,0 +1,2 @@
+audacity the wav file and export ogg with quality=5
+ffmpeg causes some pretty bad artifacts like warping/tuning issues

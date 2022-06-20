@@ -99,9 +99,9 @@ export let script =
     nextLvl: null,
     type: "Game",
     cameraInit: {x: 0, y:5},
-    teams:  [ {name: "Player", bannercolor: "#aaaaff", maptheme: "ch2",  btltheme: "fght2"},
-	      {name: "Scout", bannercolor: "#12aa12", maptheme: "archers",  btltheme: "fght"},
-	      {name: "Bandit", bannercolor: "#bd4900", maptheme: "bbghrnj",  btltheme: "fght"}
+    teams:  [ {name: "Player", bannercolor: "#aaaaff", maptheme: "ch2 map",  btltheme: "player battle"},
+	      {name: "Scout", bannercolor: "#12aa12", maptheme: "archers",  btltheme: "player battle"},
+	      {name: "Bandit", bannercolor: "#bd4900", maptheme: "ch2 enemy",  btltheme: "enemy battle"}
 	    ],
     alliances: {"Player": ["Scout"], "Scout":["Player"]},
     dayLength: 0,   // 0: always days, <0: always night

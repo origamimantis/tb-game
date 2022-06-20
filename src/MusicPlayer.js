@@ -2,7 +2,7 @@
 
 import {triggerEvent, waitTime} from "./Utils.js";
 
-const EXT = ".wav";
+const EXT = "ogg";
 
 /*
 play( name )
@@ -27,21 +27,22 @@ export class MusicPlayer
     this.album = {};
     // load(name, (total) length, introLength
     // round length up, length in milliseconds
-    await this.load("btl1", 33334);
-    await this.load("btl_en", 15000);
-    await this.load("ch2", 51297);
-    await this.load("bbghrnj", 20000);
-    await this.load("fght", 6112)
-    await this.load("fght2", 18667)
-    await this.load("village", 20000);
-    await this.load("archers", 70820);
-    await this.load("recruit", 20000, 455);
-    await this.load("feels", 40000);
-    await this.load("drabby", 40000);
-    await this.load("old sounding song", 76000, 12000);
-    await this.load("rfgh", 45715, 3809.5);
-    await this.load("weee3", 63636, 1818);
-    await this.load("newnew", 121905);
+    await this.load("ch1 map",           "btl1",          [ 33334, 0]);
+    await this.load("ch1 enemy",         "btl_en",        [ 15000, 0]);
+    await this.load("ch2 map",           "thing3",        [ 51297, 0]);
+    await this.load("ch2 enemy",         "btl_en_night",  [ 20000, 0]);
+    await this.load("player battle",     "fght2",         [ 18667, 0])
+    await this.load("enemy battle",      "fght",          [  6112, 0])
+    await this.load("village",           "village",       [ 20000, 0]);
+    await this.load("archers",           "archers",       [ 70820, 0]);
+    await this.load("recruit",           "recruit",       [ 20000, 455]);
+    await this.load("feels",             "feels",         [ 40000, 0]);
+    await this.load("drabby song",       "drabby",        [ 40000, 0]);
+    await this.load("old sounding song", "oss",           [ 76000, 12000]);
+    await this.load("rfgh",              "rfgh",          [ 45715, 3809.5]);
+    await this.load("weee3",             "weee3",         [ 63636, 1818]);
+    await this.load("newnew",            "newnew",        [ 81905, 0]);
+    await this.load("oipmp2",            "oipmp2",        [ 53455, 0]);
     
     await this.loadFX("errbeep", 1000);
     await this.loadFX("beep", 1000);
@@ -59,11 +60,12 @@ export class MusicPlayer
     await this.loadFX("FX_leave", 1667);
   }
   
-  static async load( name, length, intro = 0)
+  static async load( name, filename, keypoints)
   {
+    let [ length, intro ] = keypoints;
     let s = await new Promise ( (resolve) => 
       {
-	let fullname = "assets/music/" + name + EXT;
+	let fullname = "assets/music/" + EXT + "/" + filename + "." + EXT;
 	let sprite = {};
 	if (intro > 0)
 	{
@@ -86,12 +88,12 @@ export class MusicPlayer
     s.intro = (intro > 0);
     this.album[name] = s;
     this.album[name].isFX = false;
-    triggerEvent("load_progress", `Loaded music ${name}${EXT}`);
+    triggerEvent("load_progress", `Loaded music ${filename}.${EXT}`);
   }
   static async loadFX( name, length)
   {
     this.album[name] = await new Promise ( (resolve) => {
-	let fullname = "assets/music/" + name + EXT;
+	let fullname = "assets/music/" + EXT + "/FX/" + name + "." + EXT;
 	let s = new Howl(
 	  {
 	    src: [fullname],
@@ -102,7 +104,7 @@ export class MusicPlayer
 	);
       });
     this.album[name].isFX = true;
-    triggerEvent("load_progress", `Loaded sound effect ${name}${EXT}`);
+    triggerEvent("load_progress", `Loaded sound effect ${name}.${EXT}`);
   }
   static play( name )
   {
