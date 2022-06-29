@@ -23,6 +23,7 @@ const music_to_load = [
     [ "weee3",             "weee3",         [ 63636, 1818] ],
     [ "newnew",            "newnew",        [ 81905, 0]   ],
     [ "oipmp2",            "oipmp2",        [ 53455, 0]   ],
+    [ "thsda",             "thsda",         [ 55385, 0]   ],
     
 ];
 
