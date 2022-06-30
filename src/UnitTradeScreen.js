@@ -2,6 +2,8 @@ import {LoopSelector} from "./LoopSelector.js"
 import {ItemPanel, SelectionPointer} from "./Panel.js"
 import {waitTick, toTitle, fracAmtFn, scrollSelect_LR, scrollSelect_UD} from "./Utils.js"
 import {UNIT_MAX_WEAP, UNIT_MAX_ITEM} from "./Constants.js";
+import {applyArrowStall} from "./Utils.js";
+
 
 
 
@@ -196,6 +198,8 @@ export class UnitTradeScreen
   }
   async arrows(a)
   {
+    if (applyArrowStall(a)) return;
+
     let old = this.unitSelect.get().panel[this.tradeMode];
     let lr = scrollSelect_LR(a, this.unitSelect, false, false);
     if (lr)

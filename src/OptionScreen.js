@@ -9,6 +9,7 @@ import {TiledEffect} from "./TiledEffect.js";
 import {Settings} from "./Settings.js";
 import {MusicPlayer} from "./MusicPlayer.js";
 import {Album} from "./Images.js"
+import {applyArrowStall} from "./Utils.js";
 
 
 
@@ -21,6 +22,9 @@ import {Album} from "./Images.js"
 
 let unselected = {s:"#000000", w:"11px ABCD Mono", h:"center"};
 let selected = {s:"#7c9e03", w:"13.25px ABCD Mono", h:"center"};
+
+let yoff_unselected = {x:0, y:0}
+let yoff_selected = {x:0, y:-1.125}
 
 class OptionPanel extends Panel
 {
@@ -67,16 +71,23 @@ class OptionPanel extends Panel
       let o = this.components[i];
       o.comp.draw(g, this.body, o);
 
+
       for (let j = 0; j < vals.length; ++j)
       {
 	let comp = this.components[i.toString() + vals.getIdx(j)];
 	let thing = { ...comp }
+	let yoff = yoff_unselected
 	if (vals.idx == j)
+	{
 	  Object.assign(thing, selected)
+	  yoff = yoff_selected
+	}
 	else
+	{
 	  Object.assign(thing, unselected)
+	}
 	
-	comp.comp.draw(g, this.body, thing);
+	comp.comp.draw(g, this.body, thing, yoff);
       }
 
     }
@@ -158,6 +169,8 @@ export class OptionScreen
   }
   async arrows(a)
   {
+    if (applyArrowStall(a)) return;
+
     if (scrollSelect_UD(a, this.contents, false, false))
     {
       this.contents.explicitDraw(this.g)

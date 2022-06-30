@@ -5,10 +5,26 @@ export class Settings
   static init()
   {
     this.values = {
-      cut_skip : {allowed: ["Off","On"], map: {Off:false,On:true}, display: "Skip Cutscenes"},
-      lvl_skip : {allowed: ["Off","On"], map: {Off:false,On:true},display: "Enable Level Skip"},
-      visible_movement_costs : {allowed: ["Off","On"], map: {Off:false,On:true}, display: "Visible Movement Costs"},
-      empty : {allowed: ["yea","nay"], display: "Placeholder Setting"}
+      cut_skip : {
+		    allowed: ["Off","On"],
+		    map: {Off:false,On:true},
+		    display: "Skip Cutscenes"
+      },
+      lvl_skip : {
+		    allowed: ["Off","On"],
+		    map: {Off:false,On:true},
+		    display: "Enable Level Skip"
+      },
+      visible_movement_costs : {
+		    allowed: ["Off","On"],
+		    map: {Off:false,On:true},
+		    display: "Visible Movement Costs"
+      },
+      option_scroll_speed : {
+		    allowed:["Fast", "Medium", "Slow"],
+		    map: {Fast:[8,4],Medium:[12,6], Slow:[12,12]},
+		    display: "Menu Scroll Speed"
+      },
     }
 
 
@@ -28,16 +44,20 @@ export class Settings
     set.allowed.idx = i;
   }
 
-  static get(s)
+  static get(s, spec = null)
   {
     let set = this.values[s];
     if (set === undefined)
       throw "'" + s + "' is not a setting"
     
+    let opt = set.allowed.get();
+    if (spec !== null)
+      opt = spec
+
     if (set.map !== undefined)
-      return set.map[set.allowed.get()];
+      return set.map[opt]
     else
-      return set.allowed.get();
+      return opt
   }
 
 

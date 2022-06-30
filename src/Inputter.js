@@ -57,19 +57,24 @@ export class Inputter
     this.updateArrowAccept();
   }
  
-  static arrowStall(start)
+  static arrowStall(start, speed)
   {
-    if (this.m.scene.cursor === undefined)
-      return;
-
     this.accepting = false;
-    if (start == true)
+
+    if (start === null)
     {
-      this.wait = HOLD_DELAY;
+	this.wait = speed;
     }
     else
     {
-      this.wait = HOLD_DELAY - this.m.scene.cursor.speed;
+      if (start == true)
+      {
+	this.wait = HOLD_DELAY;
+      }
+      else
+      {
+	this.wait = HOLD_DELAY - speed;
+      }
     }
   }
 
@@ -114,7 +119,6 @@ export class Inputter
   {
     LOGKEYS && console.log("up: ", key);
     delete this.pressed[key];
-    triggerEvent("input_arrowStall", {start : false});
   }
 
   static arrowStates()

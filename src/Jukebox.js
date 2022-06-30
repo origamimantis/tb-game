@@ -5,6 +5,7 @@ import {LoopSelector} from "./LoopSelector.js";
 import {Album} from "./Images.js"
 import {waitTime, scrollSelect_UD} from "./Utils.js";
 import {TiledEffect} from "./TiledEffect.js";
+import {applyArrowStall} from "./Utils.js";
 
 
 
@@ -180,6 +181,8 @@ export class Jukebox
   }
   async arrows(a)
   {
+    if (applyArrowStall(a)) return;
+
     if (scrollSelect_UD(a, this.p, false, false))
     {
       this.explicitDraw()

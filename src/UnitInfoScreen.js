@@ -8,6 +8,8 @@ import {LoopSelector} from "./LoopSelector.js";
 import {STATS} from "./Constants.js";
 import {TiledEffect} from "./TiledEffect.js";
 import {MusicPlayer} from "./MusicPlayer.js";
+import {applyArrowStall} from "./Utils.js";
+import {Settings} from "./Settings.js";
 
 
 // Layer 0: background
@@ -264,6 +266,8 @@ export class UnitInfoScreen
   {
     if (this.state == OBSERVE)
     {
+      if (applyArrowStall(a, 1, Settings.get("option_scroll_speed", "Slow"))) return;
+
       let prev = this.pages.idx;
       if (scrollSelect_LR(a, this.pages))
       {
@@ -277,6 +281,8 @@ export class UnitInfoScreen
     }
     else if (this.state == TOOLTIP)
     {
+      if (applyArrowStall(a)) return;
+
       if (scrollSelect_UD(a, this[this.cur]))
       {
 	this.drawTitle(this.g, 1);

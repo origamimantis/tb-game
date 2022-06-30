@@ -29,7 +29,7 @@ import {LoopSelector, QueueSelector} from "./LoopSelector.js";
 import {Action} from "./ActionGenerator.js";
 import {scrollSelect_UD, scrollSelect_4W, triggerEvent,
   getCost, generatePath, nextFrameDo, cursorStop, waitTick, waitTime, formattedHP,
-  fracAmtFn} from "./Utils.js";
+  fracAmtFn, applyArrowStall} from "./Utils.js";
 import {EnemyController} from "./EnemyController.js";
 import {TurnBanner} from "./TurnBanner.js";
 import {TurnData} from "./TurnData.js";
@@ -514,6 +514,8 @@ class Game
       },
       arrows:async (a)=>
       {
+	if (applyArrowStall(a)) return;
+
 	if (scrollSelect_UD(a, this.Panels.get("selectedUnitWeaponPanel")))
 	  this.Panels.redraw("selectedUnitWeaponPanel");
       }
@@ -550,6 +552,8 @@ class Game
       },
       arrows:async (a)=>
       {
+	if (applyArrowStall(a)) return;
+
 	if (scrollSelect_UD(a, this.Panels.get("selectedUnitWeaponPanel")))
 	  this.Panels.redraw("selectedUnitWeaponPanel");
       }
@@ -591,6 +595,8 @@ class Game
       },
       arrows:(a)=>
       {
+	if (applyArrowStall(a)) return;
+
 	if (scrollSelect_UD(a, this.Panels.get("selectedUnitActionPanel")))
 	  this.Panels.redraw("selectedUnitActionPanel");
       }
@@ -721,7 +727,7 @@ class Game
 	{
 	  a.once.forEach( (d) => { delta.add( ARROWS[d] );} );
 
-	  triggerEvent("input_arrowStall", {start : a.held.length == 0});
+	  triggerEvent("input_arrowStall", {start : a.held.length == 0, speed : this.cursor.speed, subtract:true});
 
 	  // usually outside movable == false. If keypressed, allow it to go outside but only if moves outside
 	  this.cursorOutsideMovable = (this.toDraw.get("selectedUnitMovable")[0]
@@ -855,6 +861,8 @@ class Game
       
       arrows: (a) =>
       {
+	if (applyArrowStall(a)) return;
+
 	if (scrollSelect_UD(a, this.Panels.get("mapActionPanel")))
 	  this.Panels.redraw("mapActionPanel");
       }
@@ -932,7 +940,7 @@ class Game
 	{
 	  a.once.forEach( (d) => { delta.add( ARROWS[d] );} );
 	  
-	  triggerEvent("input_arrowStall", {start : a.held.length == 0});
+	  triggerEvent("input_arrowStall", {start : a.held.length == 0, speed : this.cursor.speed, subtract:true});
 	}
 	// if nothing was pressed this tick
 	else if (Inputter.accepting == true)

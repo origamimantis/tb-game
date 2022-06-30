@@ -205,7 +205,7 @@ class Main
 
 
     // GAME INPUT
-    respondToEvent("input_arrowStall", (e) =>{ Inputter.arrowStall(e.start); });
+    respondToEvent("input_arrowStall", (e) =>{ Inputter.arrowStall(e.start, e.speed, e.subtract); });
 
     respondToEvent("game_win", (e) =>{ console.log("you won"); } );
     respondToEvent("game_lose", (e) =>{ console.log("you lost"); } );
@@ -317,9 +317,10 @@ class Main
   {
     if (this.nextUp === null)
       return;
-    delete this.scene;
+    
     this.scene = this.nextUp;
     this.nextUp = null;
+
     Album.clearAllCtx()
     this.scene.beginGame(this.level)
 
@@ -327,7 +328,9 @@ class Main
   static update()
   {
     if (Inputter.arrowStates().input == true && this.scene.inputting)
-        this.scene.arrows(Inputter.arrowStates());
+    {
+      this.scene.arrows(Inputter.arrowStates());
+    }
     Inputter.update();
 
     this.scene.update(this.scene);

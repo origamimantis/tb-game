@@ -7,6 +7,8 @@ import {Queue} from "./Queue.js";
 import {CoordLookup, MapCoordBlob} from "./CoordLookup.js";
 import {ARROW} from "./Inputter.js";
 import {Settings} from "./Settings.js"
+import {Inputter} from "./Inputter.js";
+
 
 export function fracAmtFn(c)
 {
@@ -314,6 +316,7 @@ function all(conditions, param)
 export function scrollSelect_LR(keys, selector, beepOnErr = true, loop = true)
 {
   let ret = false;
+
   for (let k of keys.once)
   {
     switch (k)
@@ -340,6 +343,7 @@ export function scrollSelect_LR(keys, selector, beepOnErr = true, loop = true)
 export function scrollSelect_UD(keys, selector, beepOnErr = true, loop = true)
 {
   let ret = false;
+
   for (let k of keys.once)
   {
     switch (k)
@@ -384,6 +388,45 @@ export function scrollSelect_4W(keys, selector, loop = true)
   return true;
 }
 
+// speed is a multiplicative offset to the base scroll speed
+export function applyArrowStall(a, speed = 1, scrollspeedoverride = null)
+{
+
+  let slow;
+  let fast;
+
+  if (scrollspeedoverride === null)
+    [slow, fast] = Settings.get("option_scroll_speed")
+  else
+    [slow, fast] = scrollspeedoverride
+
+  let active = false;
+  if (a.once.length > 0)
+  {
+    if (slow !== null)
+    {
+      triggerEvent("input_arrowStall", {start: null, speed : slow*speed });
+    }
+    active = true;
+  }
+  // if nothing was pressed this tick
+  else if (Inputter.accepting == true)
+  {
+    if (fast !== null)
+    {
+      triggerEvent("input_arrowStall", {start: null, speed : fast*speed });
+    }
+    active = true;
+
+    for (let x of a.held)
+    {
+      if (a.once.includes(x) == false)
+	a.once.push(x)
+    }
+  }
+  return !active
+
+}
 
 
 export function csPause(time)
