@@ -8,6 +8,7 @@ import {CoordLookup, MapCoordBlob} from "./CoordLookup.js";
 import {ARROW} from "./Inputter.js";
 import {Settings} from "./Settings.js"
 import {Inputter} from "./Inputter.js";
+import {MusicPlayer} from "./MusicPlayer.js";
 
 
 export function fracAmtFn(c)
