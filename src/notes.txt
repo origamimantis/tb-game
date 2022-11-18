@@ -1,3 +1,8 @@
+ver0.44 2022-11-18
+Added a slider bar in the options for music volume. This
+was harder than expected, and needed a lot of rigging for
+callbacks and the MusicPlayer class functionality.
+
 ver0.43 2022-06-06
 Added an actual title screen with level selection and an
 options menu (no more console.chload!). Also added a music
