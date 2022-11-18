@@ -32,8 +32,11 @@ export class LoopSelector
   {
     this.list = list;
     this.length = list.length;
+    if (index == -1)
+      index = list.length - 1
     this.idx = index;
     this._initIdx = index;
+    this.onchange = {}
   }
   _d(delt)
   {
@@ -44,10 +47,14 @@ export class LoopSelector
   next()
   {
     this._d(1);
+    for (let cb of Object.values(this.onchange))
+      cb(this)
   }
   prev()
   {
     this._d(-1);
+    for (let cb of Object.values(this.onchange))
+      cb(this)
   }
   getIdx(i)
   {

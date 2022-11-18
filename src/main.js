@@ -197,13 +197,6 @@ class Main
     document.addEventListener( "keydown", (e)=>{Inputter.onKeyDown(e.code)} );
     document.addEventListener( "keyup", (e)=>{Inputter.onKeyUp(e.code)} );
 
-    // MUSIC
-    respondToEvent("sfx_play_beep_effect", () => {MusicPlayer.play("beep");});
-    respondToEvent("sfx_play_cursormove_effect", () => {MusicPlayer.play("cbeep2");});
-    respondToEvent("sfx_play_err_effect", () => {MusicPlayer.play("errbeep");});
-    respondToEvent("sfx_play", (name) => {MusicPlayer.play("name");});
-
-
     // GAME INPUT
     respondToEvent("input_arrowStall", (e) =>{ Inputter.arrowStall(e.start, e.speed, e.subtract); });
 
@@ -246,10 +239,10 @@ class Main
   }
   static async initload(things)
   {
-    Album.init(this);
-    MusicPlayer.init()
     Settings.init();
+    Album.init(this);
     await loadFonts();
+    MusicPlayer.init()
     await loadMusic();
   }
   static async unload()
@@ -360,6 +353,7 @@ let thingsToLoad = {
       Script : "./ch1.js",
       ImgLoad : [ "P_gen", "P_lead", "P_janitor", "P_vmp", "P_Alfred", "P_child",
 		  "P_Yuliza", "P_Malidale",
+		  "P_Grefta", "P_Odunfel","P_Margolik",
 		  "P_bandit", "P_Billy", "P_Chloe", "P_Choddson", "P_kn", "P_Doddson",
 		  "S_lead0", "S_kn0", "S_kn1", "S_kn4", "S_lead1", "S_vmp0", "S_farmerAlfred", "S_child",
 		  "S_bandit", "S_farmerBilly", "S_farmerChloe",

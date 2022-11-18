@@ -31,7 +31,7 @@ const music_to_load = [
 const FX_to_load = [
     [ "errbeep", 1000 ],
     [ "beep", 1000 ],
-    [ "cbeep2", 1000 ],
+    [ "cbeep", 1000 ],
     [ "whack", 1000 ],
     [ "FX_slash", 1000 ],
     [ "FX_miss", 1000 ],
@@ -79,7 +79,7 @@ export class MusicLoader
         let s = new Howl(
           {
             src: [fullname],
-            volume: 0.5,
+            volume: MusicPlayer.baseVolume,
             sprite: sprite,
             onload : () => {resolve(s);}
           });
@@ -98,7 +98,7 @@ export class MusicLoader
         let s = new Howl(
           {
             src: [fullname],
-            volume: 0.5,
+            volume: MusicPlayer.baseVolume,
             sprite: {start: [0, length]},
             onload : () => {resolve(s);}
           }

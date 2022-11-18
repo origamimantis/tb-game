@@ -43,11 +43,22 @@ class OptionPanel extends Panel
       let values = entry.allowed;
       this.addComponent( new PanelComponent( PanelType.TEXT, name ), i, 0, i,
                          "#000000",  "11px ABCD Mono", "left");
-      for (let j = 0; j < values.length; ++j)
+      switch (entry.type)
       {
-	this.addComponent( new PanelComponent(PanelType.TEXT, values.getIdx(j)), i.toString()+values.getIdx(j),
-			  1 + (j + 0.5)/(values.length), i,
-                         "#000000",  "11px ABCD Mono", "center");
+	case "Text":
+	  for (let j = 0; j < values.length; ++j)
+	  {
+	    this.addComponent( new PanelComponent(PanelType.TEXT, values.getIdx(j)), i.toString()+values.getIdx(j),
+			      1 + (j + 0.5)/(values.length), i,
+			     "#000000",  "11px ABCD Mono", "center");
+	  }
+	  break;
+	case "Bar":
+	  let W = 184
+	  this.addComponent( new PanelComponent(PanelType.HEALTHBAR, 1), i.toString()+"bar",
+			      1.5 - W/2/this.gsx, i,
+			      1, W, 16);
+	break;
       }
     }
 
@@ -66,30 +77,40 @@ class OptionPanel extends Panel
     g.clearCtx(4);
     for (let i = 0; i < this._ls.length; ++i)
     {
-      let vals = this._ls.list[i][1].allowed;
       
       let o = this.components[i];
       o.comp.draw(g, this.body, o);
 
+      let selector = this._ls.list[i][1];
 
-      for (let j = 0; j < vals.length; ++j)
+      switch (selector.type)
       {
-	let comp = this.components[i.toString() + vals.getIdx(j)];
-	let thing = { ...comp }
-	let yoff = yoff_unselected
-	if (vals.idx == j)
-	{
-	  Object.assign(thing, selected)
-	  yoff = yoff_selected
-	}
-	else
-	{
-	  Object.assign(thing, unselected)
-	}
-	
-	comp.comp.draw(g, this.body, thing, yoff);
+	case "Text":
+	  let vals = selector.allowed;
+	  for (let j = 0; j < vals.length; ++j)
+	  {
+	    let comp = this.components[i.toString() + vals.getIdx(j)];
+	    let thing = { ...comp }
+	    let yoff = yoff_unselected
+	    if (vals.idx == j)
+	    {
+	      Object.assign(thing, selected)
+	      yoff = yoff_selected
+	    }
+	    else
+	    {
+	      Object.assign(thing, unselected)
+	    }
+	    
+	    comp.comp.draw(g, this.body, thing, yoff);
+	  }
+	  break;
+	case "Bar":
+	  let comp = this.components[i.toString()+"bar"]
+	  comp.comp.data = selector.allowed.idx / (selector.allowed.length-1);
+	  comp.comp.draw(g, this.body, {...comp}, yoff_unselected);
+	  break;
       }
-
     }
   }
   get()
@@ -160,7 +181,7 @@ export class OptionScreen
     this.g.ctx_refresh = [0];
 
     if (this.g.mapTheme !== undefined)
-      MusicPlayer.setVol(this.g.mapTheme, 0.15);
+      MusicPlayer.muffle()
 
     this.onDone = onDone;
 
@@ -171,11 +192,11 @@ export class OptionScreen
   {
     if (applyArrowStall(a)) return;
 
-    if (scrollSelect_UD(a, this.contents, false, false))
+    if (scrollSelect_UD(a, this.contents, false, false, false))
     {
       this.contents.explicitDraw(this.g)
     }
-    else if (scrollSelect_LR(a, this.contents.get()[1].allowed, false, false))
+    else if (scrollSelect_LR(a, this.contents.get()[1].allowed, false, false, false))
     {
       this.contents.drawComp(this.g)
     }
@@ -201,7 +222,7 @@ export class OptionScreen
   }
   end()
   {
-    MusicPlayer.setVol(this.g.mapTheme, 0.5);
+    MusicPlayer.unmuffle()
     this.g.ctx_refresh = this.old_ctx_refresh;
     this.onDone();
   }

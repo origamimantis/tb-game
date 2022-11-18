@@ -1,9 +1,13 @@
 'use strict';
 
+import {Settings} from "./Settings.js"
+
 /*
 play( name )
 unmute( name )
 mute( name )
+muffle()
+unmuffle()
 setVol(name, vol)
 fadeout( name , time = 500)
 fadestop( name, time = 500)
@@ -20,12 +24,26 @@ export class MusicPlayer
   static init()
   {
     this.album = {};
+    this.baseVolume = 0.5;
+    this.volume = this.baseVolume
+    this.muffleAmt = 0.3;
+    this.isMuffled = false
+    Settings.addCallback("music_volume", "volume_update",
+      (newvol) =>
+      {
+        this.baseVolume = newvol.get()
+        this.updateV()
+      }
+    );
   }
+
   static play( name )
   {
+    this.updateV()
+
     let s = this.album[name];
     s.playing = true;
-    s.volume(0.5);
+    s.volume(this.volume);
     let id = s.play("start");
     if (s.intro)
     {
@@ -41,18 +59,30 @@ export class MusicPlayer
   {
     this.album[name].mute(true);
   }
+  static muffle()
+  {
+    this.isMuffled = true
+    this.updateV();
+  }
+  static unmuffle()
+  {
+    this.isMuffled = false
+    this.updateV();
+  }
   static setVol(name, vol)
   {
+    this.volume = vol
     this.album[name].volume(vol);
   }
   static fadeout( name , time = 500)
   {
+    this.updateV()
     return new Promise( (resolve)=>
       {
 	let s = this.album[name];
 	if (s.playing)
 	{
-	  s.fade(0.5, 0, time);
+	  s.fade(this.volume, 0, time);
 	  s.once("fade", resolve);
 	}
 	else
@@ -76,8 +106,8 @@ export class MusicPlayer
 	let s = this.album[name];
 	if (s.playing)
 	{
-	  s.fade(0, 0.5, time);
-	  s.once("fade", resolve);
+	  s.fade(0, this.volume, time);
+	  s.once("fade", () => {MusicPlayer.updateV(); s.volume(MusicPlayer.volume); resolve()});
 	}
 	else
 	  resolve();
@@ -92,5 +122,17 @@ export class MusicPlayer
   static stopAll()
   {
     Howler.stop();
+  }
+  static updateV()
+  {
+    this.volume = this.baseVolume
+    if (this.isMuffled)
+      this.volume *= this.muffleAmt
+
+    for (let song of Object.values(this.album))
+    {
+      if (song.playing == true)
+	song.volume(this.volume);
+    }
   }
 }

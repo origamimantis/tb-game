@@ -133,7 +133,7 @@ export class TitleScreen
   {
     if (applyArrowStall(a)) return;
 
-    if (scrollSelect_UD(a, this.p, false, false))
+    if (scrollSelect_UD(a, this.p, false, false, false))
     {
       this.explicitDraw()
     }
@@ -141,6 +141,8 @@ export class TitleScreen
 
   async select()
   {
+    MusicPlayer.play("beep");
+
     let selection = this.p.get()
     let lvlID = this.optionlist[selection]
     let lvlToLoad = "./ch" + lvlID + ".js"

@@ -151,7 +151,7 @@ export class LevelSelect
   {
     if (applyArrowStall(a)) return;
 
-    if (scrollSelect_UD(a, this.p, false, false))
+    if (scrollSelect_UD(a, this.p, false, false, false))
     {
       this.explicitDraw()
     }
@@ -160,6 +160,7 @@ export class LevelSelect
   async select()
   {
     MusicPlayer.stopAll()
+    MusicPlayer.play("beep");
 
     let level = this.p.get()
     let scriptToLoad = "./ch" + level + ".js"

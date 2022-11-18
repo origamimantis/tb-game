@@ -183,7 +183,7 @@ export class Jukebox
   {
     if (applyArrowStall(a)) return;
 
-    if (scrollSelect_UD(a, this.p, false, false))
+    if (scrollSelect_UD(a, this.p, false, false, false))
     {
       this.explicitDraw()
     }

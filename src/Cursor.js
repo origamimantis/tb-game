@@ -5,6 +5,7 @@ import {Animation} from "./Animation.js";
 import {triggerEvent, nextFrameDo, waitTick} from "./Utils.js";
 import {Path, Coord} from "./Path.js";
 import {Queue} from "./Queue.js";
+import {MusicPlayer} from "./MusicPlayer.js";
 
 const LOGGING = false;
 
@@ -39,7 +40,7 @@ class Cursor extends AnimatedObject
   {
     if (this.moving == false && (c.x != 0 || c.y != 0))
     {
-      triggerEvent("sfx_play_cursormove_effect");
+      MusicPlayer.play("cbeep");
       this.buf.x += c.x;
       this.buf.y += c.y;
       this.triggerMove = true;
@@ -53,7 +54,6 @@ class Cursor extends AnimatedObject
     {
       throw "Cannot assign cursor movement while cursor is moving";
     }
-    //triggerEvent("game_cursorChange", c);
     let x = this.x;
     let y = this.y;
     
@@ -96,7 +96,6 @@ class Cursor extends AnimatedObject
     {
       throw "Cannot assign cursor movement while cursor is moving";
     }
-    //triggerEvent("game_cursorChange", c);
     let x = this.x;
     let y = this.y;
     
@@ -132,7 +131,6 @@ class Cursor extends AnimatedObject
     {
       throw "Cannot assign cursor movement while cursor is moving";
     }
-    //triggerEvent("game_cursorChange", c);
 
     this.x = c.x;
     this.vis.x = c.x;

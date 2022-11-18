@@ -15,6 +15,8 @@ let b2;
 let yuli;
 let mali;
 let mag;
+let mag2;
+let mag3;
 let billy;
 let chloe;
 let vargas;
@@ -63,18 +65,36 @@ function initVars()
   yuli.equipment.push(new Equipment.SwiftBlessing());
   yuli.setAnim( "idle" );
 
-  mali = new Units.BowKnight(13, 9, 7, {maxhp:17, atk:4,spd:4,skl:3,def:2,con:4,mov: 6}, "Malidale")
+  mali = new Units.BowKnight(12, 9, 7, {maxhp:17, atk:4,spd:4,skl:3,def:2,con:4,mov: 6}, "Malidale")
   mali.team = "Player";
   mali.pArt = "P_Malidale";
   mali.addWeapon(new Weapons.TestBow());
   mali.equipment.push(new Equipment.LeatherTunic());
   mali.setAnim( "idle" );
 
-  mag = new Units.SwordKnight(12, 9, 8, {maxhp:18, atk:5,spd:6,skl:4,def:4,con:3,mov: 6}, "Mage", "S_kn0");
+  mag = new Units.SwordKnight(13, 9, 8, {maxhp:18, atk:5,spd:6,skl:4,def:4,con:3,mov: 6}, "Grefta", "S_kn0");
   mag.team = "Player";
+  mag.pArt = "P_Grefta";
   mag.classname = "Mage Knight";
   mag.addWeapon(new Weapons.TestMagic());
   mag.setAnim( "idle" );
+
+  mag2 = new Units.SwordKnight(14, 10, 8, {maxhp:18, atk:5,spd:6,skl:4,def:4,con:3,mov: 6}, "Odunfel", "S_kn0");
+  mag2.team = "Player";
+  mag2.pArt = "P_Odunfel";
+  mag2.classname = "Mage Knight";
+  mag2.addWeapon(new Weapons.TestMagic());
+  mag2.setAnim( "idle" );
+
+  mag3= new Units.SwordKnight(15, 11, 8, {maxhp:18, atk:5,spd:6,skl:4,def:4,con:3,mov: 6}, "Margolik", "S_kn0");
+  mag3.team = "Player";
+  mag3.pArt = "P_Margolik";
+  mag3.classname = "Mage Knight";
+  mag3.addWeapon(new Weapons.TestMagic());
+  mag3.setAnim( "idle" );
+
+
+
 
   chloe = new Units.Farmer(5, 9, 5, {maxhp:16, atk:2,spd:3,skl:3,def:2,con:4,mov: 6}, "Chloe");
   chloe.team = "Player";
@@ -133,6 +153,8 @@ export let script =
       g.addUnit(yuli);
       g.addUnit(mali);
       g.addUnit(mag);
+      g.addUnit(mag2);
+      g.addUnit(mag3);
 
     }, //onBegin
     conversations: {},

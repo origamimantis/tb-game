@@ -361,7 +361,7 @@ class Game
       },
       select: async()=>
       {
-	triggerEvent("sfx_play_beep_effect");
+	MusicPlayer.play("beep");
         let target = this.Map.getTile(this.temp.selectedUnitAllySelector.get()).unit;
 	await this.temp.allyInteract(target);
       },
@@ -409,7 +409,7 @@ class Game
       select: async()=>
       {
 	this.clearCtx(4);
-	triggerEvent("sfx_play_beep_effect");
+	MusicPlayer.play("beep");
         let enemy = this.Map.getTile(this.temp.selectedUnitAttackCoords.get()).unit;
 
 	// confirm move
@@ -492,7 +492,7 @@ class Game
       },
       select: async()=>
       {
-        triggerEvent("sfx_play_beep_effect");
+        MusicPlayer.play("beep");
 	let item = this.temp.selectedUnit.items[this.Panels.get("selectedUnitWeaponPanel").idx()];
 	this.Panels.del("selectedUnitWeaponPanel");
 
@@ -538,7 +538,7 @@ class Game
       },
       select: async()=>
       {
-        triggerEvent("sfx_play_beep_effect");
+        MusicPlayer.play("beep");
 	this.temp.selectedUnit.eqWeap = this.Panels.get("selectedUnitWeaponPanel").idx();
 
 	await this.setStatus("unitAttackTargetSelect");
@@ -577,7 +577,7 @@ class Game
 
       select:()=>
       {
-	triggerEvent("sfx_play_beep_effect");
+	MusicPlayer.play("beep");
 	this.Panels.get("selectedUnitActionPanel").get().execute();
       },
       inform: () => {},
@@ -661,7 +661,7 @@ class Game
 	  && (unitOnTarget == null || unitOnTarget == this.temp.selectedUnit))
 	{
 	  this.clearCtx(4);
-	  triggerEvent("sfx_play_beep_effect");
+	  MusicPlayer.play("beep");
 
 	  await this.camera.waitShiftTo(this.temp.selectedUnit);
 	  this.camera.setTarget(this.temp.selectedUnit);
@@ -693,7 +693,7 @@ class Game
 	}
 	else
 	{
-	  triggerEvent("sfx_play_err_effect");
+	  MusicPlayer.play("errbeep");
 	}
       },
       
@@ -701,7 +701,7 @@ class Game
       cancel: async ()=>
       {
 	// disable further cursor movement
-	triggerEvent("sfx_play_beep_effect");
+	MusicPlayer.play("beep");
 
 	// wait until cursor stops moving
 	await cursorStop(this.cursor);
@@ -846,7 +846,7 @@ class Game
 
       select: async () =>
       {
-	triggerEvent("sfx_play_beep_effect");
+	MusicPlayer.play("beep");
 	await this.temp.mapActions.get().execute();
       },
       
@@ -892,7 +892,7 @@ class Game
       select: async () =>
       {
 	await cursorStop(this.cursor);
-	triggerEvent("sfx_play_beep_effect");
+	MusicPlayer.play("beep");
 	let unit = this.Map.getTile(this.cursor.x, this.cursor.y).unit;
 	if (unit != null && unit.active == true)
 	{
@@ -953,7 +953,7 @@ class Game
       inform: async ()=>
       {
 	await cursorStop(this.cursor);
-        triggerEvent("sfx_play_beep_effect");
+        MusicPlayer.play("beep");
         let unit = this.Map.getTile(this.cursor.x, this.cursor.y).unit;
         if (unit != null)
         {

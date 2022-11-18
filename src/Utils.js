@@ -313,7 +313,25 @@ function all(conditions, param)
   return true;
 }
 
-export function scrollSelect_LR(keys, selector, beepOnErr = true, loop = true)
+export function linspace(start, stop, amount, include_last = true)
+{
+  // linspace(0,1,6) = [0, 0.2, 0.4, 0.6, 0.8, 1]
+  // linspace(0,1,5, false) = [0, 0.2, 0.4, 0.6, 0.8]
+  if (include_last == true)
+    amount -= 1
+  let range = stop - start
+  let a = []
+  for (let i = 0; i < amount; ++i)
+  {
+    a.push(start + range*i/amount)
+  }
+  if (include_last == true)
+    a.push(stop)
+
+  return a
+}
+
+export function scrollSelect_LR(keys, selector, beepOnErr = true, loop = true, beepOnMove = true)
 {
   let ret = false;
 
@@ -322,25 +340,27 @@ export function scrollSelect_LR(keys, selector, beepOnErr = true, loop = true)
     switch (k)
     {
     case ARROW.LEFT:
-      triggerEvent("sfx_play_cursormove_effect");
+      if (beepOnMove)
+	MusicPlayer.play("cbeep");
       if (loop == true || selector.idx > 0)
 	selector.prev();
       ret = true;
       break;
     case ARROW.RIGHT:
-      triggerEvent("sfx_play_cursormove_effect");
+      if (beepOnMove)
+	MusicPlayer.play("cbeep");
       if (loop == true || selector.idx < selector.length - 1)
 	selector.next();
       ret = true;
       break;
     default:
       if (beepOnErr)
-	triggerEvent("sfx_play_err_effect");
+	MusicPlayer.play("errbeep");
     }
   }
   return ret;
 }
-export function scrollSelect_UD(keys, selector, beepOnErr = true, loop = true)
+export function scrollSelect_UD(keys, selector, beepOnErr = true, loop = true, beepOnMove = true)
 {
   let ret = false;
 
@@ -349,20 +369,22 @@ export function scrollSelect_UD(keys, selector, beepOnErr = true, loop = true)
     switch (k)
     {
     case ARROW.UP:
-      triggerEvent("sfx_play_cursormove_effect");
+      if (beepOnMove)
+	MusicPlayer.play("cbeep");
       if (loop == true || selector.idx > 0)
 	selector.prev();
       ret = true;
       break;
     case ARROW.DOWN:
-      triggerEvent("sfx_play_cursormove_effect");
+      if (beepOnMove)
+	MusicPlayer.play("cbeep");
       if (loop == true || selector.idx < selector.length - 1)
 	selector.next();
       ret = true;
       break;
     default:
       if (beepOnErr)
-	triggerEvent("sfx_play_err_effect");
+	MusicPlayer.play("errbeep");
     }
   }
   return ret;

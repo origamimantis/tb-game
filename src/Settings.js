@@ -1,4 +1,5 @@
 import {LoopSelector} from "./LoopSelector.js"
+import {linspace} from "./Utils.js"
 
 export class Settings
 {
@@ -8,22 +9,32 @@ export class Settings
       cut_skip : {
 		    allowed: ["Off","On"],
 		    map: {Off:false,On:true},
-		    display: "Skip Cutscenes"
+		    display: "Skip Cutscenes",
+	            type: "Text"
       },
       lvl_skip : {
 		    allowed: ["Off","On"],
 		    map: {Off:false,On:true},
-		    display: "Enable Level Skip"
+		    display: "Enable Level Skip",
+	            type: "Text"
       },
       visible_movement_costs : {
 		    allowed: ["Off","On"],
 		    map: {Off:false,On:true},
-		    display: "Visible Movement Costs"
+		    display: "Visible Movement Costs",
+	            type: "Text"
       },
       option_scroll_speed : {
 		    allowed:["Fast", "Medium", "Slow"],
 		    map: {Fast:[8,4],Medium:[12,6], Slow:[12,12]},
-		    display: "Menu Scroll Speed"
+		    display: "Menu Scroll Speed",
+	            type: "Text"
+      },
+      music_volume : {
+		    allowed:[0,0.5,11],
+		    map: undefined,
+		    display: "Music Volume",
+	            type: "Bar",
       },
     }
 
@@ -31,7 +42,17 @@ export class Settings
 
     this.numSettings = Object.keys(this.values).length;
     for (let k of Object.keys(this.values))
-      this.values[k].allowed = new LoopSelector(this.values[k].allowed);
+    {
+      switch (this.values[k].type)
+      {
+	case "Text":
+	  this.values[k].allowed = new LoopSelector(this.values[k].allowed);
+	  break;
+	case "Bar":
+	  this.values[k].allowed = new LoopSelector(linspace(...this.values[k].allowed), -1);
+	  break;
+      }
+    }
   }
   static set(s,val)
   {
@@ -42,6 +63,10 @@ export class Settings
     if (i < 0)
       throw "'" + val + "' is not a value for setting '" + s + "' (" + set.allowed + ")"
     set.allowed.idx = i;
+
+    for (let cb of Object.values(set.allowed.onchange))
+      cb(set.allowed)
+
   }
 
   static get(s, spec = null)
@@ -60,6 +85,22 @@ export class Settings
       return opt
   }
 
+  static addCallback(s, name, onchange)
+  {
+    let ls = this.values[s].allowed;
+    if (ls.onchange[name] === undefined)
+      ls.onchange[name] = onchange
+    else
+      throw "Cannot add callback with name `" + name + "` to setting `" + s + "`, already exists."
+  }
 
+  static delCallback(s, name, onchange)
+  {
+    let ls = this.values[s].allowed;
+    if (ls.onchange[name] !== undefined)
+      delete ls.onchange[name]
+    else
+      throw "Cannot remove callback with name `" + name + "` from setting `" + s + "`, does not exist."
+  }
 
 }

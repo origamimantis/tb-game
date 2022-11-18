@@ -230,7 +230,7 @@ export class UnitInfoScreen
     this.old_ctx_refresh = this.g.ctx_refresh;
     this.g.ctx_refresh = [0, 3];
 
-    MusicPlayer.setVol(this.g.mapTheme, 0.15);
+    MusicPlayer.muffle()
     this.onDone = onDone;
 
     this.g.clearCtx(0);
@@ -307,7 +307,7 @@ export class UnitInfoScreen
       }
       else
       {
-	triggerEvent("sfx_play_err_effect");
+	MusicPlayer.play("errbeep");
       }
     }
   }
@@ -324,7 +324,7 @@ export class UnitInfoScreen
   }
   end()
   {
-    MusicPlayer.setVol(this.g.mapTheme, 0.5);
+    MusicPlayer.unmuffle()
     this.g.ctx_refresh = this.old_ctx_refresh;
     this.onDone();
   }

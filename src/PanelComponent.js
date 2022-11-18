@@ -1,4 +1,5 @@
 import {SEP, MAPPER} from "./SpriteFont.js";
+import {Album} from "./Images.js";
 
 export const PanelType = {TEXT : 0, ART : 1, HEALTHBAR : 2};
 
@@ -81,7 +82,7 @@ export class PanelComponent
   }
   drawArt(g, off, xy, scrollOff = noOff)
   {
-    g.Album.draw(4, this.data, off.x + xy.x + scrollOff.x, off.y + xy.y + scrollOff.y, xy.w, xy.h);
+    Album.draw(4, this.data, off.x + xy.x + scrollOff.x, off.y + xy.y + scrollOff.y, xy.w, xy.h);
   }
 
   drawText(g, off, xy, scrollOff = noOff)
@@ -96,7 +97,7 @@ export class PanelComponent
     if (xy.h == null)
       xy.h = 10;
 
-    g.Album.drawHealthBar(4, this.data, off.x + xy.x + scrollOff.x, off.y + xy.y + scrollOff.y, xy.w, xy.h);
+    Album.drawHealthBar(4, this.data, off.x + xy.x + scrollOff.x, off.y + xy.y + scrollOff.y, xy.w, xy.h);
   }
 
 }

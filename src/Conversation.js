@@ -1,4 +1,4 @@
-import {waitTick, waitTime, triggerEvent} from "./Utils.js";
+import {waitTick, waitTime} from "./Utils.js";
 import {Panel} from "./Panel.js"
 import {PanelComponent, PanelType} from "./PanelComponent.js";
 import {MusicPlayer} from "./MusicPlayer.js";
@@ -301,7 +301,7 @@ export class Conversation
     // TODO add text scroll skipping or stuff like that
     if (this.mfade == false)
     {
-      triggerEvent("sfx_play_beep_effect")
+      MusicPlayer.play("beep");
       await this.updateConvo();
     }
   }
