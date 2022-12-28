@@ -215,10 +215,7 @@ export class Jukebox
     }
 
   }
-  inform()
-  {
-  }
-  async cancel()
+  async inform()
   {
     if (this.playing !== null)
     {
@@ -230,10 +227,10 @@ export class Jukebox
 
       this.explicitDraw()
     }
-    else
-    {
-      await this.MAIN.chload("./chtitle.js", null, {idx:2})
-      this.MAIN.start();
-    }
+  }
+  async cancel()
+  {
+    await this.MAIN.chload("./chtitle.js", null, {idx:2})
+    this.MAIN.start();
   }
 }

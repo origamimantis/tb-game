@@ -43,18 +43,6 @@ class LevelPanel extends Panel
 
     let scrollx = this.body.x + this.innerw - 15
 
-    // currently playing indicator
-    if (this.g.playidx !== null && this.g.playidx >= this.top && this.g.playidx < this.top + 12)
-    {
-      // dark highlight
-      g.ctx[1].fillStyle = "#8ddeee";
-      let y = this.components[this.g.playidx].y;
-      g.ctx[1].fillRect(this.body.x + 25, this.body.y + y + 3 + this.scrollOff.y, this.innerw - 45, 12)
-
-      // audio symbol
-      g.ctx[2].drawImage(Album.get("C_audio"), this.body.x, this.body.y + y + this.scrollOff.y - 1);
-    }
-
     // selection indicator
     g.ctx[1].fillStyle = "#9eefff";
     let y = this.components[this.idx].y;

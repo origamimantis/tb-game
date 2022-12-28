@@ -43,6 +43,7 @@ export class MusicPlayer
 
     let s = this.album[name];
     s.playing = true;
+    this.unmute(name)
     s.volume(this.volume);
     let id = s.play("start");
     if (s.intro)
@@ -83,10 +84,13 @@ export class MusicPlayer
 	if (s.playing)
 	{
 	  s.fade(this.volume, 0, time);
-	  s.once("fade", resolve);
+	  s.once("fade", () => {this.mute(name);resolve()});
 	}
 	else
+	{
+	  this.mute(name);
 	  resolve();
+	}
       });
   }
   static async fadestop( name, time = 500)
@@ -106,6 +110,7 @@ export class MusicPlayer
 	let s = this.album[name];
 	if (s.playing)
 	{
+	  this.unmute(name);
 	  s.fade(0, this.volume, time);
 	  s.once("fade", () => {MusicPlayer.updateV(); s.volume(MusicPlayer.volume); resolve()});
 	}
@@ -136,3 +141,4 @@ export class MusicPlayer
     }
   }
 }
+console.music = MusicPlayer

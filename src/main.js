@@ -41,6 +41,7 @@ let interpreter;
 let game;
 
 console.settings = Settings;
+console.Album = Album;
 
 console.exe = function(s)
 {
@@ -200,9 +201,6 @@ class Main
     // GAME INPUT
     respondToEvent("input_arrowStall", (e) =>{ Inputter.arrowStall(e.start, e.speed, e.subtract); });
 
-    respondToEvent("game_win", (e) =>{ console.log("you won"); } );
-    respondToEvent("game_lose", (e) =>{ console.log("you lost"); } );
-
     respondToEvent("input_select",  async () =>
     {
       if (this.scene.inputting)
@@ -358,6 +356,7 @@ let thingsToLoad = {
 		  "S_lead0", "S_kn0", "S_kn1", "S_kn4", "S_lead1", "S_vmp0", "S_farmerAlfred", "S_child",
 		  "S_bandit", "S_farmerBilly", "S_farmerChloe",
 		  "S_Yuliza_BowKnight", "S_Malidale_BowKnight",
+
 		  "BS_kn_run", "BS_kn_hit", "BS_kn_idle", "BS_kn_hit2",
 		  "BattleSprites/BS_kn_hit3",
 
@@ -400,6 +399,7 @@ let thingsToLoad = {
 		  "EQ_SteelPlating",
 		  "EQ_SwiftBlessing",
 		  "C_c0", "C_ptr", "C_audio", "C_move", "C_walk", "C_atk",
+		  
 		  "C_menutl", "C_menuel", "C_menucn",
 		  "C_talk_indicator",
 		  "FX_heal", "BFX_circle",

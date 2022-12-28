@@ -53,11 +53,14 @@ export class MusicLoader
 {
   static async load()
   {
+    let loads = []
     for (let o of music_to_load)
-      await this.loadMusic(...o);
+      loads.push(this.loadMusic(...o));
 
     for (let o of FX_to_load)
-      await this.loadFX(...o);
+      loads.push(this.loadFX(...o));
+
+    await Promise.all(loads);
   }
 
   static async loadMusic( name, filename, keypoints)

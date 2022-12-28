@@ -1,3 +1,6 @@
+ver0.45 2022-12-28
+Load assets in parallel to be not as slow.
+
 ver0.44 2022-11-18
 Added a slider bar in the options for music volume. This
 was harder than expected, and needed a lot of rigging for

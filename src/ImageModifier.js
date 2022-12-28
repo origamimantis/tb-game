@@ -226,7 +226,7 @@ export class ImageModifier
   {
     if (img.complete == false)
     {
-      throw "Image not loaded";
+      throw "Image not loaded @ ImageModifier.js";
     }
 
     let can = document.createElement("canvas");

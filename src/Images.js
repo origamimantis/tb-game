@@ -11,6 +11,7 @@ class Album
   {
     this.m = m;
     this.images = {};
+    this.loader = new ImageLoader()
   }
   static reset()
   {
@@ -138,10 +139,12 @@ class ImageLoader
   {
     return new Promise( async (resolve) =>
     {
+      let loads = []
       for (let img of images)
       {
-	await this.loadImg(img);
+	loads.push(this.loadImg(img));
       }
+      await Promise.all(loads);
       resolve()
     })
   }

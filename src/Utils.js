@@ -356,7 +356,13 @@ export function scrollSelect_LR(keys, selector, beepOnErr = true, loop = true, b
       break;
     default:
       if (beepOnErr)
-	MusicPlayer.play("errbeep");
+      {
+	// error beep only on the first time
+	if (keys.held.includes(k) == false)
+	{
+	  MusicPlayer.play("errbeep");
+	}
+      }
     }
   }
   return ret;
@@ -385,7 +391,14 @@ export function scrollSelect_UD(keys, selector, beepOnErr = true, loop = true, b
       break;
     default:
       if (beepOnErr)
-	MusicPlayer.play("errbeep");
+      {
+	// error beep only on the first time
+	if (keys.held.includes(k) == false)
+	{
+	  MusicPlayer.play("errbeep");
+	}
+      }
+
     }
   }
   return ret;
