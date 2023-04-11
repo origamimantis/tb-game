@@ -47,9 +47,12 @@ export const Characters =
 		  },
 		}
 	      },
-    "Timmy":  { deathQuote: ["Ack!"]
+    "Timmy":  { portrait: "P_child",
+		deathQuote: ["Ack!"]
 	      },
-    "Vargas":  {deathQuote: ["No...\nI was bested by bandits?", "I'm so disappointed...\nin myself..."],
+    "Vargas":  {
+		portrait: "P_lead",
+		deathQuote: ["No...\nI was bested by bandits?", "I'm so disappointed...\nin myself..."],
 		battleAnimation:
 		{ "Sword Knight":
 		  { scripts:
@@ -63,7 +66,8 @@ export const Characters =
 		  },
 		},
 	      },
-    "Yuliza":  {deathQuote: ["oh man oh god oh man oh god"],
+    "Yuliza":  {portrait: "P_Yuliza",
+                deathQuote: ["oh man oh god oh man oh god"],
 		battleAnimation:
 		{ "Bow Knight":
 		  { scripts:
@@ -78,7 +82,8 @@ export const Characters =
 		},
 	      },
 
-    "Malidale":  {deathQuote: ["i do be deadge"],
+    "Malidale":  {portrait: "P_Malidale",
+                deathQuote: ["i do be deadge"],
 		battleAnimation:
 		{ "Bow Knight":
 		  { scripts:

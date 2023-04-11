@@ -5,6 +5,7 @@ import {TileMap} from "./TileMap.js";
 import {Album, ImageLoader} from "./Images.js";
 import {MusicPlayer} from "./MusicPlayer.js";
 import {MusicLoader} from "./MusicLoader.js";
+import {Storage} from "./Storage.js";
 import {ImageModifier} from "./ImageModifier.js";
 import {Inputter, toggleLog} from "./Inputter.js";
 import {BattleAnimationAlbum} from "./BattleAnimationAlbum.js";
@@ -77,12 +78,15 @@ function _bindInteractions(script)
 
 async function loadScript(script)
 {
-  let level = await import(script);
-  level = rfdc({ proto: false, circles: false })(level.script)
+  console.log(script)
+  let levelscript = await import(script);
+  let level = rfdc({ proto: false, circles: false })(levelscript.script)
   _bindInteractions(level);
   triggerEvent("load_progress", "Loaded chapter script");
 
-  return level;
+  // level_ is the entire script including variables,
+  // level is the level object defined in the js file.
+  return [levelscript, level];
 }
 async function loadMap(mapFile)
 {
@@ -116,6 +120,11 @@ async function modImgs(imgMod)
 async function loadMusic()
 {
   await MusicLoader.load();
+}
+
+async function loadSaves(savesList)
+{
+  await Storage.init(savesList);
 }
 
 async function loadFonts()
@@ -242,6 +251,7 @@ class Main
     await loadFonts();
     MusicPlayer.init()
     await loadMusic();
+    await loadSaves(providedSaves);
   }
   static async unload()
   {
@@ -262,7 +272,11 @@ class Main
       this.assets = {};
 
     this.scriptFile = chapterScript;
-    this.level = await loadScript( this.scriptFile )
+
+    let a = await loadScript( this.scriptFile )
+    this.levelscript = a[0]
+    this.level = a[1]
+
     this.level.scriptFile = this.scriptFile;
     this.assets.Map = await loadMap( this.level.tileMap )
 
@@ -285,7 +299,9 @@ class Main
   static async chreset()
   {
     await this.unload();
-    this.level = await loadScript( this.scriptFile )
+    let a = await loadScript( this.scriptFile )
+    this.levelscript = a[0]
+    this.level = a[1]
     this.level.scriptFile = this.scriptFile;
     this.assets.Map = await loadMap( this.level.tileMap )
     
@@ -303,6 +319,13 @@ class Main
     a.push(...Object.values(this.assets.Map.artMap));
 
     return a;
+  }
+  static async loadSave(save_obj, things=thingsToLoad, extraAssets = null)
+  {
+    let scriptToLoad = save_obj.chapter
+    await this.chload(scriptToLoad, things, extraAssets)
+
+    this.levelscript.setUnits(Storage.loadObj(save_obj));
   }
   static start()
   {
@@ -347,15 +370,15 @@ class Main
 
 
 console.main = Main;
+let providedSaves = ["ch1_test", "ch2_test", "chtest_test"];
 let thingsToLoad = {
-      Script : "./ch1.js",
       ImgLoad : [ "P_gen", "P_lead", "P_janitor", "P_vmp", "P_Alfred", "P_child",
 		  "P_Yuliza", "P_Malidale",
 		  "P_Grefta", "P_Odunfel","P_Margolik",
 		  "P_bandit", "P_Billy", "P_Chloe", "P_Choddson", "P_kn", "P_Doddson",
-		  "S_lead0", "S_kn0", "S_kn1", "S_kn4", "S_lead1", "S_vmp0", "S_farmerAlfred", "S_child",
-		  "S_bandit", "S_farmerBilly", "S_farmerChloe",
-		  "S_Yuliza_BowKnight", "S_Malidale_BowKnight",
+		  "S_lead0", "S_kn0", "S_kn1", "S_kn4", "S_lead1", "S_vmp0", "S_Farmer_Alfred", "S_child",
+		  "S_SwordKnight_Vargas", "S_bandit", "S_Farmer_Billy", "S_Farmer_Chloe",
+		  "S_BowKnight_Yuliza", "S_BowKnight_Malidale",
 
 		  "BS_kn_run", "BS_kn_hit", "BS_kn_idle", "BS_kn_hit2",
 		  "BattleSprites/BS_kn_hit3",

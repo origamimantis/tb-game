@@ -8,7 +8,7 @@ import * as Walk from "./BattleWalkAnimation.js";
 export class Bandit extends Unit
 {
   // TODO name = null, and in Unit if name === null name = classname
-    constructor(id, x,y, stats, name = "Unit "+id, skills = [])
+    constructor(stats, name = "Unit "+id, skills = [])
     {
 	let caps =
 	    { "maxhp":80,
@@ -20,7 +20,7 @@ export class Bandit extends Unit
 		"mov":7
 	    };
 	let classname = "Bandit";
-	super( id, x, y, caps, stats, name, classname, "P_bandit", skills, Walk.walkMelee);
+	super(caps, stats, name, classname, "P_bandit", skills, Walk.walkMelee);
 	
 	this.addAnim("idle", new Animation( {image: "S_bandit", weights: [20,10,20,10], loops: true}) );
 	this.addAnim("wait", new Animation( {image: "S_bandit_wait", weights: [1,1,1,1], loops: false}) );
@@ -28,7 +28,7 @@ export class Bandit extends Unit
 }
 export class Child extends Unit
 {
-    constructor(id, x,y, stats, name = "Unit "+id, skills = [])
+    constructor(stats, name = "Unit "+id, skills = [])
     {
 	let caps =
 	    { "maxhp":20,
@@ -40,7 +40,7 @@ export class Child extends Unit
 		"mov":7
 	    };
 	let classname = "Child";
-	super( id, x, y, caps, stats, name, classname, "P_gen", skills, Walk.walkMelee);
+	super(caps, stats, name, classname, null, skills, Walk.walkMelee);
 	
 	this.skills.push("noncombatant");
 	
@@ -51,7 +51,7 @@ export class Child extends Unit
 
 export class Farmer extends Unit
 {
-    constructor(id, x,y, stats, name = "Unit "+id, skills = [])
+    constructor(stats, name = "Unit "+id, skills = [])
     {
 	let caps =
 	    { "maxhp":90,
@@ -63,16 +63,16 @@ export class Farmer extends Unit
 		"mov":20
 	    };
 	let classname = "Farmer";
-	super( id, x, y, caps, stats, name, classname, "P_gen", skills, Walk.walkMelee);
+	super(caps, stats, name, classname, null, skills, Walk.walkMelee);
 	
-	this.addAnim("idle", new Animation( {image: "S_farmer"+name, weights: [20,10,20,10], loops: true}) );
-	this.addAnim("wait", new Animation( {image: "S_farmer"+name +"_wait", weights: [1,1,1,1], loops: false}) );
+	this.addAnim("idle", new Animation( {image: "S_Farmer_"+name, weights: [20,10,20,10], loops: true}) );
+	this.addAnim("wait", new Animation( {image: "S_Farmer_"+name +"_wait", weights: [1,1,1,1], loops: false}) );
     }
 }
 
 export class Leader extends Unit
 {
-    constructor(id, x,y, stats, name = "Unit "+id, skills = [])
+    constructor(stats, name = "Unit "+id, skills = [])
     {
 	let caps =
 	    { "maxhp":90,
@@ -84,7 +84,7 @@ export class Leader extends Unit
 		"mov":20
 	    };
 	let classname = "Sword Knight";
-	super( id, x, y, caps, stats, name, classname, "P_lead");
+	super(caps, stats, name, classname, "P_lead");
 	this.addAnim(0, new Animation( "S_lead1", [20,10,20,10], true) );
 	this.turnInit();
 	this.g.addUnit(this);
@@ -94,8 +94,15 @@ export class Leader extends Unit
 
 export class SwordKnight extends Unit
 {
-    constructor(id, x,y, stats, name = "Unit "+id, anim = "S_kn1", skills = [])
+    constructor(stats, name = "Unit "+id, anim = null, skills = [])
     {
+        if (anim == null)
+	{
+	    if (name == "kn")
+		anim = "S_kn1"
+	    else
+	        anim = "S_SwordKnight_"+name
+	}
 	let caps =
 	    { "maxhp":60,
 		"atk":30,
@@ -106,7 +113,7 @@ export class SwordKnight extends Unit
 		"mov":10
 	    };
 	let classname = "Sword Knight";
-	super( id, x, y, caps, stats, name, classname, "P_kn", skills, Walk.walkMelee);
+	super(caps, stats, name, classname, "P_kn", skills, Walk.walkMelee);
 	
 	this.addAnim("idle", new Animation( {image: anim, weights: [20,10,20,10], loops: true}) );
 	this.addAnim("wait", new Animation( {image: anim + "_wait", weights: [100,100,100,100], loops: false}) );
@@ -115,14 +122,14 @@ export class SwordKnight extends Unit
 
 export class BowKnight extends Unit
 {
-    constructor(id, x,y, stats, name = "kn", anim = null, skills = [])
+    constructor(stats, name = "kn", anim = null, skills = [])
     {
         if (anim == null)
 	{
 	    if (name == "kn")
 		anim = "S_kn4"
 	    else
-	        anim = "S_" + name + "_BowKnight"
+	        anim = "S_BowKnight" + name
 	}
 	let caps =
 	    { "maxhp":60,
@@ -134,7 +141,7 @@ export class BowKnight extends Unit
 		"mov":10
 	    };
 	let classname = "Bow Knight";
-	super( id, x, y, caps, stats, name, classname, "P_" + name, skills, Walk.walkMelee);
+	super(caps, stats, name, classname, "P_" + name, skills, Walk.walkMelee);
 
         if (name == "kn")
             name = classname
@@ -147,7 +154,7 @@ export class BowKnight extends Unit
 
 export class Vampire extends Unit
 {
-    constructor(id, x,y, stats, name = "Unit "+id, skills = [])
+    constructor(stats, name = "Unit "+id, skills = [])
     {
 	let caps =
 	    { "maxhp":80,
@@ -159,7 +166,7 @@ export class Vampire extends Unit
 		"mov":12
 	    };
 	let classname = "Vampire";
-	super( id, x, y, caps, stats, name, classname, "P_vmp", skills, Walk.walkMelee);
+	super(caps, stats, name, classname, "P_vmp", skills, Walk.walkMelee);
 
 	this.addAnim("idle", new Animation( {image: "S_vmp0", weights: [20,10,20,10], loops:true} ) );
 	this.addAnim("wait", new Animation( {image: "S_vmp0_wait", weights: [100,100,100,100], loops:false} ) );

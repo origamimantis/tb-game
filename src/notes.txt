@@ -1,3 +1,6 @@
+ver0.46 2023-04-11
+Add save file functionality (uses localstorage).
+
 ver0.45 2022-12-28
 Load assets in parallel to be not as slow.
 

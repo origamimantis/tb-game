@@ -8,11 +8,6 @@ import {TiledEffect} from "./TiledEffect.js";
 import {applyArrowStall} from "./Utils.js";
 
 
-const lvlList = [
-                  "1",
-                  "2",
-		  "test",
-                ];
 
 class LevelPanel extends Panel
 {
@@ -24,6 +19,9 @@ class LevelPanel extends Panel
 
     this.top = 0
     this.scrollOff = {x:30, y:0}
+
+    let lvlList = JSON.parse(window.localStorage.getItem("SAVELIST"));
+
 
     this._ls = new LoopSelector(lvlList)
     this.idx = this._ls.idx;
@@ -150,10 +148,11 @@ export class LevelSelect
     MusicPlayer.stopAll()
     MusicPlayer.play("beep");
 
-    let level = this.p.get()
-    let scriptToLoad = "./ch" + level + ".js"
+    let savefile = "LOCALSAVE_" + this.p.get();
+    let save = JSON.parse(window.localStorage.getItem(savefile));
 
-    await this.MAIN.chload(scriptToLoad, null)
+    await this.MAIN.loadSave(save, null)
+
     this.MAIN.start();
   }
   inform()

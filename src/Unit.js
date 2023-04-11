@@ -1,28 +1,42 @@
 'use strict';
 
 import {Settings} from "./Settings.js";
+import {Characters} from "./Characters.js";
 import {AnimatedObject} from "./AnimatedObject.js";
 import {Coord} from "./Path.js";
 import {Queue} from "./Queue.js";
 import {MapCoordBlob} from "./CoordLookup.js";
 import {recolor} from "./UsefulFunctions.js";
 import {Range} from "./Range.js";
-import {TILES, UNIT_MAX_WEAP, UNIT_MAX_ITEM, STATS} from "./Constants.js";
+import {TILES, UNIT_MAX_WEAP, UNIT_MAX_ITEM, UNIT_MAX_EQUI, STATS} from "./Constants.js";
 import {ImageModifier} from "./ImageModifier.js";
 import {triggerEvent, generatePath, inRange, generateMovable, nextFrameDo, waitTick} from "./Utils.js";
 import {NoWeapon} from "./Weapon.js";
 
+let id = 0
+let x = null
+let y = null
 
 export class Unit extends AnimatedObject
 {
-  constructor(id, x, y, caps, stats, name = ("Unit "+id), classname = "Unit", pArt = "gen", skills = [], walkFunction = null)
+  constructor(caps, stats, name = ("Unit "+id), classname = "Unit", pArt = "P_gen", skills = [], walkFunction = null)
   {
     super( x, y );
     this.x = x;
     this.y = y;
     this.id = id;
+    id++;
+
     this.name = name;
     this.classname = classname;
+    if (Characters[name] !== undefined && Characters[name].portrait !== undefined)
+    {
+      pArt = Characters[name].portrait;
+    }
+    else if (pArt === null)
+    {
+      pArt = "P_gen";
+    }
     this.pArt = pArt;
     this.team;
 
@@ -75,6 +89,23 @@ export class Unit extends AnimatedObject
     this.dead = false;
     this.isBoss = false;
   }
+
+  // only use after constructing.
+  setXY(x,y)
+  {
+    this.x = x;
+    this.y = y;
+    this.drawx = x;
+    this.drawy = y;
+
+    this.vis = {
+		dx : 0,
+		dy : 0,
+		x : this.x,
+		y : this.y
+		};
+
+  }
   
   addWeapon(weap)
   {
@@ -89,6 +120,14 @@ export class Unit extends AnimatedObject
       this.items.push(item);
     else
       throw new Error("Unit.addItem: max item amount exceeded.");
+  }
+
+  addEquipment(equipment)
+  {
+    if (this.equipment.length < UNIT_MAX_EQUI)
+      this.equipment.push(equipment);
+    else
+      throw new Error("Unit.addEquipment: max equipment amount exceeded.");
   }
   hasItem(itemname)
   {

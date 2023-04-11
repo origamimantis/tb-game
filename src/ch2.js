@@ -11,6 +11,14 @@ import {Range} from "./Range.js";
 import {unitInZone} from "./Utils.js"
 import {Bandages} from "./Item.js"
 
+import {Storage} from "./Storage.js";
+
+let units = []
+export function setUnits(u)
+{
+  units = u;
+}
+
 let alfred;
 let billy;
 let chloe;
@@ -31,36 +39,28 @@ let uid = 0
 
 function initVars()
 {
+  alfred = units.Alfred
+  billy = units.Billy
+  chloe = units.Chloe
+  vargas = units.Vargas
+  console.log(units)
 
-  vargas = new Units.SwordKnight(uid++,0,11,{maxhp:28, atk:5,spd:3,skl:12,def:6,con:12,mov: 6},"Vargas","S_lead0");
-  vargas.team = "Player";
-  vargas.pArt = "P_lead";
-  vargas.addWeapon(new Weapons.BronzeSlicer());
-  vargas.setAnim("idle");
+  vargas.setXY(0,11)
   vargas.addItem(new Bandages());
   vargas.addItem(new Bandages());
   vargas.addItem(new Bandages());
   vargas.addItem(new Bandages());
 
-  alfred = new Units.Farmer(uid++, 0, 11, {maxhp:9, atk:3,spd:3,skl:2,def:3,con:4,mov: 6}, "Alfred");
-  alfred.team = "Player";
-  alfred.pArt = "P_Alfred";
-  alfred.addWeapon(new Weapons.Pitchfork());
-  alfred.setAnim( "idle" );
+  alfred.setXY(0, 11);
 
-  billy = new Units.Farmer(uid++, 0, 11, {maxhp:11, atk:4,spd:2,skl:2,def:4,con:4,mov: 6}, "Billy");
-  billy.team = "Player";
-  billy.pArt = "P_Billy";
-  billy.addWeapon(new Weapons.Shovel());
-  billy.setAnim( "idle" );
+  if (billy)
+    billy.setXY(0, 11);
 
-  chloe = new Units.Farmer(uid++, 0, 11, {maxhp:9, atk:3,spd:4,skl:3,def:2,con:4,mov: 6}, "Chloe");
-  chloe.team = "Player";
-  chloe.pArt = "P_Chloe";
-  chloe.addWeapon(new Weapons.FryingPan());
-  chloe.setAnim( "idle" );
+  if (chloe)
+    chloe.setXY(0, 11);
 
   yuli = new Units.BowKnight(uid++, 33, 35, {maxhp:18, atk:7,spd:3,skl:24,def:2,con:4,mov: 6}, "Yuliza")
+  yuli.setXY(33, 35)
   yuli.team = "Scout";
   yuli.pArt = "P_Yuliza";
   yuli.addWeapon(new Weapons.TestBow());
@@ -70,6 +70,7 @@ function initVars()
   yuli.stats.hp = 16;
 
   mali = new Units.BowKnight(uid++, 33, 35, {maxhp:17, atk:4,spd:4,skl:8,def:4,con:4,mov: 6}, "Malidale")
+  mali.setXY(33, 35)
   mali.team = "Scout";
   mali.pArt = "P_Malidale";
   mali.addWeapon(new Weapons.TestBow());
@@ -80,6 +81,7 @@ function initVars()
   mali.stats.hp = 6;
 
   doddson = new Units.Bandit(uid++, 33,35, {maxhp:31, atk:7,spd:2,skl:2,def:5,con:9,mov: 5}, "Doddson");
+  doddson.setXY( 33,35)
   doddson.team = "Bandit";
   doddson.pArt = "P_Doddson";
   doddson.addWeapon(new Weapons.LumberAxe());
@@ -120,15 +122,18 @@ export let script =
       movePromise.push( vargas.moveTo(g, 2, 11) );
       await csPause(150);
 
-      g.addUnit(billy);
-      movePromise.push( billy.moveTo(g, 1, 10) );
-      await csPause(150);
+      if (billy)
+	g.addUnit(billy);
+	movePromise.push( billy.moveTo(g, 1, 10) );
+	await csPause(150);
 
-      g.addUnit(chloe);
-      movePromise.push( chloe.moveTo(g, 1, 12) );
-      await csPause(150);
+      if (chloe)
+	g.addUnit(chloe);
+	movePromise.push( chloe.moveTo(g, 1, 12) );
+	await csPause(150);
 
       g.addUnit(alfred);
+
       movePromise.push( alfred.moveTo(g, 1, 11) );
 
       await Promise.all(movePromise);
@@ -136,9 +141,11 @@ export let script =
       await g.cursorFlash(vargas);
       let conv = new Conversation(g);
       conv.addSpeaker("Vargas", vargas.pArt, 424, true);
-      conv.addSpeaker("Billy", billy.pArt, 280, false);
+      if (billy)
+	conv.addSpeaker("Billy", billy.pArt, 280, false);
       conv.addSpeaker("Alfred", alfred.pArt, 180, false);
-      conv.addSpeaker("Chloe", chloe.pArt, 88, false);
+      if (chloe)
+	conv.addSpeaker("Chloe", chloe.pArt, 88, false);
       conv.speaker("Vargas");
       conv.say("So...");
       conv.say("I would like to go hunt down all of the bandits\nin this area, so that they no longer\nthreaten this village.");
@@ -147,12 +154,14 @@ export let script =
       conv.pause(250);
       conv.turn("Alfred");
       conv.pause(250);
-      conv.turn("Billy");
-      conv.pause(250);
+      if (billy)
+	conv.turn("Billy");
+	conv.pause(250);
       conv.turn("Alfred");
       conv.pause(250);
-      conv.turn("Billy");
-      conv.pause(500);
+      if (billy)
+	conv.turn("Billy");
+	conv.pause(500);
       conv.turn("Vargas");
       conv.say("Wait...")
       await g.setExtStatus(conv);
@@ -160,7 +169,8 @@ export let script =
 
       let addbandit=(x,y,mov=3,ai="targetWeakest", aiparams={}) => 
       {
-	let u = new Units.Bandit(uid++, x,y, {maxhp:11, atk:3,spd:3,skl:2,def:3,con:9,mov:mov}, "Bandit");
+	let u = new Units.Bandit({maxhp:11, atk:3,spd:3,skl:2,def:3,con:9,mov:mov}, "Bandit");
+	u.setXY( x,y)
 	u.team = "Bandit";u.addWeapon(new Weapons.LumberAxe());u.setAnim("idle");u.ai = ai;u.aiparams=aiparams;
 	g.addUnit(u);
 	return u;
@@ -215,9 +225,11 @@ export let script =
 
       conv = new Conversation(g);
       conv.addSpeaker("Vargas", vargas.pArt, 424, false);
-      conv.addSpeaker("Billy", billy.pArt, 280, false);
+      if (billy)
+	conv.addSpeaker("Billy", billy.pArt, 280, false);
       conv.addSpeaker("Alfred", alfred.pArt, 180, false);
-      conv.addSpeaker("Chloe", chloe.pArt, 80, false);
+      if (chloe)
+	conv.addSpeaker("Chloe", chloe.pArt, 80, false);
       conv.speaker("Vargas");
       conv.pause(500);
       conv.turn("Vargas");
@@ -537,7 +549,8 @@ export let script =
 
 	      for (let i = 0; i < dests_atk.length + dests_guard.length; ++i)
 	      {
-		let u = new Units.Bandit(uid++, 33,35, {maxhp:17, atk:5,spd:2,skl:2,def:4,con:9,mov: 5}, "Bandit");
+		let u = new Units.Bandit(33,35, {maxhp:17, atk:5,spd:2,skl:2,def:4,con:9,mov: 5}, "Bandit");
+		u.setXY(33,35);
 		u.team = "Bandit";
 		u.addWeapon(new Weapons.LumberAxe());
 		u.setAnim("idle");

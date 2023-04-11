@@ -11,6 +11,7 @@
 //	  }
 
 import {Settings} from "./Settings.js";
+import {Storage} from "./Storage.js";
 import {Unit} from "./Unit.js";
 import {Coord} from "./Path.js";
 //import {PathFinder} from "./PathFinder.js";
@@ -1010,8 +1011,9 @@ class Game
       },
       select:async ()=>
       {
+	let save_obj = Storage.save(this);
 	this.Album.clearAllCtx();
-	await this.MAIN.chload(this.chapterScript.nextLvl);
+	await this.MAIN.loadSave(save_obj)
 	this.MAIN.start();
       },
       arrows:(a)=>{},
