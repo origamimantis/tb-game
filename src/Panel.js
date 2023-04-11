@@ -313,11 +313,10 @@ export class ItemPanel extends SelectionPanel
 {
   constructor( x, y, w, h, gridx, gridy, loopselector, artPrefix, amtFunction, grayFunction = (i)=>{return false})
   {
-    super(x, y, w, h, gridx, gridy, null, null, loopselector);
+    super(x, y, w, h, gridx, gridy, null, null, loopselector, grayFunction);
 
     this.artP = artPrefix;
     this.amtF = amtFunction;
-    this.grayF = grayFunction;
 
     this._loadItems();
   }

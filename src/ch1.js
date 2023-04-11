@@ -37,9 +37,6 @@ function initVars()
   alfred = new Units.Farmer({maxhp:9, atk:3,spd:3,skl:2,def:3,con:4,mov: 6}, "Alfred");
   alfred.team = "Player";
   alfred.addWeapon(new Weapons.Pitchfork());
-  let ww = new Weapons.Pitchfork;
-  ww.name="NNNNNN"
-  alfred.addWeapon(ww)
   alfred.setAnim( "idle" );
   alfred.setXY(3,9)
 
