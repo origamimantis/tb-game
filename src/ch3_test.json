@@ -1,0 +1,224 @@
+{
+    "chapter": "./ch3.js",
+    "units": {
+        "Vargas": {
+            "name": "Vargas",
+            "class": "SwordKnight",
+            "stats": {
+                "maxhp": 28,
+                "atk": 5,
+                "spd": 3,
+                "skl": 12,
+                "def": 6,
+                "con": 12,
+                "mov": 50,
+                "hp": 28
+            },
+            "caps": {
+                "maxhp": 60,
+                "atk": 30,
+                "spd": 30,
+                "skl": 30,
+                "def": 30,
+                "con": 30,
+                "mov": 10
+            },
+            "eqWeap": 0,
+            "items": [
+                {
+                    "class": "Bandages",
+                    "uses": 5
+                },
+                {
+                    "class": "Bandages",
+                    "uses": 5
+                },
+                {
+                    "class": "Bandages",
+                    "uses": 5
+                },
+                {
+                    "class": "Bandages",
+                    "uses": 5
+                }
+            ],
+            "weapons": [
+                {
+                    "class": "BronzeSlicer",
+                    "uses": 48
+                }
+            ],
+            "equipment": []
+        },
+        "Billy": {
+            "name": "Billy",
+            "class": "Farmer",
+            "stats": {
+                "maxhp": 11,
+                "atk": 4,
+                "spd": 2,
+                "skl": 2,
+                "def": 4,
+                "con": 4,
+                "mov": 6,
+                "hp": 11
+            },
+            "caps": {
+                "maxhp": 90,
+                "atk": 50,
+                "spd": 41,
+                "skl": 41,
+                "def": 55,
+                "con": 90,
+                "mov": 20
+            },
+            "eqWeap": 0,
+            "items": [],
+            "weapons": [
+                {
+                    "class": "Shovel",
+                    "uses": 50
+                }
+            ],
+            "equipment": []
+        },
+        "Chloe": {
+            "name": "Chloe",
+            "class": "Farmer",
+            "stats": {
+                "maxhp": 9,
+                "atk": 3,
+                "spd": 4,
+                "skl": 3,
+                "def": 2,
+                "con": 4,
+                "mov": 6,
+                "hp": 9
+            },
+            "caps": {
+                "maxhp": 90,
+                "atk": 50,
+                "spd": 41,
+                "skl": 41,
+                "def": 55,
+                "con": 90,
+                "mov": 20
+            },
+            "eqWeap": 0,
+            "items": [],
+            "weapons": [
+                {
+                    "class": "FryingPan",
+                    "uses": 50
+                }
+            ],
+            "equipment": []
+        },
+        "Alfred": {
+            "name": "Alfred",
+            "class": "Farmer",
+            "stats": {
+                "maxhp": 9,
+                "atk": 3,
+                "spd": 3,
+                "skl": 2,
+                "def": 3,
+                "con": 4,
+                "mov": 6,
+                "hp": 9
+            },
+            "caps": {
+                "maxhp": 90,
+                "atk": 50,
+                "spd": 41,
+                "skl": 41,
+                "def": 55,
+                "con": 90,
+                "mov": 20
+            },
+            "eqWeap": 0,
+            "items": [],
+            "weapons": [
+                {
+                    "class": "Pitchfork",
+                    "uses": 50
+                }
+            ],
+            "equipment": []
+        },
+        "Yuliza": {
+            "name": "Yuliza",
+            "class": "BowKnight",
+            "stats": {
+                "maxhp": 18,
+                "atk": 7,
+                "spd": 3,
+                "skl": 24,
+                "def": 2,
+                "con": 4,
+                "mov": 6,
+                "hp": 16
+            },
+            "caps": {
+                "maxhp": 60,
+                "atk": 30,
+                "spd": 30,
+                "skl": 30,
+                "def": 30,
+                "con": 30,
+                "mov": 10
+            },
+            "eqWeap": 0,
+            "items": [
+                {
+                    "class": "Bandages",
+                    "uses": 3
+                }
+            ],
+            "weapons": [
+                {
+                    "class": "TestBow",
+                    "uses": 50
+                }
+            ],
+            "equipment": []
+        },
+        "Malidale": {
+            "name": "Malidale",
+            "class": "BowKnight",
+            "stats": {
+                "maxhp": 17,
+                "atk": 4,
+                "spd": 4,
+                "skl": 8,
+                "def": 4,
+                "con": 4,
+                "mov": 6,
+                "hp": 16
+            },
+            "caps": {
+                "maxhp": 60,
+                "atk": 30,
+                "spd": 30,
+                "skl": 30,
+                "def": 30,
+                "con": 30,
+                "mov": 10
+            },
+            "eqWeap": 0,
+            "items": [
+                {
+                    "class": "Bandages",
+                    "uses": 2
+                }
+            ],
+            "weapons": [
+                {
+                    "class": "TestBow",
+                    "uses": 50
+                }
+            ],
+            "equipment": []
+        }
+    }
+}
