@@ -42,6 +42,11 @@ export class UnitTradeScreen
       weapons: new LoopSelector(right.weapons)
     };
 
+    if (left.weapons[left.eqWeap] !== undefined)
+      left.weapons[left.eqWeap].TRADE_EQ_TMP = "l"
+    if (right.weapons[right.eqWeap] !== undefined)
+      right.weapons[right.eqWeap].TRADE_EQ_TMP = "r"
+
     this.unitSelect = new LoopSelector([this.left,this.right]);
     this.unitSelect2 = new LoopSelector([this.left,this.right]);
 
@@ -354,6 +359,70 @@ export class UnitTradeScreen
     this.g.clearCtx(4);
     this.g.clearCtx(5);
 
+    this.reEquip()
     this.Return(this.traded);
+  }
+  reEquip()
+  {
+    let leq = null
+    let left = this.left.unit
+    // check if original equipped weapon still in inventory and also remove markers
+    left.weapons.forEach((w,i,_)=>
+    {
+      if (w.TRADE_EQ_TMP !== undefined && w.TRADE_EQ_TMP == "l")
+      {
+	leq = i
+      }
+      delete w.TRADE_EQ_TMP
+    });
+    // if original equipped weapon still in inventory then requip it
+    if (leq !== null)
+    {
+      left.eqWeap = leq
+    }
+    // if not in inventory then equip first usable weapon (or 0 if none usable)
+    if (leq === null || left.canUseWeapon(left.weapons[left.eqWeap]) == false)
+    {
+      left.eqWeap = -1
+      let i = 0;
+      for (let w of left.weapons)
+      {
+	if (left.canUseWeapon(w))
+	{
+	  left.eqWeap = i
+	  break
+	}
+	++i;
+      }
+    }
+
+    let req = null
+    let right = this.right.unit
+    right.weapons.forEach((w,i,_)=>
+    {
+      if (w.TRADE_EQ_TMP !== undefined && w.TRADE_EQ_TMP == "r")
+      {
+	req = i
+      }
+      delete w.TRADE_EQ_TMP
+    });
+    if (req !== null)
+    {
+      right.eqWeap = req
+    }
+    if (req === null || right.canUseWeapon(right.weapons[right.eqWeap]) == false)
+    {
+      right.eqWeap = -1
+      let i = 0;
+      for (let w of right.weapons)
+      {
+	if (right.canUseWeapon(w))
+	{
+	  right.eqWeap = i
+	  break
+	}
+	++i;
+      }
+    }
   }
 }

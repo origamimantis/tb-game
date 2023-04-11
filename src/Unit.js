@@ -81,7 +81,7 @@ export class Unit extends AnimatedObject
     this.color = [1, 253, 40];
     
     this.weapons = [];
-    this.eqWeap = 0;
+    this.eqWeap = -1;
     this.items = [];
     this.equipment = [];
     this.walkFunction = walkFunction;
@@ -112,7 +112,11 @@ export class Unit extends AnimatedObject
   addWeapon(weap)
   {
     if (this.weapons.length < UNIT_MAX_WEAP)
+    {
       this.weapons.push(weap);
+      if (this.canUseWeapon(this.weapons[this.eqWeap]) == false && this.canUseWeapon(this.weapons[this.weapons.length-1]) == true) 
+	this.eqWeap = this.weapons.length - 1
+    }
     else
       throw new Error("Unit.addWeapon: max weapon amount exceeded.");
   }
@@ -159,8 +163,11 @@ export class Unit extends AnimatedObject
   // TODO weapon ranks and stuff
   canUseWeapon(w)
   {
+    // if eqWeap == -1 then this.weapons[eqWeap] -> undefined
     let r = true;
-    if (this.hasSkill("noncombatant"))
+    if  (w === undefined)
+      return false
+    else if (this.hasSkill("noncombatant"))
       r = false;
     else if (w !== null && w.pref !== null && this.name != w.pref)
       r = false;
@@ -188,9 +195,10 @@ export class Unit extends AnimatedObject
   }
   getWeapon()
   {
-    if (this.weapons.length == 0)
+    if (this.canUseWeapon(this.weapons[this.eqWeap]) == true)
+      return this.weapons[this.eqWeap];
+    else
       return new NoWeapon();
-    return this.weapons[this.eqWeap];
   }
   hasSkill(s)
   {
@@ -469,7 +477,15 @@ export class Unit extends AnimatedObject
   // attackable from a certain coordinate ie does not factor in movement
   attackableTiles(map, wlist = this.weapons)
   {
-    let p = inRange(this, this.getRange(wlist), "tiles", map);
+    let wlist2 = []
+    for (let w of wlist)
+    {
+      if (this.canUseWeapon(w))
+      {
+	wlist2.push(w)
+      }
+    }
+    let p = inRange(this, this.getRange(wlist2), "tiles", map);
     p.setArt("C_atk");
     return p;
   }

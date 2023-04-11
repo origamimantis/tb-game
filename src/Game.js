@@ -222,6 +222,12 @@ class Game
 
     let adjacent = unit.adjacentUnits(this.Map);
     let adj_ally = unit.adjacentUnits(this.Map, [this.temp.selectedUnit.team]);
+
+    let usableIdx = [-1];
+    let usableWpns = unit.getUsableWeapons(usableIdx);
+    this.temp.unitUsableWeapons = usableWpns;
+    // TODO I have no idea what this is for. too lazy to see if it works when i remove it.
+    this.temp.unitUsableIdx = usableIdx[0];
     let attackable = unit.attackableUnits(this, this.temp.unitUsableWeapons);
     
     let convos = this.chapterScript.conversations[unit.name];
@@ -614,6 +620,7 @@ class Game
       {
 	// regenerate actions (maybe traded a healing item)
 	let uActions = this.generateUnitActions(this, this.temp.selectedUnit);
+	this.toDraw.set("selectedUnitAttackableTiles", this.temp.selectedUnit.attackableTiles(this.Map));
 	let numActions = uActions.length;
 	let ap = new SelectionPanel(50,50, 20+64,16*numActions+20, 1, numActions, 398, 50, uActions);
 	this.temp.cameraPrev = new Coord(this.camera.offset);
@@ -910,7 +917,9 @@ class Game
 	    let usableWpns = unit.getUsableWeapons(usableIdx);
 	    this.toDraw.set("selectedUnitMovable", unit.movable(this, true, true, usableWpns) );
 	    this.temp.unitUsableWeapons = usableWpns;
+	    // TODO I have no idea what this is for. too lazy to see if it works when i remove it.
 	    this.temp.unitUsableIdx = usableIdx[0];
+	    //
 	    let p = new Queue();
 	    p.setArt("C_walk");
 	    
