@@ -97,6 +97,7 @@ function initVars()
 
 export let script =
   {
+    chNumber: "1",
     chTitle: "Invasion",
     tileMap: "assets/tilemaps/ch1.txt",
     nextLvl: "./ch2.js",
@@ -122,7 +123,7 @@ export let script =
       g.addUnit(b1);
       g.addUnit(b2);
 	
-      await g.alert("\n  Chapter 1  \n", 256, 100);
+      await g.alertTitle()
       await g.cursorFlash(alfred);
       
       let conv = new Conversation(g);

@@ -91,7 +91,7 @@ function initVars()
   doddson.isBoss = true;
 
 
-  zone1 = {rectangle:[[14, 3],[23,24]], triggered:false}
+  zone1 = {rectangle:[[16, 3],[23,24]], triggered:false}
 }
 
 
@@ -99,9 +99,10 @@ function initVars()
 
 export let script =
   {
+    chNumber: "2",
     chTitle: "Archers",
     tileMap: "assets/tilemaps/ch2.txt",
-    nextLvl: null,
+    nextLvl: "./ch3.js",
     type: "Game",
     cameraInit: {x: 0, y:5},
     teams:  [ {name: "Player", bannercolor: "#aaaaff", maptheme: "ch2 map",  btltheme: "player battle"},
@@ -118,7 +119,7 @@ export let script =
       initVars();
       g.Map.setMaxBound(16, null);
       
-      await g.alert("\n  Chapter 2  \n", 256, 100);
+      await g.alertTitle()
 
       let movePromise = []
       g.addUnit(vargas);

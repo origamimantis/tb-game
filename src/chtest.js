@@ -143,8 +143,10 @@ function initVars()
 
 export let script =
   {
+    chNumber: null,
     chTitle: "Test Level",
     tileMap: "assets/tilemaps/ch1.txt",
+    nextLvl: null,
     type: "Game",
     cameraInit: {x: 0, y: 0},
     teams:  [ {name: "Player", bannercolor: "#aaaaff", maptheme: "ch1 map",  btltheme: "player battle"},

@@ -42,19 +42,21 @@ class LevelPanel extends Panel
 
     for (let i = 0; i < this.length; ++i)
     {
-      let ch = String(this._ls.list[i]);
+      let j = String(this._ls.list[i]);
 
-      let lvlmeta = JSON.parse(window.localStorage.getItem("LOCALSAVE_"+ch+"meta"));
+      let lvlmeta = JSON.parse(window.localStorage.getItem("LOCALSAVE_"+j+"meta"));
       
-      let chTitle = (await import(lvlmeta.chapter)).script.chTitle
+      let script = (await import(lvlmeta.chapter)).script
+      let chNumber = script.chNumber
+      let chTitle = script.chTitle
       let source = (lvlmeta.source == "autosave")?"autosave":"provided"
       let prettytime = timeToDateString(lvlmeta.time);
 
-      this.addComponent( new PanelComponent( PanelType.TEXT, ch), i+"id", -0.1, i,
+      this.addComponent( new PanelComponent( PanelType.TEXT, j), i+"id", -0.1, i+0.08,
+                         "#000000",  "8.25px ABCD Mono", "left");
+      this.addComponent( new PanelComponent( PanelType.TEXT, "Ch"+chNumber+" - "+chTitle+" ("+source+")"), i, 0, i,
                          "#000000",  "11px ABCD Mono", "left");
-      this.addComponent( new PanelComponent( PanelType.TEXT, chTitle + " - " + source), i, 0, i,
-                         "#000000",  "11px ABCD Mono", "left");
-      this.addComponent( new PanelComponent( PanelType.TEXT, prettytime ), i+"date", 1.83, i+0.1,
+      this.addComponent( new PanelComponent( PanelType.TEXT, prettytime ), i+"date", 1.83, i+0.08,
                          "#000000",  "8.25px ABCD Mono", "right");
     }
 

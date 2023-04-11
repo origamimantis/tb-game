@@ -1441,6 +1441,11 @@ class Game
   }
 
 
+  async alertTitle(text, x=256, y=200)
+  {
+    await this.alert("\nChapter "+this.chapterScript.chNumber+"\n"+this.chapterScript.chTitle+"\n", 256, 100);
+  }
+
   async alert(text, x=256, y=200)
   {
     if (Settings.get("cut_skip") == true)
@@ -1448,11 +1453,24 @@ class Game
 
     this.blockInput();
     this.setTextProperty(4, "black", "11px ABCD Mono", "center");
-    let w = Math.ceil(this.ctx[4].measureText(text).width);
-    let h = 20 + 16.5*text.split("\n").length - 5.5;
+    let texts = text.split("\n")
+
+    let w = 0;
+    texts.forEach((t,i,_) =>
+    {
+      let nw = Math.ceil(this.ctx[4].measureText(t).width);
+      if (nw > w)
+	w = nw
+    });
+    let h = 20 + 16.5*texts.length - 5.5;
     let p = new Panel(x - w/2, y, w + 20, h);
     p.explicitDraw(this, 4);
-    this.drawText(4, text, x+10, y+10);
+    texts.forEach((t,i,_) =>
+    {
+      let nw = Math.ceil(this.ctx[4].measureText(t).width);
+      //console.log( x+10-nw/2)
+      this.drawText(4, "\n".repeat(i)+t, x+10, y+10);
+    });
     await waitTime(2000);
     this.ctx[4].clearRect(x - w/2, y, w + 20, h);
     this.unblockInput();
