@@ -129,7 +129,7 @@ export class BowKnight extends Unit
 	    if (name == "kn")
 		anim = "S_kn4"
 	    else
-	        anim = "S_BowKnight" + name
+	        anim = "S_BowKnight_" + name
 	}
 	let caps =
 	    { "maxhp":60,

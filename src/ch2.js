@@ -43,7 +43,6 @@ function initVars()
   billy = units.Billy
   chloe = units.Chloe
   vargas = units.Vargas
-  console.log(units)
 
   vargas.setXY(0,11)
   vargas.addItem(new Bandages());
@@ -59,7 +58,7 @@ function initVars()
   if (chloe)
     chloe.setXY(0, 11);
 
-  yuli = new Units.BowKnight(uid++, 33, 35, {maxhp:18, atk:7,spd:3,skl:24,def:2,con:4,mov: 6}, "Yuliza")
+  yuli = new Units.BowKnight({maxhp:18, atk:7,spd:3,skl:24,def:2,con:4,mov: 6}, "Yuliza")
   yuli.setXY(33, 35)
   yuli.team = "Scout";
   yuli.pArt = "P_Yuliza";
@@ -67,9 +66,11 @@ function initVars()
   yuli.setAnim( "idle" );
   yuli.ai = "fleeToUnit"
   yuli.aiparams={target:vargas}
+  yuli.addItem(new Bandages());
+  yuli.items[0].uses=3;
   yuli.stats.hp = 16;
 
-  mali = new Units.BowKnight(uid++, 33, 35, {maxhp:17, atk:4,spd:4,skl:8,def:4,con:4,mov: 6}, "Malidale")
+  mali = new Units.BowKnight({maxhp:17, atk:4,spd:4,skl:8,def:4,con:4,mov: 6}, "Malidale")
   mali.setXY(33, 35)
   mali.team = "Scout";
   mali.pArt = "P_Malidale";
@@ -78,9 +79,10 @@ function initVars()
   mali.ai = "fleeToUnit"
   mali.aiparams={target:vargas}
   mali.addItem(new Bandages());
+  mali.items[0].uses=3;
   mali.stats.hp = 6;
 
-  doddson = new Units.Bandit(uid++, 33,35, {maxhp:31, atk:7,spd:2,skl:2,def:5,con:9,mov: 5}, "Doddson");
+  doddson = new Units.Bandit({maxhp:31, atk:7,spd:2,skl:2,def:5,con:9,mov: 5}, "Doddson");
   doddson.setXY( 33,35)
   doddson.team = "Bandit";
   doddson.pArt = "P_Doddson";
@@ -97,6 +99,7 @@ function initVars()
 
 export let script =
   {
+    chTitle: "Archers",
     tileMap: "assets/tilemaps/ch2.txt",
     nextLvl: null,
     type: "Game",
@@ -549,7 +552,7 @@ export let script =
 
 	      for (let i = 0; i < dests_atk.length + dests_guard.length; ++i)
 	      {
-		let u = new Units.Bandit(33,35, {maxhp:17, atk:5,spd:2,skl:2,def:4,con:9,mov: 5}, "Bandit");
+		let u = new Units.Bandit({maxhp:17, atk:5,spd:2,skl:2,def:4,con:9,mov: 5}, "Bandit");
 		u.setXY(33,35);
 		u.team = "Bandit";
 		u.addWeapon(new Weapons.LumberAxe());

@@ -36,59 +36,103 @@ export class Storage
 {
   static async init(savesList)
   {
-    for (let save of savesList)
-    {
-      let jsonsave = (await requestFile("src/"+save+".json")).responseText
-      window.localStorage.setItem("LOCALSAVE_" + save, jsonsave);
-    }
-    if (window.localStorage.getItem("SAVELIST") !== null)
+    if (window.localStorage.getItem("NUMSAVES") !== null)
     {
       try
       {
-	let s = JSON.parse(window.localStorage.getItem("SAVELIST"))
+	let s = JSON.parse(window.localStorage.getItem("NUMSAVES"))
 	let new_s = []
 	// validate that savefiles exist (if unreadable then that's a later problem)
-	for (let savename of s)
+	for (let i = 0; i < s; ++i)
 	{
-	  if (window.localStorage.getItem("LOCALSAVE_"+savename) !== null)
+	  if (window.localStorage.getItem("LOCALSAVE_"+i+"data") !== null && 
+	      window.localStorage.getItem("LOCALSAVE_"+i+"meta") !== null)
 	  {
-	    new_s.push(savename);
+	    new_s.push(i);
 	  }
 	}
-	window.localStorage.setItem("SAVELIST", JSON.stringify(new_s))
+	for (let i = 0; i < new_s.length; ++i)
+	{
+	  let j = new_s[i]
+	  if (j != i)
+	  {
+	    window.localStorage.setItem("LOCALSAVE_"+i+"data", window.localStorage.getItem("LOCALSAVE_"+j+"data"))
+	    window.localStorage.setItem("LOCALSAVE_"+i+"meta", window.localStorage.getItem("LOCALSAVE_"+j+"meta"))
+	  }
+	}
+
+	window.localStorage.setItem("NUMSAVES", JSON.stringify(new_s.length))
 	return
       }
       // if error happens while parsing json then "break"
       catch (e)
       {
-	window.localStorage.removeItem("SAVELIST")
+	console.log(e)
+	window.localStorage.removeItem("NUMSAVES")
       }
       
     }
-    if (window.localStorage.getItem("SAVELIST") === null)
+    if (window.localStorage.getItem("NUMSAVES") === null)
     {
-      window.localStorage.setItem("SAVELIST", JSON.stringify(savesList));
+      window.localStorage.setItem("NUMSAVES", JSON.stringify(0));
     }
 
 
   }
-  static save(g)
+
+  static async saveFromFile(file, avoid_duplicate=true)
+  {
+    let jsonsave = (await requestFile(file)).responseText
+    jsonsave = JSON.stringify(JSON.parse(jsonsave))
+    if (avoid_duplicate == true)
+    {
+      let s = JSON.parse(window.localStorage.getItem("NUMSAVES"))
+      for (let i = 0; i < s; ++i)
+      {
+	let save = "LOCALSAVE_"+String(i)
+	let src = JSON.parse(window.localStorage.getItem(save+"meta")).source
+	if (src == file)
+	{
+	  let data = window.localStorage.getItem(save+"data")
+	  if (jsonsave == data)
+	  {
+	    console.log("Not adding provided save for "+file+" since it already exists.")
+	    return
+	  }
+	}
+      }
+    }
+    return Storage.save(JSON.parse(jsonsave), file);
+  }
+  static async saveFromGame(g)
   {
     let data = {}
     data.chapter = Storage.saveChapter(g)
     data.units = Storage.saveUnits(g)
     // Am not writing stringify(stringify(data)) so saves are easier to modify
-    console.log(JSON.stringify(data))
-    window.localStorage.setItem("LOCALSAVE_autosave", JSON.stringify(data));
+    return Storage.save(data, "autosave");
+  }
+  static save(data, name="autosave")
+  {
+    let meta = {}
+    meta.time = Storage.saveCurrentTime()
+    meta.source = name
+    meta.chapter = data.chapter
 
-    let s = JSON.parse(window.localStorage.getItem("SAVELIST"))
-    let ss = new Set(s)
-    ss.add("autosave")
-    s = Array.from(ss)
-    console.log(s)
-    window.localStorage.setItem("SAVELIST", JSON.stringify(s));
+    let s = JSON.parse(window.localStorage.getItem("NUMSAVES"))
+    ++s;
+    let savefilename = "LOCALSAVE_"+String(s-1);
+
+    window.localStorage.setItem(savefilename+"data", JSON.stringify(data));
+    window.localStorage.setItem(savefilename+"meta", JSON.stringify(meta));
+    window.localStorage.setItem("NUMSAVES", JSON.stringify(s));
 
     return data
+  }
+  static saveCurrentTime()
+  {
+    let date = new Date()
+    return date.getTime()
   }
   static saveChapter(g)
   {
@@ -97,7 +141,7 @@ export class Storage
       //return g.chapterScript.scriptFile;
       return g.chapterScript.nextLvl;
     }
-    return "./ch1.js"
+    return "./chtitle.js"
   }
   static saveUnits(g)
   {

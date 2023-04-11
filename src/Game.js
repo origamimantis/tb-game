@@ -81,6 +81,7 @@ class Game
     this.ctx = ctx;
 
     this.turn = null;
+    Unit.init();
     this.Units = new UnitContainer();
     
     this.toDraw = new DrawContainer();
@@ -1011,7 +1012,7 @@ class Game
       },
       select:async ()=>
       {
-	let save_obj = Storage.save(this);
+	let save_obj = await Storage.saveFromGame(this);
 	this.Album.clearAllCtx();
 	await this.MAIN.loadSave(save_obj)
 	this.MAIN.start();
@@ -1411,6 +1412,8 @@ class Game
 
   async recruitJingle(unit)
   {
+    if (Settings.get("cut_skip") == true)
+      return
     MusicPlayer.mute(this.mapTheme);
     await Promise.all(
       [
@@ -1421,6 +1424,8 @@ class Game
   }
   async leaveJingle(unit)
   {
+    if (Settings.get("cut_skip") == true)
+      return
     MusicPlayer.mute(this.mapTheme);
     await Promise.all(
       [

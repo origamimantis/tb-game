@@ -60,7 +60,7 @@ function initVars()
   chloe.setAnim( "idle" );
   chloe.recruited = false;
 
-  vargas = new Units.SwordKnight({maxhp:28, atk:5,spd:3,skl:12,def:6,con:12,mov: 6}, "Vargas", "S_lead0");
+  vargas = new Units.SwordKnight({maxhp:28, atk:5,spd:3,skl:12,def:6,con:12,mov: 6}, "Vargas");
   vargas.setXY(1,25);
   vargas.team = "Player";
   vargas.addWeapon(new Weapons.BronzeSlicer());
@@ -97,6 +97,7 @@ function initVars()
 
 export let script =
   {
+    chTitle: "Invasion",
     tileMap: "assets/tilemaps/ch1.txt",
     nextLvl: "./ch2.js",
     type: "Game",
@@ -583,6 +584,7 @@ export let script =
           restartTurns: false,
           action: async (g) =>
           {
+	    await g.switchTeam(child, "Village");
 	    g.onVictory();
 	  }
 	}

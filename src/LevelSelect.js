@@ -7,7 +7,17 @@ import {waitTime, scrollSelect_UD} from "./Utils.js";
 import {TiledEffect} from "./TiledEffect.js";
 import {applyArrowStall} from "./Utils.js";
 
+function timeToDateString(time)
+{
+  let date = new Date(time)
+  let yyyy = String(date.getFullYear());
+  let mm = String(date.getMonth() + 1).padStart(2, '0');
+  let dd = String(date.getDate()).padStart(2, '0');
+  let h = String(date.getHours()).padStart(2, '0');
+  let m = String(date.getMinutes()).padStart(2, '0');
 
+  return yyyy+"-"+mm+"-"+dd+" "+h+":"+m
+}
 
 class LevelPanel extends Panel
 {
@@ -19,9 +29,12 @@ class LevelPanel extends Panel
 
     this.top = 0
     this.scrollOff = {x:30, y:0}
-
-    let lvlList = JSON.parse(window.localStorage.getItem("SAVELIST"));
-
+    this.length = 0
+  }
+  async initComponents()
+  {
+    let lvlList = [...Array( JSON.parse(window.localStorage.getItem("NUMSAVES")) ).keys()]
+    lvlList.reverse()
 
     this._ls = new LoopSelector(lvlList)
     this.idx = this._ls.idx;
@@ -29,9 +42,20 @@ class LevelPanel extends Panel
 
     for (let i = 0; i < this.length; ++i)
     {
-      let name = this._ls.list[i];
-      this.addComponent( new PanelComponent( PanelType.TEXT, name ), i, 0, i,
+      let ch = String(this._ls.list[i]);
+
+      let lvlmeta = JSON.parse(window.localStorage.getItem("LOCALSAVE_"+ch+"meta"));
+      
+      let chTitle = (await import(lvlmeta.chapter)).script.chTitle
+      let source = (lvlmeta.source == "autosave")?"autosave":"provided"
+      let prettytime = timeToDateString(lvlmeta.time);
+
+      this.addComponent( new PanelComponent( PanelType.TEXT, ch), i+"id", -0.1, i,
                          "#000000",  "11px ABCD Mono", "left");
+      this.addComponent( new PanelComponent( PanelType.TEXT, chTitle + " - " + source), i, 0, i,
+                         "#000000",  "11px ABCD Mono", "left");
+      this.addComponent( new PanelComponent( PanelType.TEXT, prettytime ), i+"date", 1.83, i+0.1,
+                         "#000000",  "8.25px ABCD Mono", "right");
     }
 
   }
@@ -42,9 +66,12 @@ class LevelPanel extends Panel
     let scrollx = this.body.x + this.innerw - 15
 
     // selection indicator
-    g.ctx[1].fillStyle = "#9eefff";
-    let y = this.components[this.idx].y;
-    g.ctx[1].fillRect(this.body.x + 25, this.body.y + y + 3 + this.scrollOff.y, this.innerw - 60, 12)
+    if (this.idx !== undefined)
+    {
+      g.ctx[1].fillStyle = "#9eefff";
+      let y = this.components[this.idx].y;
+      g.ctx[1].fillRect(this.body.x + 25, this.body.y + y + 3 + this.scrollOff.y, this.innerw - 30, 12)
+    }
 
     if (this.length > 12)
     {
@@ -61,8 +88,14 @@ class LevelPanel extends Panel
     {
       let name = this._ls.list[i]
 
+      let x = this.components[i+"id"];
+      x.comp.draw(g, this.body, x, this.scrollOff);
+
       let o = this.components[i];
       o.comp.draw(g, this.body, o, this.scrollOff);
+
+      let d = this.components[i+"date"];
+      d.comp.draw(g, this.body, d, this.scrollOff);
     }
   }
 
@@ -113,6 +146,8 @@ export class LevelSelect
     this.explicitDraw()
     this.bg = new TiledEffect(0.5,0.25);
     await this.bg.load("BG_unitprofile");
+    await this.p.initComponents();
+    this.explicitDraw()
   }
 
   update()
@@ -122,7 +157,6 @@ export class LevelSelect
   draw()
   {
     this.bg.draw(this, 0);
-
   }
   explicitDraw()
   {
@@ -148,7 +182,7 @@ export class LevelSelect
     MusicPlayer.stopAll()
     MusicPlayer.play("beep");
 
-    let savefile = "LOCALSAVE_" + this.p.get();
+    let savefile = "LOCALSAVE_" + this.p.get() + "data";
     let save = JSON.parse(window.localStorage.getItem(savefile));
 
     await this.MAIN.loadSave(save, null)

@@ -14,16 +14,18 @@ import {triggerEvent, generatePath, inRange, generateMovable, nextFrameDo, waitT
 import {NoWeapon} from "./Weapon.js";
 
 let id = 0
-let x = null
-let y = null
 
 export class Unit extends AnimatedObject
 {
+  static init()
+  {
+    id = 0
+  }
   constructor(caps, stats, name = ("Unit "+id), classname = "Unit", pArt = "P_gen", skills = [], walkFunction = null)
   {
-    super( x, y );
-    this.x = x;
-    this.y = y;
+    super( null, null );
+    this.x = null;
+    this.y = null;
     this.id = id;
     id++;
 

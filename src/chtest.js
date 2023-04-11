@@ -143,6 +143,7 @@ function initVars()
 
 export let script =
   {
+    chTitle: "Test Level",
     tileMap: "assets/tilemaps/ch1.txt",
     type: "Game",
     cameraInit: {x: 0, y: 0},

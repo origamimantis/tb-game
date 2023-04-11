@@ -78,7 +78,6 @@ function _bindInteractions(script)
 
 async function loadScript(script)
 {
-  console.log(script)
   let levelscript = await import(script);
   let level = rfdc({ proto: false, circles: false })(levelscript.script)
   _bindInteractions(level);
@@ -124,7 +123,11 @@ async function loadMusic()
 
 async function loadSaves(savesList)
 {
-  await Storage.init(savesList);
+  Storage.init(savesList);
+  for (let save of savesList)
+  {
+    await Storage.saveFromFile("src/"+save+".json");
+  }
 }
 
 async function loadFonts()
@@ -370,7 +373,7 @@ class Main
 
 
 console.main = Main;
-let providedSaves = ["ch1_test", "ch2_test", "chtest_test"];
+let providedSaves = ["chtest_test", "ch1_test", "ch2_test"];
 let thingsToLoad = {
       ImgLoad : [ "P_gen", "P_lead", "P_janitor", "P_vmp", "P_Alfred", "P_child",
 		  "P_Yuliza", "P_Malidale",
