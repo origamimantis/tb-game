@@ -50,6 +50,11 @@ export class Storage
 	  {
 	    new_s.push(i);
 	  }
+	  else
+	  {
+	    window.localStorage.removeItem("LOCALSAVE_"+i+"data");
+	    window.localStorage.removeItem("LOCALSAVE_"+i+"meta");
+	  }
 	}
 	for (let i = 0; i < new_s.length; ++i)
 	{
@@ -60,6 +65,7 @@ export class Storage
 	    window.localStorage.setItem("LOCALSAVE_"+i+"meta", window.localStorage.getItem("LOCALSAVE_"+j+"meta"))
 	  }
 	}
+
 
 	window.localStorage.setItem("NUMSAVES", JSON.stringify(new_s.length))
 	return

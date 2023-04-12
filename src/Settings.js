@@ -53,7 +53,7 @@ export class Settings
 	  break;
       }
     }
-    this.values.cut_skip.allowed.next()
+    //this.values.cut_skip.allowed.next()
   }
   static set(s,val)
   {
