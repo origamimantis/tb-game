@@ -143,7 +143,7 @@ function initVars()
 
 export let script =
   {
-    chNumber: null,
+    chNumber: "*",
     chTitle: "Test Level",
     tileMap: "assets/tilemaps/ch1.txt",
     nextLvl: null,
