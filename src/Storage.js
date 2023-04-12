@@ -226,6 +226,7 @@ export class Storage
 	let e = new Equipments[edata.class]
 	unit.addEquipment(e)
       }
+      unit.eqWeap = data.eqWeap
       unit.setAnim( "idle" );
       units[name] = unit
     }
