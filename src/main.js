@@ -126,7 +126,7 @@ async function loadSaves(savesList)
   Storage.init(savesList);
   for (let save of savesList)
   {
-    await Storage.saveFromFile("src/"+save+".json");
+    await Storage.saveFromFile("saves/"+save+".json");
   }
 }
 
