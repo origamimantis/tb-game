@@ -1242,12 +1242,12 @@ class Game
     let team = turndata.name;
     let t = new EnemyController(this);
 
-    let hostile = this.Units.getTeams(this.getHostile(team));
-    this.Map.getPathingMap(hostile);
-
     await waitTime(250);
     for (let unit of this.Units.teams[team])
     {
+      let hostile = this.Units.getTeams(this.getHostile(team));
+      this.Map.getPathingMap(hostile);
+
       let info = await t.offense(unit);
 
       if (info.action == "none")

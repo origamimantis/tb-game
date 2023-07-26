@@ -114,7 +114,7 @@ function initVars()
 
 
 
-  chloe = new Units.Farmer({maxhp:16, atk:2,spd:3,skl:3,def:2,con:4,mov: 6}, "Chloe");
+  chloe = new Units.Farmer({maxhp:6, atk:2,spd:3,skl:3,def:2,con:4,mov: 6}, "Chloe");
   chloe.setXY(9, 5);
   chloe.team = "Player";
   chloe.pArt = "P_Chloe";
@@ -123,7 +123,7 @@ function initVars()
   chloe.recruited = true;
   chloe.ai = "guard";
 
-  vargas = new Units.SwordKnight({maxhp:28, atk:6,spd:7,skl:12,def:5,con:12,mov: 6}, "Vargas", "S_lead0");
+  vargas = new Units.SwordKnight({maxhp:28, atk:6,spd:7,skl:12,def:5,con:12,mov: 6}, "Vargas");
   vargas.setXY(8, 7);
   vargas.team = "Player";
   vargas.pArt = "P_lead";
@@ -168,12 +168,12 @@ export let script =
 
       g.addUnit(vargas);
 
+      g.addUnit(choddson);
       g.addUnit(b1);
       g.addUnit(b2);
-      g.addUnit(choddson);
 
       g.addUnit(chloe, new Coord(3,6));
-      await g.addUnit(billy, new Coord(7,3));
+      g.addUnit(billy, new Coord(7,3));
       g.addUnit(yuli);
       g.addUnit(mali);
       g.addUnit(mag);
