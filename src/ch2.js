@@ -47,8 +47,6 @@ function initVars()
   vargas.setXY(0,11)
   vargas.addItem(new Bandages());
   vargas.addItem(new Bandages());
-  vargas.addItem(new Bandages());
-  vargas.addItem(new Bandages());
 
   alfred.setXY(0, 11);
 
@@ -58,7 +56,7 @@ function initVars()
   if (chloe)
     chloe.setXY(0, 11);
 
-  yuli = new Units.BowKnight({maxhp:18, atk:7,spd:3,skl:24,def:2,con:4,mov: 6}, "Yuliza")
+  yuli = new Units.BowKnight({maxhp:18, atk:7,spd:3,skl:11,def:2,con:4,mov: 6}, "Yuliza")
   yuli.setXY(33, 35)
   yuli.team = "Scout";
   yuli.pArt = "P_Yuliza";
@@ -67,10 +65,10 @@ function initVars()
   yuli.ai = "fleeToUnit"
   yuli.aiparams={target:vargas}
   yuli.addItem(new Bandages());
-  yuli.items[0].uses=3;
+  yuli.items[0].uses=1;
   yuli.stats.hp = 16;
 
-  mali = new Units.BowKnight({maxhp:17, atk:4,spd:4,skl:8,def:4,con:4,mov: 6}, "Malidale")
+  mali = new Units.BowKnight({maxhp:17, atk:4,spd:4,skl:7,def:4,con:4,mov: 6}, "Malidale")
   mali.setXY(33, 35)
   mali.team = "Scout";
   mali.pArt = "P_Malidale";
@@ -79,10 +77,10 @@ function initVars()
   mali.ai = "fleeToUnit"
   mali.aiparams={target:vargas}
   mali.addItem(new Bandages());
-  mali.items[0].uses=3;
+  mali.items[0].uses=2;
   mali.stats.hp = 6;
 
-  doddson = new Units.Bandit({maxhp:31, atk:7,spd:2,skl:2,def:5,con:9,mov: 5}, "Doddson");
+  doddson = new Units.Bandit({maxhp:31, atk:7,spd:4,skl:5,def:5,con:9,mov: 5}, "Doddson");
   doddson.setXY( 33,35)
   doddson.team = "Bandit";
   doddson.pArt = "P_Doddson";
@@ -198,17 +196,17 @@ export let script =
       let b2 = addbandit(17,14);
       let b3 = addbandit(17,13);
       addbandit(4,17);
-      addbandit(5,17);
-      addbandit(4,20);
-      addbandit(5,20);
+      //addbandit(5,17);
+      //addbandit(4,20);
+      //addbandit(5,20);
       addbandit(3,23);
-      addbandit(2,24);
+      //addbandit(2,24);
       addbandit(1,27);
-      addbandit(2,28);
+      //addbandit(2,28);
       addbandit(3,31);
-      addbandit(4,31);
+      //addbandit(4,31);
       addbandit(7,33);
-      addbandit(8,34);
+      //addbandit(8,34);
 
       // test archers
       //addbandit(30,34);
@@ -497,7 +495,7 @@ export let script =
 	      conv.speaker("Malidale");
 	      conv.say("Oh...")
 	      conv.leave("Yuliza");
-	      conv.say("Thanks.")
+	      conv.say("Thanks bruv!")
 	      await g.setExtStatus(conv);
 
 	      //await csPause(250)

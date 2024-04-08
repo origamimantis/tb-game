@@ -144,7 +144,7 @@ export class UnitTradeScreen
     }
     if (lh.length == 0) lh = null;
     if (rh.length == 0) rh = null;
-    //console.log(l, r, lh, rh);
+
     this.left.panel[this.tradeMode].explicitDraw(g, 4, l, lh);
     this.right.panel[this.tradeMode].explicitDraw(g, 4, r, rh);
 
@@ -239,7 +239,6 @@ export class UnitTradeScreen
   }
   select()
   {
-    console.log(this.ptr)
     if (this.state == OBSERVE)
     {
       if (this.unitSelect.get().unit[this.tradeMode].length > 0)
