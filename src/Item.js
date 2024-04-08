@@ -1,6 +1,6 @@
 "use strict";
 
-import {SpriteEffect, waitSpriteEffect} from "./Effects.js";
+import {SpriteEffect, spawnSpriteEffect} from "./Effects.js";
 
 class Item
 {
@@ -33,7 +33,7 @@ export class Bandages extends Item
   {
     super.use(g, user, target);
     let c = g.camera.adjustedPos(user);
-    let e = waitSpriteEffect(g, "heal", 3, c.x, c.y);
+    let e = spawnSpriteEffect(g, "heal", 3, c.x, c.y);
     await e;
     await g.healUnit(user, 10);
 

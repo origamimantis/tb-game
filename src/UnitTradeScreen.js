@@ -239,6 +239,7 @@ export class UnitTradeScreen
   }
   select()
   {
+    console.log(this.ptr)
     if (this.state == OBSERVE)
     {
       if (this.unitSelect.get().unit[this.tradeMode].length > 0)

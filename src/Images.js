@@ -36,20 +36,20 @@ class Album
       console.error(this.images);
     }
   }
-  static drawHealthBar(ctx, percent, x, y, w=184, h=10, color)
+  static drawHealthBar(ctx, percent, x, y, w=184, h=10, color, border=2)
   {
     this.m.ctx[ctx].globalAlpha = 1;
     this.m.ctx[ctx].fillStyle = "#c0c0c0";
     this.m.ctx[ctx].fillRect(x, y, w, h);
 
     this.m.ctx[ctx].fillStyle = "grey";
-    this.m.ctx[ctx].fillRect(x+2, y+2, w-4, h-4);
+    this.m.ctx[ctx].fillRect(x+border, y+border, w-2*border, h-2*border);
 
     if (color === undefined)
       color = "red";
     this.m.ctx[ctx].fillStyle = color;
 
-    this.m.ctx[ctx].fillRect(x+2, y+2, (w-4)*percent, h-4);
+    this.m.ctx[ctx].fillRect(x+border, y+border, (w-2*border)*percent, h-2*border);
   }
 
   static clearCtx(n)

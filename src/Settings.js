@@ -8,6 +8,7 @@ export class Settings
     this.values = {
       cut_skip : {
 		    allowed: ["Off","On"],
+		    initial: "On",
 		    map: {Off:false,On:true},
 		    display: "Skip Cutscenes",
 	            type: "Text"
@@ -20,7 +21,7 @@ export class Settings
       },
       btl_anim_p : {
 		    allowed: ["Skip","Mini", "Full"],
-		    initial: "Full",
+		    initial: "Mini",
 		    map: undefined,
 		    display: "Player Battle Animations",
 	            type: "Text"
@@ -86,6 +87,7 @@ export class Settings
 
   }
 
+  // spec!=null: get returns as if the option was set to spec
   static get(s, spec = null)
   {
     let set = this.values[s];

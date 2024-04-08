@@ -375,6 +375,43 @@ export class Unit extends AnimatedObject
       }
     }
   }
+  // visually move unit slightly towards a coordinate
+  async bump(c)
+  {
+    if (c.x == this.x && c.y == this.y)
+      return;
+
+    let dx = c.x - this.x;
+    let dy = c.y - this.y;
+    let d = Math.sqrt(dx*dx + dy*dy)
+    dx /= d;
+    dy /= d;
+
+    let movepercent = 0.3125
+    dx *= movepercent
+    dy *= movepercent
+
+    for (let i = 0; i < 4; ++i)
+    {
+      this.vis.x += dx/5
+      this.vis.y += dy/5
+      await waitTick()
+    }
+  }
+  async unbump()
+  {
+    let dx = this.x - this.vis.x
+    let dy = this.y - this.vis.y
+
+    for (let i = 0; i < 4; ++i)
+    {
+      this.vis.x += dx/5
+      this.vis.y += dy/5
+      await waitTick()
+    }
+    this.vis.x = this.x
+    this.vis.y = this.y
+  }
 
   draw( g )
   {

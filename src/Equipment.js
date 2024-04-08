@@ -1,6 +1,6 @@
 "use strict";
 
-import {SpriteEffect, waitSpriteEffect} from "./Effects.js";
+import {SpriteEffect, spawnSpriteEffect} from "./Effects.js";
 
 const ARMOR = 0
 const HELMET = 1

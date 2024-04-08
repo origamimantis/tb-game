@@ -9,35 +9,39 @@ export class Panel
 {
 
   // x,y: coordinates of top left of panel
-  constructor( x, y, w, h, gridx, gridy, xalt, yalt )
+  constructor( x, y, w, h, gridx, gridy, xalt, yalt, edgew)
   {
     this.x = x;
     this.y = y;
     this.xo = x;
     this.yo = y;
 
-    this.body = {x: x + EDGEW, y:y+EDGEW};
+    if (edgew === undefined)
+      edgew = EDGEW
+    this.edgew = edgew
+
+    this.body = {x: x + this.edgew, y:y+this.edgew};
     this.xa = xalt;
     this.ya = yalt;
 
     if (gridx === undefined)
-      this.gx = (w-2*EDGEW);
+      this.gx = (w-2*this.edgew);
     else
       this.gx = gridx;
     
     if (gridy === undefined)
-      this.gy = (h-2*EDGEW);
+      this.gy = (h-2*this.edgew);
     else
       this.gy = gridy;
 
-    this.gsx = (w-2*EDGEW)/this.gx;
-    this.gsy = (h-2*EDGEW)/this.gy;
+    this.gsx = (w-2*this.edgew)/this.gx;
+    this.gsy = (h-2*this.edgew)/this.gy;
 
     this.w = w;
     this.h = h;
 
-    this.innerw = w-2*EDGEW
-    this.innerh = h-2*EDGEW
+    this.innerw = w-2*this.edgew
+    this.innerh = h-2*this.edgew
 
     this.components = {};
   }
@@ -89,7 +93,7 @@ export class Panel
     this.y = this.ya;
     this.xa = xx;
     this.ya = yy;
-    this.body = {x: this.x + EDGEW, y:this.y+EDGEW};
+    this.body = {x: this.x + this.edgew, y:this.y+this.edgew};
   }
   shiftOriginal()
   {
@@ -104,17 +108,17 @@ export class Panel
 
   drawBase( g, ctx)
   {
-    g.ctx[ctx].drawImage(Album.get("C_menutl"), this.x, this.y, EDGEW, EDGEW);
-    g.ctx[ctx].drawImage(Album.get("C_menutr"), this.x+this.w-EDGEW, this.y, EDGEW, EDGEW);
-    g.ctx[ctx].drawImage(Album.get("C_menubl"), this.x, this.y+this.h-EDGEW, EDGEW, EDGEW);
-    g.ctx[ctx].drawImage(Album.get("C_menubr"), this.x+this.w-EDGEW, this.y+this.h-EDGEW, EDGEW, EDGEW);
+    g.ctx[ctx].drawImage(Album.get("C_menutl"), this.x, this.y, this.edgew, this.edgew);
+    g.ctx[ctx].drawImage(Album.get("C_menutr"), this.x+this.w-this.edgew, this.y, this.edgew, this.edgew);
+    g.ctx[ctx].drawImage(Album.get("C_menubl"), this.x, this.y+this.h-this.edgew, this.edgew, this.edgew);
+    g.ctx[ctx].drawImage(Album.get("C_menubr"), this.x+this.w-this.edgew, this.y+this.h-this.edgew, this.edgew, this.edgew);
 
-    g.ctx[ctx].drawImage(Album.get("C_menuel"), this.x, this.y+EDGEW, EDGEW, this.h-2*EDGEW);
-    g.ctx[ctx].drawImage(Album.get("C_menuer"), this.x+this.w-EDGEW, this.y+EDGEW, EDGEW, this.h-2*EDGEW);
-    g.ctx[ctx].drawImage(Album.get("C_menuet"), this.x+EDGEW, this.y, this.w-2*EDGEW, EDGEW);
-    g.ctx[ctx].drawImage(Album.get("C_menueb"), this.x+EDGEW, this.y+this.h-EDGEW, this.w-2*EDGEW, EDGEW);
+    g.ctx[ctx].drawImage(Album.get("C_menuel"), this.x, this.y+this.edgew, this.edgew, this.h-2*this.edgew);
+    g.ctx[ctx].drawImage(Album.get("C_menuer"), this.x+this.w-this.edgew, this.y+this.edgew, this.edgew, this.h-2*this.edgew);
+    g.ctx[ctx].drawImage(Album.get("C_menuet"), this.x+this.edgew, this.y, this.w-2*this.edgew, this.edgew);
+    g.ctx[ctx].drawImage(Album.get("C_menueb"), this.x+this.edgew, this.y+this.h-this.edgew, this.w-2*this.edgew, this.edgew);
 
-    g.ctx[ctx].drawImage(Album.get("C_menucn"), this.x+EDGEW, this.y+EDGEW, this.w-2*EDGEW, this.h-2*EDGEW);
+    g.ctx[ctx].drawImage(Album.get("C_menucn"), this.x+this.edgew, this.y+this.edgew, this.w-2*this.edgew, this.h-2*this.edgew);
   }
 
   drawComp( g )
@@ -141,17 +145,21 @@ const OSCILLATION_AMT = 8;
 
 export class SelectionPointer
 {
-  constructor(sp, xoff = 0)
+  constructor(sp, xoff = 0, edgew=EDGEW)
   {
+    if (edgew === undefined)
+      edgew = EDGEW
+    this.edgew = edgew;
+
     this.setTarget(sp, xoff);
   }
   setTarget(sp, xoff = 0)
   {
     this.panel = sp;
-    this.x = sp.x + EDGEW + xoff;
-    this.y = sp.y + EDGEW;
-    this.xa = sp.xa + EDGEW + xoff;
-    this.ya = sp.ya + EDGEW;
+    this.x = sp.x + this.edgew + xoff;
+    this.y = sp.y + this.edgew;
+    this.xa = sp.xa + this.edgew + xoff;
+    this.ya = sp.ya + this.edgew;
     
     this.offy = 0;
 
@@ -181,7 +189,7 @@ export class SelectionPointer
   }
   draw(g, ctx = 5)
   {
-    g.ctx[ctx].drawImage(Album.get("C_ptr"), this.x - EDGEW + OSCILLATION_AMT*(this.offx- 2), this.y + this.offy);
+    g.ctx[ctx].drawImage(Album.get("C_ptr"), this.x - this.edgew + OSCILLATION_AMT*(this.offx- 2), this.y + this.offy);
   }
 }
 
@@ -227,7 +235,7 @@ export class SelectionPanel extends Panel
   }
   updateX(ptr = this.ptr)
   {
-    ptr.x = this.x + EDGEW;
+    ptr.x = this.x + this.edgew;
   }
   updateY(ptr = this.ptr)
   {
@@ -254,7 +262,7 @@ export class SelectionPanel extends Panel
 	  y = y.y;
 	else
 	  y = 0;
-	g.ctx[4].fillRect(this.body.x, this.body.y + y + 3, this.w-2*EDGEW, 12)
+	g.ctx[4].fillRect(this.body.x, this.body.y + y + 3, this.w-2*this.edgew, 12)
       }
       else
       {
@@ -262,7 +270,7 @@ export class SelectionPanel extends Panel
 	{
 	  let y = this.components[i];
 	  if (y)
-	    g.ctx[4].fillRect(this.body.x, this.body.y + y.y + 3, this.w-2*EDGEW, 12)
+	    g.ctx[4].fillRect(this.body.x, this.body.y + y.y + 3, this.w-2*this.edgew, 12)
 	}
       }
     }
@@ -334,7 +342,7 @@ export class ItemPanel extends SelectionPanel
 
 	this.addComponent( new PanelComponent( PanelType.TEXT, this.amtF(item) ),
 			   "t" + i, 0, i, (this.grayF(item))?"#880000":"#000000", "11px ABCD Mono", "right")
-	this.components["t" + i].x = this.w - 2*EDGEW;
+	this.components["t" + i].x = this.w - 2*this.edgew;
       }
     }
   }
@@ -408,7 +416,7 @@ export class BattlePreviewPanel extends Panel
   }
   drawCentered(g, ctx, text, x, y)
   {
-    g.drawText(ctx, text, this.x + this.w/2 + x, this.y + EDGEW + 5 + y);
+    g.drawText(ctx, text, this.x + this.w/2 + x, this.y + this.edgew + 5 + y);
   }
 }
 export class TooltipWeaponPanel extends Panel

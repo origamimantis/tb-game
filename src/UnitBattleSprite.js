@@ -32,8 +32,6 @@ export class UnitBattleSprite extends BattleSprite
     let c = Characters[this.unit.name];
     if (c === undefined)
       c = Characters.generic;
-    else if (c.deathQuote !== undefined)
-      this.deathQuote = c.deathQuote;
 
     // use generic animations if character not generic but has no custom animation for their class
     c = c.battleAnimation;

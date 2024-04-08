@@ -25,7 +25,7 @@ import {DrawContainer, UnitContainer, PanelContainer, ScriptDrawer} from "./Draw
 import {Inputter, ARROWS, ARROW} from "./Inputter.js";
 import {Panel, SelectionPanel, UnitMapPanel, ItemPanel, BattlePreviewPanel} from "./Panel.js";
 import {PanelComponent} from "./PanelComponent.js";
-import {Battle} from "./Battle.js";
+import {Battle, BattleMini} from "./Battle.js";
 import {LoopSelector, QueueSelector} from "./LoopSelector.js";
 import {Action} from "./ActionGenerator.js";
 import {scrollSelect_UD, scrollSelect_4W, triggerEvent,
@@ -39,7 +39,7 @@ import {UnitInfoScreen} from "./UnitInfoScreen.js";
 import {OptionScreen} from "./OptionScreen.js";
 import {UnitTradeScreen} from "./UnitTradeScreen.js";
 import {MapHealthBar} from "./MapHealthBar.js";
-import {NightTimeEffect, waitSpriteEffect} from "./Effects.js";
+import {NightTimeEffect, spawnSpriteEffect} from "./Effects.js";
 
 import {FPS,
 	TICK_RATE,
@@ -338,6 +338,12 @@ class Game
   }
   async setExtStatus(extState, nextStatus = null)
   {
+    // custom onBegin
+    if (extState.onBegin !== undefined)
+    {
+      await extState.onBegin();
+    }
+
     this.temp["prevGameStatus"] = this.gameStatus;
     this.temp["mapState"] = this.toDraw;
     this.toDraw = extState;
@@ -423,15 +429,33 @@ class Game
 	// confirm move
 	this.temp.selectedUnit.confirmMove(this);
 
-	let battle = new Battle(this, this.temp.selectedUnit, enemy, this.turn.get().btltheme);
+	let battle;
+	let s = Settings.get("btl_anim_p");
+	if (s == "Full")
+	{
+	  battle = new Battle(this, this.temp.selectedUnit, enemy, this.turn.get().btltheme,
+		    async () => {await MusicPlayer.fadeout(this.mapTheme)},
+		    async () => {MusicPlayer.fadein(this.mapTheme)});
+	}
+	else if (s == "Mini")
+	{
+	  battle = new BattleMini(this, this.temp.selectedUnit, enemy, this.turn.get().btltheme,
+		    async () => {this.toDraw.hide("cursor"); this.toDraw.hide("selectedUnitAttackableTiles")},
+		    async () => {this.toDraw.show("cursor")});
+	}
+	else
+	{
+	  console.log("Skip not implemented");
+	  battle = new BattleMini(this, this.temp.selectedUnit, enemy, this.turn.get().btltheme,
+		    async () => {this.toDraw.hide("cursor"); this.toDraw.hide("selectedUnitAttackableTiles")},
+		    async () => {this.toDraw.show("cursor")});
+	}
 
-	await MusicPlayer.fadeout(this.mapTheme);
 	
 	let casualty = null;
 	await this.setExtStatus(battle, null);
 	casualty = battle.dead;
 
-	MusicPlayer.fadein(this.mapTheme);
 
 	// end turn TODO change for canto/other stuff
 	//
@@ -1079,6 +1103,8 @@ class Game
       {
 	await this.toDraw.begin( async (retVal) =>
 	{
+	  let oe = this.toDraw.onEnd;
+
 	  this.toDraw = this.temp.mapState;
 	  delete this.temp.mapState;
 
@@ -1100,6 +1126,10 @@ class Game
 	  }
 	  
 	  if (onDone) await onDone(retVal);
+
+	  // custom onEnd
+	  if (oe !== undefined)
+	    await oe();
 	});
       },
       select: async () => { await this.toDraw.select(); },
@@ -1221,10 +1251,12 @@ class Game
     await this.handleTurnBeginEvents();
     await this.beginTurn(turno);
 
+
+    //await this.camera.waitShiftTo(this.cursor.vis);
+    console.log(this.temp.cursorPrev)
+    await this.camera.waitShiftTo(this.temp.cursorPrev);
     if (this.temp.cursorPrev !== undefined)
       this.cursor.moveInstant(this.temp.cursorPrev);
-
-    await this.camera.waitShiftTo(this.cursor.vis);
     this.camera.setTarget(this.cursor);
 
     this.cursor.curAnim().reset();
@@ -1270,7 +1302,22 @@ class Game
 
       if (info.action == "attack")
       {
-	let battle = new Battle(this, unit, info.target, turndata.btltheme);
+	let battle;
+	let s = Settings.get("btl_anim_e");
+	if (s == "Full")
+	{
+	  battle = new Battle(this, unit, info.target, turndata.btltheme,
+		    async () => {await MusicPlayer.fadeout(this.mapTheme)},
+		    async () => {MusicPlayer.fadein(this.mapTheme)});
+	}
+	else if (s == "Mini")
+	  battle = new BattleMini(this, unit, info.target, turndata.btltheme)
+	else
+	{
+	  console.log("Skip not implemented");
+	  battle = new BattleMini(this, unit, info.target, turndata.btltheme)
+	}
+
 
 	this.cursor.moveInstant(info.target);
 
@@ -1279,11 +1326,8 @@ class Game
 	await waitTime(500);
 	this.toDraw.hide("cursor");
 
-	await MusicPlayer.fadeout(this.mapTheme);
-
 	await this.setExtStatus(battle, null);
 	let casualty = battle.dead;
-	MusicPlayer.fadein(this.mapTheme);
 
 	await this.killUnit(casualty);
 	await this.handleAfterBattleEvents();
