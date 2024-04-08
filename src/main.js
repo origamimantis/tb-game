@@ -302,16 +302,7 @@ class Main
   static async chreset()
   {
     await this.unload();
-    let a = await loadScript( this.scriptFile )
-    this.levelscript = a[0]
-    this.level = a[1]
-    this.level.scriptFile = this.scriptFile;
-    this.assets.Map = await loadMap( this.level.tileMap )
-    
-    this.nextUp = new SCENETYPE[this.level.type](this.assets, this.ctx, this);
-    setDrawFunctions(this.nextUp);
-
-    PathFinder.init(this.nextUp);
+    await this.loadSave(this.save_obj, null);
   }
   static imgsToLoad(getridofthislater)
   {
@@ -325,6 +316,7 @@ class Main
   }
   static async loadSave(save_obj, things=thingsToLoad, extraAssets = null)
   {
+    this.save_obj = save_obj;
     let scriptToLoad = save_obj.chapter
     await this.chload(scriptToLoad, things, extraAssets)
 
@@ -428,7 +420,7 @@ let thingsToLoad = {
 		  
 		  "C_menutl", "C_menuel", "C_menucn",
 		  "C_talk_indicator",
-		  "FX_heal", "BFX_circle",
+		  "FX_heal", "FX_hit", "BFX_circle",
 		  "boss_indic",
 		  "T_door_open"
 		],
@@ -451,7 +443,7 @@ window.onload = async ()=>
   Main.mainloop();
 
   await Main.chload("./chtitle.js", thingsToLoad);
-  //await Main.chload("./ch1.js", thingsToLoad);
+  //await Main.chload("./chtest.js", thingsToLoad);
   //await Main.chload("./ch1.js", thingsToLoad);
   Main.start();
 };
