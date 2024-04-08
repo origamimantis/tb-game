@@ -8,7 +8,7 @@ export class Settings
     this.values = {
       cut_skip : {
 		    allowed: ["Off","On"],
-		    initial: "On",
+		    initial: "Off",
 		    map: {Off:false,On:true},
 		    display: "Skip Cutscenes",
 	            type: "Text"
@@ -21,7 +21,7 @@ export class Settings
       },
       btl_anim_p : {
 		    allowed: ["Skip","Mini", "Full"],
-		    initial: "Mini",
+		    initial: "Full",
 		    map: undefined,
 		    display: "Player Battle Animations",
 	            type: "Text"
