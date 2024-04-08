@@ -36,7 +36,7 @@ class Album
       console.error(this.images);
     }
   }
-  static drawHealthBar(ctx, percent, x, y, w=184, h=10)
+  static drawHealthBar(ctx, percent, x, y, w=184, h=10, color)
   {
     this.m.ctx[ctx].globalAlpha = 1;
     this.m.ctx[ctx].fillStyle = "#c0c0c0";
@@ -45,7 +45,9 @@ class Album
     this.m.ctx[ctx].fillStyle = "grey";
     this.m.ctx[ctx].fillRect(x+2, y+2, w-4, h-4);
 
-    this.m.ctx[ctx].fillStyle = "red";
+    if (color === undefined)
+      color = "red";
+    this.m.ctx[ctx].fillStyle = color;
 
     this.m.ctx[ctx].fillRect(x+2, y+2, (w-4)*percent, h-4);
   }

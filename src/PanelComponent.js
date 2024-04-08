@@ -7,9 +7,11 @@ const noOff = {x:0, y:0};
 
 export class PanelComponent
 {
-  constructor(type, arg)
+  constructor(type, arg, drawdata={})
   {
     this.type = type;
+    this.drawdata = drawdata;
+
     switch (type)
     {
     case PanelType.TEXT:
@@ -97,7 +99,7 @@ export class PanelComponent
     if (xy.h == null)
       xy.h = 10;
 
-    Album.drawHealthBar(4, this.data, off.x + xy.x + scrollOff.x, off.y + xy.y + scrollOff.y, xy.w, xy.h);
+    Album.drawHealthBar(4, this.data, off.x + xy.x + scrollOff.x, off.y + xy.y + scrollOff.y, xy.w, xy.h, this.drawdata.color);
   }
 
 }
