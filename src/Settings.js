@@ -18,6 +18,20 @@ export class Settings
 		    display: "Enable Level Skip",
 	            type: "Text"
       },
+      btl_anim_p : {
+		    allowed: ["Skip","Mini", "Full"],
+		    initial: "Full",
+		    map: undefined,
+		    display: "Player Battle Animations",
+	            type: "Text"
+      },
+      btl_anim_e : {
+		    allowed: ["Skip","Mini", "Full"],
+		    initial: "Full",
+		    map: undefined,
+		    display: "Enemy Battle Animations",
+	            type: "Text"
+      },
       visible_movement_costs : {
 		    allowed: ["Off","On"],
 		    map: {Off:false,On:true},
@@ -37,7 +51,7 @@ export class Settings
 	            type: "Bar",
       },
     }
-
+    this.cache = {};
 
 
     this.numSettings = Object.keys(this.values).length;
@@ -52,6 +66,8 @@ export class Settings
 	  this.values[k].allowed = new LoopSelector(linspace(...this.values[k].allowed), -1);
 	  break;
       }
+      if (this.values[k].initial !== undefined)
+	this.set(k, this.values[k].initial)
     }
     //this.values.cut_skip.allowed.next()
   }

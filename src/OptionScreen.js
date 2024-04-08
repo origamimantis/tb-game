@@ -54,8 +54,8 @@ class OptionPanel extends Panel
 	  }
 	  break;
 	case "Bar":
-	  let W = 184
-	  this.addComponent( new PanelComponent(PanelType.HEALTHBAR, 1), i.toString()+"bar",
+	  let W = 184;
+	  this.addComponent( new PanelComponent(PanelType.HEALTHBAR, 1, {color: "black"}), i.toString()+"bar",
 			      1.5 - W/2/this.gsx, i,
 			      1, W, 16);
 	break;

@@ -6,19 +6,20 @@ import {Album} from "./Images.js"
 import {waitTime, scrollSelect_UD} from "./Utils.js";
 import {TiledEffect} from "./TiledEffect.js";
 import {applyArrowStall} from "./Utils.js";
+import {Settings} from "./Settings.js";
 
 
 
 class MusicPanel extends Panel
 {
-  constructor(g)
+  constructor(g, idx=0, top_=0)
   {
     super(25, 50, 250, 300, 2, 12, 0, 0);//Settings.numSettings, 0, 0);
 
     this.g = g
 
-    this.top = 0
-    this.scrollOff = {x:30, y:0}
+    this.top = top_;
+    this.scrollOff = {x:30, y:-this.gsy*this.top};
 
 
     let loopsong_list = [];
@@ -28,7 +29,7 @@ class MusicPanel extends Panel
 	loopsong_list.push(name)
     }
 
-    this._ls = new LoopSelector(loopsong_list)
+    this._ls = new LoopSelector(loopsong_list, idx)
     this.idx = this._ls.idx;
     this.length = this._ls.length;
 
@@ -88,6 +89,12 @@ class MusicPanel extends Panel
   {
     return this._ls.get();
   }
+  getIdx(i)
+  {
+    if (i == null)
+      return null
+    return this._ls.getIdx(i);
+  }
   next()
   {
     this._ls.next();
@@ -146,11 +153,22 @@ export class Jukebox
     this.MAIN = MAIN;
     this.inputting = true;
 
-    this.playidx = null
-    this.playing = null
 
-    this.p = new MusicPanel(this);
+    let cache = Settings.cache["jukebox"]
+    if (cache === undefined)
+    {
+      this.playidx = null
+      this.p = new MusicPanel(this);
+      this.playing = null
+    }
+    else
+    {
+      this.playidx = cache.playidx;
+      this.p = new MusicPanel(this, cache.idx, cache.top);
+      this.playing = this.p.getIdx(this.playidx)
+    }
     this.pinfo = new MusicInfoPanel(this);
+    this.pinfo.updateSongName(this.playing);
   }
 
   async beginGame(chscript)
@@ -230,6 +248,12 @@ export class Jukebox
   }
   async cancel()
   {
+    await this.end();
+  }
+  async end()
+  {
+    Settings.cache["jukebox"] = {playidx: this.playidx, idx:this.p.idx, top:this.p.top};
+
     await this.MAIN.chload("./chtitle.js", null, {idx:2})
     this.MAIN.start();
   }
