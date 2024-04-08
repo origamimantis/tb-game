@@ -1,3 +1,9 @@
+ver0.47 2024-04-08
+Added a smaller version of the battle scene in options.
+(Enemy turn now lasts 10 minutes instead of 100 minutes!)
+Also fixed a strange bug where resetting level causes
+units to disappear.
+
 ver0.46 2023-04-11
 Add save file functionality (uses localstorage).
 
