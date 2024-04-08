@@ -1,6 +1,6 @@
 import {Inputter} from "./Inputter.js"
 import {Conversation} from "./Conversation.js"
-import {waitSpriteEffect} from "./Effects.js";
+import {spawnSpriteEffect} from "./Effects.js";
 import * as Units from "./TypeUnits.js";
 import * as Weapons from "./Weapon.js";
 import {Coord} from "./Path.js";

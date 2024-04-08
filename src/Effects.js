@@ -17,6 +17,31 @@ const ANIMDATA =
 	    deltaAngle: 0,
 	    baseTransparency: 1,
 	  },
+    hit: { image: "FX_hit",
+	    weights: [100],
+	    time: 6,
+	    fade: true,
+	    fadeDelay: 2,
+	    loops: false,
+	    initialScale: 0.2,
+	    deltaScale: 0.15,
+	    initialAngle: "r",
+	    deltaAngle: 0,
+	    baseTransparency: 1,
+	  },
+    crt: { image: "FX_hit",
+	    weights: [100],
+	    time: 8,
+	    fade: true,
+	    fadeDelay: 4,
+	    loops: false,
+	    initialScale: 0.2,
+	    deltaScale: 0.2,
+	    initialAngle: "r",
+	    deltaAngle: 0,
+	    baseTransparency: 1,
+	  },
+
     cool: { image: "BFX_circle",
 	    weights: [100],
 	    time: 200,
@@ -64,6 +89,8 @@ export class SpriteEffect extends Animation
     this.s = o.initialScale;
     this.t = 0;
     this.th = o.initialAngle;
+    if (this.th == "r")
+      this.th = Math.random()*360
 
     this.ds = o.deltaScale;
     this.dth = o.deltaAngle;
@@ -118,8 +145,13 @@ export class SpriteEffect extends Animation
   }
 }
 
-export async function waitSpriteEffect( g, name, layer, x, y)
+export async function spawnSpriteEffect( g, name, layer, x, y=null)
 {
+  if (y === null)
+  {
+    y = x.y
+    x = x.x
+  }
   let fx = new SpriteEffect(name, layer, g.xg(x + 0.5), g.yg(y + 0.5));
   while (fx.done == false)
   {
