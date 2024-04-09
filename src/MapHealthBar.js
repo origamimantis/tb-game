@@ -2,46 +2,124 @@ import {Panel} from "./Panel.js";
 import {Album} from "./Images.js";
 import {waitTick,waitTime} from "./Utils.js";
 
-export class MapHealthBar
+export class MapHealthBarBase
 {
-  constructor(g, unit, color)
+  constructor(g, u, initialDraw = false)
   {
-    this.unit = unit;
-    this.color = color
-    this.maxhp = unit.stats.maxhp;
-    this.hp = unit.stats.hp;
+    this.u = u
+    this.isAnim = !initialDraw
 
-    this.off = 0.8;
-    if (unit.y >= g.Map.max("y") - 1)
+    this.hp = u.stats.hp;
+    this.maxhp = u.stats.maxhp;
+  }
+  setprops(x,y,w,h,e=4)
+  {
+    this.x = x
+    this.y = y
+    this.w = w
+    this.h = h
+    this.e = e
+    this.p = new Panel(this.x, this.y, this.w, this.h, undefined,undefined,0,0,this.e);
+  }
+  async spawn(g)
+  {
+    if (this._1 === undefined)
+      this._1 = new Panel(this.x, undefined, this.w, undefined, undefined,undefined,0,0,this.e);
+
+    this._n = 4
+    this.isAnim = true
+
+    for (let i = 1; i < this._n; ++i)
     {
-      this.off = -0.5;
+      let h = i*this.h/this._n;
+      let y = this.y + this.h - h;
+
+      this._1.y = y;
+
+      this._1.h = h;
+
+      //this._1.explicitDraw(g,3);
+
+      await waitTick();
     }
+    this.isAnim = false;
+  }
+  async despawn(g)
+  {
+    this.isAnim = true
+    // do NOT call this before spawn()
+    for (let i = this._n-1; i > 0; --i)
+    {
+      let h = i*this.h/this._n;
+      let y = this.y + this.h - h;
 
-    let c = g.camera.adjustedPos(unit);
+      this._1.y = y;
 
-    this.x = c.x*g.gx - 1.5*g.gx;
-    this.y = c.y*g.gy + this.off*g.gy;
-    this.w = 4*g.gx;
-    this.h = 30;
-    this.p = new Panel(this.x, this.y, this.w, this.h);
+      this._1.h = h;
 
+  //    this._1.explicitDraw(g,3);
+
+      await waitTick();
+    }
+    this._1.y = undefined
+    this._1.h = undefined;
   }
   draw(g)
   {
     g.ctx[3].globalAlpha = 1;
-    this.p.drawBase(g, 3);
-    
-    g.setTextProperty(3, "#000000", "11px ABCD Mono", "right");
-    g.drawText(3, this.hp, this.x + g.gx - 4, this.y + 10);
-    
-    g.Album.drawHealthBar(3, this.hp / this.maxhp, this.x + g.gx, this.y + 10, 2.5*g.gx, 8, this.color);
-  }
-  update(g, hp)
-  {
-    if (hp === undefined)
-      this.hp = this.unit.stats.hp;
+    if (this.isAnim == false)
+    {
+      this.p.drawBase(g, 3);
+      
+      g.Album.drawHealthBar(3, this.hp / this.maxhp, this.p.x + g.gx-6, this.p.y + 16, this.w - g.gx,8,undefined);
+
+      g.setTextProperty(3, "#000000", "11px ABCD Mono", "center");
+      g.drawText(3, this.u.name, this.p.x + this.p.w/2, this.p.y + 5);
+
+      g.setTextProperty(3, "#000000", "11px ABCD Mono", "right");
+      g.drawText(3, this.hp, this.p.x + g.gx - 10, this.p.y + 16);
+    }
     else
-      this.hp = hp
+    {
+      this._1.explicitDraw(g,3);
+    }
+  }
+  update(g)
+  {
+    this.hp = this.u.stats.hp;
+  }
+}
+
+export class MapHealthBar extends MapHealthBarBase
+{
+  constructor(g, unit, color)
+  {
+    super(g, unit, false)
+
+    this.color = color
+
+    let h = 30;
+    let w = 4;
+
+    let cam = g.camera;
+    let c = cam.adjustedPos(unit);
+
+    let offy = 1.05;
+    if (c.y + offy + h/g.gy >= cam.wsize.y)
+      offy = -h/g.gy - 0.05
+
+    let offx = 0;
+    if (c.x+0.5-w/2 < 0)
+      offx = w/2-0.5-c.x
+    else if (c.x+0.5+w/2 >= cam.wsize.x)
+      offx = cam.wsize.x - w/2-0.5-c.x
+
+    this.setprops(
+	  (c.x + 0.5 - w/2 + offx)*g.gx,
+	  c.y*g.gy + offy*g.gy,
+	  w*g.gx,
+	  h
+    );
   }
 }
 
@@ -49,8 +127,8 @@ export class DoubleMapHealthBar
 {
   constructor(g, u1, u2)
   {
-    let c1 = g.camera.adjustedPos(u1).y;
-    let c2 = g.camera.adjustedPos(u2).y;
+    let c1 = g.camera.adjustedPos(u1);
+    let c2 = g.camera.adjustedPos(u2);
 
     this.u1 = u1
     this.u2 = u2
@@ -62,106 +140,58 @@ export class DoubleMapHealthBar
       this.u1 = u2
       this.u2 = u1
 
-      let t = c1
-      c1 = c2
-      c2 = t
+      // swap c1,c2
+      let t = c1; c1 = c2; c2 = t
     }
 
-    this.hp1 = u1.stats.hp;
-    this.hp2 = u2.stats.hp;
-    this.maxhp1 = u1.stats.maxhp;
-    this.maxhp2 = u2.stats.maxhp;
-
+    this.p1 = new MapHealthBarBase(g, this.u1, false)
+    this.p2 = new MapHealthBarBase(g, this.u2, false)
 
     // prefer to put at y=6
     // if units are not in row, y=6
     // otherwise, choose the unobstructed row but prefer y=7
-    this.y;
-    if (c1 != 6 && c2 != 6)
-      this.y = 6;
-    else if (c1 == 6)
+    let w = 150;
+    let h = 0.90*g.gx;
+    let y;
+    if (c1.y != 6 && c2.y != 6)
+      y = 6;
+    else if (c1.y == 6)
     {
-      if (c2 > 6)
-	this.y = 5
+      if (c2.y > 6)
+	y = 5
       else
-	this.y = 7
+	y = 7
     }
-    else if (c2 == 6)
+    else if (c2.y == 6)
     {
-      if (c1 > 6)
-	this.y = 5
+      if (c1.y > 6)
+	y = 5
       else
-	this.y = 7
+	y = 7
     }
-    this.y = (this.y+0.05)*g.gy;
-    this.w = 150;
-    this.h = 0.90*g.gx;
-    this.p1 = new Panel(g.windowx/2-this.w, this.y, this.w, this.h, undefined,undefined,0,0,4);
-    this.p2 = new Panel(g.windowx/2, this.y, this.w, this.h, undefined,undefined,0,0,4);
+    y = (y+0.05)*g.gy;
+
+    this.p1.setprops(g.windowx/2-w, y, w, h)
+    this.p2.setprops(g.windowx/2,   y, w, h)
   }
   async spawn(g)
   {
-    this._1 = new Panel(g.windowx/2-this.w, 0, this.w, 0, undefined,undefined,0,0,4);
-    this._2 = new Panel(g.windowx/2, 0, this.w, 0, undefined,undefined,0,0,4);
-    this._n = 4
-    for (let i = 1; i < this._n; ++i)
-    {
-      let h = i*this.h/this._n;
-      let y = this.y + this.h - h;
-
-      this._1.y = y;
-      this._2.y = y;
-
-      this._1.h = h;
-      this._2.h = h;
-
-      this._1.explicitDraw(g,3);
-      this._2.explicitDraw(g,3);
-
-      await waitTick();
-    }
+    await Promise.all([this.p1.spawn(g), this.p2.spawn(g)])
   }
   async despawn(g)
   {
-    // do NOT call this before spawn()
-    for (let i = this._n-1; i > 0; --i)
-    {
-      let h = i*this.h/this._n;
-      let y = this.y + this.h - h;
-
-      this._1.y = y;
-      this._2.y = y;
-
-      this._1.h = h;
-      this._2.h = h;
-
-      this._1.explicitDraw(g,3);
-      this._2.explicitDraw(g,3);
-
-      await waitTick();
-    }
-
+    let a = this.p1.despawn(g)
+    let b = this.p2.despawn(g)
+    await Promise.all([a,b])
   }
   draw(g)
   {
-    g.ctx[3].globalAlpha = 1;
-    this.p1.drawBase(g, 3);
-    this.p2.drawBase(g, 3);
-    
-    g.Album.drawHealthBar(3, this.hp1 / this.maxhp1, this.p1.x + g.gx-6, this.p1.y + 16, 3.5*g.gx+6,8,undefined);
-    g.Album.drawHealthBar(3, this.hp2 / this.maxhp2, this.p2.x + g.gx-6, this.p2.y + 16, 3.5*g.gx+6,8,undefined);
-
-    g.setTextProperty(3, "#000000", "11px ABCD Mono", "center");
-    g.drawText(3, this.u1.name, this.p1.x + this.p1.w/2, this.p1.y + 5);
-    g.drawText(3, this.u2.name, this.p2.x + this.p2.w/2, this.p2.y + 5);
-
-    g.setTextProperty(3, "#000000", "11px ABCD Mono", "right");
-    g.drawText(3, this.hp1, this.p1.x + g.gx - 10, this.p1.y + 16);
-    g.drawText(3, this.hp2, this.p2.x + g.gx - 10, this.p2.y + 16);
+    this.p1.draw(g);
+    this.p2.draw(g);
   }
   update(g)
   {
-    this.hp1 = this.u1.stats.hp;
-    this.hp2 = this.u2.stats.hp;
+    this.p1.update(g);
+    this.p2.update(g);
   }
 }

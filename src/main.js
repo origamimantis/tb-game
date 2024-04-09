@@ -411,7 +411,7 @@ let thingsToLoad = {
 		  "WT_BronzeSlicer", "WT_VampireFang", "WT_BraveSword",
 		  "WT_Pitchfork", "WT_Shovel", "WT_FryingPan", "WT_LumberAxe",
 		  "WT_TestBow", "WT_TestMagic",
-		  "PR_arrow", 
+		  "PR_arrow", "PR_FryingPan",
 		  "IT_Bandages",
 		  "EQ_LeatherTunic",
 		  "EQ_SteelPlating",

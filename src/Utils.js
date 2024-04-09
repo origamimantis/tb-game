@@ -597,3 +597,31 @@ export function unitInZone(g, zone, zonecontroller)
   return false
 }
 
+export function bezierp(p0, p1, p2, p3, x = 0, y = 0){
+  // parameterized from t=0 to t=1
+  // https://stackoverflow.com/questions/16227300/how-to-draw-bezier-curves-with-native-javascript-code-without-ctx-beziercurveto
+  // https://www.desmos.com/calculator/cahqdxeshd to visualize
+  // https://www.desmos.com/calculator/4var5ey87n
+  //   p1          p2
+  //     _________
+  // p0 /         \ p3
+  // ^ from 1->0
+  // x,y are the initial position to start at (y-values are flipped)
+  
+  let cx = 3 * (p1[0] - p0[0]),
+      bx = 3 * (p2[0] - p1[0]) - cx,
+      ax = p3[0] - p0[0] - cx - bx;
+
+  let cy = 3 * (p1[1] - p0[1]),
+      by = 3 * (p2[1] - p1[1]) - cy,
+      ay = p3[1] - p0[1] - cy - by;
+  return {ax:ax, bx:bx,cx:cx,dx:x+p0[0],ay:-ay,by:-by,cy:-cy,dy:y-p0[1]}
+}
+
+export function beziert(t, bez)
+{
+  let x = (bez.ax * Math.pow(t, 3)) + (bez.bx * Math.pow(t, 2)) + (bez.cx * t) + bez.dx
+  let y = (bez.ay * Math.pow(t, 3)) + (bez.by * Math.pow(t, 2)) + (bez.cy * t) + bez.dy
+
+  return [x,y]
+}

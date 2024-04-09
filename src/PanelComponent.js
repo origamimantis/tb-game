@@ -1,7 +1,7 @@
 import {SEP, MAPPER} from "./SpriteFont.js";
 import {Album} from "./Images.js";
 
-export const PanelType = {TEXT : 0, ART : 1, HEALTHBAR : 2};
+export const PanelType = {TEXT : 0, ART : 1, HEALTHBAR : 2, SLIDEBAR : 3};
 
 const noOff = {x:0, y:0};
 
@@ -24,6 +24,10 @@ export class PanelComponent
 
     case PanelType.HEALTHBAR:
       this.draw = this.drawHB;
+      break;
+
+    case PanelType.SLIDEBAR:
+      this.draw = this.drawSB;
       break;
 
     default:
@@ -100,6 +104,21 @@ export class PanelComponent
       xy.h = 10;
 
     Album.drawHealthBar(4, this.data, off.x + xy.x + scrollOff.x, off.y + xy.y + scrollOff.y, xy.w, xy.h, this.drawdata.color);
+  }
+
+  drawSB(g, off, xy, scrollOff = noOff)
+  {
+    if (xy.w == null)
+      xy.w = 184;
+    if (xy.h == null)
+      xy.h = 10;
+
+    this.drawHB(g, off, xy, scrollOff);
+    g.ctx[4].fillStyle = this.drawdata.indcolor
+    g.ctx[4].fillRect(off.x+xy.x+scrollOff.x + this.data*(xy.w-this.drawdata.indwidth),
+                      off.y+xy.y + scrollOff.y,
+                      this.drawdata.indwidth, xy.h);
+
   }
 
 }

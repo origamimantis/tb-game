@@ -41,6 +41,8 @@ export const Characters =
 		      run:  "anims/Chloe/Farmer/run",
 		      hit:  "anims/Chloe/Farmer/hit",
 		      crt:  "anims/Chloe/Farmer/crt",
+		      hitr:  "anims/Chloe/Farmer/hitr",
+		      crtr:  "anims/Chloe/Farmer/crtr",
 		    },
 		    recolor:
 		    {},

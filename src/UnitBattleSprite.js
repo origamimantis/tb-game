@@ -15,9 +15,9 @@ import {Characters} from "./Characters.js";
 
 export class UnitBattleSprite extends BattleSprite
 {
-  constructor(unit, id, g, x, y)
+  constructor(unit, id, g, x, y, range)
   {
-    super(g, unit.getWeapon().sprite(), x, y);
+    super(g, unit.getWeapon().sprite(range), x, y);
     this.id = id;
     this.affil = g.getAffiliation(unit);
     this.unit = unit;
@@ -129,7 +129,7 @@ export class UnitBattleSprite extends BattleSprite
   {
     if (this.proj === undefined)
       return
-    if (missed)
+    if (missed || (this.proj.deleteOnHit == false))
     {
       this.proj.selfTimedDelete();
     }
@@ -145,7 +145,11 @@ export class UnitBattleSprite extends BattleSprite
   }
 
 
-  beginAttack(name, enemy, onDone = ()=>{})
+  setOutcome(outcome)
+  {
+    this.outcome = outcome;
+  }
+  beginAttack(name, enemy, onDone)
   {
     this.setAnimation(name, onDone)
     this.dist = distBetween(this, enemy);

@@ -34,8 +34,39 @@ import * as Equipments from "./Equipment.js";
 
 export class Storage
 {
+  static setLocal(name, value)
+  {
+    window.localStorage.setItem(name, JSON.stringify(value))
+  }
+  static getLocal(name)
+  {
+    let v = window.localStorage.getItem(name)
+    if (v === null)
+      return null
+    try
+    {
+      let s = JSON.parse(v)
+      return s
+    }
+    catch (e)
+    {
+      console.log("error loading " + name + " from local storage")
+      console.log(e)
+      // remove if error parsing
+      this.delLocal.removeItem(name)
+      return null
+    }
+  }
+  static delLocal(name)
+  {
+    window.localStorage.removeItem(name)
+  }
+
   static async init(savesList)
   {
+    // local cache for one game instance
+    this.cache = {};
+
     if (window.localStorage.getItem("NUMSAVES") !== null)
     {
       try

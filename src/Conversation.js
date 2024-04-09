@@ -336,14 +336,7 @@ export class Conversation
     this.g.clearCtx(4);
     this.g.clearCtx(5);
 
-    this.g.ctx[3].fillStyle = "#676767";
-    for (let i = 0; i < 12; ++i)
-    {
-      this.g.ctx[3].clearRect(0, 0, 512, 384);
-      this.g.ctx[3].globalAlpha = i*0.04;
-      this.g.ctx[3].fillRect(0, 0, 512, 384);
-      await waitTick();
-    }
+    await this.g.Album.fadeIn(3, 12, 0.48, "#676767")
   
     this.drawPortraits(this.g, 4);
     this.textPanel.explicitDraw(this.g, 4);
@@ -361,18 +354,11 @@ export class Conversation
     if (this.curMusic !== null && this.musicContinue == false)
       await MusicPlayer.fadestop(this.curMusic);
 
-    for (let i = 12; i > 0; --i)
-    {
-      this.g.ctx[3].clearRect(0, 0, 512, 384);
-      this.g.ctx[3].globalAlpha = i*0.04;
-      this.g.ctx[3].fillRect(0, 0, 512, 384);
-      await waitTick();
-    }
-    this.g.ctx[3].globalAlpha = 1;
-
-    this.g.clearCtx(3);
     this.g.clearCtx(4);
     this.g.clearCtx(5);
+
+    await this.g.Album.fadeOut(3, 12, 0.48, "#676767")
+    this.g.clearCtx(3);
 
     this.g.ctx_refresh = this.old_ctx_refresh;
     this.Return();

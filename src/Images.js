@@ -2,6 +2,7 @@
 
 import {triggerEvent} from "./Utils.js";
 import {C_WIDTH, C_HEIGHT} from "./Constants.js";
+import {waitTick} from "./Utils.js";
 
 const TOLOAD = 25;
 
@@ -125,6 +126,36 @@ class Album
     c.translate(x, y);
     c.rotate(-rad);
     c.translate(-x, -y);
+  }
+  static async fadeIn(ctx, frames, finalOpacity, color)
+  {
+    // need to update the ctx_refresh before calling this, ie
+    //   let tmp_ctx_refresh = this.g.ctx_refresh;
+    //   this.g.ctx_refresh = [1,2,5];
+
+    this.m.ctx[ctx].fillStyle = color
+    for (let i = 1; i <= frames; ++i)
+    {
+      this.m.ctx[ctx].clearRect(0, 0, 512, 384);
+      this.m.ctx[ctx].globalAlpha = i*finalOpacity/frames
+      this.m.ctx[ctx].fillRect(0, 0, 512, 384);
+      await waitTick();
+    }
+    this.m.ctx[ctx].globalAlpha = 1
+  }
+  static async fadeOut(ctx, frames, startOpacity, color)
+  {
+    // need to restore the ctx_refresh after calling this, ie
+    //   this.g.ctx_refresh = tmp_ctx_refresh;
+    this.m.ctx[ctx].fillStyle = color
+    for (let i = frames; i > 0; --i)
+    {
+      this.m.ctx[ctx].clearRect(0, 0, 512, 384);
+      this.m.ctx[ctx].globalAlpha = i*startOpacity/frames
+      this.m.ctx[ctx].fillRect(0, 0, 512, 384);
+      await waitTick();
+    }
+    this.m.ctx[ctx].globalAlpha = 1
   }
 }
 

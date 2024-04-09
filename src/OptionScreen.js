@@ -10,6 +10,7 @@ import {Settings} from "./Settings.js";
 import {MusicPlayer} from "./MusicPlayer.js";
 import {Album} from "./Images.js"
 import {applyArrowStall} from "./Utils.js";
+import {Storage} from "./Storage.js";
 
 
 
@@ -55,7 +56,9 @@ class OptionPanel extends Panel
 	  break;
 	case "Bar":
 	  let W = 184;
-	  this.addComponent( new PanelComponent(PanelType.HEALTHBAR, 1, {color: "black"}), i.toString()+"bar",
+	  this.addComponent( new PanelComponent(PanelType.SLIDEBAR,1,
+				    {color:"green", indcolor:"#8787ff", indwidth:10}),
+			      i.toString()+"bar",
 			      1.5 - W/2/this.gsx, i,
 			      1, W, 16);
 	break;
@@ -109,6 +112,9 @@ class OptionPanel extends Panel
 	  let comp = this.components[i.toString()+"bar"]
 	  comp.comp.data = selector.allowed.idx / (selector.allowed.length-1);
 	  comp.comp.draw(g, this.body, {...comp}, yoff_unselected);
+	  //g.ctx[4].fillStyle = "#8787ff";
+	  //g.ctx[4].fillRect(this.body.x+comp.x+yoff_unselected.x + comp.comp.data*(comp.w-10), this.body.y+comp.y + yoff_unselected.y, 10,comp.h);
+
 	  break;
       }
     }
@@ -219,6 +225,12 @@ export class OptionScreen
       await this.MAIN.chload("./chtitle.js", null, {idx:1})
       this.MAIN.start();
     }
+
+    let settingscache = {}
+    for (let k of Object.keys(Settings.values))
+      settingscache[k] = Settings.values[k].allowed.idx
+
+    Storage.setLocal("SETTINGS", settingscache);
   }
   end()
   {

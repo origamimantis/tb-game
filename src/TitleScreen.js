@@ -13,7 +13,7 @@ class TitlePanel extends Panel
 {
   constructor(g, idx)
   {
-    super(25, 50, 450, 300, 2, 12, 0, 0);//Settings.numSettings, 0, 0);
+    super(25, 50, 450, 300, 2, 12, 0, 0);
 
     this.g = g
 

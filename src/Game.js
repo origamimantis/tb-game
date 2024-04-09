@@ -264,7 +264,7 @@ class Game
 	  this.toDraw.show("cursor");
 
 	}
-	await this.setStatus("unitAllySelect", cantalk);
+	await this.setStatus("unitAllySelect", cantalk, this.gameStatus);
 
 	//this.wait(unit);
       }));
@@ -288,7 +288,7 @@ class Game
 	  this.Panels.set("selectedUnitWeaponPanel", wp);
 
 	  this.temp["selectedUnitAttackableEnemies"] = attackable;
-	  await this.setStatus("unitAttackWeaponSelect");
+	  await this.setStatus("unitAttackWeaponSelect", this.gameStatus);
 	}));
     }
     
@@ -302,14 +302,14 @@ class Game
 	  await this.setExtStatus(new UnitTradeScreen(this, unit, target),
 	    () =>
 	    {
-	      if (this.temp.traded) return "unitForcedActionSelect";
+	      if (this.temp.acted) return "unitForcedActionSelect";
 	      else		    return "unitActionSelect";
 	    });
 	    //this.clearCtx(4);
 	    //this.clearCtx(5);
 	    this.toDraw.show("cursor");
 	}
-	await this.setStatus("unitAllySelect", adj_ally);
+	await this.setStatus("unitAllySelect", adj_ally, this.gameStatus);
       }));
     }
 
@@ -383,7 +383,10 @@ class Game
       inform: () => {},
       cancel:async ()=>
       {
-	await this.setStatus("unitActionSelect");
+	if (this.temp.acted)
+	  await this.setStatus("unitForcedActionSelect");
+	else
+	  await this.setStatus("unitActionSelect");
       },
       arrows:async (a)=>
       {
@@ -439,14 +442,14 @@ class Game
 	}
 	else if (s == "Mini")
 	{
-	  battle = new BattleMini(this, this.temp.selectedUnit, enemy, this.turn.get().btltheme,
+	  battle = new BattleMini(this, this.temp.selectedUnit, enemy, this.mapTheme,
 		    async () => {this.toDraw.hide("cursor"); this.toDraw.hide("selectedUnitAttackableTiles")},
 		    async () => {this.toDraw.show("cursor")});
 	}
 	else
 	{
 	  console.log("Skip not implemented");
-	  battle = new BattleMini(this, this.temp.selectedUnit, enemy, this.turn.get().btltheme,
+	  battle = new BattleMini(this, this.temp.selectedUnit, enemy, this.mapTheme,
 		    async () => {this.toDraw.hide("cursor"); this.toDraw.hide("selectedUnitAttackableTiles")},
 		    async () => {this.toDraw.show("cursor")});
 	}
@@ -542,7 +545,10 @@ class Game
       cancel:async ()=>
       {
         this.Panels.del("selectedUnitWeaponPanel");
-        await this.setStatus("unitActionSelect");
+	if (this.temp.acted)
+	  await this.setStatus("unitForcedActionSelect");
+	else
+	  await this.setStatus("unitActionSelect");
       },
       arrows:async (a)=>
       {
@@ -580,7 +586,10 @@ class Game
       cancel:async ()=>
       {
         this.Panels.del("selectedUnitWeaponPanel");
-        await this.setStatus("unitActionSelect");
+	if (this.temp.acted)
+	  await this.setStatus("unitForcedActionSelect");
+	else
+	  await this.setStatus("unitActionSelect");
       },
       arrows:async (a)=>
       {
@@ -604,7 +613,7 @@ class Game
 	this.cursor.moveInstant(this.temp.selectedUnit);
 	this.toDraw.hide("cursor");
         this.Panels.show("selectedUnitActionPanel");
-	this.temp.traded = false;
+	this.temp.acted = false;
       },
 
       select:()=>
@@ -1252,11 +1261,10 @@ class Game
     await this.beginTurn(turno);
 
 
-    //await this.camera.waitShiftTo(this.cursor.vis);
-    console.log(this.temp.cursorPrev)
-    await this.camera.waitShiftTo(this.temp.cursorPrev);
     if (this.temp.cursorPrev !== undefined)
       this.cursor.moveInstant(this.temp.cursorPrev);
+
+    await this.camera.waitShiftTo(this.cursor.vis);
     this.camera.setTarget(this.cursor);
 
     this.cursor.curAnim().reset();
@@ -1285,16 +1293,22 @@ class Game
       if (info.action == "none")
 	continue;
       
-      await waitTime(250);
+      let s1 = Settings.get("map_anim_e");
+
+      if (s1 == "Slow")
+	await waitTime(250);
       await this.camera.waitShiftTo(unit);
       this.camera.setTarget(unit);
 
 
-      this.cursor.moveInstant(unit);
-      this.toDraw.show("cursor");
-      this.cursor.curAnim().reset();
-      await waitTime(500);
-      this.toDraw.hide("cursor");
+      if (s1 == "Slow")
+      {
+	this.cursor.moveInstant(unit);
+	this.toDraw.show("cursor");
+	this.cursor.curAnim().reset();
+	await waitTime(500);
+	this.toDraw.hide("cursor");
+      }
 
       await unit.tentativeMove(this, info.path);
       unit.confirmMove(this);
@@ -1311,20 +1325,23 @@ class Game
 		    async () => {MusicPlayer.fadein(this.mapTheme)});
 	}
 	else if (s == "Mini")
-	  battle = new BattleMini(this, unit, info.target, turndata.btltheme)
+	  battle = new BattleMini(this, unit, info.target, this.mapTheme)
 	else
 	{
 	  console.log("Skip not implemented");
-	  battle = new BattleMini(this, unit, info.target, turndata.btltheme)
+	  battle = new BattleMini(this, unit, info.target, this.mapTheme)
 	}
 
 
 	this.cursor.moveInstant(info.target);
 
-	this.toDraw.show("cursor");
-	this.cursor.curAnim().reset();
-	await waitTime(500);
-	this.toDraw.hide("cursor");
+	if (s1 == "Slow")
+	{
+	  this.toDraw.show("cursor");
+	  this.cursor.curAnim().reset();
+	  await waitTime(500);
+	  this.toDraw.hide("cursor");
+	}
 
 	await this.setExtStatus(battle, null);
 	let casualty = battle.dead;
@@ -1521,7 +1538,6 @@ class Game
     texts.forEach((t,i,_) =>
     {
       let nw = Math.ceil(this.ctx[4].measureText(t).width);
-      //console.log( x+10-nw/2)
       this.drawText(4, "\n".repeat(i)+t, x+10, y+10);
     });
     await waitTime(2000);
@@ -1567,13 +1583,17 @@ class Game
   {
     if (amount === null)
       amount = unit.stats.maxhp;
-    await this.camera.waitShiftTo(unit);
-    let hb = new MapHealthBar(this, unit);
     let realAmount = Math.min(amount, unit.stats.maxhp - unit.stats.hp);
     if (realAmount > 0)
     {
+      await this.camera.waitShiftTo(unit);
+
+      let hb = new MapHealthBar(this, unit);
       this.toDraw.set("hb", hb);
-      await waitTime(500);
+
+      await hb.spawn(this)
+      await waitTime(400);
+
       for (let i = 0; i < realAmount; ++i)
       {
 	++ unit.stats.hp;
@@ -1581,7 +1601,8 @@ class Game
 	await waitTick();
 	await waitTick();
       }
-      await waitTime(500);
+      await waitTime(400);
+      await hb.despawn(this);
       this.toDraw.del("hb");
     }
   }

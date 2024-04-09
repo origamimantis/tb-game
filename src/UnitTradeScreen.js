@@ -190,15 +190,8 @@ export class UnitTradeScreen
     this.g.clearCtx(4);
     this.g.clearCtx(5);
 
-    this.g.ctx[3].fillStyle = "#676767";
-    for (let i = 0; i < 6; ++i)
-    {
-      this.g.ctx[3].clearRect(0, 0, 512, 384);
-      this.g.ctx[3].globalAlpha = i*0.15;
-      this.g.ctx[3].fillRect(0, 0, 512, 384);
-      await waitTick();
-    }
-    this.g.ctx[3].globalAlpha = 1;
+    await this.g.Album.fadeIn(3, 6 ,0.75,"#676767");
+
     this.explicitDraw(this.g);
   }
   async arrows(a)
@@ -342,19 +335,13 @@ export class UnitTradeScreen
   {
     this.g.ctx[4].clearRect(0, 0, 512, 384);
     this.g.ctx[5].clearRect(0, 0, 512, 384);
-    this.g.ctx[3].fillStyle = "#676767";
-    for (let i = 6; i > 0; --i)
-    {
-      this.g.ctx[3].clearRect(0, 0, 512, 384);
-      this.g.ctx[3].globalAlpha = i*0.15;
-      this.g.ctx[3].fillRect(0, 0, 512, 384);
-      await waitTick();
-    }
-    this.g.ctx[3].globalAlpha = 1;
+
+    await this.g.Album.fadeOut(3, 6 ,0.75,"#676767");
+   
     this.explicitDraw(this.g);
 
     this.g.ctx_refresh = this.old_ctx_refresh;
-    this.g.temp.traded = this.g.temp.traded || this.traded;
+    this.g.temp.acted = this.g.temp.acted || this.traded;
 
     this.g.clearCtx(4);
     this.g.clearCtx(5);

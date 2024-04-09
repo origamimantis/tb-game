@@ -6,7 +6,7 @@ import {Album} from "./Images.js"
 import {waitTime, scrollSelect_UD} from "./Utils.js";
 import {TiledEffect} from "./TiledEffect.js";
 import {applyArrowStall} from "./Utils.js";
-import {Settings} from "./Settings.js";
+import {Storage} from "./Storage.js";
 
 
 
@@ -14,7 +14,7 @@ class MusicPanel extends Panel
 {
   constructor(g, idx=0, top_=0)
   {
-    super(25, 50, 250, 300, 2, 12, 0, 0);//Settings.numSettings, 0, 0);
+    super(25, 50, 250, 300, 2, 12, 0, 0);
 
     this.g = g
 
@@ -154,7 +154,7 @@ export class Jukebox
     this.inputting = true;
 
 
-    let cache = Settings.cache["jukebox"]
+    let cache = Storage.cache["jukebox"]
     if (cache === undefined)
     {
       this.playidx = null
@@ -252,7 +252,7 @@ export class Jukebox
   }
   async end()
   {
-    Settings.cache["jukebox"] = {playidx: this.playidx, idx:this.p.idx, top:this.p.top};
+    Storage.cache["jukebox"] = {playidx: this.playidx, idx:this.p.idx, top:this.p.top};
 
     await this.MAIN.chload("./chtitle.js", null, {idx:2})
     this.MAIN.start();

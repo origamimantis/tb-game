@@ -3,6 +3,11 @@
 import {Range} from "./Range.js";
 import {Album} from "./Images.js";
 import {WSProjectile, WSEffect} from "./WeaponSpriteSpawns.js";
+import {bezierp, beziert} from "./Utils.js"
+
+const HIT = "h"
+const CRIT = "c"
+const MISS = "m"
 
 export class Weapon
 {
@@ -99,7 +104,7 @@ export class NoWeapon extends Weapon
   {
       super("No Weapon", 0, 100, 0, [0], 10000, [], {}, null, [],[],[])
   }
-  sprite()
+  sprite(range)
   {
     return new NoWeapon_Sprite();
   }
@@ -126,7 +131,7 @@ export class Spook extends Weapon
       super("Spook", 0, 100, 0, [2], 10000, [], {}, null, [],[],[],
       )
   }
-  sprite()
+  sprite(range)
   {
     return new Spook_Sprite();
   }
@@ -138,7 +143,7 @@ export class VampireFang extends Weapon
   {
     super("Vampire Fang", 18, 85, 20, [1], 80, ["vampiric"], {}, null, [],[],[]);
   }
-  sprite()
+  sprite(range)
   {
     return new NoWeapon_Sprite();
   }
@@ -169,7 +174,7 @@ export class Sword extends Weapon
     //if (strong == null) {strong = [Axe  ]} if (weak   == null) {weak   = [Lance]}
     super(name, might, hit, crit, range, uses, effects, statbon, pref, eff, strong, weak)
   }
-  sprite()
+  sprite(range)
   {
     return new Sprite_Melee("W_sword", 3,15,2, "FX_slash", 30, 60);
   }
@@ -180,7 +185,7 @@ export class Pitchfork extends Weapon
   {
       super("Pitchfork", 4, 80, 0, [1], 50, [], {}, "Alfred");
   }
-  sprite()
+  sprite(range)
   {
     return new Sprite_Melee("W_Pitchfork", 13, 15,2, "FX_slash",   30);
   }
@@ -189,12 +194,65 @@ export class FryingPan extends Weapon
 {
   constructor()
   {
-    //TODO 1-2 range
-      super("Frying Pan", 3, 90, 0, [1], 50, [], {}, "Chloe");
+      super("Frying Pan", 3, 90, 0, [1,2], 50, [], {}, "Chloe");
   }
-  sprite()
+  sprite(range)
   {
-    return new Sprite_Melee("W_FryingPan",6,15,3, "FX_bonk", 45, 65);
+    if (range == 1)
+      return new Sprite_Melee("W_FryingPan",6,15,3, "FX_bonk", 45, 65);
+    else
+    {
+      let s = new Sprite_Range("W_FryingPan",6,15,3, "FX_bonk", PROJ, 200, 300, {img: "PR_FryingPan"});
+
+      s.projectile._init = function ()
+      {
+	// for bezier curves, v = number of frames to get to hit: bigger = slower
+	let h;
+	if (this.state == CRIT)
+	{
+	  h = 25
+	  this.v = 2*Math.sqrt((this.d*this.d/4 + h*h))/7;
+	  this.va = -40
+	}
+	else
+	{
+	  h = 50
+	  this.v = 2*Math.sqrt((this.d*this.d/4 + h*h))/5;
+	  this.va = -15
+	}
+
+	this.deleteOnHit = false
+	this.x += 25; this.y -= 5; this.a = 90;
+
+	this.d -= 25;
+	this.target = this.x + this.d;
+	this.bez = bezierp([0,0],[this.d/4,h],[2*this.d/3, h],[this.d, 0], this.x, this.y);
+      }
+      s.projectile._update = function ()
+      {
+	[this.x, this.y] = beziert(this.tt/this.v, this.bez)
+	this.d = this.target - this.x
+	this.a += this.va
+      }
+      s.projectile._onHit = function ()
+      {
+	this.framesLeft = 40
+	if (this.state == HIT)
+	{
+	  this.v = 20; this.va = -5; this.tt = 0;
+	  this.bez = bezierp([0,0],[20,30],[40,20],[60,-10],this.x, this.y)
+	}
+	else if  (this.state == CRIT)
+	{
+	  this.v = 25; this.va = -10; this.tt = 0;
+	  this.bez = bezierp([0,0],[20,40],[40,60],[80,80],this.x, this.y)
+	}
+
+      }
+
+
+      return s;
+    }
   }
 }
 export class Shovel extends Weapon
@@ -203,7 +261,7 @@ export class Shovel extends Weapon
   {
       super("Shovel", 5, 70, 25, [1], 50, [], {}, "Billy");
   }
-  sprite()
+  sprite(range)
   {
     return new Sprite_Melee("W_Shovel",9,15,2, "FX_bonk", 42, 60);
   }
@@ -214,7 +272,7 @@ export class LumberAxe extends Weapon
   {
       super("LumberAxe", 4, 65, -30, [1], 50, [], {}, null);
   }
-  sprite()
+  sprite(range)
   {
     return new Sprite_Melee("W_LumberAxe",7,15,2, "FX_slash", 42, 60);
   }
@@ -277,7 +335,7 @@ export class TestBow extends Weapon
     super("Wooden Bow", 5, 80, 10, [2,5], 50, [], {}); 
 
   }
-  sprite()
+  sprite(range)
   {
     let s = new Sprite_Range("W_stick",30,18,3, "FX_slash", PROJ, 200, 300, {img: "PR_arrow"});
 
@@ -302,7 +360,7 @@ export class TestMagic extends Weapon
     super("Test Magic", 3, 80, 0, [1, 2], 50, [], {}); 
 
   }
-  sprite()
+  sprite(range)
   {
     let s = new Sprite_Range("W_spook",9,15,2, "FX_mageboop", EFFX, 200, 300, {framesUntilHit: 150, fxname: "cool"});
 

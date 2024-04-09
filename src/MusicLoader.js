@@ -24,6 +24,7 @@ const music_to_load = [
     [ "newnew",            "newnew",        [ 81905, 0]   ],
     [ "oipmp2",            "oipmp2",        [ 53455, 0]   ],
     [ "thsda",             "thsda",         [ 55385, 0]   ],
+    [ "sad",               "sad",           [  9600, 0]   ],
     
 ];
 

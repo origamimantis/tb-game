@@ -23,7 +23,6 @@ import {C_WIDTH,C_HEIGHT} from "./Constants.js"
 
 const FIGHT = 0;
 const SPEECH = 1;
-const END = 2;
 
 function rand()
 {
@@ -48,6 +47,7 @@ function attack(a, d, turnqueue)
 
   ++ a.atks;
 
+  // TODO
   let hit_rn = rand();
   if (hit_rn < effHit)
   {
@@ -66,6 +66,15 @@ function attack(a, d, turnqueue)
     }
 
     let dmg = dmg_scale*(pow - def);
+
+    // if unit would deal 0 damage, heal enemy for the difference
+    // TODO change this to a set (can cast in battleinfo), so its not linear search for each skill
+    if (d.hasSkill("absorb") == false)
+    {
+      if (dmg < 0)
+	dmg = 0;
+    }
+
     [ d_hp, dmg ] = dealDamage(dmg, d_hp, d.stats.maxhp);
     d_dmg = (dmg > 0);
 
@@ -75,6 +84,7 @@ function attack(a, d, turnqueue)
       [ a_hp, heal ] = dealDamage(heal, a_hp, a.stats.maxhp);
       a_dmg = ( heal > 0 );
     }
+
     // TODO: non-lethal recoil
   }
   else
@@ -257,6 +267,7 @@ function lifeDrain(target, finalAmount)
 	{
 	  --target.stats.hp;
 	  await waitTick();
+	  await waitTick();
 	}
       }
       else if (finalAmount > target.stats.hp)
@@ -264,6 +275,7 @@ function lifeDrain(target, finalAmount)
 	while (target.stats.hp < finalAmount)
 	{
 	  ++target.stats.hp;
+	  await waitTick();
 	  await waitTick();
 	}
       }
@@ -304,9 +316,9 @@ export class Battle
 		  def: defender};
 
 
-    this.sprIni = new UnitBattleSprite(initiator, "atk", g, 100, 100);
+    this.sprIni = new UnitBattleSprite(initiator, "atk", g, 100, 100, this.range);
 
-    this.sprDef = new UnitBattleSprite(defender, "def", g, 100,100);
+    this.sprDef = new UnitBattleSprite(defender, "def", g, 100,100, this.range);
     
     this.healthPanels = new BattlePair(
 			  new Panel(0, g.windowy - PANELS.HEALTH.HEIGHT,
@@ -439,10 +451,17 @@ export class Battle
     let res = attack(atkr, defr, this.turns);
     let a_hp = res.a_hp;
     let d_hp = res.d_hp;
+
+    let outcome = "h"
+    if (res.crit)
+      outcome = "c"
+    if (res.miss)
+      outcome = "m"
     
     let a_animDone = new Promise( resolve =>
     {
       let anim = (res.crit) ? "crt" : "hit";
+      atkr.sprite.setOutcome(outcome);
       atkr.sprite.beginAttack(anim, defr.sprite, resolve);
     });
 
@@ -681,9 +700,7 @@ export class Battle
   }
   async end()
   {
-  
     this.g.clearCtx(4);
-    //return this.dead;
     this.Return();
   }
 
@@ -731,9 +748,6 @@ export class BattleMini
     this.deadSpr = null;
 
     this.initTurns();
-
-    this.isLoaded = false
-
   }
   initTurns()
   {
@@ -841,23 +855,14 @@ export class BattleMini
   update(g)
   {
     this.g.temp.mapState.update();
-
-    if (this.isLoaded == false)
-      return;
-    
-    this.healthPanels.update();
+    if (this.state == FIGHT)
+      this.healthPanels.update();
   }
   draw(g)
   {
     this.g.temp.mapState.draw(g);
-
-    if (this.isLoaded == false)
-      return;
-
     if (this.state == FIGHT)
-    {
       this.healthPanels.draw(g);
-    }
   }
   select()
   {
@@ -884,10 +889,6 @@ export class BattleMini
   }
   drawSpeech()
   {
-    this.g.ctx[4].fillStyle = "black";
-    this.g.ctx[4].fillRect(0, this.g.windowy-PANELS.HEALTH.HEIGHT-PANELS.STATS.HEIGHT,
-			512, PANELS.HEALTH.HEIGHT + PANELS.STATS.HEIGHT);
-
 
     this.speechPanel.setComponentData("text", this.speech[this.speechIdx]);
 
@@ -904,15 +905,11 @@ export class BattleMini
 
   async begin(Return)
   {
-    //let tmp_ctx_refresh = this.g.ctx_refresh;
-    //this.g.ctx_refresh = [];
 
     this.Return = Return;
 
-    await this.healthPanels.spawn(this.g);
 
-    //this.g.ctx_refresh = tmp_ctx_refresh;
-    this.isLoaded = true;
+    await this.healthPanels.spawn(this.g);
 
     await waitTime(250);
 
@@ -929,7 +926,6 @@ export class BattleMini
     }
     
     await waitTime(250);
-    this.state = END;
     await this.healthPanels.despawn(this.g);
 
     if (this.dead && this.deadSpr.deathQuote !== null)
@@ -939,16 +935,39 @@ export class BattleMini
       this.speechName = this.dead.name;
       this.speechArt = this.dead.pArt;
       this.state = SPEECH;
-      await MusicPlayer.fadestop(this.music);
+
+      await MusicPlayer.fadeout(this.music);
+
+      let tmp_ctx_refresh = this.g.ctx_refresh;
+      this.g.ctx_refresh = [1,2,5];
+
+      await this.g.Album.fadeIn(3, 12, 0.48, "#676767")
+
+      // TODO select music depending on team / importance
+      if (this.deadSpr.unit.team == "Player")
+	MusicPlayer.play("sad");
+
       await new Promise( (resolve) => {this.beginSpeech(resolve)});
+
+      if (this.deadSpr.unit.team == "Player")
+	await MusicPlayer.fadestop("sad");
+
+      // clear unit portrait
+      this.g.clearCtx(4);
+
+      await this.g.Album.fadeOut(3, 12, 0.48, "#676767")
+
+      this.g.ctx_refresh = tmp_ctx_refresh;
+
+      await MusicPlayer.fadein(this.music);
     }
+    else
+      await waitTime(250);
+
     this.end();
   }
   async end()
   {
-  
-    this.g.clearCtx(4);
-    //return this.dead;
     this.Return();
   }
 

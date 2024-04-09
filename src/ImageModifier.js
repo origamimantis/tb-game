@@ -248,7 +248,6 @@ export class ImageModifier
     script = script.split("\n");
     for (let line of script)
     {
-      //console.log(line)
       let tokens = line.replace(/\s+/g, " ").trim().split(" ");
 
       if (this.album.get(tokens[2]) != undefined)

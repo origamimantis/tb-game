@@ -47,6 +47,8 @@ function initVars()
   vargas.setXY(0,11)
   vargas.addItem(new Bandages());
   vargas.addItem(new Bandages());
+  vargas.items[0].uses=1;
+  vargas.items[1].uses=3;
 
   alfred.setXY(0, 11);
 
@@ -169,9 +171,12 @@ export let script =
       await g.setExtStatus(conv);
       
 
-      let addbandit=(x,y,mov=3,ai="targetWeakest", aiparams={}) => 
+      let bstats = [{maxhp:10, atk:2,spd:3,skl:2,def:3,con:9,mov:4}, // initial
+		    {maxhp:12, atk:4,spd:3,skl:4,def:3,con:9,mov:5}] // camp
+
+      let addbandit=(x,y,stat,ai="targetWeakest", aiparams={}) => 
       {
-	let u = new Units.Bandit({maxhp:11, atk:3,spd:3,skl:2,def:3,con:9,mov:mov}, "Bandit");
+	let u = new Units.Bandit(bstats[stat], "Bandit");
 	u.setXY( x,y)
 	u.team = "Bandit";u.addWeapon(new Weapons.LumberAxe());u.setAnim("idle");u.ai = ai;u.aiparams=aiparams;
 	g.addUnit(u);
@@ -180,38 +185,27 @@ export let script =
 
       // triggering one bandit alters the zone1 object, causing all bandits of zone1 to attack
       // can also use this to check for dialogue when entering a zone
-      scrubBanditLeader = addbandit(18,9, 5, "attackOnEnter", zone1)
-      addbandit(18,7, 5, "attackOnEnter", zone1)
-      addbandit(17,8, 5, "attackOnEnter", zone1)
-      addbandit(16,7, 5, "attackOnEnter", zone1)
-      addbandit(16,6, 5, "attackOnEnter", zone1)
-      addbandit(20,7, 5, "attackOnEnter", zone1)
-      addbandit(21,8, 5, "attackOnEnter", zone1)
-      addbandit(22,10,5, "attackOnEnter", zone1)
-      addbandit(19,9 ,5, "attackOnEnter", zone1)
+      scrubBanditLeader = addbandit(18,9, 1, "attackOnEnter", zone1)
+      addbandit(18,7, 1, "attackOnEnter", zone1)
+      addbandit(17,8, 1, "attackOnEnter", zone1)
+      addbandit(16,6, 1, "attackOnEnter", zone1)
+      addbandit(20,7, 1, "attackOnEnter", zone1)
+      addbandit(21,8, 1, "attackOnEnter", zone1)
 
 
       // walk from east
-      let b1 = addbandit(17,15);
-      let b2 = addbandit(17,14);
-      let b3 = addbandit(17,13);
-      addbandit(4,17);
-      //addbandit(5,17);
-      //addbandit(4,20);
-      //addbandit(5,20);
-      addbandit(3,23);
-      //addbandit(2,24);
-      addbandit(1,27);
-      //addbandit(2,28);
-      addbandit(3,31);
-      //addbandit(4,31);
-      addbandit(7,33);
-      //addbandit(8,34);
+      let b1 = addbandit(17,15,0);
+      let b2 = addbandit(17,14,0);
+      let b3 = addbandit(17,13,0);
+      addbandit(4,17,0);
+      addbandit(3,23,0);
+      addbandit(1,27,0);
+      addbandit(3,31,0);
+      addbandit(7,33,0);
 
       // test archers
       //addbandit(30,34);
-
-
+      
 
       await g.cameraShift(0,30);
       await csPause(500);
@@ -249,7 +243,7 @@ export let script =
       
       g.cursor.moveInstant(vargas);
 
-      
+     
     }, //onBegin
     interactions: {
 	
@@ -379,7 +373,10 @@ export let script =
       {
 	"Player":
 	[
-	  { turn: 2,
+	],
+	"Scout":
+	[
+	  { turn: 1,
 	    type: "absolute",
 	    tag: "find camp",
 	    condition: (g)=>{return true},
@@ -439,10 +436,7 @@ export let script =
 	    }
 	  }
 	  */
-	],
-	"Scout":
-	[
-	  { turn: 2,
+	  { turn: 1,
 	    type: "absolute",
 	    tag: "scout spawn",
 	    condition: (g)=>{return true},
@@ -534,7 +528,7 @@ export let script =
 	      await g.setExtStatus(conv);
 	    }
 	  },
-	  { turn: 5,
+	  { turn: 4,
 	    type: "absolute",
 	    tag: "bandit chase",
 	    condition: (g)=>{return true},
