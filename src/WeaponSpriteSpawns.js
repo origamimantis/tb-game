@@ -10,7 +10,6 @@ export class WSProjectile
   set(x, y, dist, sprite, details)
   {
     this.spr = sprite;
-    console.log(sprite)
     this.state = sprite?.outcome
     this.deleteOnHit = true;
     this.x = x;

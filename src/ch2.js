@@ -58,7 +58,10 @@ function initVars()
   if (chloe)
     chloe.setXY(0, 11);
 
-  yuli = new Units.BowKnight({maxhp:18, atk:7,spd:3,skl:11,def:2,con:4,mov: 6}, "Yuliza")
+  // TODO delay the camp/scout discovery by a couple turns, then spawn both archers
+  //      and doddson crew at the same time. move archers deeper into woods to start.
+  //      (vargas clearing the camp early makes it too easy)
+  yuli = new Units.BowKnight({maxhp:14, atk:9,spd:3,skl:10,def:3,con:4,mov: 6}, "Yuliza")
   yuli.setXY(33, 35)
   yuli.team = "Scout";
   yuli.pArt = "P_Yuliza";
@@ -68,9 +71,8 @@ function initVars()
   yuli.aiparams={target:vargas}
   yuli.addItem(new Bandages());
   yuli.items[0].uses=1;
-  yuli.stats.hp = 16;
 
-  mali = new Units.BowKnight({maxhp:17, atk:4,spd:4,skl:7,def:4,con:4,mov: 6}, "Malidale")
+  mali = new Units.BowKnight({maxhp:16, atk:5,spd:5,skl:6,def:4,con:4,mov: 6}, "Malidale")
   mali.setXY(33, 35)
   mali.team = "Scout";
   mali.pArt = "P_Malidale";
@@ -80,15 +82,17 @@ function initVars()
   mali.aiparams={target:vargas}
   mali.addItem(new Bandages());
   mali.items[0].uses=2;
-  mali.stats.hp = 6;
+  mali.stats.hp = 5;
 
-  doddson = new Units.Bandit({maxhp:31, atk:7,spd:4,skl:5,def:5,con:9,mov: 5}, "Doddson");
+  doddson = new Units.Bandit({maxhp:25, atk:7,spd:4,skl:5,def:4,con:9,mov: 5}, "Doddson");
   doddson.setXY( 33,35)
   doddson.team = "Bandit";
   doddson.pArt = "P_Doddson";
   doddson.addWeapon(new Weapons.LumberAxe());
   doddson.setAnim("idle");
   doddson.isBoss = true;
+  doddson.addItem(new Bandages());
+  doddson.items[0].uses=1;
 
 
   zone1 = {rectangle:[[16, 3],[23,24]], triggered:false}
@@ -172,7 +176,7 @@ export let script =
       
 
       let bstats = [{maxhp:10, atk:2,spd:3,skl:2,def:3,con:9,mov:4}, // initial
-		    {maxhp:12, atk:4,spd:3,skl:4,def:3,con:9,mov:5}] // camp
+		    {maxhp:12, atk:4,spd:3,skl:4,def:4,con:9,mov:5}] // camp
 
       let addbandit=(x,y,stat,ai="targetWeakest", aiparams={}) => 
       {
@@ -545,7 +549,7 @@ export let script =
 
 	      for (let i = 0; i < dests_atk.length + dests_guard.length; ++i)
 	      {
-		let u = new Units.Bandit({maxhp:17, atk:5,spd:2,skl:2,def:4,con:9,mov: 5}, "Bandit");
+		let u = new Units.Bandit({maxhp:15, atk:4,spd:3,skl:4,def:4,con:9,mov: 5}, "Bandit");
 		u.setXY(33,35);
 		u.team = "Bandit";
 		u.addWeapon(new Weapons.LumberAxe());

@@ -54,7 +54,7 @@ export const Characters =
 	      },
     "Vargas":  {
 		portrait: "P_lead",
-		deathQuote: ["No...\nI was bested by bandits?", "I'm so disappointed...\nin myself..."],
+		deathQuote: ["No...\nI was bested by bandits?", "How disappointing..."],
 		battleAnimation:
 		{ "Sword Knight":
 		  { scripts:

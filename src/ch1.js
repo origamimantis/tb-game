@@ -34,33 +34,34 @@ function initVars()
 {
   state = DEFEND;
 
-  alfred = new Units.Farmer({maxhp:9, atk:3,spd:3,skl:2,def:3,con:4,mov: 6}, "Alfred");
+//	let u = new Units.Bandit({maxhp:15, atk:4,spd:2,skl:2,def:4,con:9,mov: 5}, "Bandit");
+  alfred = new Units.Farmer({maxhp:12, atk:3,spd:2,skl:2,def:2,con:4,mov: 6}, "Alfred");
   alfred.team = "Player";
   alfred.addWeapon(new Weapons.Pitchfork());
   alfred.setAnim( "idle" );
   alfred.setXY(3,9)
 
-  child = new Units.Child({maxhp:5, atk:0,spd:5,skl:0,def:0,con:0,mov: 5}, "Timmy");
+  child = new Units.Child({maxhp:5, atk:0,spd:5,skl:3,def:0,con:0,mov: 5}, "Timmy");
   child.team = "Player";
   child.setAnim( "idle" );
   child.setXY(17,12)
 
 
-  billy = new Units.Farmer({maxhp:11, atk:4,spd:2,skl:2,def:4,con:4,mov: 6}, "Billy");
+  billy = new Units.Farmer({maxhp:15, atk:4,spd:1,skl:2,def:3,con:4,mov: 6}, "Billy");
   billy.setXY(8, 3);
   billy.team = "Player";
   billy.addWeapon(new Weapons.Shovel());
   billy.setAnim( "idle" );
   billy.recruited = false;
 
-  chloe = new Units.Farmer({maxhp:9, atk:3,spd:4,skl:3,def:2,con:4,mov: 6}, "Chloe");
+  chloe = new Units.Farmer({maxhp:13, atk:3,spd:3,skl:4,def:1,con:4,mov: 6}, "Chloe");
   chloe.setXY(4, 6);
   chloe.team = "Player";
   chloe.addWeapon(new Weapons.FryingPan());
   chloe.setAnim( "idle" );
   chloe.recruited = false;
 
-  vargas = new Units.SwordKnight({maxhp:28, atk:5,spd:3,skl:12,def:6,con:12,mov: 6}, "Vargas");
+  vargas = new Units.SwordKnight({maxhp:18, atk:3,spd:3,skl:7,def:3,con:12,mov: 6}, "Vargas");
   vargas.setXY(1,25);
   vargas.team = "Player";
   vargas.addWeapon(new Weapons.BronzeSlicer());
@@ -68,21 +69,21 @@ function initVars()
   vargas.recruited = false;
 
   
-  b1 = new Units.Bandit({maxhp:9, atk:2,spd:2,skl:4,def:3,con:4,mov: 6}, "Bandit");
+  b1 = new Units.Bandit({maxhp:16, atk:3,spd:1,skl:4,def:3,con:4,mov: 6}, "Bandit");
   b1.setXY(18, 12);
   b1.team = "Bandit";
   b1.setAnim( "idle" );
   b1.addWeapon(new Weapons.LumberAxe());
   b1.ai = "targetWeakest";
 	
-  b2 = new Units.Bandit({maxhp:10, atk:2,spd:3,skl:5,def:2,con:4,mov: 6}, "Bandit");
+  b2 = new Units.Bandit({maxhp:17, atk:3,spd:2,skl:5,def:2,con:4,mov: 6}, "Bandit");
   b2.setXY(17, 13);
   b2.team = "Bandit";
   b2.setAnim( "idle" );
   b2.addWeapon(new Weapons.LumberAxe());
   b2.ai = "targetWeakest";
 
-  choddson = new Units.Bandit({maxhp:33, atk:8,spd:2,skl:6,def:6,con:19,mov: 5}, "Choddson");
+  choddson = new Units.Bandit({maxhp:20, atk:5,spd:2,skl:6,def:2,con:19,mov: 5}, "Choddson");
   choddson.setXY(21,11);
   choddson.team = "Bandit";
   choddson.pArt = "P_Choddson";
@@ -559,17 +560,20 @@ export let script =
 
 	    if (billyHere)
 	    {
-	      g.switchTeam(billy, "Village");
+	      //g.switchTeam(billy, "Village");
+	      billy.stats.mov = 0;
 	      await g.leaveJingle(billy);
 	      await csPause(200);
 	    }
 	    if (chloeHere)
 	    {
-	      g.switchTeam(chloe, "Village");
+	      //g.switchTeam(chloe, "Village");
+	      chloe.stats.mov = 0;
 	      await g.leaveJingle(chloe);
 	      await csPause(200);
 	    }
-	    g.switchTeam(child, "Village");
+	    //g.switchTeam(child, "Village");
+	    child.stats.mov = 0;
 	    await g.leaveJingle(child);
 
 	    g.startTurns();
@@ -602,9 +606,12 @@ export let script =
 	    action: async (g)=>
 	    {
 	      g.camera.clearTarget();
-	      for (let i = 0; i < 6; ++i)
+
+	      let dests = [[20,12],[21,12],[21,10],[20,11]];
+
+	      for (let i = 0; i < dests.length; ++i)
 	      {
-		let u = new Units.Bandit({maxhp:17, atk:4,spd:2,skl:2,def:4,con:9,mov: 5}, "Bandit");
+		let u = new Units.Bandit({maxhp:15, atk:3,spd:1,skl:2,def:4,con:9,mov: 5}, "Bandit");
 		u.setXY(21,11)
 		u.team = "Bandit";
 		u.addWeapon(new Weapons.LumberAxe());
@@ -612,14 +619,13 @@ export let script =
 		u.ai = "targetWeakest";
 		banditWave.push(u);
 	      }
-	      let dests = [[19, 12],[19,11],[20,12],[21,12],[21,10],[20,11]];
 
 	      //TODO
 	      //Settings.set("cut_skip", "Off");
 
 	      await g.cameraShift(6,5);
 	      let movePromise = [];
-	      for (let i = 0; i < 6; ++i)
+	      for (let i = 0; i < dests.length; ++i)
 	      {
 		let b = banditWave[i];
 		g.addUnit(b);
@@ -665,7 +671,8 @@ export let script =
 		await g.cursorFlash(billy);
 		await g.setExtStatus(conv);
 
-		await g.switchTeam(billy, "Player");
+		//await g.switchTeam(billy, "Player");
+		billy.stats.mov = 6;
 		await g.recruitJingle(billy);
 		await csPause(500);
 	      }
@@ -679,7 +686,8 @@ export let script =
 		await g.cursorFlash(chloe);
 		await g.setExtStatus(conv);
 
-		await g.switchTeam(chloe, "Player");
+		//await g.switchTeam(chloe, "Player");
+		chloe.stats.mov = 6;
 		await g.recruitJingle(chloe);
 		await csPause(500);
 	      }
@@ -690,7 +698,8 @@ export let script =
 	      await g.cursorFlash(child);
 	      await g.setExtStatus(conv);
 
-	      await g.switchTeam(child, "Player");
+	      //await g.switchTeam(child, "Player");
+	      child.stats.mov = 5;
 	      await g.recruitJingle(child);
 	      
 	      await g.cameraCenter(vargas);
