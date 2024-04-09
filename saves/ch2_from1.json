@@ -5,11 +5,11 @@
             "name": "Alfred",
             "class": "Farmer",
             "stats": {
-                "maxhp": 13,
+                "maxhp": 12,
                 "atk": 3,
-                "spd": 3,
+                "spd": 2,
                 "skl": 2,
-                "def": 3,
+                "def": 2,
                 "con": 4,
                 "mov": 6,
                 "hp": 2
@@ -37,11 +37,11 @@
             "name": "Chloe",
             "class": "Farmer",
             "stats": {
-                "maxhp": 14,
+                "maxhp": 13,
                 "atk": 3,
-                "spd": 4,
+                "spd": 3,
                 "skl": 4,
-                "def": 2,
+                "def": 1,
                 "con": 4,
                 "mov": 6,
                 "hp": 1
@@ -69,11 +69,11 @@
             "name": "Billy",
             "class": "Farmer",
             "stats": {
-                "maxhp": 17,
+                "maxhp": 15,
                 "atk": 4,
-                "spd": 2,
+                "spd": 1,
                 "skl": 2,
-                "def": 4,
+                "def": 3,
                 "con": 4,
                 "mov": 6,
                 "hp": 3
@@ -101,11 +101,11 @@
             "name": "Vargas",
             "class": "SwordKnight",
             "stats": {
-                "maxhp": 19,
-                "atk": 4,
+                "maxhp": 18,
+                "atk": 3,
                 "spd": 3,
-                "skl": 8,
-                "def": 4,
+                "skl": 7,
+                "def": 3,
                 "con": 12,
                 "mov": 6,
                 "hp": 8
