@@ -1,0 +1,18 @@
+name hit
+type melee
+frames 4
+usrc BattleSprites/Chloe/Farmer/hit
+
+begin
+#               x  y  angle
+0 uframe 0 hand 21 22 -130
+7 uframe 0 hand 25 19 -165
+10 uframe 1 hand 27 16 170
+15 uframe 1 hand 32 13 140
+# pause at top
+22 wframe 1
+22 uframe 1 hand 38 13 78
+26 projectile
+28 uframe 2 hand 10000 10000 10000
+38 uframe 3 hand 10000 10000 10000
+43 end

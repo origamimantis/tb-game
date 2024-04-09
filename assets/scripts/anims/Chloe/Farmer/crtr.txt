@@ -1,0 +1,31 @@
+name crt
+type melee
+frames 4
+usrc BattleSprites/Chloe/Farmer/hit
+
+begin
+#               x  y  angle
+0 uframe 0 hand 21 22 -130
+7 uframe 0 hand 25 19 -165
+10 uframe 1 hand 27 16 170
+15 uframe 1 hand 32 13 140
+# spin to win
+20 wframe 1
+20 uframe 1 hand 32 13 80
+23 uframe 1 hand 32 13 20
+26 uframe 1 hand 32 13 -40
+29 uframe 1 hand 32 13 -100
+32 uframe 1 hand 32 13 -160
+35 uframe 1 hand 32 13 140
+38 uframe 1 hand 32 13 80
+41 uframe 1 hand 32 13 20
+44 uframe 1 hand 32 13 -40
+47 uframe 1 hand 32 13 -100
+50 uframe 1 hand 32 13 -160
+53 uframe 1 hand 32 13 140
+
+56 uframe 1 hand 38 13 78
+60 projectile
+61 uframe 2 hand 10000 10000 10000
+69 uframe 3 hand 10000 10000 10000
+75 end
