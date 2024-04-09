@@ -15,9 +15,11 @@
 
 
 <body>
+		<base target="_blank" rel="noopener noreferrer">
+
     <div id="canvases"  width ="1024px" height="768px"></div>
     <object id="notes" type="text/html" data="src/notes.txt" width="500px" height="100px"></object>
-    <div id="controls" type="text/html" style="font-size:20px" width="500px" height="100px">WASD to move.<br>Period (".") to select.<br>Comma (",") to cancel.<br>Semicolon (";") for unit information.</div>
+		<div id="controls" type="text/html" style="font-size:16px" width="500px" height="100px">WASD to move.<br>Period (".") to select.<br>Comma (",") to cancel.<br>Semicolon (";") for unit information.<br><a href="https://github.com/origamimantis/tb-game">github (new tab)</a></div>
     <script>
 	    document.getElementById("notes").style["margin-top"]= "790px"
     	    document.getElementById("controls").style["margin-top"]= "-90px"
