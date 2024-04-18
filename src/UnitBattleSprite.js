@@ -56,6 +56,7 @@ export class UnitBattleSprite extends BattleSprite
     //"hit2", [new BAFrame(10, 0,0,0),new BAFrame(30, 0,0,0),new BAFrame(5, 0,0,0),new BAFrame(35, 0,0,0)]
 
     // TODO make this a property of Unit and pull from that
+    // TODO figure out how to make defer work with crits
     this.anims = {
       melee :{run:"run",hit:"hit",crt:"crt",idle:"idle"},
       range :{run:"run",hit:"hitr",crt:"crtr",idle:"idle"},

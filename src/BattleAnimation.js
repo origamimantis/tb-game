@@ -34,7 +34,10 @@ export class BattleSprite
   setAnim( name, onDone = () => {})
   {
     this.curAnimName = name;
-    this.curAnim().reset();
+    if (this.curAnim().animReset == true)
+      this.curAnim().reset();
+    else
+      this.curAnim().done = false;
     this.curAnim().onDone = onDone;
   }
   draw( g, ctx, x = this.x, y = this.y, s = 1, snapGrid = true)
@@ -51,8 +54,6 @@ export class BattleSprite
   { 
     if (this.pauseAnim == false)
     {
-      if (this.curAnim() == undefined)
-	console.log(this)
       this.curAnim().tick();
       this.ws.update(this);
     }
@@ -84,6 +85,7 @@ export class BattleAnimation
     this.numFrame = parseInt(info.options.frames);
     this.loops = (info.loops == "true");
     this.done = false;
+    this.animReset = true;
     this._onHit = null;
     this._onHit_resolve = null;
     this.onDone = onDone;
@@ -171,10 +173,20 @@ export class BattleAnimation
       break;
     case "end":
       this.done = true;
-	if (this.onDone != null)
-	{
-	  this.onDone();
-	}
+      if (this.onDone != null)
+      {
+	this.animReset = true;
+	this.onDone();
+      }
+      break;
+    case "defer":
+      this.done = true;
+      if (this.onDone != null)
+      {
+	this.animReset = false;
+	this.onDone();
+      }
+      break;
     }
   }
 }

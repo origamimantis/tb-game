@@ -7,12 +7,12 @@ begin
 0 uframe 0 hand 8 26 153
 5 uframe 1 hand 22 9 90
 40 wframe 1
-40 uframe 1 hand 19 4 30
-42 uframe 1 hand 20 -5 -30
-44 uframe 1 hand 21 -9 -90
-46 uframe 1 hand 22 -13 -150
-48 uframe 1 hand 23 -14 150
-50 uframe 1 hand 24 -13 90
+40 uframe 1 hand 22 9 30
+42 uframe 1 hand 22 9 -30
+44 uframe 1 hand 22 9 -90
+46 uframe 1 hand 22 9 -150
+48 uframe 1 hand 22 9 150
+50 uframe 1 hand 22 9 90
 
 53 uframe 2 hand 40 13 95
 56 uframe 3 hand 50 31 40

@@ -5,13 +5,19 @@ usrc BattleSprites/Vargas/SwordKnight/hit
 
 begin
 0 uframe 0 hand 8 26 153
-15 wframe 1
-15 uframe 1 hand 22 9 110
-20 uframe 2 hand 40 13 95
-25 uframe 3 hand 50 31 40
-25 hit
-30 uframe 4 hand 49 40 7
-30 wframe 0
-35 uframe 5 hand 49 40 7
-50 end
-
+13 wframe 1
+13 uframe 1 hand 22 9 110
+16 uframe 2 hand 40 13 95
+20 uframe 3 hand 50 31 40
+20 hit
+23 uframe 4 hand 49 40 7
+23 wframe 0
+27 uframe 5 hand 49 40 7
+30 defer
+40 uframe 4 hand 49 40 7
+45 uframe 3 hand 50 31 7
+55 wframe 1
+55 hit
+55 uframe 0 hand 8 26 153
+60 wframe 0
+60 end
