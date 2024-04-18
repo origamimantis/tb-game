@@ -64,7 +64,6 @@ function initVars()
   yuli = new Units.BowKnight({maxhp:14, atk:9,spd:3,skl:10,def:3,con:4,mov: 6}, "Yuliza")
   yuli.setXY(33, 35)
   yuli.team = "Scout";
-  yuli.pArt = "P_Yuliza";
   yuli.addWeapon(new Weapons.TestBow());
   yuli.setAnim( "idle" );
   yuli.ai = "fleeToUnit"
@@ -75,7 +74,6 @@ function initVars()
   mali = new Units.BowKnight({maxhp:16, atk:5,spd:5,skl:6,def:4,con:4,mov: 6}, "Malidale")
   mali.setXY(33, 35)
   mali.team = "Scout";
-  mali.pArt = "P_Malidale";
   mali.addWeapon(new Weapons.TestBow());
   mali.setAnim( "idle" );
   mali.ai = "fleeToUnit"

@@ -38,7 +38,6 @@ function initVars()
   alfred.setXY(9,9)
   alfred.team = "Player";
   alfred.stats.hp = 5;
-  alfred.pArt = "P_Alfred";
   alfred.addWeapon(new Weapons.Pitchfork());
   alfred.addItem(new Items.Bandages());
   alfred.setAnim( "idle" );
@@ -46,7 +45,6 @@ function initVars()
   child = new Units.Child({maxhp:5, atk:0,spd:5,skl:0,def:0,con:0,mov: 5}, "Timmy");
   child.setXY(5, 8);
   child.team = "Player";
-  child.pArt = "P_child";
   child.setAnim( "idle" );
 
   b1 = new Units.Bandit({maxhp:16, atk:3,spd:2,skl:4,def:3,con:4,mov: 6}, "Bandit");
@@ -73,7 +71,6 @@ function initVars()
   billy = new Units.Farmer({maxhp:16, atk:3,spd:2,skl:300,def:3,con:4,mov: 6}, "Billy");
   billy.setXY(10, 4);
   billy.team = "Player";
-  billy.pArt = "P_Billy";
   billy.addWeapon(new Weapons.Shovel());
   billy.setAnim( "idle" );
   billy.recruited = true;
@@ -82,15 +79,13 @@ function initVars()
   yuli = new Units.BowKnight({maxhp:16, atk:5,spd:3,skl:40,def:1,con:4,mov: 6}, "Yuliza")
   yuli.setXY( 9, 6);
   yuli.team = "Player";
-  yuli.pArt = "P_Yuliza";
   yuli.addWeapon(new Weapons.TestBow());
   yuli.equipment.push(new Equipment.SwiftBlessing());
   yuli.setAnim( "idle" );
 
-  mali = new Units.BowKnight({maxhp:17, atk:4,spd:4,skl:3,def:2,con:4,mov: 6}, "Malidale")
+  mali = new Units.BowKnight({maxhp:17, atk:4,spd:4,skl:3,def:8,con:4,mov: 6}, "Malidale")
   mali.setXY( 9, 7);
   mali.team = "Bandit";
-  mali.pArt = "P_Malidale";
   mali.addWeapon(new Weapons.TestBow());
   mali.equipment.push(new Equipment.LeatherTunic());
   mali.setAnim( "idle" );
@@ -125,17 +120,16 @@ function initVars()
   chloe = new Units.Farmer({maxhp:6, atk:2,spd:3,skl:3,def:2,con:4,mov: 6}, "Chloe");
   chloe.setXY(9, 5);
   chloe.team = "Village";
-  chloe.pArt = "P_Chloe";
   chloe.addWeapon(new Weapons.FryingPan());
   chloe.setAnim( "idle" );
   chloe.recruited = true;
   chloe.ai = "guard";
 
-  vargas = new Units.SwordKnight({maxhp:28, atk:6,spd:7,skl:12,def:5,con:12,mov: 6}, "Vargas");
-  vargas.setXY(8, 7);
+  vargas = new Units.SwordKnight({maxhp:28, atk:6,spd:7,skl:-12,def:5,con:12,mov: 6}, "Vargas");
+  vargas.setXY(10, 7);
   vargas.team = "Player";
-  vargas.pArt = "P_lead";
   vargas.addWeapon(new Weapons.BronzeSlicer());
+  vargas.addWeapon(new Weapons.BraveSword());
   vargas.equipment.push(new Equipment.SteelPlating());
   vargas.setAnim("idle");
   
