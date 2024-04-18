@@ -1,0 +1,11 @@
+name run
+type melee
+frames 4
+usrc BattleSprites/generic/Vampire/run
+
+begin
+0 uframe 0 hand 0 0 0
+12 uframe 1 hand 0 0 0
+20 uframe 2 hand 0 0 0
+32 uframe 3 hand 0 0 0
+40 loop 0

@@ -1,0 +1,8 @@
+name idle
+type melee
+frames 1
+usrc BattleSprites/generic/Vampire/idle
+
+begin
+0 uframe 0 hand 0 0 0
+1 end
