@@ -317,10 +317,16 @@ class Main
   static async loadSave(save_obj, things=thingsToLoad, extraAssets = null)
   {
     this.save_obj = save_obj;
-    let scriptToLoad = save_obj.chapter
+    let scriptToLoad = this.scriptFile;
+    if (save_obj.chapter !== undefined)
+      scriptToLoad = save_obj.chapter;
     await this.chload(scriptToLoad, things, extraAssets)
 
     this.levelscript.setUnits(Storage.loadObj(save_obj));
+  }
+  static async loadJsonSave(s, things=thingsToLoad, extraAssets=null)
+  {
+    await this.loadSave(await JSON.parse((await requestFile(s)).responseText), things, extraAssets);
   }
   static start()
   {
@@ -447,8 +453,9 @@ window.onload = async ()=>
 
   Main.mainloop();
 
-  //await Main.chload("./chtitle.js", thingsToLoad);
-  await Main.chload("./chtest.js", thingsToLoad);
-  //await Main.chload("./ch1.js", thingsToLoad);
+  await Main.chload("./chtitle.js", thingsToLoad);
+
+ // await Main.loadJsonSave("saves/chtest_test.json");
+
   Main.start();
 };

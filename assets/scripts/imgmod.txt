@@ -6,31 +6,22 @@ rl C_menuel C_menueb
 rr C_menuel C_menuet
 fh C_menuel C_menuer
 
-rc S_kn0 S_kn0_wait [0,0,255]->[100,100,100]
-rc S_kn1 S_kn1_wait [0,0,255]->[100,100,100]
-rc S_kn4 S_kn4_wait [0,0,255]->[100,100,100]
+rc S_kn0 [0,0,255]
+rc S_kn1 [0,0,255]
+rc S_kn4 [0,0,255]
 
-rc S_vmp0 S_vmp0_wait [1,253,40]->[100,100,100]
-rc S_vmp0 S_vmp0_enemy [1,253,40]->[255,0,0]
+rc S_vmp0 [1,253,40]
+rc S_vmp0 [1,253,40]
 
-rc S_Farmer_Alfred S_Farmer_Alfred_wait [0,128,128]->[100,100,100]
-rc S_Farmer_Billy S_Farmer_Billy_wait [0,128,128]->[100,100,100]
-rc S_Farmer_Chloe S_Farmer_Chloe_wait [0,128,128]->[100,100,100]
+rc S_Farmer_Alfred [0,128,128]
+rc S_Farmer_Billy [0,128,128]
+rc S_Farmer_Chloe [0,128,128]
 
-rc S_child S_child_ally [0,0,0]->[0,0,0]
+rc S_child [227,173,0]
+rc S_bandit [0,0,255]
 
-rc S_child S_child_wait [227,173,0]->[100,100,100]
-rc S_bandit S_bandit_wait [0,0,255]->[100,100,100]
-rc S_bandit S_bandit_enemy [0,0,255]->[255,0,0]
-rc S_bandit S_bandit_ally [0,0,255]->[0,255,0]
 
-rc S_Farmer_Chloe S_Farmer_Chloe_ally [0,128,128]->[0,180,76]
-rc S_Farmer_Billy S_Farmer_Billy_ally [0,128,128]->[0,180,76]
+rc S_SwordKnight_Vargas [0,0,255]
 
-rc S_SwordKnight_Vargas S_SwordKnight_Vargas_wait [221,174,44]->[100,100,100] [245,238,9]->[150,150,150] [0,0,255]->[100,100,100]
-
-rc S_BowKnight_Yuliza S_BowKnight_Yuliza_wait [0,0,255]->[100,100,100]
-rc S_BowKnight_Malidale S_BowKnight_Malidale_wait [0,0,255]->[100,100,100]
-rc S_BowKnight_Yuliza S_BowKnight_Yuliza_ally [0,0,255]->[0,255,0]
-rc S_BowKnight_Malidale S_BowKnight_Malidale_ally [0,0,255]->[0,255,0]
-rc S_BowKnight_Malidale S_BowKnight_Malidale_enemy [0,0,255]->[255,0,0]
+rc S_BowKnight_Yuliza [0,0,255]
+rc S_BowKnight_Malidale [0,0,255]

@@ -13,6 +13,7 @@ export class ImageModifier
   static init( album )
   {
     this.album = album;
+    this.unit_basecolor = {};
   }
 
   // map:
@@ -40,8 +41,32 @@ export class ImageModifier
     ctx.putImageData(imageData,0,0);
     return can
   }
-  // Recolors a given imaging using a given map, then stores it under name.
-  //   Errors if the name is already in use and overwriting is not specified.
+  // on-the-fly recoloring
+  static async recolor_from_name(base, append)
+  {
+    let map = {}
+    let bc = this.unit_basecolor[base]
+    this.album.images[base+append] = null
+    let nImg;
+    switch(append)
+    {
+      case "_wait":
+	nImg = await this.graycolor(this.album.get(base));
+	break;
+      case "_ally":
+	map[bc] = [0,180,76]
+	nImg = await this.recolor(this.album.get(base), map);
+	break;
+      case "_enemy":
+	map[bc] = [255,0,0]
+	nImg = await this.recolor(this.album.get(base), map);
+	break;
+      default:
+	throw "ImageModifier received request to recolor using suffix (" + append + ") which doesn't exist";
+    }
+    this.album.images[base+append] = nImg
+  }
+  // Recolors a given image using a given map and returns a new image
   static recolor(img, map)
   {
     return new Promise( (resolve) => 
@@ -67,6 +92,31 @@ export class ImageModifier
       nImg.onload = ()=>{resolve(nImg)};
     });
   }
+  // Returns grayscale version of input image
+  static graycolor(img)
+  {
+    return new Promise( (resolve) => 
+    {
+      let [can, ctx, imageData] = this.setup(img);
+
+      // examine every pixel,
+      // change any old rgb to the new-rgb
+
+      for (let i = 0; i < imageData.data.length; i += 4)
+      {
+	let avg = (imageData.data[i]+imageData.data[i+1]+imageData.data[i+2])/3;
+
+	imageData.data[i  ] = avg;
+	imageData.data[i+1] = avg;
+	imageData.data[i+2] = avg;
+      }
+      
+      let nImg = this.finalize(can, ctx, imageData);
+      nImg.onload = ()=>{resolve(nImg)};
+    });
+  }
+  
+
   
   static flipVertical(img)
   {
@@ -256,7 +306,7 @@ export class ImageModifier
 	  console.log("imgmod: '" + tokens[2] + "' found, skipping")
 	continue;
       }
-      let nImg;
+      let nImg = null;
       if (tokens.length == 1 &&  tokens[0].length == 0)
       {
 	continue;
@@ -277,32 +327,18 @@ export class ImageModifier
 	  case "RR":
 	    nImg = await this.rotateRight(this.album.get(tokens[1]));
 	    break;
+	  case "RC":
+	    this.unit_basecolor[tokens[1]] = JSON.parse(tokens[2]);
+	    break;
 	  default:
-	    throw new Error("ImageModifier_UnknownCommandError");
+	    throw new Error("ImageModifier Unknown command: "+ line);
 	}
       }
-      else
+      if (nImg !== null)
       {
-	if (tokens[0].toUpperCase() == "RC")
-	{
-	  // RC src dst [r,g,b]->[r,g,b] [r,g,b]->[r,g,b] ...
-	  let map = {};
-	  let i = 3;
-	  while (i < tokens.length)
-	  {
-	    let [a,b] = tokens[i].split("->");
-	    map[JSON.parse(a)] = JSON.parse(b);
-	    ++i;
-	  }
-	  nImg = await this.recolor(this.album.get(tokens[1]), map);
-	}
-	else
-	{
-	  throw new Error("ImageModifier_BadCommand");
-	}
+	this.album.images[tokens[2]] = nImg;
+	triggerEvent("load_progress", `Generated image ${tokens[2]}.png`);
       }
-      this.album.images[tokens[2]] = nImg;
-      triggerEvent("load_progress", `Generated image ${tokens[2]}.png`);
     }
   }
 }

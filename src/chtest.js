@@ -124,7 +124,7 @@ function initVars()
 
   chloe = new Units.Farmer({maxhp:6, atk:2,spd:3,skl:3,def:2,con:4,mov: 6}, "Chloe");
   chloe.setXY(9, 5);
-  chloe.team = "Player";
+  chloe.team = "Village";
   chloe.pArt = "P_Chloe";
   chloe.addWeapon(new Weapons.FryingPan());
   chloe.setAnim( "idle" );

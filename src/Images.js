@@ -3,6 +3,7 @@
 import {triggerEvent} from "./Utils.js";
 import {C_WIDTH, C_HEIGHT} from "./Constants.js";
 import {waitTick} from "./Utils.js";
+import {ImageModifier} from "./ImageModifier.js"
 
 const TOLOAD = 25;
 
@@ -18,9 +19,17 @@ class Album
   {
     this.images = {};
   }
-  static get( artName )
+  static get( artName, append = null)
   {
-    return this.images[artName];
+    if (append == "" || append === null)
+      return this.images[artName];
+
+    if (artName + append in this.images)
+      return this.images[artName + append]
+
+    ImageModifier.recolor_from_name(artName, append)
+    return null
+
   }
   static draw(ctx, art, x, y, w, h)
   {

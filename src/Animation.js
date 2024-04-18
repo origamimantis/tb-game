@@ -61,10 +61,18 @@ class Animation
   }
   draw(g, layer, x, y, s, append = "", center = "center")
   {
-    let img = Album.get(this.image + append)
+    let img = Album.get(this.image, append)
     
     if (img === undefined)
-      throw (this.image + append)
+      throw "Animation.js could not get image (this.image + append)"
+    if (img === null)
+    {
+      // TODO while image is loading, use the base version.
+      // if this looks weird, make it return instead. but that also looks weird
+      //return
+      img = Album.get(this.image)
+    }
+
     let w = img.width/this.numFrame;
     let h = img.height;
 

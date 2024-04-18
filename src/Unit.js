@@ -280,13 +280,14 @@ export class Unit extends AnimatedObject
   }
   endTurn(g)
   {
-    this.setAnim("wait");
+    //this.setAnim("wait");
+    this.curAnim().reset();
     this.pauseAnimation();
     this.active = false;
   }
   turnInit()
   {
-    this.setAnim("idle");
+    //this.setAnim("idle");
     this.curAnim().reset();
     this.resumeAnimation();
     this.active = true;
@@ -418,7 +419,9 @@ export class Unit extends AnimatedObject
     if (g.camera.visible(this))
     {
       let append = ""
-      if (this.curAnimName != "wait")
+      if (this.active == false)
+	append = "_wait"
+      else
 	append = g.getAffiliation(this);
 
       let off = g.camera.getOffset();

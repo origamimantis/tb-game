@@ -23,7 +23,6 @@ export class Bandit extends Unit
 	super(caps, stats, name, classname, "P_bandit", skills, Walk.walkMelee);
 	
 	this.addAnim("idle", new Animation( {image: "S_bandit", weights: [20,10,20,10], loops: true}) );
-	this.addAnim("wait", new Animation( {image: "S_bandit_wait", weights: [1,1,1,1], loops: false}) );
     }
 }
 export class Child extends Unit
@@ -45,7 +44,6 @@ export class Child extends Unit
 	this.skills.push("noncombatant");
 	
 	this.addAnim("idle", new Animation( {image: "S_child", weights: [30,30], loops: true}) );
-	this.addAnim("wait", new Animation( {image: "S_child_wait", weights: [1,1], loops: false}) );
     }
 }
 
@@ -66,7 +64,6 @@ export class Farmer extends Unit
 	super(caps, stats, name, classname, null, skills, Walk.walkMelee);
 	
 	this.addAnim("idle", new Animation( {image: "S_Farmer_"+name, weights: [20,10,20,10], loops: true}) );
-	this.addAnim("wait", new Animation( {image: "S_Farmer_"+name +"_wait", weights: [1,1,1,1], loops: false}) );
     }
 }
 
@@ -116,7 +113,6 @@ export class SwordKnight extends Unit
 	super(caps, stats, name, classname, "P_kn", skills, Walk.walkMelee);
 	
 	this.addAnim("idle", new Animation( {image: anim, weights: [20,10,20,10], loops: true}) );
-	this.addAnim("wait", new Animation( {image: anim + "_wait", weights: [100,100,100,100], loops: false}) );
     }
 }
 
@@ -147,7 +143,6 @@ export class BowKnight extends Unit
             name = classname
 	
 	this.addAnim("idle", new Animation( {image: anim, weights: [20,10,20,10], loops: true}) );
-	this.addAnim("wait", new Animation( {image: anim + "_wait", weights: [100,100,100,100], loops: false}) );
     }
 }
 
@@ -169,7 +164,5 @@ export class Vampire extends Unit
 	super(caps, stats, name, classname, "P_vmp", skills, Walk.walkMelee);
 
 	this.addAnim("idle", new Animation( {image: "S_vmp0", weights: [20,10,20,10], loops:true} ) );
-	this.addAnim("wait", new Animation( {image: "S_vmp0_wait", weights: [100,100,100,100], loops:false} ) );
-	//this.addAnim(0, new Animation( "S_vmp0", [20,10,20,10], true) );
     }
 }
