@@ -1,3 +1,7 @@
+ver0.49 2024-04-18
+Added the vampire unit and follow-up animations.
+Also, optimized the image modifier to recolor on the fly.
+
 ver0.48 2024-04-08
 Chloe the farmer now has 1-2 range with her frying pan.
 Also, cleaned up mini battle animation and added an option
