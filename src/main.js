@@ -453,9 +453,9 @@ window.onload = async ()=>
 
   Main.mainloop();
 
- // await Main.chload("./chtitle.js", thingsToLoad);
+  await Main.chload("./chtitle.js", thingsToLoad);
 
-  await Main.loadJsonSave("saves/chtest_test.json");
+ // await Main.loadJsonSave("saves/chtest_test.json");
 
   Main.start();
 };
