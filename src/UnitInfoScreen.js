@@ -167,7 +167,10 @@ export class UnitInfoScreen
   {
     let p;
     if (this.cur == "Weapons")
+    {
       p = new TooltipWeaponPanel();
+      p.fontsize = "13.75"
+    }
     else if (this.cur == "Items")
     {
       p = new TooltipItemPanel();

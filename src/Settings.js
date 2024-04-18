@@ -102,7 +102,6 @@ export class Settings
     let set = this.values[s];
     if (set === undefined)
       throw "'" + s + "' is not a setting"
-    console.log(set.allowed)
     let i = set.allowed.list.indexOf(val);
     if (i < 0)
       throw "'" + val + "' is not a value for setting '" + s + "' (" + set.allowed + ")"

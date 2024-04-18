@@ -93,7 +93,7 @@ class NoWeapon_Sprite extends WeaponSprite
 {
   constructor()
   {
-    super(null, "melee", {min: 15, max:40}, 3, 3, 1, "FX_clink", (unit, state) =>{});
+    super(null, "melee", {min: 25, max:40}, 3, 3, 1, "FX_clink", (unit, state) =>{});
   }
 }
 
@@ -142,10 +142,13 @@ export class VampireFang extends Weapon
   constructor()
   {
     super("Vampire Fang", 18, 85, 20, [1], 80, ["vampiric"], {}, null, [],[],[]);
+    this.tooltip = "Grants 50% lifesteal."
   }
   sprite(range)
   {
-    return new NoWeapon_Sprite();
+    let s = new NoWeapon_Sprite();
+    s.sfx = "FX_slash"
+    return s
   }
 }
 
@@ -183,18 +186,33 @@ export class Pitchfork extends Weapon
 {
   constructor()
   {
-      super("Pitchfork", 4, 80, 0, [1], 50, [], {}, "Alfred");
+    super("Pitchfork", 4, 80, 0, [1], 50, [], {}, "Alfred");
+    this.tooltip = "Typical farmer weapon."
   }
   sprite(range)
   {
     return new Sprite_Melee("W_Pitchfork", 13, 15,2, "FX_slash",   30);
   }
 }
+
+export class Shovel extends Weapon
+{
+  constructor()
+  {
+    super("Shovel", 5, 70, 25, [1], 50, [], {}, "Billy");
+    this.tooltip = "High critical chance."
+  }
+  sprite(range)
+  {
+    return new Sprite_Melee("W_Shovel",9,15,2, "FX_bonk", 42, 60);
+  }
+}
 export class FryingPan extends Weapon
 {
   constructor()
   {
-      super("Frying Pan", 3, 90, 0, [1,2], 50, [], {}, "Chloe");
+    super("Frying Pan", 3, 90, 0, [1,2], 50, [], {}, "Chloe");
+    this.tooltip = "Good for smacking and throwing."
   }
   sprite(range)
   {
@@ -255,22 +273,13 @@ export class FryingPan extends Weapon
     }
   }
 }
-export class Shovel extends Weapon
-{
-  constructor()
-  {
-      super("Shovel", 5, 70, 25, [1], 50, [], {}, "Billy");
-  }
-  sprite(range)
-  {
-    return new Sprite_Melee("W_Shovel",9,15,2, "FX_bonk", 42, 60);
-  }
-}
+
 export class LumberAxe extends Weapon
 {
   constructor()
   {
-      super("LumberAxe", 4, 65, -30, [1], 50, [], {}, null);
+    super("LumberAxe", 4, 65, -30, [1], 50, [], {}, null);
+    this.tooltip = "Fairly clumsy weapon."
   }
   sprite(range)
   {
@@ -279,15 +288,20 @@ export class LumberAxe extends Weapon
 }
 export class BraveSword extends Sword
 {
-    constructor()
-    {
-	super("Brave Sword", 12, 100, 0, [1], 48, ["brave"], {}, null);
-    }
+  constructor()
+  {
+    super("Brave Sword", 12, 100, 0, [1], 48, ["brave"], {}, null);
+    this.tooltip = "Consecutive attacks."
+  }
 }
 
 export class BronzeSlicer extends Sword
 {
-    constructor(){ super("Bronze Slicer", 7, 80, 10, [1], 48, [], {}, "Vargas"); }
+  constructor()
+  {
+    super("Bronze Slicer", 7, 85, 10, [1], 48, [], {}, "Vargas");
+    this.tooltip = "Vargas' prized sword."
+  }
 }
 
 const PROJ = 0;
@@ -333,6 +347,7 @@ export class TestBow extends Weapon
   {
       //super(name, might, hit, crit, range, uses, effects, statbon, pref, eff, strong, weak)
     super("Wooden Bow", 5, 80, 10, [2,5], 50, [], {}); 
+    this.tooltip = "A regular bow."
 
   }
   sprite(range)
@@ -358,6 +373,7 @@ export class TestMagic extends Weapon
   {
       //super(name, might, hit, crit, range, uses, effects, statbon, pref, eff, strong, weak)
     super("Test Magic", 3, 80, 0, [1, 2], 50, [], {}); 
+    this.tooltip = "Zap"
 
   }
   sprite(range)
@@ -378,7 +394,5 @@ export class TestMagic extends Weapon
     return s;
   }
 }
-
-
 
 

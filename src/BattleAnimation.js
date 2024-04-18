@@ -51,6 +51,8 @@ export class BattleSprite
   { 
     if (this.pauseAnim == false)
     {
+      if (this.curAnim() == undefined)
+	console.log(this)
       this.curAnim().tick();
       this.ws.update(this);
     }

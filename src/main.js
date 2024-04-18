@@ -397,6 +397,11 @@ let thingsToLoad = {
 		  "BattleSprites/generic/Bandit/idle",
 		  "BattleSprites/generic/Bandit/run",
 		  "BattleSprites/generic/Bandit/hit",
+
+		  "BattleSprites/generic/Vampire/idle",
+		  "BattleSprites/generic/Vampire/run",
+		  "BattleSprites/generic/Vampire/hit",
+
 		  "BattleSprites/generic/Child/idle",
 	
 		  "BattleSprites/Yuliza/BowKnight/idle",
@@ -442,8 +447,8 @@ window.onload = async ()=>
 
   Main.mainloop();
 
-  await Main.chload("./chtitle.js", thingsToLoad);
-  //await Main.chload("./chtest.js", thingsToLoad);
+  //await Main.chload("./chtitle.js", thingsToLoad);
+  await Main.chload("./chtest.js", thingsToLoad);
   //await Main.chload("./ch1.js", thingsToLoad);
   Main.start();
 };

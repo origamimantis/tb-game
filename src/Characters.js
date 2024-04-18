@@ -112,7 +112,7 @@ export const Characters =
 		    { idle: "anims/generic/ranged/idle",
 		      run:  "anims/generic/ranged/run",
 		      hitr:  "anims/generic/ranged/hit",
-		      crtr:  "anims/generic/ranged/hit"
+		      crtr:  "anims/generic/ranged/hit" //TODO
 		    },
 		    recolor:
 		    {},
@@ -122,7 +122,7 @@ export const Characters =
 		    { idle: "anims/generic/Bandit/idle",
 		      run:  "anims/generic/Bandit/run",
 		      hit:  "anims/generic/Bandit/hit",
-		      crt:  "anims/generic/Bandit/hit"
+		      crt:  "anims/generic/Bandit/hit" //TODO
 		    },
 		    recolor:
 		    { "":       [ [[0,0,255],[255,255,255]] ],
@@ -156,7 +156,19 @@ export const Characters =
 		    { idle: "anims/generic/test/idle",
 		      run:  "anims/generic/test/run",
 		      hitr:  "anims/generic/test/hit",
-		      crtr:  "anims/generic/test/hit"
+		      crtr:  "anims/generic/test/hit" //TODO
+		    },
+		    recolor:
+		    { "":       [ [[0,0,255],[255,255,255]] ],
+		      "_enemy": [ [[0,0,255],[255,0,0]] ]
+		    },
+		  },
+		  "Vampire":
+		  { scripts:
+		    { idle: "anims/generic/Vampire/idle",
+		      run:  "anims/generic/Vampire/run",
+		      hit:  "anims/generic/Vampire/hit",
+		      crt:  "anims/generic/Vampire/hit" //TODO
 		    },
 		    recolor:
 		    { "":       [ [[0,0,255],[255,255,255]] ],

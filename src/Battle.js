@@ -138,7 +138,14 @@ export class BattleInfo
 
     this.canAttack = false;
     this.sprite = sprite;
-    this.ws = u.getWeapon().sprite();
+
+    if (id === null)
+      this.ws = null // this is used by the battle preview panel, avoid loading a sprite
+    else if (sprite === null)
+      this.ws = u.getWeapon().sprite();
+    else
+      this.ws = sprite.ws;
+
     this.id = id;
     this.atks = 0;
     this.hits = 0;

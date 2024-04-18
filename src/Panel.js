@@ -378,8 +378,8 @@ export class BattlePreviewPanel extends Panel
     let y = 80;
     let w = 180
     super(x, y, w, 170, 1,1, 512 - x - w, y);
-    this.left = new BattleInfo(left, null, g);
-    this.right = new BattleInfo(right, null, g);
+    this.left = new BattleInfo(left, null, g, null);
+    this.right = new BattleInfo(right, null, g, null);
   }
   explicitDraw(g, ctx)
   {
@@ -424,13 +424,15 @@ export class TooltipWeaponPanel extends Panel
   constructor( )
   {
     super(94, 270, 402, 100);
-    
+    this.fontsize = "16.5"
   }
   explicitDraw(g, ctx, w)
   {
     this.drawBase(g, ctx);
-    g.setTextProperty(ctx, "black", "16.5px ABCD Mono", "left");
+    g.setTextProperty(ctx, "black", this.fontsize+"px ABCD Mono", "left");
     g.drawText(ctx, `Power ${w.pow}   Hit ${w.hit}   Crit ${w.crt}`, this.x + 15, this.y + 15);
+    if (w.tooltip !== undefined)
+      g.drawText(ctx, "\n" + w.tooltip, this.x + 15, this.y + 15);
   }
 }
 export class TooltipItemPanel extends Panel

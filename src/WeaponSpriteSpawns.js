@@ -10,7 +10,8 @@ export class WSProjectile
   set(x, y, dist, sprite, details)
   {
     this.spr = sprite;
-    this.state = sprite?.outcome
+    if (sprite !== null)
+      this.state = sprite?.outcome
     this.deleteOnHit = true;
     this.x = x;
     this.y = y;
@@ -24,8 +25,6 @@ export class WSProjectile
     this.t = 0;
     this.tt = 0;
 
-    this.w=0;
-    this.h=0;
     if (details !== undefined)
     {
       this.img = details.img;
@@ -65,7 +64,7 @@ export class WSProjectile
       this.hitAttempted = true;
       this.onCollideResolve();
       
-      if (this._onHit() !== undefined)
+      if (this._onHit !== undefined)
 	this._onHit()
     }
     if (this.gonnaDie)
@@ -92,30 +91,30 @@ export class WSProjectile
     this._f = f;
   }
 }
+
 export class WSEffect
 {
-  constructor(x, y, dist, sprite)
+  constructor(x, y, dist, sprite, details)
   {
-    this.spr = sprite;
-    this.state = this.spr.state
-    this.x = x;
-    this.y = y;
-    this.d = dist;
-    this.t = 0;
-    this.hitAttempted = false;
+  //  this.set(x,y,dist,sprite,details)
   }
   set(x, y, dist, sprite, details)
   {
     this.spr = sprite;
+    if (sprite !== null)
+      this.state = sprite?.outcome
     this.fxDone = false;
-    this.fx = new SpriteEffect(details.fxname, 3, x, y, ()=>{this.fxDone = true});
     this.x = x;
     this.y = y;
     this.d = dist;
     this.t = 0;
     this.tt = 0;
     this.hitAttempted = false;
-    this.fuh = details.framesUntilHit;
+    if (details !== undefined)
+    {
+      this.fx = new SpriteEffect(details.fxname, 3, x, y, ()=>{this.fxDone = true});
+      this.fuh = details.framesUntilHit;
+    }
     this._init();
   }
   draw(g)

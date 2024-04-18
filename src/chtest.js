@@ -20,6 +20,7 @@ let alfred;
 let child;
 let b1;
 let b2;
+let v1;
 let yuli;
 let mali;
 let mag;
@@ -62,6 +63,13 @@ function initVars()
   b2.addWeapon(new Weapons.LumberAxe());
   b2.ai = "targetWeakest";
 
+  v1 = new Units.Vampire({maxhp:14, atk:2,spd:3,skl:5,def:2,con:4,mov: 6}, "Vampire");
+  v1.setXY(7, 7);
+  v1.team = "Bandit";
+  v1.setAnim( "idle" );
+  v1.addWeapon(new Weapons.VampireFang());
+  v1.ai = "targetWeakest";
+
   billy = new Units.Farmer({maxhp:16, atk:3,spd:2,skl:300,def:3,con:4,mov: 6}, "Billy");
   billy.setXY(10, 4);
   billy.team = "Player";
@@ -81,7 +89,7 @@ function initVars()
 
   mali = new Units.BowKnight({maxhp:17, atk:4,spd:4,skl:3,def:2,con:4,mov: 6}, "Malidale")
   mali.setXY( 9, 7);
-  mali.team = "Player";
+  mali.team = "Bandit";
   mali.pArt = "P_Malidale";
   mali.addWeapon(new Weapons.TestBow());
   mali.equipment.push(new Equipment.LeatherTunic());
@@ -131,8 +139,8 @@ function initVars()
   vargas.equipment.push(new Equipment.SteelPlating());
   vargas.setAnim("idle");
   
-  choddson = new Units.Bandit({maxhp:33, atk:8,spd:3,skl:5,def:7,con:19,mov: 6}, "Choddson");
-  choddson.setXY(12,7);
+  choddson = new Units.Bandit({maxhp:33, atk:8,spd:3,skl:5,def:1,con:19,mov: 6}, "Choddson");
+  choddson.setXY(16,7);
   choddson.team = "Bandit";
   choddson.pArt = "P_Choddson";
   choddson.addWeapon(new Weapons.LumberAxe());
@@ -158,7 +166,7 @@ export let script =
     
     onBegin: async (g) =>
     {
-      console.log("loaded ch1");
+      console.log("loaded chtest");
       initVars();
 
       g.Map.setMaxBound(null, 17);
@@ -171,6 +179,7 @@ export let script =
       g.addUnit(choddson);
       g.addUnit(b1);
       g.addUnit(b2);
+      g.addUnit(v1);
 
       g.addUnit(chloe, new Coord(3,6));
       g.addUnit(billy, new Coord(7,3));
@@ -179,6 +188,7 @@ export let script =
       g.addUnit(mag);
       g.addUnit(mag2);
       g.addUnit(mag3);
+      g.cursor.moveInstant(vargas);
 
     }, //onBegin
     conversations: {},
