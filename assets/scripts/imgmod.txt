@@ -11,15 +11,13 @@ rc S_kn1 [0,0,255]
 rc S_kn4 [0,0,255]
 
 rc S_vmp0 [1,253,40]
-rc S_vmp0 [1,253,40]
-
-rc S_Farmer_Alfred [0,128,128]
-rc S_Farmer_Billy [0,128,128]
-rc S_Farmer_Chloe [0,128,128]
 
 rc S_child [227,173,0]
 rc S_bandit [0,0,255]
 
+rc S_Farmer_Alfred [0,128,128]
+rc S_Farmer_Billy [0,128,128]
+rc S_Farmer_Chloe [0,128,128]
 
 rc S_SwordKnight_Vargas [0,0,255]
 
