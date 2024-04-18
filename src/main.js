@@ -39,7 +39,6 @@ const SCENETYPE = {
 		  };
 
 let interpreter;
-let game;
 
 console.settings = Settings;
 console.Album = Album;
@@ -55,6 +54,7 @@ console.game = function()
 {
   return Main.scene;
 }
+console.g = console.game;
 
 console.inputlog = toggleLog;
 
@@ -445,7 +445,6 @@ console.chload = async function(scriptPath)
   await Main.chload(scriptPath, thingsToLoad);
   Main.start();
 }
-
 window.onload = async ()=>
 {
   Main.init();
@@ -455,7 +454,7 @@ window.onload = async ()=>
 
   await Main.chload("./chtitle.js", thingsToLoad);
 
- // await Main.loadJsonSave("saves/chtest_test.json");
+  await Main.loadJsonSave("saves/chtest_test.json");
 
   Main.start();
 };

@@ -351,6 +351,11 @@ class Game
     this.unblockInput();
     await new Promise( res=>{this.stateAction.other.onBegin(nextStatus, res)});
   }
+  hide_tiles_cursor()
+  {
+    this.toDraw.hide("cursor");
+    this.toDraw.hide("selectedUnitAttackableTiles");
+  }
   async setStatus(state, ...args)
   {
     await this.stateAction[state].onBegin(...args);
@@ -438,20 +443,18 @@ class Game
 	{
 	  battle = new Battle(this, this.temp.selectedUnit, enemy, this.turn.get().btltheme,
 		    async () => {await MusicPlayer.fadeout(this.mapTheme)},
-		    async () => {MusicPlayer.fadein(this.mapTheme)});
+		    async () => {MusicPlayer.fadein(this.mapTheme); this.hide_tiles_cursor();await waitTime(200);});
 	}
 	else if (s == "Mini")
 	{
 	  battle = new BattleMini(this, this.temp.selectedUnit, enemy, this.mapTheme,
-		    async () => {this.toDraw.hide("cursor"); this.toDraw.hide("selectedUnitAttackableTiles")},
-		    async () => {this.toDraw.show("cursor")});
+		    async () => {this.hide_tiles_cursor();})
 	}
 	else
 	{
 	  console.log("Skip not implemented");
 	  battle = new BattleMini(this, this.temp.selectedUnit, enemy, this.mapTheme,
-		    async () => {this.toDraw.hide("cursor"); this.toDraw.hide("selectedUnitAttackableTiles")},
-		    async () => {this.toDraw.show("cursor")});
+		    async () => {this.hide_tiles_cursor();})
 	}
 
 	
@@ -1134,11 +1137,12 @@ class Game
 	    this.gameStatus = this.temp.prevGameStatus;
 	  }
 	  
-	  if (onDone) await onDone(retVal);
-
 	  // custom onEnd
 	  if (oe !== undefined)
+	  {
 	    await oe();
+	  }
+	  if (onDone) await onDone(retVal);
 	});
       },
       select: async () => { await this.toDraw.select(); },
@@ -1322,7 +1326,7 @@ class Game
 	{
 	  battle = new Battle(this, unit, info.target, turndata.btltheme,
 		    async () => {await MusicPlayer.fadeout(this.mapTheme)},
-		    async () => {MusicPlayer.fadein(this.mapTheme)});
+		    async () => {MusicPlayer.fadein(this.mapTheme); await waitTime(200)});
 	}
 	else if (s == "Mini")
 	  battle = new BattleMini(this, unit, info.target, this.mapTheme)
@@ -1505,7 +1509,7 @@ class Game
     MusicPlayer.unmute(this.mapTheme);
   }
 
-  async switchTeam(unit, team)
+  switchTeam(unit, team)
   {
     this.Units.switchTeam(unit, team);
   }
@@ -1616,6 +1620,21 @@ class Game
     this.inputting = true;
   }
   
+  getUnit(name)
+  {
+    let a = [];
+    for (let u of this.Units)
+    {
+      if (u.name == name)
+	a.push(u)
+    }
+    if (a.length == 0)
+      return undefined;
+    else if (a.length == 1)
+      return a[0];
+    else
+      return a;
+  }
   getUnitById(id)
   {
     return this.Units.get(id);
@@ -1715,6 +1734,7 @@ class Game
       if (portraitActive) this.Panels.hide("UMP");
 
       this.removeUnit(unit);
+      MusicPlayer.play("FX_unitdeath");
       await new Promise(res=>{unit.fadeOut(this, res);});
 
 

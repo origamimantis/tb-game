@@ -63,16 +63,21 @@ export class UnitBattleSprite extends BattleSprite
     };
     this.update = this.updateLoaded;
     this.draw = this.drawLoaded;
+    this.draw_ws = this.draw_wsLoaded;
+    this.draw_pr = this.draw_prLoaded;
   }
 
   draw(g)
+  {}
+  draw_ws(g)
+  {}
+  draw_pr(g)
   {}
   drawLoaded(g)
   {
     //super.draw(g, 3, this.x, this.y, 1, false);
     //this.ws.draw(g);
     let c = g.ctx[3];
-    let wimg = this.ws.image;
 
     if (this.id == "def")
     {
@@ -82,20 +87,51 @@ export class UnitBattleSprite extends BattleSprite
 
     this.curAnim().draw(g, 3, this.x, this.y, 1, false);
     
-    if (wimg !== null)
+    if (this.id == "def")
     {
-      let rad = -this.ws.a*Math.PI/180;
-      c.translate(this.ws.x, this.ws.y);
-      c.rotate(rad);
-      c.drawImage(wimg, this.ws.curAnim*this.ws.w, 0, this.ws.w, this.ws.h,
-			-this.ws.hx, -this.ws.hy, this.ws.w, this.ws.h );
-      c.rotate(-rad);
-      c.translate(-this.ws.x, -this.ws.y);
+      c.translate(512,0);
+      c.scale(-1,1);
     }
-    if (this.proj !== undefined)
+  }
+  draw_wsLoaded(g)
+  {
+    let wimg = this.ws.image;
+    if (wimg === null)
+      return;
+    let c = g.ctx[3];
+
+    if (this.id == "def")
     {
-      this.proj.draw(g)
+      c.scale(-1,1); c.translate(-512,0);
     }
+
+    let rad = -this.ws.a*Math.PI/180;
+    c.translate(this.ws.x, this.ws.y);
+    c.rotate(rad);
+    c.drawImage(wimg, this.ws.curAnim*this.ws.w, 0, this.ws.w, this.ws.h,
+		      -this.ws.hx, -this.ws.hy, this.ws.w, this.ws.h );
+    c.rotate(-rad);
+    c.translate(-this.ws.x, -this.ws.y);
+
+    if (this.id == "def")
+    {
+      c.translate(512,0); c.scale(-1,1);
+    }
+  }
+  draw_prLoaded(g)
+  {
+    if (this.proj === undefined)
+      return
+
+    let c = g.ctx[3];
+
+    if (this.id == "def")
+    {
+      c.scale(-1,1);
+      c.translate(-512,0);
+    }
+
+    this.proj.draw(g)
 
     if (this.id == "def")
     {

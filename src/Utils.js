@@ -15,6 +15,10 @@ export function fracAmtFn(c)
 {
   return (c !== null) ? formattedHP(c.uses, c.maxUses) : "";
 }
+export function emptyAmtFn(c)
+{
+  return "";
+}
 
 export function toTitle(s)
 {

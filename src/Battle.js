@@ -512,8 +512,8 @@ export class Battle
       if (this.info[id].stats.hp == 0)
       {
 	// only play this once
-	if (battleOver == false)
-	  MusicPlayer.play("FX_unitdeath");
+	//if (battleOver == false)
+	  //MusicPlayer.play("FX_unitdeath");
 	this.dead = this.units[id];
 	this.deadSpr = this.info[id];
 	battleOver = true;
@@ -601,6 +601,12 @@ export class Battle
     this.sprDef.draw(g);
     this.sprIni.draw(g);
 
+    this.sprDef.draw_ws(g);
+    this.sprIni.draw_ws(g);
+
+    this.sprDef.draw_pr(g);
+    this.sprIni.draw_pr(g);
+
     if (this.state == FIGHT)
     {
       this.drawHealthBars(g);
@@ -649,6 +655,7 @@ export class Battle
   async beginSpeech(speechEnd)
   {
     this.speechEnd = speechEnd;
+    this.state = SPEECH;
     this.drawSpeech();
   }
   async begin(Return)
@@ -693,7 +700,6 @@ export class Battle
       this.speechIdx = 0;
       this.speechName = this.dead.name;
       this.speechArt = this.dead.pArt;
-      this.state = SPEECH;
       await MusicPlayer.fadestop(this.music);
       await new Promise( (resolve) => {this.beginSpeech(resolve)});
       this.state = FIGHT;
@@ -848,8 +854,8 @@ export class BattleMini
       if (this.info[id].stats.hp == 0)
       {
 	// only play this once
-	if (battleOver == false)
-	  MusicPlayer.play("FX_unitdeath");
+	//if (battleOver == false)
+	  //MusicPlayer.play("FX_unitdeath");
 	this.dead = this.units[id];
 	this.deadSpr = this.info[id];
 	battleOver = true;
@@ -907,6 +913,7 @@ export class BattleMini
   async beginSpeech(speechEnd)
   {
     this.speechEnd = speechEnd;
+    this.state = SPEECH;
     this.drawSpeech();
   }
 
@@ -941,7 +948,6 @@ export class BattleMini
       this.speechIdx = 0;
       this.speechName = this.dead.name;
       this.speechArt = this.dead.pArt;
-      this.state = SPEECH;
 
       await MusicPlayer.fadeout(this.music);
 

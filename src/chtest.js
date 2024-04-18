@@ -259,8 +259,6 @@ export let script =
     }, //interactions
     events: {
       onDeath: {
-	//"Alfred": (g)=>{g.onGameOver()},
-	"Timmy": (g)=>{g.onGameOver()},
       },
       afterBattle: [
         { tag: "initial bandits defeated",

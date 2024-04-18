@@ -1,7 +1,7 @@
 import {LoopSelector} from "./LoopSelector.js"
 import {ItemPanel, SelectionPointer} from "./Panel.js"
-import {waitTick, toTitle, fracAmtFn, scrollSelect_LR, scrollSelect_UD} from "./Utils.js"
-import {UNIT_MAX_WEAP, UNIT_MAX_ITEM} from "./Constants.js";
+import {waitTick, toTitle, fracAmtFn, emptyAmtFn, scrollSelect_LR, scrollSelect_UD} from "./Utils.js"
+import {UNIT_MAX_WEAP, UNIT_MAX_ITEM, UNIT_MAX_EQUI} from "./Constants.js";
 import {applyArrowStall} from "./Utils.js";
 
 
@@ -32,14 +32,16 @@ export class UnitTradeScreen
       unit: left,
       panel: {},
       items: new LoopSelector(left.items),
-      weapons: new LoopSelector(left.weapons)
+      weapons: new LoopSelector(left.weapons),
+      equipment: new LoopSelector(left.equipment)
     };
 
     this.right = {
       unit: right,
       panel:{},
       items: new LoopSelector(right.items),
-      weapons: new LoopSelector(right.weapons)
+      weapons: new LoopSelector(right.weapons),
+      equipment: new LoopSelector(right.equipment)
     };
 
     if (left.weapons[left.eqWeap] !== undefined)
@@ -53,9 +55,12 @@ export class UnitTradeScreen
     this.left.panel.items = new ItemPanel( TLOFF,Y,WIDTH,HEIGHT, 1, 8, this.left.items, "IT_", fracAmtFn);
     this.left.panel.weapons = new ItemPanel( TLOFF,Y,WIDTH,HEIGHT,1, 8, this.left.weapons, "WT_", fracAmtFn, 
       (w)=>{return !left.canUseWeapon(w)});
+    this.left.panel.equipment = new ItemPanel( TLOFF,Y,WIDTH,HEIGHT, 1, 8, this.left.equipment, "EQ_", emptyAmtFn);
+
     this.right.panel.items = new ItemPanel( 256+TLOFF,Y,WIDTH,HEIGHT,1, 8, this.right.items, "IT_", fracAmtFn);
     this.right.panel.weapons = new ItemPanel(256+TLOFF,Y,WIDTH,HEIGHT,1, 8, this.right.weapons, "WT_", fracAmtFn,
       (w)=>{return !right.canUseWeapon(w)});
+    this.right.panel.equipment = new ItemPanel(256+TLOFF,Y,WIDTH,HEIGHT, 1, 8, this.right.equipment, "EQ_", emptyAmtFn);
 
     this._ptr1 = new SelectionPointer(this.left.panel.items);
     this._ptr2 = new SelectionPointer(this.left.panel.items);
@@ -70,7 +75,7 @@ export class UnitTradeScreen
 
     this.traded = false;
 
-    this.max = {weapons: UNIT_MAX_WEAP, items: UNIT_MAX_ITEM};
+    this.max = {weapons: UNIT_MAX_WEAP, items: UNIT_MAX_ITEM, equipment: UNIT_MAX_EQUI};
 
     this.Return = null;
     this.old_ctx_refresh = null;
@@ -96,9 +101,9 @@ export class UnitTradeScreen
   {
     text = toTitle(text);
     //g.ctx[ctx].fillStyle = "brown";
-    let w = 128;
+    let w = text.length * 16+4; //128;
     let c_x = 256;
-    g.ctx[ctx].clearRect( c_x - w/2, Y - 36, w, 30);
+    g.ctx[ctx].clearRect( c_x - 90, Y - 36, 180, 30);
 
 
     g.ctx[ctx].fillStyle = "black";
@@ -109,7 +114,7 @@ export class UnitTradeScreen
     g.ctx[ctx].globalAlpha = 1;
 
     g.setTextProperty(ctx, "#dedbef", "22px ABCD Mono", "center");
-    g.drawText(ctx, text, c_x, Y - 32, maxwidth);
+    g.drawText(ctx, text, c_x+3, Y - 32, maxwidth);
   }
 
   draw(g)
@@ -298,8 +303,10 @@ export class UnitTradeScreen
   {
     if (this.state == OBSERVE)
     {
-      if (this.tradeMode != "weapons")
+      if (this.tradeMode == "items")
 	this.tradeMode = "weapons";
+      else if(this.tradeMode == "weapons")
+	this.tradeMode = "equipment";
       else
 	this.tradeMode = "items";
 
