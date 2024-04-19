@@ -1,3 +1,8 @@
+ver0.50 2024-04-19
+Added on-the-fly loading for art. Quite tricky because it
+is asynchronous, but hopefully it reduces loading times.
+Also, rebalanced chapter 2 to be a bit harder.
+
 ver0.49 2024-04-18
 Added the vampire unit and follow-up animations.
 Also, optimized the image modifier to recolor on the fly.
