@@ -107,10 +107,23 @@ export class UnitBattleSprite extends BattleSprite
 
     let rad = -this.ws.a*Math.PI/180;
     c.translate(this.ws.x, this.ws.y);
+
+    if (this.ws.hflip)
+      c.scale(-1,1);
+    if (this.ws.vflip)
+      c.scale(1,-1);
+
     c.rotate(rad);
+
     c.drawImage(wimg, this.ws.curAnim*this.ws.w, 0, this.ws.w, this.ws.h,
 		      -this.ws.hx, -this.ws.hy, this.ws.w, this.ws.h );
     c.rotate(-rad);
+
+    if (this.ws.vflip)
+      c.scale(1,-1);
+    if (this.ws.hflip)
+      c.scale(-1,1);
+
     c.translate(-this.ws.x, -this.ws.y);
 
     if (this.id == "def")

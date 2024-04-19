@@ -27,8 +27,11 @@ let yuli;
 let mali;
 let banditWave = [];
 let doddson;
-let zone1;
 let scrubBanditLeader;
+
+let zone1;
+let zone2;
+let archerspawn;
 
 const DEFEND = 0;
 const FETCH = 1;
@@ -62,9 +65,8 @@ function initVars()
   //      and doddson crew at the same time. move archers deeper into woods to start.
   //      (vargas clearing the camp early makes it too easy)
   yuli = new Units.BowKnight({maxhp:14, atk:9,spd:3,skl:10,def:3,con:4,mov: 6}, "Yuliza")
-  yuli.setXY(33, 35)
   yuli.team = "Scout";
-  yuli.addWeapon(new Weapons.TestBow());
+  yuli.addWeapon(new Weapons.WoodenBow());
   yuli.setAnim( "idle" );
   yuli.ai = "fleeToUnit"
   yuli.aiparams={target:vargas}
@@ -72,9 +74,8 @@ function initVars()
   yuli.items[0].uses=1;
 
   mali = new Units.BowKnight({maxhp:16, atk:5,spd:5,skl:6,def:4,con:4,mov: 6}, "Malidale")
-  mali.setXY(33, 35)
   mali.team = "Scout";
-  mali.addWeapon(new Weapons.TestBow());
+  mali.addWeapon(new Weapons.WoodenBow());
   mali.setAnim( "idle" );
   mali.ai = "fleeToUnit"
   mali.aiparams={target:vargas}
@@ -83,7 +84,7 @@ function initVars()
   mali.stats.hp = 5;
 
   doddson = new Units.Bandit({maxhp:25, atk:7,spd:4,skl:5,def:4,con:9,mov: 5}, "Doddson");
-  doddson.setXY( 33,35)
+  doddson.setXY( 29,35)
   doddson.team = "Bandit";
   doddson.pArt = "P_Doddson";
   doddson.addWeapon(new Weapons.LumberAxe());
@@ -93,7 +94,9 @@ function initVars()
   doddson.items[0].uses=1;
 
 
-  zone1 = {rectangle:[[16, 3],[23,24]], triggered:false}
+  zone1 = {rectangle:[[15, 3],[23,20]], triggered:false}
+  zone2 = {rectangle:[[10, 3],[23,18]], triggered:false}
+  archerspawn = false;
 }
 
 
@@ -116,8 +119,6 @@ export let script =
 
     onBegin: async (g) =>
     {
-      // TODO
-      //Settings.set("cut_skip", "On");
       initVars();
       g.Map.setMaxBound(16, null);
       
@@ -174,11 +175,11 @@ export let script =
       
 
       let bstats = [{maxhp:10, atk:2,spd:3,skl:2,def:3,con:9,mov:4}, // initial
-		    {maxhp:12, atk:4,spd:3,skl:4,def:4,con:9,mov:5}] // camp
+		    {maxhp:16, atk:4,spd:3,skl:3,def:4,con:9,mov:5}] // camp
 
       let addbandit=(x,y,stat,ai="targetWeakest", aiparams={}) => 
       {
-	let u = new Units.Bandit(bstats[stat], "Bandit");
+	let u = new Units.Bandit(bstats[stat]);
 	u.setXY( x,y)
 	u.team = "Bandit";u.addWeapon(new Weapons.LumberAxe());u.setAnim("idle");u.ai = ai;u.aiparams=aiparams;
 	g.addUnit(u);
@@ -187,18 +188,19 @@ export let script =
 
       // triggering one bandit alters the zone1 object, causing all bandits of zone1 to attack
       // can also use this to check for dialogue when entering a zone
-      scrubBanditLeader = addbandit(18,9, 1, "attackOnEnter", zone1)
-      addbandit(18,7, 1, "attackOnEnter", zone1)
-      addbandit(17,8, 1, "attackOnEnter", zone1)
-      addbandit(16,6, 1, "attackOnEnter", zone1)
-      addbandit(20,7, 1, "attackOnEnter", zone1)
-      addbandit(21,8, 1, "attackOnEnter", zone1)
+      scrubBanditLeader = addbandit(18,12, 1, "attackOnEnter", zone1)
+      addbandit(18,10, 1, "attackOnEnter", zone1)
+      addbandit(17,11, 1, "attackOnEnter", zone1)
+      addbandit(16,10, 1, "attackOnEnter", zone1)
+      addbandit(20,11, 1, "attackOnEnter", zone1)
+      addbandit(19,12, 1, "attackOnEnter", zone1)
+      addbandit(19,10, 1, "attackOnEnter", zone1)
 
 
       // walk from east
-      let b1 = addbandit(17,15,0);
-      let b2 = addbandit(17,14,0);
-      let b3 = addbandit(17,13,0);
+      let b1 = addbandit(17,13,0);
+      let b2 = addbandit(18,13,0);
+      let b3 = addbandit(19,13,0);
       addbandit(4,17,0);
       addbandit(3,23,0);
       addbandit(1,27,0);
@@ -214,11 +216,11 @@ export let script =
       await g.cameraShift(0,9);
 
       movePromise = []
-      movePromise.push( b1.moveTo(g, 9, 15) )
+      movePromise.push( b1.moveTo(g, 8, 16) )
       await csPause(150);
-      movePromise.push( b2.moveTo(g, 10, 14) )
+      movePromise.push( b2.moveTo(g, 9, 15) )
       await csPause(150);
-      movePromise.push( b3.moveTo(g, 13, 14) )
+      movePromise.push( b3.moveTo(g, 12, 14) )
       await Promise.all(movePromise);
 
       conv = new Conversation(g);
@@ -254,7 +256,7 @@ export let script =
     }, //objects
     conversations: {
       "Vargas": {
-	"Yuliza": async (g) =>
+	"Yuliza": async (g) =>  //TODO add conditions for which team they are on
 	{
 	  let conv = new Conversation(g);
 	  conv.addSpeaker("Vargas", vargas.pArt, 382, true);
@@ -375,13 +377,9 @@ export let script =
       {
 	"Player":
 	[
-	],
-	"Scout":
-	[
-	  { turn: 1,
-	    type: "absolute",
+	  { type: "absolute",
 	    tag: "find camp",
-	    condition: (g)=>{return true},
+	    condition: (g,e)=>{return g.turn == 2},
 	    action: async (g)=>
 	    {
 	      g.camera.clearTarget()
@@ -398,7 +396,7 @@ export let script =
 
 	      g.Map.setMaxBound(null, null);
 	      g.camera.clearTarget()
-	      await g.cameraCenter(18, 8)
+	      await g.cameraCenter(18, 11)
 	      await csPause(1500)
 	      g.camera.clearTarget()
 	      await g.cameraCenter(vargas)
@@ -417,47 +415,31 @@ export let script =
 	      await g.setExtStatus(conv);
 	    }
 	  },
-	  /*
-	  { turn: 6,
-	    type: "absolute",
-	    tag: "switch objective",
-	    condition: (g)=>{return true},
-	    action: async (g)=>
-	    {
-	      g.camera.clearTarget()
-	      await g.cameraCenter(vargas)
-	      await g.cursorFlash(vargas)
-
-	      //Settings.set("cut_skip", "Off");
-	      let conv = new Conversation(g);
-	      conv.addSpeaker("Vargas", vargas.pArt, 256, false);
-	      conv.speaker("Vargas")
-	      conv.say("Ah! The forest in the southeast is the\nbase of operations for a large bandit gang.")
-	      conv.say("I think I should take them out.")
-	      await g.setExtStatus(conv);
-	    }
-	  }
-	  */
-	  { turn: 1,
-	    type: "absolute",
+	],
+	"Scout":
+	[
+	  { type: "absolute",
 	    tag: "scout spawn",
-	    condition: (g)=>{return true},
+	    // spawn on turn 3 or if someone goes too far right
+	    condition: (g,e)=>{return g.turn == 6 || unitInZone(g, zone2.rectangle, "Bandit");},
 	    action: async (g)=>
 	    {
 
 	      g.camera.clearTarget()
-	      await g.cameraShift(33,34)
+	      await g.cameraShift(29,34)
+
+	      yuli.setXY(29, 35)
+	      mali.setXY(29, 35)
 
 	      g.addUnit(yuli);
-	      let a = yuli.moveTo(g, 32, 34)
+	      let a = yuli.moveTo(g, 26, 33)
 	      await csPause(150);
 	      g.addUnit(mali);
-	      let b = mali.moveTo(g, 32, 35)
+	      let b = mali.moveTo(g, 27, 33)
 	      await(a)
 	      await(b)
 
 	      await g.cursorFlash(yuli)
-
 
 	      let conv = new Conversation(g);
 	      conv.addSpeaker("Yuliza", yuli.pArt, 180, true);
@@ -494,6 +476,7 @@ export let script =
 	      conv.say("Thanks bruv!")
 	      await g.setExtStatus(conv);
 
+	      archerspawn = true;
 	      //await csPause(250)
 	      //await mali.items[0].use(g, mali);
 
@@ -505,8 +488,7 @@ export let script =
 
 	"Bandit":
 	[
-	  { turn: 0,
-	    type: "everyturn",
+	  { type: "everyturn",
 	    tag: "enter zone1",
 	    condition: (g)=>{return unitInZone(g, zone1.rectangle, "Bandit");},
 	    action: async (g)=>
@@ -530,25 +512,29 @@ export let script =
 	      await g.setExtStatus(conv);
 	    }
 	  },
-	  { turn: 4,
-	    type: "absolute",
+	  { type: "absolute",
 	    tag: "bandit chase",
-	    condition: (g)=>{return true},
+	    activate: (g)=>{return archerspawn == true;},
+	    condition: (g,e)=>{return g.turn == e.turn+1},
 	    action: async (g)=>
 	    {
 
 	      g.camera.clearTarget();
 	      await g.cameraCenter(doddson);
 	      
-	      let dests_atk = [[30,34],[31,33],[32,32],  [30,35],[31,34],[32,33],[33,32]]
-	      let dests_guard = [[31,35],[32,34],[32,35],[33,33],[33,34]];
+	      // remove smallest x and largest y
+	      let dests_atk = [ [27,34],[28,33]]
+	      let dests_guard = [[27,35],[28,34],[28,35],[29,33],[29,34]];
 	      let dests = [dests_atk, dests_guard]
 	      let ais = ["targetWeakest","targetWeakest"];
 
 	      for (let i = 0; i < dests_atk.length + dests_guard.length; ++i)
 	      {
-		let u = new Units.Bandit({maxhp:15, atk:4,spd:3,skl:4,def:4,con:9,mov: 5}, "Bandit");
-		u.setXY(33,35);
+		let bad = 0;
+		if (i < 2)
+		  bad = 1;
+		let u = new Units.Bandit({maxhp:17-bad, atk:5-bad,spd:3,skl:5,def:5,con:9,mov: 5});
+		u.setXY(29,35);
 		u.team = "Bandit";
 		u.addWeapon(new Weapons.LumberAxe());
 		u.setAnim("idle");
@@ -600,7 +586,7 @@ export let script =
 	      conv.move("Bandit1", -10)
 	      conv.move("Bandit2", -10)
 	      conv.move("Bandit3", -10)
-	      conv.say("There's twelve of ya!")
+	      conv.say("There's seven of ya!")
 	      conv.speaker("Bandit3")
 	      conv.say("We'll -- we'll go catch them and bring them back!")
 	      conv.move("Bandit1", -10)

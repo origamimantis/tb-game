@@ -1,8 +1,7 @@
 'use strict';
 
-import {triggerEvent} from "./Utils.js";
+import {triggerEvent, waitTick, fileExists} from "./Utils.js";
 import {C_WIDTH, C_HEIGHT} from "./Constants.js";
-import {waitTick} from "./Utils.js";
 import {ImageModifier} from "./ImageModifier.js"
 
 const TOLOAD = 25;
@@ -13,6 +12,7 @@ class Album
   {
     this.m = m;
     this.images = {};
+    this.failed = {};
     this.loader = new ImageLoader()
   }
   static reset()
@@ -166,6 +166,23 @@ class Album
     }
     this.m.ctx[ctx].globalAlpha = 1
   }
+  static loadIfExists(name)
+  {
+    if (name === null || name in this.images)
+      return name;
+    else if (name in this.failed)
+      return null;
+    else if (fileExists("assets/sprite/"+name+".png"))
+    {
+      this.loader.loadImg(name, false);
+      return name;
+    }
+    else
+    {
+      this.failed[name] = 0;
+      return null;
+    }
+  }
 }
 
 class ImageLoader
@@ -186,21 +203,33 @@ class ImageLoader
       {
 	loads.push(this.loadImg(img));
       }
-      await Promise.all(loads);
+      await Promise.allSettled(loads);
       resolve()
     })
   }
 
-  loadImg(artName)
+  loadImg(artName, update_loadbar = true)
   {
-    return new Promise((resolve) =>
+    if (artName in this.album.images)
+      return;
+
+    return new Promise((resolve, reject) =>
       {
 	this.album.images[artName] = new Image();
+
+	this.album.images[artName].onerror = () =>
+	{
+	  delete this.album.images[artName];
+	  this.album.failed[artName] = 0;
+	  reject();
+	}
+
 	this.album.images[artName].onload = () =>
 	{
 	  ++ this.loaded;
-	  triggerEvent("load_progress", `Loaded image ${artName}.png`);
-	  resolve()
+	  if (update_loadbar)
+	    triggerEvent("load_progress", `Loaded image ${artName}.png`);
+	  resolve();
 	};
 
 	this.album.images[artName].src = 'assets/sprite/' + artName + '.png';

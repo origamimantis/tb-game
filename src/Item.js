@@ -1,15 +1,22 @@
 "use strict";
 
 import {SpriteEffect, spawnSpriteEffect} from "./Effects.js";
+import {Album} from "./Images.js";
+import {addSpaces} from "./Utils.js";
 
 class Item
 {
-  constructor(name, maxuses, img)
+  constructor(maxuses)
   {
-    this.name = name;
+    this.classname = this.constructor.name;
+    this.name = addSpaces(this.classname);
+    this.icon = "IT_" + this.classname;
     this.maxUses = maxuses;
     this.uses = maxuses;
   }
+  get icon() { return this._icon; }
+  set icon(val) { this._icon = Album.loadIfExists(val); }
+
   usable(user)
   {
   }
@@ -22,7 +29,7 @@ export class Bandages extends Item
 {
   constructor()
   {
-    super("Bandages", 5);
+    super(5);
     this.tooltip = "A common medicinal tool.\nUse to heal for 10 HP.";
   }
   usable(user)

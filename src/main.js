@@ -104,8 +104,7 @@ async function loadImgs(imgList, reset = false)
   if (reset == true)
     Album.reset();
 
-  let i = new ImageLoader();
-  await i.loadImgs( imgList );
+  await Album.loader.loadImgs( imgList );
 }
 
 async function modImgs(imgMod)
@@ -251,6 +250,7 @@ class Main
   {
     Settings.init();
     Album.init(this);
+    BattleAnimationAlbum.init();
     await loadFonts();
     MusicPlayer.init()
     await loadMusic();
@@ -384,6 +384,8 @@ let thingsToLoad = {
 		  "BS_kn_run", "BS_kn_hit", "BS_kn_idle", "BS_kn_hit2",
 		  "BattleSprites/BS_kn_hit3",
 
+	// TODO load these on the fly, but we can actually wait for it to finish
+	//      if we make the Battle fade-to-black wait until loading completes
 		  "BattleSprites/Alfred/Farmer/idle",
 		  "BattleSprites/Alfred/Farmer/run",
 		  "BattleSprites/Alfred/Farmer/hit",
@@ -417,21 +419,14 @@ let thingsToLoad = {
 		  "BattleSprites/Malidale/BowKnight/hit",
 
 		  "B_backdrop", "BG_unitprofile",
-		  "W_spook", "W_stick", "W_sword",
-		  "W_Pitchfork", "W_Shovel", "W_FryingPan", "W_LumberAxe",
-		  "WT_BronzeSlicer", "WT_VampireFang", "WT_BraveSword",
-		  "WT_Pitchfork", "WT_Shovel", "WT_FryingPan", "WT_LumberAxe",
-		  "WT_TestBow", "WT_TestMagic",
-		  "PR_arrow", "PR_FryingPan",
-		  "IT_Bandages",
-		  "EQ_LeatherTunic",
-		  "EQ_SteelPlating",
-		  "EQ_SwiftBlessing",
+
+		  "PR_arrow", "PR_FryingPan", "BFX_circle",
+		  
 		  "C_c0", "C_ptr", "C_audio", "C_move", "C_walk", "C_atk",
 		  
 		  "C_menutl", "C_menuel", "C_menucn",
 		  "C_talk_indicator",
-		  "FX_heal", "FX_hit", "BFX_circle",
+		  "FX_heal", "FX_hit",
 		  "boss_indic",
 		  "T_door_open"
 		],
@@ -454,7 +449,7 @@ window.onload = async ()=>
 
   await Main.chload("./chtitle.js", thingsToLoad);
 
-  await Main.loadJsonSave("saves/chtest_test.json");
+//  await Main.loadJsonSave("saves/chtest_test.json");
 
   Main.start();
 };

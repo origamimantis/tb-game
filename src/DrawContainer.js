@@ -335,7 +335,7 @@ export class UnitContainer extends DrawContainer
   switchTeam(unit, team)
   {
     this.teams[unit.team].delete(unit);
-    unit.team = team;
+    unit._team = team;
     this.teams[team].add(unit);
   }
   delUnit(unit)

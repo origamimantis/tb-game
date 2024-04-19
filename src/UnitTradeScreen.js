@@ -1,4 +1,4 @@
-import {LoopSelector} from "./LoopSelector.js"
+import {LoopSelector as LS} from "./LoopSelector.js"
 import {ItemPanel, SelectionPointer} from "./Panel.js"
 import {waitTick, toTitle, fracAmtFn, emptyAmtFn, scrollSelect_LR, scrollSelect_UD} from "./Utils.js"
 import {UNIT_MAX_WEAP, UNIT_MAX_ITEM, UNIT_MAX_EQUI} from "./Constants.js";
@@ -31,17 +31,17 @@ export class UnitTradeScreen
     this.left = {
       unit: left,
       panel: {},
-      items: new LoopSelector(left.items),
-      weapons: new LoopSelector(left.weapons),
-      equipment: new LoopSelector(left.equipment)
+      items: new LS(left.items),
+      weapons: new LS(left.weapons),
+      equipment: new LS(left.equipment)
     };
 
     this.right = {
       unit: right,
       panel:{},
-      items: new LoopSelector(right.items),
-      weapons: new LoopSelector(right.weapons),
-      equipment: new LoopSelector(right.equipment)
+      items: new LS(right.items),
+      weapons: new LS(right.weapons),
+      equipment: new LS(right.equipment)
     };
 
     if (left.weapons[left.eqWeap] !== undefined)
@@ -49,18 +49,18 @@ export class UnitTradeScreen
     if (right.weapons[right.eqWeap] !== undefined)
       right.weapons[right.eqWeap].TRADE_EQ_TMP = "r"
 
-    this.unitSelect = new LoopSelector([this.left,this.right]);
-    this.unitSelect2 = new LoopSelector([this.left,this.right]);
+    this.unitSelect = new LS([this.left,this.right]);
+    this.unitSelect2 = new LS([this.left,this.right]);
 
-    this.left.panel.items = new ItemPanel( TLOFF,Y,WIDTH,HEIGHT, 1, 8, this.left.items, "IT_", fracAmtFn);
-    this.left.panel.weapons = new ItemPanel( TLOFF,Y,WIDTH,HEIGHT,1, 8, this.left.weapons, "WT_", fracAmtFn, 
+    this.left.panel.items = new ItemPanel( TLOFF,Y,WIDTH,HEIGHT, 1, 8, this.left.items, fracAmtFn);
+    this.left.panel.weapons = new ItemPanel( TLOFF,Y,WIDTH,HEIGHT,1, 8, this.left.weapons, fracAmtFn, 
       (w)=>{return !left.canUseWeapon(w)});
-    this.left.panel.equipment = new ItemPanel( TLOFF,Y,WIDTH,HEIGHT, 1, 8, this.left.equipment, "EQ_", emptyAmtFn);
+    this.left.panel.equipment = new ItemPanel( TLOFF,Y,WIDTH,HEIGHT, 1, 8, this.left.equipment, emptyAmtFn);
 
-    this.right.panel.items = new ItemPanel( 256+TLOFF,Y,WIDTH,HEIGHT,1, 8, this.right.items, "IT_", fracAmtFn);
-    this.right.panel.weapons = new ItemPanel(256+TLOFF,Y,WIDTH,HEIGHT,1, 8, this.right.weapons, "WT_", fracAmtFn,
+    this.right.panel.items = new ItemPanel( 256+TLOFF,Y,WIDTH,HEIGHT,1, 8, this.right.items, fracAmtFn);
+    this.right.panel.weapons = new ItemPanel(256+TLOFF,Y,WIDTH,HEIGHT,1, 8, this.right.weapons, fracAmtFn,
       (w)=>{return !right.canUseWeapon(w)});
-    this.right.panel.equipment = new ItemPanel(256+TLOFF,Y,WIDTH,HEIGHT, 1, 8, this.right.equipment, "EQ_", emptyAmtFn);
+    this.right.panel.equipment = new ItemPanel(256+TLOFF,Y,WIDTH,HEIGHT, 1, 8, this.right.equipment, emptyAmtFn);
 
     this._ptr1 = new SelectionPointer(this.left.panel.items);
     this._ptr2 = new SelectionPointer(this.left.panel.items);
@@ -166,7 +166,7 @@ export class UnitTradeScreen
   }
   resetLoopSelector(which)
   {
-    which[this.tradeMode] = new LoopSelector(which.unit[this.tradeMode]);
+    which[this.tradeMode] = new LS(which.unit[this.tradeMode]);
     which.panel[this.tradeMode].resetLoopSelector(which[this.tradeMode]);
   }
   removeNull(which)
@@ -253,7 +253,7 @@ export class UnitTradeScreen
 	if (u.length < this.max[this.tradeMode])
 	  u.push(null);
 
-	opp[this.tradeMode] = new LoopSelector(opp.unit[this.tradeMode]);
+	opp[this.tradeMode] = new LS(opp.unit[this.tradeMode]);
 	let sel = opp.panel[this.tradeMode];
 	sel.resetLoopSelector(opp[this.tradeMode]);
 	sel.setIdx(sel._ls.length - 1);

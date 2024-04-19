@@ -47,21 +47,21 @@ function initVars()
   child.team = "Player";
   child.setAnim( "idle" );
 
-  b1 = new Units.Bandit({maxhp:16, atk:3,spd:2,skl:4,def:3,con:4,mov: 6}, "Bandit");
+  b1 = new Units.Bandit({maxhp:16, atk:3,spd:2,skl:4,def:3,con:4,mov: 6});
   b1.setXY(13, 6);
   b1.team = "Bandit";
   b1.setAnim( "idle" );
   b1.addWeapon(new Weapons.LumberAxe());
   b1.ai = "targetWeakest";
 	
-  b2 = new Units.Bandit({maxhp:14, atk:2,spd:3,skl:5,def:2,con:4,mov: 6}, "Bandit");
+  b2 = new Units.Bandit({maxhp:14, atk:2,spd:3,skl:5,def:2,con:4,mov: 6});
   b2.setXY(13, 8);
   b2.team = "Bandit";
   b2.setAnim( "idle" );
   b2.addWeapon(new Weapons.LumberAxe());
   b2.ai = "targetWeakest";
 
-  v1 = new Units.Vampire({maxhp:14, atk:2,spd:3,skl:5,def:2,con:4,mov: 6}, "Vampire");
+  v1 = new Units.Vampire({maxhp:14, atk:2,spd:3,skl:5,def:2,con:4,mov: 6});
   v1.setXY(7, 7);
   v1.team = "Bandit";
   v1.setAnim( "idle" );
@@ -79,37 +79,34 @@ function initVars()
   yuli = new Units.BowKnight({maxhp:16, atk:5,spd:3,skl:40,def:1,con:4,mov: 6}, "Yuliza")
   yuli.setXY( 9, 6);
   yuli.team = "Player";
-  yuli.addWeapon(new Weapons.TestBow());
+  yuli.addWeapon(new Weapons.WoodenBow());
   yuli.equipment.push(new Equipment.SwiftBlessing());
   yuli.setAnim( "idle" );
 
   mali = new Units.BowKnight({maxhp:17, atk:4,spd:4,skl:3,def:8,con:4,mov: 6}, "Malidale")
   mali.setXY( 9, 7);
   mali.team = "Bandit";
-  mali.addWeapon(new Weapons.TestBow());
+  mali.addWeapon(new Weapons.WoodenBow());
   mali.equipment.push(new Equipment.LeatherTunic());
   mali.setAnim( "idle" );
 
-  mag = new Units.SwordKnight({maxhp:18, atk:5,spd:6,skl:4,def:4,con:3,mov: 6}, "Grefta", "S_kn0");
+  mag = new Units.MageKnight({maxhp:18, atk:5,spd:6,skl:4,def:4,con:3,mov: 6}, "Grefta");
   mag.setXY( 9, 8);
   mag.team = "Player";
-  mag.pArt = "P_Grefta";
   mag.classname = "Mage Knight";
   mag.addWeapon(new Weapons.TestMagic());
   mag.setAnim( "idle" );
 
-  mag2 = new Units.SwordKnight({maxhp:18, atk:5,spd:6,skl:4,def:4,con:3,mov: 6}, "Odunfel", "S_kn0");
+  mag2 = new Units.MageKnight({maxhp:18, atk:5,spd:6,skl:4,def:4,con:3,mov: 6}, "Odunfel");
   mag2.setXY( 10, 8);
   mag2.team = "Player";
-  mag2.pArt = "P_Odunfel";
   mag2.classname = "Mage Knight";
   mag2.addWeapon(new Weapons.TestMagic());
   mag2.setAnim( "idle" );
 
-  mag3= new Units.SwordKnight({maxhp:18, atk:5,spd:6,skl:4,def:4,con:3,mov: 6}, "Margolik", "S_kn0");
+  mag3= new Units.MageKnight({maxhp:18, atk:5,spd:6,skl:4,def:4,con:3,mov: 6}, "Margolik");
   mag3.setXY( 11, 8);
   mag3.team = "Player";
-  mag3.pArt = "P_Margolik";
   mag3.classname = "Mage Knight";
   mag3.addWeapon(new Weapons.TestMagic());
   mag3.setAnim( "idle" );
@@ -119,7 +116,7 @@ function initVars()
 
   chloe = new Units.Farmer({maxhp:6, atk:2,spd:3,skl:3,def:2,con:4,mov: 6}, "Chloe");
   chloe.setXY(9, 5);
-  chloe.team = "Village";
+  chloe.team = "Player";
   chloe.addWeapon(new Weapons.FryingPan());
   chloe.setAnim( "idle" );
   chloe.recruited = true;
@@ -136,7 +133,6 @@ function initVars()
   choddson = new Units.Bandit({maxhp:33, atk:8,spd:3,skl:5,def:1,con:19,mov: 6}, "Choddson");
   choddson.setXY(16,7);
   choddson.team = "Bandit";
-  choddson.pArt = "P_Choddson";
   choddson.addWeapon(new Weapons.LumberAxe());
   choddson.setAnim("idle");
   choddson.ai = "targetWeakest";

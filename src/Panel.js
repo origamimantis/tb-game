@@ -1,4 +1,5 @@
 import {PanelComponent, PanelType} from "./PanelComponent.js";
+import {LoopSelector} from "./LoopSelector.js";
 import {Album} from "./Images.js";
 
 
@@ -319,11 +320,10 @@ export class SelectionPanel extends Panel
 
 export class ItemPanel extends SelectionPanel
 {
-  constructor( x, y, w, h, gridx, gridy, loopselector, artPrefix, amtFunction, grayFunction = (i)=>{return false})
+  constructor( x, y, w, h, gridx, gridy, loopselector, amtFunction, grayFunction = (i)=>{return false})
   {
     super(x, y, w, h, gridx, gridy, null, null, loopselector, grayFunction);
 
-    this.artP = artPrefix;
     this.amtF = amtFunction;
 
     this._loadItems();
@@ -337,7 +337,7 @@ export class ItemPanel extends SelectionPanel
 
       if (item !== null)
       {
-	this.addComponent( new PanelComponent( PanelType.ART, this.artP + item.constructor.name ),
+	this.addComponent( new PanelComponent( PanelType.ART, item.icon ),
 			   "a" + i, 0, i, 1, 16, 16);
 
 	this.addComponent( new PanelComponent( PanelType.TEXT, this.amtF(item) ),
@@ -452,11 +452,10 @@ export class TooltipItemPanel extends Panel
 }
 export class UnitProfileItemPanel extends Panel
 {
-  constructor( x, y, w, h, loopselector, artPrefix, amtFunction, grayFunction = (i)=>{return false})
+  constructor( x, y, w, h, loopselector, amtFunction, grayFunction = (i)=>{return false})
   {
     super(x, y, w, h);
     this._ls = loopselector;
-    this.artP = artPrefix;
     this.amtF = amtFunction;
     this.grayF = grayFunction;
     
@@ -492,7 +491,7 @@ export class UnitProfileItemPanel extends Panel
     {
       g.setTextColor(ctx, this.grayF(l[i])?"#880000":"#000000");
       g.setTextJustify(ctx, "left");
-      g.drawImage(ctx, this.artP + l[i].constructor.name , this.x + 32, this.y + 14 + 24*i, 16, 16);
+      g.drawImage(ctx, l[i].icon , this.x + 32, this.y + 14 + 24*i, 16, 16);
       g.drawText(ctx, l[i].name, this.x + 54, this.y + 16 + 24*i);
       g.setTextJustify(ctx, "right");
       g.drawText(ctx, this.amtF(l[i]), this.x + this.w - 32 , 56 + 24*i);

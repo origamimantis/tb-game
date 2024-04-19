@@ -80,7 +80,7 @@ class Game
     this.ctx_refresh = [1,2,3,5];
     this.ctx = ctx;
 
-    this.turn = null;
+    this.turns = null;
     Unit.init();
     this.Units = new UnitContainer();
     
@@ -115,7 +115,7 @@ class Game
     
     this.counter = 0;
     this.specialCount = 0;
-    this.turncount = 1;
+    this.turn = 1;
     this.gameStatus = "blockInput";
     this.inputting = false;
     
@@ -145,7 +145,7 @@ class Game
   getHostile(team)
   {
     let a = [];
-    for (let td of this.turn)
+    for (let td of this.turns)
     {
       if (this.Units.teamHostile(team, td.name))
       {
@@ -158,9 +158,9 @@ class Game
   {
     this.chapterScript = chscript;
 
-    this.turn = new LoopSelector( chscript.teams );
+    this.turns = new LoopSelector( chscript.teams );
     this.dayLength = chscript.dayLength;
-    for (let td of this.turn)
+    for (let td of this.turns)
       this.Units.addTeam(td.name);
     this.initAlliances()
 				    
@@ -282,7 +282,7 @@ class Game
 	  let uWeap = new LoopSelector( usableWpn, this.temp.unitUsableIdx);
 	  //let wp = new SelectionPanel(50,50, 70+64,16*len+20, 1, len, 398, 50, uWeap);
 	  let wp = new ItemPanel(50,50,  256, 16*len+20,  1, len, uWeap,
-	        "WT_", (c)=>{return formattedHP(c.uses, c.maxUses);});
+	        (c)=>{return formattedHP(c.uses, c.maxUses);});
 
 
 	  this.Panels.set("selectedUnitWeaponPanel", wp);
@@ -320,8 +320,7 @@ class Game
       {
 	let len = unit.items.length;
 	let uItem = new LoopSelector( unit.items);
-	let wp = new ItemPanel(50,50,  256, 16*len+20,  1, len, uItem,
-	      "IT_", fracAmtFn);
+	let wp = new ItemPanel(50,50,  256, 16*len+20,  1, len, uItem,fracAmtFn);
 
 
 	this.Panels.set("selectedUnitWeaponPanel", wp);
@@ -441,9 +440,10 @@ class Game
 	let s = Settings.get("btl_anim_p");
 	if (s == "Full")
 	{
-	  battle = new Battle(this, this.temp.selectedUnit, enemy, this.turn.get().btltheme,
+	  battle = new Battle(this, this.temp.selectedUnit, enemy, this.turns.get().btltheme,
 		    async () => {await MusicPlayer.fadeout(this.mapTheme)},
-		    async () => {MusicPlayer.fadein(this.mapTheme); this.hide_tiles_cursor();await waitTime(200);});
+		    async () => {MusicPlayer.fadein(this.mapTheme); this.hide_tiles_cursor();
+				  this.blockInput(); await waitTime(200);});
 	}
 	else if (s == "Mini")
 	{
@@ -477,7 +477,7 @@ class Game
 	// update gamestate
 	this.setStatus("map");
 	await this.killUnit(casualty);
-	
+	this.unblockInput();
 	try
 	{
 	  await this.handleAfterBattleEvents();
@@ -1034,6 +1034,7 @@ class Game
     {
       onBegin:async ()=>
       {
+	MusicPlayer.stopAll();
 	this.draw = ()=>{};
 	this.update = ()=>{};
 	this.mainloop = ()=>{};
@@ -1050,16 +1051,36 @@ class Game
 	this.setTextColor(5, "#0022ec")
 	this.setTextFont(5, "22px ABCD Mono")
 	this.setTextJustify(5, "center")
-	this.drawText(5, "CHAPTER CLEAR", 256, 130);
-	this.setTextFont(5, "11px ABCD Mono")
-	this.drawText(5, "Press '.' to start the next level.", 256, 200);
-      
+
+	if (this.chapterScript.nextLvl !== null)
+	{
+	  this.drawText(5, "CHAPTER CLEAR", 256, 130);
+	  this.setTextFont(5, "11px ABCD Mono")
+	  this.drawText(5, "Press '.' to continue.", 256, 200);
+	}
+	else
+	{
+	  this.drawText(5, "YOU WIN", 256, 130);
+	  this.setTextFont(5, "11px ABCD Mono")
+	  this.drawText(5, "Thank you for playing my game!", 256, 200);
+	  this.drawText(5, "If you can, please give me some feedback.", 256, 222);
+	  this.drawText(5, "Stay tuned for updates!", 256, 244);
+	  this.drawText(5, "Press '.' to continue.", 256, 288);
+	}
+
       },
       select:async ()=>
       {
-	let save_obj = await Storage.saveFromGame(this);
-	this.Album.clearAllCtx();
-	await this.MAIN.loadSave(save_obj)
+	if (this.chapterScript.nextLvl !== null)
+	{
+	  let save_obj = await Storage.saveFromGame(this);
+	  this.Album.clearAllCtx();
+	  await this.MAIN.loadSave(save_obj)
+	}
+	else
+	{
+	  await this.MAIN.chload("./chtitle.js", null);
+	}
 	this.MAIN.start();
       },
       arrows:(a)=>{},
@@ -1180,37 +1201,7 @@ class Game
   }
   async onVictory()
   {
-    MusicPlayer.stopAll();
-    if (this.chapterScript.nextLvl === null)
-    {
-      this.blockInput();
-      this.gameStatus = "blockInput";
-      this.draw = ()=>{};
-      this.update = ()=>{};
-      this.mainloop = ()=>{};
-      this.ctx[5].fillStyle = "black";
-      for (let i = 0; i < 30; ++i)
-      {
-	this.ctx[5].globalAlpha = 0.1;
-	this.ctx[5].fillRect(0,0,512,384);
-	await waitTick();
-      }
-      this.ctx[5].globalAlpha = 1;
-      this.ctx[5].fillRect(0,0,512,384);
-    
-      this.setTextColor(5, "#0022ec")
-      this.setTextFont(5, "22px ABCD Mono")
-      this.setTextJustify(5, "center")
-      this.drawText(5, "YOU WIN", 256, 130);
-      this.setTextFont(5, "11px ABCD Mono")
-      this.drawText(5, "Thank you for playing my game!", 256, 200);
-      this.drawText(5, "If you can, please give me some feedback.", 256, 222);
-      this.drawText(5, "Stay tuned for updates!", 256, 244);
-    }
-    else
-    {
-      this.setStatus("victory");
-    }
+    this.setStatus("victory");
   }
   async onGameOver()
   {
@@ -1229,9 +1220,9 @@ class Game
   async startTurns()
   {
     this.temp.cursorPrev = undefined;
-    this.turn.reset();
+    this.turns.reset();
     this.camera.setTarget(this.cursor);
-    await this.beginTurn(this.turn.get());
+    await this.beginTurn(this.turns.get());
     this.toDraw.show("cursor");
     this.cursor.curAnim().reset();
     this.setStatus("map");
@@ -1240,8 +1231,8 @@ class Game
   {
     this.blockInput();
     await MusicPlayer.fadestop(this.mapTheme);
-    this.turn.next();
-    let turno = this.turn.get();
+    this.turns.next();
+    let turno = this.turns.get();
     while (turno.name != "Player")
     {
       await this.handleTurnBeginEvents();
@@ -1254,11 +1245,11 @@ class Game
 	await MusicPlayer.fadestop(this.mapTheme);
 
       }
-      this.turn.next();
-      turno = this.turn.get();
+      this.turns.next();
+      turno = this.turns.get();
     }
 
-    ++this.turncount;
+    ++this.turn;
     ++this.specialCount;
 
     await this.handleTurnBeginEvents();
@@ -1530,6 +1521,7 @@ class Game
     let texts = text.split("\n")
 
     let w = 0;
+
     texts.forEach((t,i,_) =>
     {
       let nw = Math.ceil(this.ctx[4].measureText(t).width);
@@ -1544,8 +1536,10 @@ class Game
       let nw = Math.ceil(this.ctx[4].measureText(t).width);
       this.drawText(4, "\n".repeat(i)+t, x+10, y+10);
     });
+
     await waitTime(2000);
     this.ctx[4].clearRect(x - w/2, y, w + 20, h);
+
     this.unblockInput();
   }
   async cursorFlash(x, y=null)
@@ -1575,7 +1569,7 @@ class Game
   isDayTime()
   {
     if (this.dayLength > 0)
-      return (Math.floor((this.turncount - 1) / this.dayLength) % 2 == 0);
+      return (Math.floor((this.turn - 1) / this.dayLength) % 2 == 0);
     else
       return (this.dayLength == 0);
   }
@@ -1647,6 +1641,7 @@ class Game
     if ( curTile != null && curTile.unit == null )
     {
       curTile.unit = unit;
+      unit.g = this;
       this.Units.addUnit(unit);
       if (from !== null)
       {
@@ -1671,7 +1666,7 @@ class Game
   }
   async handleTurnBeginEvents()
   {
-    let events = this.chapterScript.events.turnBegin[this.turn.get().name];
+    let events = this.chapterScript.events.turnBegin[this.turns.get().name];
     if (events === undefined)
       return;
     // track triggered events in backward order to easily remove
@@ -1679,17 +1674,22 @@ class Game
     for (let i = 0; i < events.length; ++i)
     {
       let obj = events[i];
-      let turncount;
+    //  let turncount;
 
-      if (obj.type == "relative")	turncount = this.specialCount;
-      else if (obj.type == "absolute")	turncount = this.turncount;
-      else if (obj.type == "everyturn")	turncount = obj.turn;
-      else				console.error("handlebeginturn invalid turn type");
+//      if (obj.type == "relative")	turncount = this.specialCount;
+ //     else if (obj.type == "absolute")	turncount = this.turn;
+  //    else if (obj.type == "everyturn")	turncount = obj.turn;
+   //   else				console.error("handlebeginturn invalid turn type");
 
-      if (obj.turn == turncount && obj.condition(this))
+      if (obj.activate !== undefined && obj.activate(this, obj))
+      {
+	obj.turn = this.turn
+	obj.activate = undefined;
+      }
+      if (obj.activate === undefined && obj.condition(this, obj))
       {
 	console.log("Event {" + obj.tag + "} was triggered!");
-	await obj.action(this);
+	await obj.action(this, obj);
 	triggered.unshift(i)
       }
     }

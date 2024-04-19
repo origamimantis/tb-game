@@ -4,7 +4,7 @@ import {PanelType} from "./PanelComponent.js";
 import {formattedHP, leftPad} from "./Utils.js";
 import {AnimatedObject} from "./AnimatedObject.js";
 import {scrollSelect_LR, scrollSelect_UD, fracAmtFn, triggerEvent} from "./Utils.js";
-import {LoopSelector} from "./LoopSelector.js";
+import {LoopSelector as LS} from "./LoopSelector.js";
 import {STATS} from "./Constants.js";
 import {TiledEffect} from "./TiledEffect.js";
 import {MusicPlayer} from "./MusicPlayer.js";
@@ -40,19 +40,19 @@ export class UnitInfoScreen
     this.p_y = 40;
     this.p_w = 352;
     this.p_h = 216;
-    this.Weapons = new UnitProfileItemPanel(this.p_x, this.p_y, this.p_w, this.p_h, new LoopSelector(unit.weapons),
-      "WT_", fracAmtFn, (w)=>{return !unit.canUseWeapon(w)});
-    this.Items = new UnitProfileItemPanel(this.p_x, this.p_y, this.p_w, this.p_h, new LoopSelector(unit.items),
-      "IT_", fracAmtFn);
-    this.Equipment = new UnitProfileItemPanel(this.p_x, this.p_y, this.p_w, this.p_h,
-      new LoopSelector(unit.equipment), "EQ_", (c)=>{return ""});
+    this.Weapons = new UnitProfileItemPanel(this.p_x, this.p_y, this.p_w, this.p_h, new LS(unit.weapons),
+      fracAmtFn, (w)=>{return !unit.canUseWeapon(w)});
+    this.Items = new UnitProfileItemPanel(this.p_x, this.p_y, this.p_w, this.p_h, new LS(unit.items),
+      fracAmtFn);
+    this.Equipment = new UnitProfileItemPanel(this.p_x, this.p_y, this.p_w, this.p_h, new LS(unit.equipment),
+      (c)=>{return ""});
     
     this.Stats = new UnitProfileStatPanel(this.p_x, this.p_y, this.p_w, this.p_h, this._unitStatFormat());
     
     // TODO new panel type for skills
 
     // TODO stats, skills, other
-    this.pages = new LoopSelector(["Stats", "Weapons", "Items", "Equipment"]);
+    this.pages = new LS(["Stats", "Weapons", "Items", "Equipment"]);
     this.cur = this.pages.get();
 
     this.state = OBSERVE;

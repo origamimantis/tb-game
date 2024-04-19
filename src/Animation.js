@@ -64,7 +64,7 @@ class Animation
     let img = Album.get(this.image, append)
     
     if (img === undefined)
-      throw "Animation.js could not get image (this.image + append)"
+      throw "Animation.js could not get image ("+this.image+" + "+append+")"
     if (img === null)
     {
       // TODO while image is loading, use the base version.

@@ -10,7 +10,7 @@ import {Settings} from "./Settings.js";
 
 import {Storage} from "./Storage.js";
 
-let units = []
+let units;
 export function setUnits(u)
 {
   units = u;
@@ -24,7 +24,7 @@ let billy;
 let chloe;
 let vargas;
 let state;
-let banditWave = [];
+let banditWave;
 let choddson;
 const DEFEND = 0;
 const FETCH = 1;
@@ -34,7 +34,7 @@ function initVars()
 {
   state = DEFEND;
 
-//	let u = new Units.Bandit({maxhp:15, atk:4,spd:2,skl:2,def:4,con:9,mov: 5}, "Bandit");
+//	let u = new Units.Bandit({maxhp:15, atk:4,spd:2,skl:2,def:4,con:9,mov: 5});
   alfred = new Units.Farmer({maxhp:12, atk:3,spd:2,skl:2,def:2,con:4,mov: 6}, "Alfred");
   alfred.team = "Player";
   alfred.addWeapon(new Weapons.Pitchfork());
@@ -45,7 +45,6 @@ function initVars()
   child.team = "Player";
   child.setAnim( "idle" );
   child.setXY(17,12)
-
 
   billy = new Units.Farmer({maxhp:15, atk:4,spd:1,skl:2,def:3,con:4,mov: 6}, "Billy");
   billy.setXY(8, 3);
@@ -69,14 +68,14 @@ function initVars()
   vargas.recruited = false;
 
   
-  b1 = new Units.Bandit({maxhp:16, atk:3,spd:1,skl:4,def:3,con:4,mov: 6}, "Bandit");
+  b1 = new Units.Bandit({maxhp:16, atk:3,spd:1,skl:4,def:3,con:4,mov: 6});
   b1.setXY(18, 12);
   b1.team = "Bandit";
   b1.setAnim( "idle" );
   b1.addWeapon(new Weapons.LumberAxe());
   b1.ai = "targetWeakest";
 	
-  b2 = new Units.Bandit({maxhp:17, atk:3,spd:2,skl:5,def:2,con:4,mov: 6}, "Bandit");
+  b2 = new Units.Bandit({maxhp:17, atk:3,spd:2,skl:5,def:2,con:4,mov: 6});
   b2.setXY(17, 13);
   b2.team = "Bandit";
   b2.setAnim( "idle" );
@@ -92,6 +91,7 @@ function initVars()
   choddson.ai = "targetWeakest";
   choddson.isBoss = true;
 
+  banditWave = [];
 }
 
 
@@ -113,8 +113,6 @@ export let script =
 
     onBegin: async (g) =>
     {
-      // TODO
-      //Settings.set("cut_skip", "On");
       initVars();
       g.Map.setMaxBound(null, 17);
       g.addUnit(alfred);
@@ -382,7 +380,6 @@ export let script =
 	  await g.addUnit(vargas, u);
 	  await g.recruitJingle(vargas);
 
-	  g.specialCount = 0;
 	  state = RETURN;
 	  
 	  ondone();
@@ -599,19 +596,20 @@ export let script =
       {
 	"Bandit":
 	[
-	  { turn: 2,
-	    type: "relative",
+	  { type: "relative",
 	    tag: "spawn bandits",
-	    condition: ()=>{return state == RETURN;},
+	    activate: (g, e)=>{return state == RETURN;},
+	    condition: (g, e)=>{return g.turn == e.turn+2;},
 	    action: async (g)=>
 	    {
+	      console.log(this)
 	      g.camera.clearTarget();
 
 	      let dests = [[20,12],[21,12],[21,10],[20,11]];
 
 	      for (let i = 0; i < dests.length; ++i)
 	      {
-		let u = new Units.Bandit({maxhp:15, atk:3,spd:1,skl:2,def:4,con:9,mov: 5}, "Bandit");
+		let u = new Units.Bandit({maxhp:15, atk:3,spd:1,skl:2,def:4,con:9,mov: 5});
 		u.setXY(21,11)
 		u.team = "Bandit";
 		u.addWeapon(new Weapons.LumberAxe());
@@ -619,9 +617,6 @@ export let script =
 		u.ai = "targetWeakest";
 		banditWave.push(u);
 	      }
-
-	      //TODO
-	      //Settings.set("cut_skip", "Off");
 
 	      await g.cameraShift(6,5);
 	      let movePromise = [];
@@ -648,10 +643,10 @@ export let script =
 	],
 	"Village":
 	[
-	  { turn: 3,
-	    type: "relative",
+	  { type: "relative",
 	    tag: "re-recruit villagers",
-	    condition: ()=>{return state == RETURN;},
+	    activate: (g,e)=>{return state == RETURN;},
+	    condition: (g,e)=>{return g.turn == e.turn+3;},
 	    action: async (g)=>
 	    {
 	      g.gameStatus = "blockInput";

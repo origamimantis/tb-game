@@ -10,8 +10,9 @@ import {recolor} from "./UsefulFunctions.js";
 import {Range} from "./Range.js";
 import {TILES, UNIT_MAX_WEAP, UNIT_MAX_ITEM, UNIT_MAX_EQUI, STATS} from "./Constants.js";
 import {ImageModifier} from "./ImageModifier.js";
-import {triggerEvent, generatePath, inRange, generateMovable, nextFrameDo, waitTick} from "./Utils.js";
+import {addSpaces,triggerEvent, generatePath, inRange, generateMovable, nextFrameDo, waitTick} from "./Utils.js";
 import {NoWeapon} from "./Weapon.js";
+import {Album} from "./Images.js";
 
 let id = 0
 
@@ -21,24 +22,34 @@ export class Unit extends AnimatedObject
   {
     id = 0
   }
-  constructor(caps, stats, name = ("Unit "+id), classname = "Unit", pArt = "P_gen", skills = [], walkFunction = null)
+  constructor(caps, stats, name = null, pArt = "P_gen", skills = [], walkFunction = null)
   {
     super( null, null );
     this.x = null;
     this.y = null;
     this.id = id;
+    this.g = null;  // set in Game.addUnit
     id++;
 
-    this.name = name;
-    this.classname = classname;
+    this.classname = addSpaces(this.constructor.name);
+    if (name == null)
+      this.name = this.classname;
+    else
+      this.name = name;
+
     if (Characters[name] !== undefined && Characters[name].portrait !== undefined)
     {
       pArt = Characters[name].portrait;
     }
-    else if (pArt === null)
+    else
     {
-      pArt = "P_gen";
+      // TODO get/set pArt for on the fly loading
+      if ("P_"+this.name in Album.images)
+	pArt = "P_"+this.name;
+      else if (pArt === null)
+	pArt = "P_gen";
     }
+
     this.pArt = pArt;
     this.team;
 
@@ -90,6 +101,16 @@ export class Unit extends AnimatedObject
     this.ai = "targetWeakest";
     this.dead = false;
     this.isBoss = false;
+  }
+  get team()
+  {
+    return this._team;
+  }
+  set team(val)
+  {
+    if (this.g !== null)
+      this.g.switchTeam(this,val);
+    this._team = val;
   }
 
   // only use after constructing.
@@ -631,6 +652,21 @@ export class Unit extends AnimatedObject
       await ImageModifier.monochrome(g.Album.get(this.animations[a].baseimage), map, name);
     }
     this.animations[anew].image = name;
+  }
+  // get name of animation spritesheet
+  // will attempt to get S_class_name, but if not loaded then returns S_default
+  an(default_anim)
+  {
+    let cls = this.constructor.name;
+    let tgt = "S_"+cls+"_"+this.name;
+    if (tgt in Album.images)
+	return tgt
+    else
+    {
+      if (this.name != this.classname)
+	console.log(`${this.name} using map sprite S_${default_anim} since ${tgt} was not found`);
+      return "S_"+default_anim
+    }
   }
 
 }

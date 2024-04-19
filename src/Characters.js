@@ -85,7 +85,7 @@ export const Characters =
 	      },
 
     "Malidale":  {portrait: "P_Malidale",
-                deathQuote: ["i do be deadge"],
+                deathQuote: ["i do be deaded"],
 		battleAnimation:
 		{ "Bow Knight":
 		  { scripts:
@@ -100,8 +100,12 @@ export const Characters =
 		},
 	      },
 
-
-
+    "Choddson":  {portrait: "P_Choddson",
+                deathQuote: ["Choddsad!"],
+	      },
+    "Doddson":  {portrait: "P_Doddson",
+                deathQuote: ["Sadoddson!"],
+	      },
 
 
     "generic":

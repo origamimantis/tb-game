@@ -97,7 +97,6 @@ export class BattleAnimation
 	this.img = Album.get(this.opts.usrc);
 	if (this.recolor !== null)
 	  this.img = ImageModifier.recolor_nosave(this.img, this.recolor);
-	//this.wimg = Album.get(info.options.wsrc);
 	this.w = this.img.width/this.numFrame;
 	this.h = this.img.height;
     }
@@ -151,7 +150,13 @@ export class BattleAnimation
       break;
     case "wframe":
       this.unit.ws.curAnim = parseInt(args[0]);
-	break;
+      break;
+    case "wflip":
+      if (args[0] == "v")
+	this.unit.ws.vflip = !this.unit.ws.vflip;
+      else if (args[0] == "h")
+	this.unit.ws.hflip = !this.unit.ws.hflip;
+      break;
     case "loop":
       this.age = parseInt(args[0]);
       let poss = this.weights[this.age];

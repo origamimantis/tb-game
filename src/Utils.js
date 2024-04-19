@@ -24,6 +24,19 @@ export function toTitle(s)
 {
   return s[0].toUpperCase() + s.slice(1);
 }
+export function addSpaces(s)
+{
+  // converts "ClassName" to "Class Name"
+  // requres s.length > 0
+  let s2 = s[0];
+  for (let i = 1; i < s.length; ++i)
+  {
+    if (s[i] == s[i].toUpperCase())
+      s2 += " ";
+    s2 += s[i];
+  }
+  return s2
+}
 
 export function formattedEXP(exp)
 {
@@ -495,6 +508,13 @@ export function waitTick()
     });
 }
 
+export function fileExists(url)
+{
+    let r = new XMLHttpRequest();
+    r.open('HEAD', url, false);
+    r.send();
+    return r.status != 404;
+}
 
 
 export function requestFileSync(url)

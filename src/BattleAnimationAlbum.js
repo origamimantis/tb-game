@@ -8,9 +8,13 @@ export class BattleAnimationAlbum
 {
   static init()
   {
+    this.scripts = {}
   }
   static load(name, scriptName)
   {
+    if (scriptName in this.scripts)
+      return this.scripts[scriptName];
+
     return new Promise( async (resolve) =>
       {
 	let script = await requestFile("assets/scripts/" + scriptName + ".txt");
@@ -42,7 +46,8 @@ export class BattleAnimationAlbum
 	  }
 	  program[time].push(args);
 	}
-	resolve({options: options, program: program});
+	this.scripts[scriptName] = {options: options, program: program};
+	resolve(this.scripts[scriptName]);
 
       }
     );

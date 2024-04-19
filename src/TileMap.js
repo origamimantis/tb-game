@@ -87,6 +87,7 @@ export class TileMap
 	{
 	  if (this.typeMap[tiles[j]] == undefined)
 	  {
+	    console.log(lines[i+optLen])
 	    throw "Undefined tiletype on tile (x, y) = (" + j + ", " + i + "): " + tiles[j];
 	  }
 	  row.push( new Tile(this, tiles[j] ) );
